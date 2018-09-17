@@ -2,12 +2,32 @@
 
 import json
 import gzip
+import tarfile
 
 #given a filepath to a zipped json file, load the data
-def load_zipped_json(filename):
+def load_zipped_json(filename, display = True):
+	if display:
+		print ("Loading", filename)
 	with gzip.open(filename, "rb") as f:
 		d = json.loads(f.read().decode("utf-8"))
+	return d
 #end load_zipped_json
+
+#given a .json.gz that contains multiple json objects, read data
+def load_zipped_multi_json(filename, display = True):
+	if display:
+		print ("Loading", filename)
+	with gzip.GzipFile(filename, 'r',) as f:
+		d = []
+		for line in f:
+			d.append(json.loads(line.decode('utf-8')))
+	return d
+#end load_zipped_multi_json
+
+#given a file object, load the json
+def load_json_object(file):
+	return json.loads(file.read().decode("utf-8"))
+#end load_json_object
 
 #given a filepath, load pickled data
 def load_pickle(filename):
