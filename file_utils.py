@@ -25,10 +25,28 @@ def load_zipped_multi_json(filename, display = True):
 	return d
 #end load_zipped_multi_json
 
-#given a file object, load the json
-def load_json_object(file):
-	return json.loads(file.read().decode("utf-8"))
-#end load_json_object
+#given a filename, load the json
+def load_json(filename):
+	with open(filename, "rb") as f:
+		return json.loads(f.read().decode("utf-8"))
+#end load_json
+
+#given a filename, load the multiple json objects
+def load_multi_json(filename):
+	d = []
+	curr = ""
+	with open(filename) as f:
+		for line in f:
+			curr += line
+			try:
+				jobj = json.loads(curr)
+				d.append(jobj)
+				curr = ""
+			except ValueError:
+				#not yet a complete JSON value
+				pass
+	return d
+#end load_json
 
 #given a filepath, load pickled data
 def load_pickle(filename):
