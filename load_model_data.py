@@ -77,17 +77,20 @@ def load_exogenous_data(code):
 			tar.extractall("../2018DecCP/Exogenous/hackernews/UNPACK_hackernews")
 			tar.close()
 
-		#move unpacked files to top level
-		'''
-		for f in os.listdir("../2018DecCP/Exogenous/hackernews/UNPACK_hackernews/Users/emmaprice/code/SocialSim/hackernews_files/"):
-			shutil.move("../2018DecCP/Exogenous/hackernews/UNPACK_hackernews/Users/emmaprice/code/SocialSim/hackernews_files/" + f, "../2018DecCP/Exogenous/hackernews/UNPACK_hackernews/")
-		shutil.rmtree("../2018DecCP/Exogenous/hackernews/UNPACK_hackernews/Users/")
-		'''
+			#move unpacked files to top level
+			for f in os.listdir("../2018DecCP/Exogenous/hackernews/UNPACK_hackernews/Users/emmaprice/code/SocialSim/hackernews_files/"):
+				shutil.move("../2018DecCP/Exogenous/hackernews/UNPACK_hackernews/Users/emmaprice/code/SocialSim/hackernews_files/" + f, "../2018DecCP/Exogenous/hackernews/UNPACK_hackernews/")
+			shutil.rmtree("../2018DecCP/Exogenous/hackernews/UNPACK_hackernews/Users/")
 
-		#handle any floating files - unzip and put them in the same spot, but don't bother renaming since we'll just loop the directory
-		files = glob.glob('../2018DecCP/Exogenous/hackernews/*.json*')
-		print(files)
-
+			#handle any floating files - unzip and put them in the same spot
+			files = glob.glob('../2018DecCP/Exogenous/hackernews/*.json*')
+			for file in files:
+				#extract month and year, build matching filename
+				month = file[45:47]
+				year = file[47:51]
+				new_filename = "HNI_%s-%s" % (year, month)
+				#unzip file to new destination
+				file_utils.unzip_gz(file, "../2018DecCP/Exogenous/hackernews/UNPACK_hackernews/" + new_filename)
 
 	elif code == "crypto":
 		print("no data for you")
