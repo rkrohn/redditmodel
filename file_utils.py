@@ -4,6 +4,7 @@ import json
 import gzip
 import tarfile
 import pickle
+import csv
 
 #given a filepath to a zipped json file, load the data
 def load_zipped_json(filename, display = True):
@@ -60,3 +61,18 @@ def save_pickle(data, filename):
 	with open(filename, "wb") as f:
 		pickle.dump(data, f)
 #end dump_list
+
+#read data from csv file into list of lists
+def read_csv_list(filename):
+	with open(filename, 'r') as f:
+		reader = csv.reader(f)
+		data = list(reader)
+	return data
+#end read_csv_list
+
+#loads csv data into nested dictionary structure (like what you get from json)
+def load_csv(filename):
+	with open(filename, 'r') as f:
+		d = [{k: v for k, v in row.items()} for row in csv.DictReader(f, skipinitialspace=True)]
+		return d
+#end load_csv
