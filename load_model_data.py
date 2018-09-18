@@ -2,6 +2,8 @@
 import file_utils
 import tarfile
 import os
+import shutil
+import glob
 
 #load all reddit data (comments and posts), and save as pickles
 #code = {cyber, crypto, cve}, indicating reddit data to load
@@ -42,8 +44,9 @@ def load_reddit_data(code):
 		else:
 			print("Loading posts from source")
 			#load json.gz file
-			posts = file_utils.load_zipped_json("../2018DecCP/Reddit/Cyber/Tng_an_RS_Cyber_sent.json.gz")
+			posts = file_utils.load_zipped_multi_json("../2018DecCP/Reddit/Cyber/Tng_an_RS_Cyber_sent.json.gz")
 			#save to pickle
+			save_posts(code, posts)
 
 	elif code == "crypto":
 		print("no data for you")
@@ -53,9 +56,44 @@ def load_reddit_data(code):
 
 #end load_reddit_data
 
-#load all exogenous data (content depends on use case), and save as pickles
+#load all exogenous data (content depends on use case), save some to pickles
 #code = {cyber, crypto, cve}, indicating exogenous data to load
 def load_exogenous_data(code):
+
+	if code == "cyber":
+		print("Loading exogenous Cyber data")
+		#load major incidents
+		major_incidents = file_utils.load_multi_json("../2018DecCP/Exogenous/Cyber_event/Major_Cyber_Incidents_2015-201708.json")
+		print("Loaded", len(major_incidents), "incidents from Major_Cyber_Incidents_2015-201708.json")
+		#load hackmageddon
+		hackmageddon = file_utils.load_csv("../2018DecCP/Exogenous/Cyber_event/hackmageddon_2015-2018_sorted.csv")
+		print("Loaded", len(hackmageddon), "events from hackmageddon_2015-2018_sorted.csv")
+
+		#load hackernews (pain)
+		print("Loading hackernews data")
+		#extract monthly files from tar if not already and unpack the crappy file structure
+		if os.path.isdir("../2018DecCP/Exogenous/hackernews/UNPACK_hackernews") == False:
+			tar = tarfile.open("../2018DecCP/Exogenous/hackernews/hackernews_032015_to_032018.tar.gz", "r:gz")
+			tar.extractall("../2018DecCP/Exogenous/hackernews/UNPACK_hackernews")
+			tar.close()
+
+		#move unpacked files to top level
+		'''
+		for f in os.listdir("../2018DecCP/Exogenous/hackernews/UNPACK_hackernews/Users/emmaprice/code/SocialSim/hackernews_files/"):
+			shutil.move("../2018DecCP/Exogenous/hackernews/UNPACK_hackernews/Users/emmaprice/code/SocialSim/hackernews_files/" + f, "../2018DecCP/Exogenous/hackernews/UNPACK_hackernews/")
+		shutil.rmtree("../2018DecCP/Exogenous/hackernews/UNPACK_hackernews/Users/")
+		'''
+
+		#handle any floating files - unzip and put them in the same spot, but don't bother renaming since we'll just loop the directory
+		files = glob.glob('../2018DecCP/Exogenous/hackernews/*.json*')
+		print(files)
+
+
+	elif code == "crypto":
+		print("no data for you")
+
+	else:		#cve
+		print("no data for you")
 
 #end load_exogenous_data
 
@@ -79,4 +117,5 @@ def save_posts(code, posts):
 #end save_posts
 
 
-load_reddit_data("cyber")
+#load_reddit_data("cyber")
+load_exogenous_data("cyber")
