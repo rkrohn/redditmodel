@@ -9,10 +9,13 @@ import glob
 #code = {cyber, crypto, cve}, indicating reddit data to load
 def load_reddit_data(code):
 
-	if code == "cyber":
-		#load comments, either from cached pickle or directly from data
-		comments = load_cached_comments(code)
-		#load directly, and save pickle for later
+	#load comments, either from cached pickle or directly from data
+	comments = load_cached_comments(code)
+	#load posts/submissions, either from cached pickle or directly from data
+	posts = load_cached_posts(code)
+
+	if code == "cyber":		
+		#load comments directly, and save pickle for later
 		if comments == False:
 			print("Loading comments from source")
 			#extract comment files from tar if not already
@@ -30,9 +33,7 @@ def load_reddit_data(code):
 			#dump comments
 			save_comments(code, comments)
 
-		#load posts/submissions, either from cached pickle or directly from data
-		posts = load_cached_posts(code)
-		#load directly, and save pickle for later
+		#load posts directly, and save pickle for later
 		if posts == False:
 			print("Loading posts from source")
 			#load json.gz file
@@ -41,9 +42,7 @@ def load_reddit_data(code):
 			save_posts(code, posts)
 
 	elif code == "crypto":
-		#load comments, either from cached pickle or directly from data
-		comments = load_cached_comments(code)
-		#load directly, and save pickle for later
+		#load comments directly, and save pickle for later
 		if comments == False:
 			print("Loading comments from source")
 			#load json.gz files
@@ -52,9 +51,7 @@ def load_reddit_data(code):
 			#dump comments
 			save_comments(code, comments)
 
-		#load posts/submissions, either from cached pickle or directly from data
-		posts = load_cached_posts(code)
-		#load directly, and save pickle for later
+		#load posts directly, and save pickle for later
 		if posts == False:
 			print("Loading posts from source")
 			#load json.gz files
@@ -64,7 +61,66 @@ def load_reddit_data(code):
 			save_posts(code, posts)
 
 	else:		#cve
-		print("no data for you")
+		#load comments directly, and save pickle for later
+		if comments == False:
+			print("Loading comments from source")
+			'''
+			True
+			* 2018DecCP/Reddit/CVE/Tng_an_RC_CVE_sent.json.gz: Reddit comments that contain a reference to CVE (e.g., Reddit Comment A-2, A-2-2)
+
+			T/F
+			* 2018DecCP/Reddit/CVE/Tng_an_RC_CVE_LINK_sent.json.gz:  All comments in submissions where above comment appeared (e.g., Reddit Comment A-1, A-1-1, A-2, A-2-1, A-2-2)
+
+			T/F
+			* 2018DecCP/Reddit/CVE/Tng_an_RC_CVE_SUB_sent.json.gz: All comments for submission mentioning CVE  (e.g.,Reddit Comment B-1, B-2)
+			'''
+
+			#load comments on any submissions, these may or may not contain a cve reference - assume false for now
+			#this list will probably contain duplicates, will clean them up in the next step
+			maybe_comments = add_field(file_utils.load_zipped_multi_json("../2018DecCP/Reddit/CVE/Tng_an_RC_CVE_LINK_sent.json.gz"), "cve_mention", False)
+			maybe_comments.extend(add_field(file_utils.load_zipped_multi_json("../2018DecCP/Reddit/CVE/Tng_an_RC_CVE_SUB_sent.json.gz"), "cve_mention", False))
+
+			#load comments with CVE mention (may be duplicates)
+			comments = add_field(file_utils.load_zipped_multi_json("../2018DecCP/Reddit/CVE/Tng_an_RC_CVE_sent.json.gz"), "cve_mention", True)
+			#build id list of these comments
+			comment_ids = set(x['id_h'] for x in comments)
+
+			#combine lists together: want all of the comments with mentions, and all the unique comments without
+			for item in maybe_comments:
+				if item['id_h'] not in comment_ids:
+					comments.append(item)
+					comment_ids.add(item['id_h'])
+
+			#dump comments
+			save_comments(code, comments)
+
+		'''
+		True
+		* 2018DecCP/Reddit/CVE/Tng_an_RS_CVE_sent.json.gz: All Reddit submissions mentioning CVE number  (e.g., Reddit Submission B)
+
+		T/F
+		* 2018DecCP/Reddit/CVE/Tng_an_RS_CVE_LINK_sent.json: Reddit submissions/posts that were referred to by a comment with a reference to CVE (Reddit Submission A)
+		'''
+
+		#load posts directly, and save pickle for later
+		if posts == False:
+			print("Loading posts from source")
+			#load posts with CVE mention, and add correct field
+			posts = add_field(file_utils.load_zipped_multi_json("../2018DecCP/Reddit/CVE/Tng_an_RS_CVE_sent.json.gz"), "cve_mention", True)
+			#build list with these post ids
+			post_ids = set(x['id_h'] for x in posts)
+
+			#load posts that may or may not contain a CVE mention, assume they are false for now
+			maybe_posts = add_field(file_utils.load_zipped_multi_json("../2018DecCP/Reddit/CVE/Tng_an_RS_CVE_LINK_sent.json.gz"), "cve_mention", False)
+
+			#combine lists together: want all of the posts with mentions, and all the unique posts without
+			for item in maybe_posts:
+				if item['id_h'] not in post_ids:
+					posts.append(item)
+					post_ids.add(item['id_h'])
+
+			#save to pickle
+			save_posts(code, posts)
 
 #end load_reddit_data
 
@@ -198,6 +254,13 @@ def save_posts(code, posts):
 	print("   Posts saved")
 #end save_posts
 
+#add a field and associated value to all items in list of dictionaries
+def add_field(data, key, value):
+	for item in data:
+		item.update( {key: value})
+	return data
+#end add_field
 
-#load_reddit_data("crypto")
-load_exogenous_data("crypto")
+code = "cve"
+load_reddit_data(code)
+#load_exogenous_data(code)
