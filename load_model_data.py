@@ -92,6 +92,15 @@ def load_exogenous_data(code):
 				#unzip file to new destination
 				file_utils.unzip_gz(file, "../2018DecCP/Exogenous/hackernews/UNPACK_hackernews/" + new_filename)
 
+		#load in all that data
+		hackernews = []
+		for file in glob.glob("../2018DecCP/Exogenous/hackernews/UNPACK_hackernews/*"):
+			#get list of comments from this file
+			data = file_utils.load_multi_json(file)
+			#add them all to a single list
+			hackernews.extend(data)
+		print("   Loaded", len(hackernews), "hackernews items")
+
 	elif code == "crypto":
 		print("no data for you")
 
