@@ -72,11 +72,14 @@ def load_reddit_data(code):
 #code = {cyber, crypto, cve}, indicating exogenous data to load
 def load_exogenous_data(code):
 
+	print("Loading exogenous %s data" % code)
+
 	if code == "cyber":
-		print("Loading exogenous Cyber data")
+
 		#load major incidents
 		major_incidents = file_utils.load_multi_json("../2018DecCP/Exogenous/Cyber_event/Major_Cyber_Incidents_2015-201708.json")
 		print("Loaded", len(major_incidents), "incidents from Major_Cyber_Incidents_2015-201708.json")
+
 		#load hackmageddon
 		hackmageddon = file_utils.load_csv("../2018DecCP/Exogenous/Cyber_event/hackmageddon_2015-2018_sorted.csv")
 		print("Loaded", len(hackmageddon), "events from hackmageddon_2015-2018_sorted.csv")
@@ -114,7 +117,37 @@ def load_exogenous_data(code):
 		print("   Loaded", len(hackernews), "hackernews items")
 
 	elif code == "crypto":
-		print("no data for you")
+
+		#load crypto price data
+		#extract coin files from tar if not already done
+		if os.path.isdir("../2018DecCP/Exogenous/Crypto_Price/UNPACK_crypto_price") == False:
+			tar = tarfile.open("../2018DecCP/Exogenous/Crypto_Price/crypto_price_training.tar.gz", "r:gz")
+			tar.extractall("../2018DecCP/Exogenous/Crypto_Price/UNPACK_crypto_price")
+			tar.close()
+
+			#move unpacked files to top level
+			for f in os.listdir("../2018DecCP/Exogenous/Crypto_Price/UNPACK_crypto_price/crypto_price_training/"):
+				shutil.move("../2018DecCP/Exogenous/Crypto_Price/UNPACK_crypto_price/crypto_price_training/" + f, "../2018DecCP/Exogenous/Crypto_Price/UNPACK_crypto_price/")
+			shutil.rmtree("../2018DecCP/Exogenous/Crypto_Price/UNPACK_crypto_price/crypto_price_training/")
+
+			#fix file error: first data row is on same line as headers
+			for file in glob.glob("../2018DecCP/Exogenous/Crypto_Price/UNPACK_crypto_price/*"):
+				source = open(file) 
+				line = source.readline()
+				index = line.find('timestamp') + len('timestamp')
+				output_line = line[:index] + '\n' + line[index:]
+				dest = open(file, mode="w")
+				dest.write(output_line)
+				shutil.copyfileobj(source, dest)
+
+		#load in all that data
+		prices = {}		#dictionary of coin_id -> list of prices
+		for file in os.listdir("../2018DecCP/Exogenous/Crypto_Price/UNPACK_crypto_price/"):
+			#get list of comments from this file
+			data = file_utils.load_csv("../2018DecCP/Exogenous/Crypto_Price/UNPACK_crypto_price/" + file)
+			#add them all to a single dictionary
+			prices[file[:-11]] = data
+		print("   Loaded prices for", len(prices), "coins")
 
 	else:		#cve
 		print("no data for you")
@@ -166,5 +199,5 @@ def save_posts(code, posts):
 #end save_posts
 
 
-load_reddit_data("crypto")
-#load_exogenous_data("cyber")
+#load_reddit_data("crypto")
+load_exogenous_data("crypto")
