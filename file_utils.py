@@ -3,6 +3,7 @@
 import json
 import gzip
 import tarfile
+import pickle
 
 #given a filepath to a zipped json file, load the data
 def load_zipped_json(filename, display = True):
@@ -35,3 +36,9 @@ def load_pickle(filename):
 		data = pickle.load(f)
 	return data
 #end load_pickle
+
+#save data object as pickle
+def save_pickle(data, filename):
+	with open(filename, "wb") as f:
+		pickle.dump(data, f)
+#end dump_list
