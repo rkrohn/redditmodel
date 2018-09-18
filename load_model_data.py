@@ -11,13 +11,9 @@ def load_reddit_data(code):
 
 	if code == "cyber":
 		#load comments, either from cached pickle or directly from data
-		if os.path.exists("data_cache/%s_comments.pkl" % code):
-			#load from pickle
-			print("Loading comments from data_cache")
-			comments = file_utils.load_pickle("data_cache/%s_comments.pkl" % code)
-			print("   Loaded", len(comments))
+		comments = load_cached_comments(code)
 		#load directly, and save pickle for later
-		else:
+		if comments == False:
 			print("Loading comments from source")
 			#extract comment files from tar if not already
 			if os.path.isdir("../2018DecCP/Reddit/Cyber/UNPACK_Tng_an_RC_Cyber_sent") == False:
@@ -35,13 +31,9 @@ def load_reddit_data(code):
 			save_comments(code, comments)
 
 		#load posts/submissions, either from cached pickle or directly from data
-		if os.path.exists("data_cache/%s_posts.pkl" % code):
-			#load from pickle
-			print("Loading posts from data_cache")
-			posts = file_utils.load_pickle("data_cache/%s_posts.pkl" % code)
-			print("   Loaded", len(posts))
+		posts = load_cached_posts(code)
 		#load directly, and save pickle for later
-		else:
+		if posts == False:
 			print("Loading posts from source")
 			#load json.gz file
 			posts = file_utils.load_zipped_multi_json("../2018DecCP/Reddit/Cyber/Tng_an_RS_Cyber_sent.json.gz")
@@ -49,7 +41,27 @@ def load_reddit_data(code):
 			save_posts(code, posts)
 
 	elif code == "crypto":
-		print("no data for you")
+		#load comments, either from cached pickle or directly from data
+		comments = load_cached_comments(code)
+		#load directly, and save pickle for later
+		if comments == False:
+			print("Loading comments from source")
+			#load json.gz files
+			comments = file_utils.load_multi_json("../2018DecCP/Reddit/Crypto/Tng_an_RC_3_coins_sent.json")
+			comments.extend(file_utils.load_zipped_multi_json("../2018DecCP/Reddit/Crypto/Tng_an_RC_additional_coins_sent.json.gz"))
+			#dump comments
+			save_comments(code, comments)
+
+		#load posts/submissions, either from cached pickle or directly from data
+		posts = load_cached_posts(code)
+		#load directly, and save pickle for later
+		if posts == False:
+			print("Loading posts from source")
+			#load json.gz files
+			posts = file_utils.load_zipped_multi_json("../2018DecCP/Reddit/Crypto/Tng_an_RS_3_coins_sent.json.gz")
+			posts.extend(file_utils.load_zipped_multi_json("../2018DecCP/Reddit/Crypto/Tng_an_RS_additional_coins_sent.json.gz"))
+			#save to pickle
+			save_posts(code, posts)
 
 	else:		#cve
 		print("no data for you")
@@ -109,6 +121,31 @@ def load_exogenous_data(code):
 
 #end load_exogenous_data
 
+#load cached comments from pickle file
+def load_cached_comments(code):
+	#load comments, either from cached pickle or directly from data
+	if os.path.exists("data_cache/%s_comments.pkl" % code):
+		#load from pickle
+		print("Loading comments from data_cache")
+		comments = file_utils.load_pickle("data_cache/%s_comments.pkl" % code)
+		print("   Loaded", len(comments))
+		return comments
+	else:
+		return False
+#end load_comments
+
+#load cached posts from pickle file
+def load_cached_posts(code):
+	if os.path.exists("data_cache/%s_posts.pkl" % code):
+		#load from pickle
+		print("Loading posts from data_cache")
+		posts = file_utils.load_pickle("data_cache/%s_posts.pkl" % code)
+		print("   Loaded", len(posts))
+		return posts
+	else:
+		return False
+#end load_posts
+
 #save all loaded comments to pickle
 def save_comments(code, comments):
 	#save all comments to pickle
@@ -129,5 +166,5 @@ def save_posts(code, posts):
 #end save_posts
 
 
-#load_reddit_data("cyber")
-load_exogenous_data("cyber")
+load_reddit_data("crypto")
+#load_exogenous_data("cyber")
