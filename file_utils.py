@@ -76,3 +76,14 @@ def load_csv(filename):
 		d = [{k: v for k, v in row.items()} for row in csv.DictReader(f, skipinitialspace=True)]
 		return d
 #end load_csv
+
+#unpacks gzip file to desired destination
+def unzip_gz(source, dest):
+	inF = gzip.GzipFile(source, 'rb')
+	s = inF.read()
+	inF.close()
+
+	outF = open(dest, 'wb')
+	outF.write(s)
+	outF.close()
+#end unzip_gz
