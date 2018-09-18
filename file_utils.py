@@ -6,9 +6,11 @@ import tarfile
 import pickle
 import csv
 
+DISPLAY = True
+
 #given a filepath to a zipped json file, load the data
-def load_zipped_json(filename, display = True):
-	if display:
+def load_zipped_json(filename):
+	if DISPLAY:
 		print ("Loading", filename)
 	with gzip.open(filename, "rb") as f:
 		d = json.loads(f.read().decode("utf-8"))
@@ -16,8 +18,8 @@ def load_zipped_json(filename, display = True):
 #end load_zipped_json
 
 #given a .json.gz that contains multiple json objects, read data
-def load_zipped_multi_json(filename, display = True):
-	if display:
+def load_zipped_multi_json(filename):
+	if DISPLAY:
 		print ("Loading", filename)
 	with gzip.GzipFile(filename, 'r',) as f:
 		d = []
@@ -28,12 +30,16 @@ def load_zipped_multi_json(filename, display = True):
 
 #given a filename, load the json
 def load_json(filename):
+	if DISPLAY:
+		print("Loading", filename)
 	with open(filename, "rb") as f:
 		return json.loads(f.read().decode("utf-8"))
 #end load_json
 
 #given a filename, load the multiple json objects
 def load_multi_json(filename):
+	if DISPLAY:
+		print("Loading", filename)
 	d = []
 	curr = ""
 	with open(filename) as f:
