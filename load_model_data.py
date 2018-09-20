@@ -206,7 +206,26 @@ def load_exogenous_data(code):
 		print("   Loaded prices for", len(prices), "coins")
 
 	else:		#cve
-		print("no data for you")
+		print("no data for you - weird schema?")
+		'''
+		#load all nvd files
+		files = glob.glob('../2018DecCP/Exogenous/NVD/*.json.gz')
+		data = []
+		for file in files:
+			print(file)
+			data = file_utils.load_zipped_json(file)
+			print(type(data), len(data))
+			for key in data.keys():
+				print(key)
+				if key == "CVE_data_type":
+					print(data[key])
+				elif key == "CVE_Items":
+					pass
+				else:
+					print(len(data[key]))
+					print(data[key].keys())
+			break
+		'''
 
 #end load_exogenous_data
 
@@ -262,5 +281,5 @@ def add_field(data, key, value):
 #end add_field
 
 code = "cve"
-load_reddit_data(code)
-#load_exogenous_data(code)
+#load_reddit_data(code)
+load_exogenous_data(code)
