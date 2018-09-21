@@ -1,9 +1,11 @@
 
 import file_utils
+import data_utils
 import tarfile
 import os
 import shutil
 import glob
+import parse_data
 
 #load all reddit data (comments and posts), and save as pickles
 #code = {cyber, crypto, cve}, indicating reddit data to load
@@ -27,9 +29,9 @@ def load_reddit_data(code):
 			comments = []
 			for filename in sorted(os.listdir("../2018DecCP/Reddit/Cyber/UNPACK_Tng_an_RC_Cyber_sent")):
 				#get list of comments from this file
-				data = file_utils.load_zipped_multi_json("../2018DecCP/Reddit/Cyber/UNPACK_Tng_an_RC_Cyber_sent/" + filename)
+				new_comments = file_utils.load_zipped_multi_json("../2018DecCP/Reddit/Cyber/UNPACK_Tng_an_RC_Cyber_sent/" + filename)
 				#add them all to a single list
-				comments.extend(data)
+				comments = data_utils.combine_lists(comments, new_comments)
 			#dump comments
 			save_comments(code, comments)
 
@@ -46,8 +48,10 @@ def load_reddit_data(code):
 		if comments == False:
 			print("Loading comments from source")
 			#load json.gz files
-			comments = file_utils.load_multi_json("../2018DecCP/Reddit/Crypto/Tng_an_RC_3_coins_sent.json")
-			comments.extend(file_utils.load_zipped_multi_json("../2018DecCP/Reddit/Crypto/Tng_an_RC_additional_coins_sent.json.gz"))
+			comments1 = file_utils.load_multi_json("../2018DecCP/Reddit/Crypto/Tng_an_RC_3_coins_sent.json")
+			comments2 = file_utils.load_zipped_multi_json("../2018DecCP/Reddit/Crypto/Tng_an_RC_additional_coins_sent.json.gz")
+			#combine into a single list, removing any duplicates
+			comments = data_utils.combine_lists(comments1, comments2)
 			#dump comments
 			save_comments(code, comments)
 
@@ -77,19 +81,15 @@ def load_reddit_data(code):
 
 			#load comments on any submissions, these may or may not contain a cve reference - assume false for now
 			#this list will probably contain duplicates, will clean them up in the next step
-			maybe_comments = add_field(file_utils.load_zipped_multi_json("../2018DecCP/Reddit/CVE/Tng_an_RC_CVE_LINK_sent.json.gz"), "cve_mention", False)
-			maybe_comments.extend(add_field(file_utils.load_zipped_multi_json("../2018DecCP/Reddit/CVE/Tng_an_RC_CVE_SUB_sent.json.gz"), "cve_mention", False))
+			maybe_comments1 = data_utils.add_field(file_utils.load_zipped_multi_json("../2018DecCP/Reddit/CVE/Tng_an_RC_CVE_LINK_sent.json.gz"), "cve_mention", False)
+			maybe_comments2 = data_utils.add_field(file_utils.load_zipped_multi_json("../2018DecCP/Reddit/CVE/Tng_an_RC_CVE_SUB_sent.json.gz"), "cve_mention", False)
+			maybe_comments = data_utils.combine_lists(maybe_comments1, maybe_comments2) 
 
 			#load comments with CVE mention (may be duplicates)
-			comments = add_field(file_utils.load_zipped_multi_json("../2018DecCP/Reddit/CVE/Tng_an_RC_CVE_sent.json.gz"), "cve_mention", True)
-			#build id list of these comments
-			comment_ids = set(x['id_h'] for x in comments)
+			comments = data_utils.add_field(file_utils.load_zipped_multi_json("../2018DecCP/Reddit/CVE/Tng_an_RC_CVE_sent.json.gz"), "cve_mention", True)
 
 			#combine lists together: want all of the comments with mentions, and all the unique comments without
-			for item in maybe_comments:
-				if item['id_h'] not in comment_ids:
-					comments.append(item)
-					comment_ids.add(item['id_h'])
+			comments = data_utils.combine_lists(comments, maybe_comments, boolean_true="cve_mention")
 
 			#dump comments
 			save_comments(code, comments)
@@ -106,12 +106,12 @@ def load_reddit_data(code):
 		if posts == False:
 			print("Loading posts from source")
 			#load posts with CVE mention, and add correct field
-			posts = add_field(file_utils.load_zipped_multi_json("../2018DecCP/Reddit/CVE/Tng_an_RS_CVE_sent.json.gz"), "cve_mention", True)
+			posts = data_utils.add_field(file_utils.load_zipped_multi_json("../2018DecCP/Reddit/CVE/Tng_an_RS_CVE_sent.json.gz"), "cve_mention", True)
 			#build list with these post ids
 			post_ids = set(x['id_h'] for x in posts)
 
 			#load posts that may or may not contain a CVE mention, assume they are false for now
-			maybe_posts = add_field(file_utils.load_zipped_multi_json("../2018DecCP/Reddit/CVE/Tng_an_RS_CVE_LINK_sent.json.gz"), "cve_mention", False)
+			maybe_posts = data_utils.add_field(file_utils.load_zipped_multi_json("../2018DecCP/Reddit/CVE/Tng_an_RS_CVE_LINK_sent.json.gz"), "cve_mention", False)
 
 			#combine lists together: want all of the posts with mentions, and all the unique posts without
 			for item in maybe_posts:
@@ -121,6 +121,9 @@ def load_reddit_data(code):
 
 			#save to pickle
 			save_posts(code, posts)
+
+	print("")
+	return posts, comments
 
 #end load_reddit_data
 
@@ -273,13 +276,11 @@ def save_posts(code, posts):
 	print("   Posts saved")
 #end save_posts
 
-#add a field and associated value to all items in list of dictionaries
-def add_field(data, key, value):
-	for item in data:
-		item.update( {key: value})
-	return data
-#end add_field
-
 code = "cve"
-#load_reddit_data(code)
-load_exogenous_data(code)
+
+print("Processing", code)
+
+posts, comments = load_reddit_data(code)
+#parse_data.build_cascades(posts, comments)
+
+#load_exogenous_data(code)
