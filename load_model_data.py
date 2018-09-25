@@ -241,6 +241,16 @@ def load_cached_comments(code):
 		comments = file_utils.load_pickle("data_cache/%s_comments.pkl" % code)
 		print("   Loaded", len(comments))
 		return comments
+	elif code == "cyber"  and os.path.exists("data_cache/cyber_comments"):
+		#load from multiple pickles
+		print("Loading comments from data_cache")
+		comments = []
+		files = sorted(glob.glob('data_cache/cyber_comments/*'))
+		for file in files:
+			print("   Loading", file)
+			new_comments = file_utils.load_pickle(file)
+			comments.extend(new_comments)
+		return comments
 	else:
 		return False
 #end load_comments
@@ -263,7 +273,17 @@ def save_comments(code, comments):
 	print ("Loaded", len(comments), "comments, saving to data_cache/%s_comments.pkl" % code)
 	if not os.path.exists("data_cache"):
 		os.makedirs("data_cache")
-	file_utils.save_pickle(comments, "data_cache/%s_comments.pkl" % code)
+	#break cyber comments into 32 separate files, because memory error
+	if code == "cyber":
+		if not os.path.exists("data_cache/cyber_comments"):
+			os.makedirs("data_cache/cyber_comments")
+		comments = comments + comments + comments
+		print(len(comments))
+		for i in range(0, len(comments), 1000000):
+			print(i, len(comments[i:i+1000000]))
+			file_utils.save_pickle(comments[i:i+1000000], "data_cache/cyber_comments/%s_comments_%s.pkl" % (code, i//1000000))
+	else:
+		file_utils.save_pickle(comments, "data_cache/%s_comments.pkl" % code)
 	print("   Comments saved")
 #end save_comments
 
@@ -276,11 +296,11 @@ def save_posts(code, posts):
 	print("   Posts saved")
 #end save_posts
 
-code = "cve"
+code = "cyber"
 
 print("Processing", code)
 
 posts, comments = load_reddit_data(code)
-#parse_data.build_cascades(posts, comments)
+#parse_data.build_cascades(posts, comments, code)
 
 #load_exogenous_data(code)
