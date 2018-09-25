@@ -5,7 +5,7 @@ import tarfile
 import os
 import shutil
 import glob
-import parse_data
+import cascades
 
 #load all reddit data (comments and posts), and save as pickles
 #code = {cyber, crypto, cve}, indicating reddit data to load
@@ -301,6 +301,6 @@ code = "cyber"
 print("Processing", code)
 
 posts, comments = load_reddit_data(code)
-#parse_data.build_cascades(posts, comments, code)
+#cascades.build_cascades(posts, comments, code)
 
 #load_exogenous_data(code)
