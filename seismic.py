@@ -1,6 +1,6 @@
 import math
 import numpy as np
-import scipy.stats.chi2
+import scipy.stats 		#actually need scipy.stats.chi2
 import file_utils
 
 #GLOBAL VARS
@@ -90,7 +90,7 @@ def linear_kernel(t1, t2, ptime, slope, c = C):
 #           	measured in seconds from post time 0
 #	c 			constant density when t < cutoff
 def power_kernel(t1, t2, ptime, share_time, slope, theta = THETA, cutoff = CUTOFF, c = C):
-	return (c*cutoff^(1+theta)*(t2-share.time)^(-theta)*(share.time*slope-theta+(theta-1)*ptime*slope-theta*slope*t2+1)/((theta-1)*theta) - c*cutoff^(1+theta)*(t1-share.time)^(-theta)*(share.time*slope-theta+(theta-1)*ptime*slope-theta*slope*t1+1)/((theta-1)*theta))
+	return (c*pow(cutoff,(1+theta))*pow((t2-share_time),(-theta))*(share_time*slope-theta+(theta-1)*ptime*slope-theta*slope*t2+1)/((theta-1)*theta) - c*pow(cutoff,(1+theta))*pow((t1-share_time),(-theta))*(share_time*slope-theta+(theta-1)*ptime*slope-theta*slope*t1+1)/((theta-1)*theta))
 #end power_kernel
 
 #returns the vector with ith entry being integral(-inf to inf) of ptime[i] * kernel(t - ptime)
@@ -131,8 +131,8 @@ def integral_memory_kernel(ptime, share_time, slope, window, theta = THETA, cuto
 #at time ptime, use a triangluer kernel with slope = min(max(1/(p.time/2), 1/min_window), max_window)
 #
 #inputs:
-#	share_times 	list of sorted observed resharing times, share_time[0] = 0
-#	degree 		observed node degrees
+#	share_times 	list of sorted observed resharing times, share_times[0] = 0
+#	degree 		observed node degrees, list same length as share_times
 #	ptimes		equally spaced list of times to estimate the infectiousness, ptimes[0] = 0
 #	max_window 	maximum span of the locally weight kernel 
 #	min_window 	minimum span of the locally weight kernel
@@ -143,17 +143,18 @@ def integral_memory_kernel(ptime, share_time, slope, window, theta = THETA, cuto
 #		p_up			the upper 95% appox confidence interval
 #		p_low			the lower 95% approx confidence interval
 
-def get_infectiousness(share_times, degree, ptimes, max_window, min_window, min_count):
+def get_infectiousness(share_times, degree, ptimes, max_window = MAX_WINDOW, min_window = MIN_WINDOW, min_count = MIN_COUNT):
 
 	#make sure share times are sorted
-	share_time.sort()
+	share_times.sort()
 
 	#build list of slopes and windows corresponding to prediction times
 	#slope = 1 / (ptime / 2)
-	slopes = [1 / (x / 2) for x in ptimes]
+	slopes = [1.0 / (x / 2) if x != 0 else float("inf") for x in ptimes]
 	#force slopes to range (1/max_window, 1/min_window)
-	slopes = [1 / max_window if x < 1 / max_window else x for x in slopes]
-	slopes = [1 / min_window if x > 1 / min_window else x for x in slopes]
+	slopes = [1.0 / max_window if x < 1.0 / max_window else x for x in slopes]
+	slopes = [1.0 / min_window if x > 1.0 / min_window else x for x in slopes]
+
 	#window = ptime / 2
 	windows = [x / 2 for x in ptimes]
 	#force windows to range (min_window, max_window)
@@ -163,35 +164,44 @@ def get_infectiousness(share_times, degree, ptimes, max_window, min_window, min_
 	#for each ptime, verify the slopes and windows to ensure at least min_count shares are included in the window
 	for j in range(len(ptimes)):
 		#get indexes of share_times that fall within this prediction time's window
-		ind = [(i if (x >= ptime[j] - windows[j] and x < ptimes[j])) for i, x in enumerate(share_times)]
+		ind = [i for i, x in enumerate(share_times) if x >= ptimes[j] - windows[j] and x < ptimes[j]]
 		#if too few shares within defined window, adjust window to contain at least min_count
 		if len(ind) < min_count:
 			#get indices of share times ocurring before current prediction time
-			ind2 = [i if x < ptimes[j] for i, x in enumerate(share_times)]
-			ind = ind2[max((len(ind2)-min_count), 1):lcv]	#set new window indices
-			slopes[j] = 1 / (ptimes[j] - share_times[ind[0]])
-			windows[j] = ptimes[j] - share_times[ind[0]]
+			ind2 = [i for i, x in enumerate(share_times) if x < ptimes[j]]
+			ind = ind2[max((len(ind2)-min_count), 1):]	#set new window indices
+			if len(ind) >= 1:
+				slopes[j] = 1 / (ptimes[j] - share_times[ind[0]])
+				windows[j] = ptimes[j] - share_times[ind[0]]
+			else:
+				slopes[j] = 0
+				windows[j] = None
 
 	#matrix for integral of the	memory kernel, stored as numpy array
 	#len(share_times) rows, len(ptimes) columns
 	#build, then convert and transpose
 	int_mem_kernel = []
 	for i in range(len(ptimes)):
-		int_mem_kernel.append(degree * integral_memory_kernel(ptimes[i], share_times, slopes[i], windows[i]))
+		res = integral_memory_kernel(ptimes[i], share_times, slopes[i], windows[i])
+		int_mem_kernel.append([degree[j] * res[j] for j in range(len(degree))])
 	#convert and transpose
 	int_mem_kernel = np.transpose(np.array(int_mem_kernel))
 
 	#make infectiousness predictions!
-	infectiousness_seq = [None] * len(ptimes)
+	infectiousness_seq = [0] * len(ptimes)
 	p_low = [None] * len(ptimes)
 	p_up = [None] * len(ptimes)
 	share_times = share_times[1:]	#remove original post (first item)
 
 	for i in range(len(ptimes)):
-		share_time_tri = [x if x >= ptimes[i] - windows[i] and x < ptimes[i] for x in share_times]		#get share times within window for this prediction
-		rt_count_weighted = slopes[i] * sum([x - ptimes[i] + 1 for x in share_time_tri])
+		share_time_tri = [x for x in share_times if windows[i] != None and x >= ptimes[i] - windows[i] and x < ptimes[i] ]		#get share times within window for this prediction
+		
+		rt_count_weighted = sum([slopes[i]*(x - ptimes[i]) + 1 for x in share_time_tri])
+
 		integral_sum = np.sum(int_mem_kernel, axis=0)[i]	#sum the column
+
 		rt_num = len(share_time_tri)
+
 		if rt_count_weighted == 0:
 			continue
 		else:
@@ -231,9 +241,9 @@ def predict_cascade(ptimes, infectiousness, share_times, degree, n_star = N_STAR
 	#loop all prediction times
 	for i in range(len(ptimes)):
 		#get share times we have seen
-		share_times_now = [x if x <= ptimes[i] for x in share_times]
+		share_times_now = [x for x in share_times if x <= ptimes[i]]
 		#and corresponding node degrees
-		nf_now = [degree[j] if x <= ptimes[i] for j, x in enumerate(share_times)]
+		nf_now = [degree[j] for j, x in enumerate(share_times) if x <= ptimes[i]]
 
 		rt0 = len(share_times_now) - 1	#scalar
 		res = memory_ccdf([ptimes[i] - x for x in share_times_now])
@@ -268,4 +278,17 @@ def predict_cascade(ptimes, infectiousness, share_times, degree, n_star = N_STAR
 
 
 #load tweet example
-tweet = file_utils.load_csv("tweet.csv")
+tweet = file_utils.read_csv_list("tweet.csv")
+#convert to two lists: times and followers
+relative_time_seconds = [int(x[0]) for x in tweet[1:]]
+number_of_followers = [int(x[1]) for x in tweet[1:]]
+
+#print(relative_time_seconds)
+#print(number_of_followers)
+
+pred_times = range(0, 6*60*60 + 60, 60)
+#print(pred_times)
+
+#infectiousness <- get.infectiousness(tweet[, 1], tweet[, 2], pred.time)
+infectiousness, p_up, p_low = get_infectiousness(relative_time_seconds, number_of_followers, pred_times)
+print(infectiousness)
