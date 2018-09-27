@@ -250,6 +250,7 @@ def load_cached_comments(code):
 			print("   Loading", file)
 			new_comments = file_utils.load_pickle(file)
 			comments.extend(new_comments)
+		print("   Loaded", len(comments))
 		return comments
 	else:
 		return False
