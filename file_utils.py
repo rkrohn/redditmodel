@@ -36,6 +36,12 @@ def load_json(filename):
 		return json.loads(f.read().decode("utf-8"))
 #end load_json
 
+#save some data structure to json file
+def save_json(data, filename):
+	with open(filename, 'w') as fp:
+		json.dump(data, fp, indent=4, sort_keys=False)
+#end save_json
+
 #given a filename, load the multiple json objects
 def load_multi_json(filename):
 	if DISPLAY:
