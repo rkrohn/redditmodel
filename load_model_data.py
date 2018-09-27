@@ -277,10 +277,7 @@ def save_comments(code, comments):
 	if code == "cyber":
 		if not os.path.exists("data_cache/cyber_comments"):
 			os.makedirs("data_cache/cyber_comments")
-		comments = comments + comments + comments
-		print(len(comments))
 		for i in range(0, len(comments), 1000000):
-			print(i, len(comments[i:i+1000000]))
 			file_utils.save_pickle(comments[i:i+1000000], "data_cache/cyber_comments/%s_comments_%s.pkl" % (code, i//1000000))
 	else:
 		file_utils.save_pickle(comments, "data_cache/%s_comments.pkl" % code)
