@@ -299,6 +299,6 @@ code = "cyber"
 print("Processing", code)
 
 posts, comments = load_reddit_data(code)
-#cascades.build_cascades(posts, comments, code)
+cascades.build_cascades(posts, comments, code)
 
 #load_exogenous_data(code)
