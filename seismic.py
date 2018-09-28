@@ -260,10 +260,10 @@ def predict_cascade(ptimes, infectiousness, share_times, degree, n_star = N_STAR
 		if infectiousness[i] > 1 / n_star[i]:
 			prediction[i] = float("inf")
 
-		if features_return:
-			return prediction, features
-		else:
-			return prediction
+	if features_return:
+		return prediction, features
+	else:
+		return prediction
 #end predict_cascade
 
 
@@ -291,4 +291,7 @@ pred_times = range(0, 6*60*60 + 60, 60)
 
 #infectiousness <- get.infectiousness(tweet[, 1], tweet[, 2], pred.time)
 infectiousness, p_up, p_low = get_infectiousness(relative_time_seconds, number_of_followers, pred_times)
-print(infectiousness)
+#print(infectiousness)
+
+pred = predict_cascade(pred_times, infectiousness, relative_time_seconds, number_of_followers)
+print(pred)
