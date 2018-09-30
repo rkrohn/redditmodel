@@ -250,7 +250,7 @@ def load_cached_comments(code):
 			print("   Loading", file)
 			new_comments = file_utils.load_pickle(file)
 			comments.extend(new_comments)
-		print("   Loaded", len(comments))
+		print("   Loaded", len(comments), "comments")
 		return comments
 	else:
 		return False
@@ -262,7 +262,7 @@ def load_cached_posts(code):
 		#load from pickle
 		print("Loading posts from data_cache")
 		posts = file_utils.load_pickle("data_cache/%s_posts.pkl" % code)
-		print("   Loaded", len(posts))
+		print("   Loaded", len(posts), "posts")
 		return posts
 	else:
 		return False
