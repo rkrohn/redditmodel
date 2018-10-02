@@ -1,6 +1,7 @@
 import data_utils
 import file_utils
 import os
+import glob
 
 #given a list of posts and a list of comments, reconstruct the post/comment (cascade) structure
 #store cascade in the following way using a dictionary
@@ -8,18 +9,26 @@ import os
 # 	post/comment replies field -> list of direct replies
 def build_cascades(posts, comments, code):
 	#if cascades already exist, read from cache
-	if os.path.exists("data_cache/%s_cascades/%s_cascade_posts.pkl" % (code, code)) and os.path.exists("data_cache/%s_cascades/%s_cascade_comments.pkl" % (code, code)):
+	if os.path.exists("data_cache/%s_cascades/%s_cascade_posts.pkl" % (code, code)) and (os.path.exists("data_cache/%s_cascades/%s_cascade_comments.pkl" % (code, code)) or os.path.exists("data_cache/%s_cascades/%s_cascade_comments_1.pkl" % (code, code))):
 		#load from pickle
 		print("Loading cascades from data_cache")
-		return cascades, comments, missing_posts, missing_comments
 		cascades = file_utils.load_pickle("data_cache/%s_cascades/%s_cascade_posts.pkl" % (code, code))
-		comments = file_utils.load_pickle("data_cache/%s_cascades/%s_cascade_comments.pkl" % (code, code))
-		missing_posts = file_utils.load_json("data_cache/%s_cascades/%s_missing_posts.json" % (code, code))
-		missing_comments = file_utils.load_json("data_cache/%s_cascades/%s_missing_comments.json" % (code, code))
-		print("   Loaded", len(cascades))
+		#comments: either a single file, or multiple files
+		if os.path.exists("data_cache/%s_cascades/%s_cascade_comments.pkl" % (code, code)):
+			comments = file_utils.load_pickle("data_cache/%s_cascades/%s_cascade_comments.pkl" % (code, code))
+		else:
+			comments = []
+			files = sorted(glob.glob('data_cache/%s_cascades/%s_cascade_comments*' % (code, code)))
+			for file in files:
+				new_comments = file_utils.load_pickle(file)
+				comments.extend(new_comments)
+		missing_posts = file_utils.load_json("data_cache/%s_cascades/%s_cascade_missing_posts.json" % (code, code))
+		missing_comments = file_utils.load_json("data_cache/%s_cascades/%s_cascade_missing_comments.json" % (code, code))
+		print("   Loaded", len(cascades), "with", len(comments), "comments")
 		return cascades, comments, missing_posts, missing_comments
 
 	print("Extracting post/comment structure for", len(posts), "and", len(comments), "comments")
+	exit(0)
 
 	#add replies field to all posts/comments, init to empty list
 	data_utils.add_field(posts, "replies", [])
