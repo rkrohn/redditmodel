@@ -294,7 +294,7 @@ def save_posts(code, posts):
 	print("   Posts saved")
 #end save_posts
 
-code = "cyber"
+code = "crypto"
 
 print("Processing", code)
 
