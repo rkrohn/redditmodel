@@ -28,7 +28,6 @@ def build_cascades(posts, comments, code):
 		return cascades, comments, missing_posts, missing_comments
 
 	print("Extracting post/comment structure for", len(posts), "and", len(comments), "comments")
-	exit(0)
 
 	#add replies field to all posts/comments, init to empty list
 	data_utils.add_field(posts, "replies", [])
@@ -193,6 +192,5 @@ def save_cascade_comments(code, comments):
 		#last save
 		file_utils.save_pickle(temp, "data_cache/%s_cascades/%s_cascade_comments_%s.pkl" % (code, code, count//1000000))
 	else:
-		file_utils.save_pickle(comments, "data_cache/%s_cascades/%s_cascade_comments.pkl" % code)
-	print("   Comments saved")
+		file_utils.save_pickle(comments, "data_cache/%s_cascades/%s_cascade_comments.pkl" % (code, code))
 #end save_comments
