@@ -52,23 +52,17 @@ def memory_ccdf(t, theta = THETA, cutoff = CUTOFF, c = C):
 	#compute and return value for each t
 	result = [1 - c * x if x <= cutoff else c * pow(cutoff, 1 + theta) / theta * (pow(x, -theta)) for x in t]
 	return result
-	'''
-	if t <= cutoff:
-		return 1 - c * t
-	else:
-		return c * pow(cutoff, 1 + theta) / theta * (pow(t, -theta))
-	'''
 #end memory_ccdf
 
 
 #INTEGRAL KERNEL - integration with respect to locally weighted kernel
 #across functions linear_kernel, power_kernel, and integral_memory_kernel
 
-#returns the integral from vector t1 to vector t2 of c*[slope(t - ptime) + 1]
+#returns the integral from time t1 to time t2 of c*[slope(t - ptime) + 1] (linear portion of the memory kernel)
 #
 #inputs:
-#	t1		vector of integral lower limit
-#	t2		vector of integral upper limit
+#	t1		integral lower limit
+#	t2		integral upper limit
 #	ptime	time at which to estimate infectiousness and predict popularity
 #	slope	slope of the linear kernel
 #	c 		constant density when t < cutoff
@@ -77,13 +71,13 @@ def linear_kernel(t1, t2, ptime, slope, c = C):
 	return (c * (t2 - (ptime * slope * t2) + (slope * pow(t2, 2) / 2))) - (c * (t1 - (ptime * slope * t1) + (slope * pow(t1,2) / 2)))
 #end linear_kernel
 
-#returns the integral from vector t1 to vector t2 of c*((t-share_time)/cutoff)^(-(1+theta))[slope(t-ptime) + 1]
+#returns the integral from time t1 to time t2 of c*((t-share_time)/cutoff)^(-(1+theta))[slope(t-ptime) + 1] (single value)
 #
 #inputs:
-#	t1			vector of integral lower limit
-#	t2			vector of integral upper limit
+#	t1			integral lower limit
+#	t2			integral upper limit
 #	ptime		time at which to estimate infectiousness and predict popularity
-#	share_time 	sorted observed resharing times, share_time[0] = 0
+#	share_time 	observed resharing time
 #	slope		slope of the linear kernel
 #   theta   	exponent of the power law (determined from reaction time dist of sample tweets)
 #   cutoff  	cutoff value (time) where density function changes from constant to power law
@@ -93,7 +87,7 @@ def power_kernel(t1, t2, ptime, share_time, slope, theta = THETA, cutoff = CUTOF
 	return (c*pow(cutoff,(1+theta))*pow((t2-share_time),(-theta))*(share_time*slope-theta+(theta-1)*ptime*slope-theta*slope*t2+1)/((theta-1)*theta) - c*pow(cutoff,(1+theta))*pow((t1-share_time),(-theta))*(share_time*slope-theta+(theta-1)*ptime*slope-theta*slope*t1+1)/((theta-1)*theta))
 #end power_kernel
 
-#returns the vector with ith entry being integral(-inf to inf) of ptime[i] * kernel(t - ptime)
+#returns the vector with ith entry being integral(t_i to t) of ptime[i] * kernel(t - ptime)
 #
 #inputs:
 #	ptime		time at which to estimate infectiousness and predict popularity
@@ -104,12 +98,12 @@ def power_kernel(t1, t2, ptime, share_time, slope, theta = THETA, cutoff = CUTOF
 #   cutoff  	cutoff value (time) where density function changes from constant to power law
 #           	measured in seconds from post time 0
 #	c 			constant density when t < cutoff
-def integral_memory_kernel(ptime, share_time, slope, window, theta = THETA, cutoff = CUTOFF, c = C):
+def integral_memory_kernel(ptime, share_times, slope, window, theta = THETA, cutoff = CUTOFF, c = C):
 	#build list/vector of integral values, one per share_time value
-	integral = [0] * len(share_time)
+	integral = [0] * len(share_times)
 
-	for i in range(len(share_time)):
-		val = share_time[i]
+	for i in range(len(share_times)):
+		val = share_times[i]
 
 		if ptime <= val:
 			integral[i] = 0
@@ -182,8 +176,8 @@ def get_infectiousness(share_times, degree, ptimes, max_window = MAX_WINDOW, min
 	#build, then convert and transpose
 	int_mem_kernel = []
 	for i in range(len(ptimes)):
-		res = integral_memory_kernel(ptimes[i], share_times, slopes[i], windows[i])
-		int_mem_kernel.append([degree[j] * res[j] for j in range(len(degree))])
+		res = integral_memory_kernel(ptimes[i], share_times, slopes[i], windows[i])		#integral(K_t(t-s) * phi(s-t_i)ds)
+		int_mem_kernel.append([degree[j] * res[j] for j in range(len(degree))])			#N_t^e = n_i * integral(K_t(t-s) * phi(s-t_i)ds)
 	#convert and transpose
 	int_mem_kernel = np.transpose(np.array(int_mem_kernel))
 
@@ -196,16 +190,16 @@ def get_infectiousness(share_times, degree, ptimes, max_window = MAX_WINDOW, min
 	for i in range(len(ptimes)):
 		share_time_tri = [x for x in share_times if windows[i] != None and x >= ptimes[i] - windows[i] and x < ptimes[i] ]		#get share times within window for this prediction
 		
-		rt_count_weighted = sum([slopes[i]*(x - ptimes[i]) + 1 for x in share_time_tri])
+		rt_count_weighted = sum([slopes[i]*(x - ptimes[i]) + 1 for x in share_time_tri])	#R_t = sum(K_t(t-t_i))
 
-		integral_sum = np.sum(int_mem_kernel, axis=0)[i]	#sum the column
+		integral_sum = np.sum(int_mem_kernel, axis=0)[i]	#sum the column to get N_t^e
 
 		rt_num = len(share_time_tri)
 
 		if rt_count_weighted == 0:
 			continue
 		else:
-			infectiousness_seq[i] = rt_count_weighted / integral_sum
+			infectiousness_seq[i] = rt_count_weighted / integral_sum		#p_t = R_t / N_t^e
 			#use scipy.stats.chi2.ppf in place of R's qchisq (https://stackoverflow.com/questions/18070299/is-there-a-python-equivalent-of-rs-qchisq-function)
 			p_low[i] = infectiousness_seq[i] * scipy.stats.chi2.ppf(0.05, 2 * rt_num) / (2 * rt_num)
 			p_up = infectiousness_seq[i] * scipy.stats.chi2.ppf(0.95, 2 * rt_num) / (2 * rt_num)
@@ -228,9 +222,6 @@ def get_infectiousness(share_times, degree, ptimes, max_window = MAX_WINDOW, min
 
 def predict_cascade(ptimes, infectiousness, share_times, degree, n_star = N_STAR, features_return = False):
 
-	#convert n_star to vector/list the same length as ptimes
-	n_star = [n_star] * len(ptimes)
-
 	#to train for the best n_star value, build a feature matrix
 	#end up with len(ptimes) rows, 3 columns
 	features = []
@@ -248,17 +239,19 @@ def predict_cascade(ptimes, infectiousness, share_times, degree, n_star = N_STAR
 		nf_now = [degree[j] for j, x in enumerate(share_times) if x <= ptimes[i]]
 		print("share history:", share_times_now)
 
-		rt0 = len(share_times_now) - 1	#scalar
+		rt0 = len(share_times_now) - 1	#scalar, R_t (number of retweets observed)
 		print("existing retweets:", rt0)
-		res = memory_ccdf([ptimes[i] - x for x in share_times_now])
+
+		res = memory_ccdf([ptimes[i] - x for x in share_times_now])		#ccdf of time between retweets and prediction time - integrate phi
 		print("memory_ccdf:", res)
-		rt1 = sum([nf_now[j] * infectiousness[i] * res[j] for j in range(len(nf_now))])	#scalar
+
+		rt1 = sum([nf_now[j] * infectiousness[i] * res[j] for j in range(len(nf_now))])	#scalar, numerator of prediction (somehow)
 		rt1_breakdown = [nf_now[j] * infectiousness[i] * res[j] for j in range(len(nf_now))]
-		print("cumulative popularity breakdown:", [nf_now[j] * infectiousness[i] * res[j] for j in range(len(nf_now))])
+		print("cumulative popularity breakdown:", rt1_breakdown)
 
 		#make this prediction
-		prediction.append(rt0 + rt1 / (1 - infectiousness[i] * n_star[i]))
-		prediction_breakdown = [x / (1 - infectiousness[i] * n_star[i]) for x in rt1_breakdown]
+		prediction.append(rt0 + rt1 / (1 - infectiousness[i] * n_star))
+		prediction_breakdown = [x / (1 - infectiousness[i] * n_star) for x in rt1_breakdown]
 		print("prediction breakdown:", prediction_breakdown, "plus", rt0, "existing")
 		print("sum", sum(prediction_breakdown))
 
@@ -269,14 +262,14 @@ def predict_cascade(ptimes, infectiousness, share_times, degree, n_star = N_STAR
 		#yes - this appears to work! prediction_breakdown gives the number of predicted retweets from each
 		#of the observed retweets, and the sum of them together gives the predicted final total
 
-		#now to return the tree structure, instead of the 
+		#now to return the tree structure, instead of just the sum
 
 		#feature nonsense
 		features.append([rt0, rt1, infectiousness[i]])
 		#each row is current # of retweets, numerator, and infectiousness
 
 		#if infectiousness too high, set prediction to infinity
-		if infectiousness[i] > 1 / n_star[i]:
+		if infectiousness[i] > 1 / n_star:
 			prediction[i] = float("inf")
 
 	if features_return:
@@ -317,4 +310,4 @@ print("")
 pred = predict_cascade(pred_times, infectiousness, relative_time_seconds, number_of_followers)
 print("final prediction:", pred)
 
-print("\nactual retweets:", len(relative_time_seconds))
+print("\nactual retweets:", len(relative_time_seconds), "\n")
