@@ -269,7 +269,7 @@ def predict_cascade(ptimes, infectiousness, share_times, degree, n_star = N_STAR
 		#each row is current # of retweets, numerator, and infectiousness
 
 		#if infectiousness too high, set prediction to infinity
-		if infectiousness[i] > 1 / n_star:
+		if infectiousness[i] > 1 / n_star:		#supercritical check
 			prediction[i] = float("inf")
 
 	if features_return:
@@ -311,3 +311,12 @@ pred = predict_cascade(pred_times, infectiousness, relative_time_seconds, number
 print("final prediction:", pred)
 
 print("\nactual retweets:", len(relative_time_seconds), "\n")
+
+
+#some values for checking
+'''
+pred_time -> pred
+21600 -> 15144.958291858618
+360 -> 1384.796189788835
+18000 -> 16955.389920978487
+'''
