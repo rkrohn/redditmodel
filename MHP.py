@@ -39,9 +39,10 @@ class MHP:
         if me >= 1.:
             print('(WARNING) Unstable.')
 
-    def generate_seq(self, horizon):
+    def generate_seq(self, horizon, init_event = False):
         '''Generate a sequence based on mu, alpha, omega values. 
         Uses Ogata's thinning method, with some speedups, noted below'''
+        #if init_event = True, force an event at time t = 0 to get things rolling
 
         self.data = []  # clear history
 
@@ -52,7 +53,11 @@ class MHP:
         n0 = np.random.choice(np.arange(self.dim), 
                               1, 
                               p=(self.mu / Istar))
-        self.data.append([s, n0])
+
+        if init_event:
+            self.data.append([0, n0])
+        else:
+            self.data.append([s, n0])
 
         # value of \lambda(t_k) where k is most recent event
         # starts with just the base rate
