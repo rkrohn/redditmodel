@@ -35,7 +35,7 @@ class MHP:
         ''' check stability of process (max alpha eigenvalue < 1)'''
         w,v = np.linalg.eig(self.alpha)
         me = np.amax(np.abs(w))
-        print('Max eigenvalue: %1.5f' % me)
+        #print('Max eigenvalue: %1.5f' % me)
         if me >= 1.:
             print('(WARNING) Unstable.')
 
@@ -225,20 +225,16 @@ class MHP:
         return self.mu[d] + \
             np.sum([self.alpha[d,int(j)]*self.omega*np.exp(-self.omega*(ct-t)) for t,j in seq])
 
-    def plot_rates(self, horizon=-1):
-        # there is certainly a way to modify this function to plot when dim != 3,
-        # but this is a TODO
-        
-        if self.dim != 3:
-            print('Not yet implemented.  Dimension must be 3 to plot rates.')
-            return
+    def plot_rates(self, horizon=-1, filename=False):
+    	#plots aren't *exactly* the same size for different dimensions, but close enough
 
         if horizon < 0:
             horizon = np.amax(self.data[:,0])
 
-        f, axarr = plt.subplots(6,1, sharex='col', 
-                                gridspec_kw = {'height_ratios':[3,1,3,1,3,1]}, 
-                                figsize=(8,5))
+        ratios = [3, 1] * self.dim
+        f, axarr = plt.subplots(self.dim*2, 1, sharex='col', 
+                                gridspec_kw = {'height_ratios':ratios}, 
+                                figsize=(8,self.dim*2))
         xs = np.linspace(0, horizon, (horizon/100.)*1000)
         for i in range(self.dim):
             row = i * 2
@@ -258,9 +254,12 @@ class MHP:
             axarr[row+1].set_xlim([0, horizon])
 
         plt.tight_layout()
+        if filename != False:
+            plt.savefig(filename, bbox_inches='tight')
+            print("events and rates plot saved to", filename)
 
 
-    def plot_events(self, horizon=-1, showDays=True, labeled=True):
+    def plot_events(self, horizon=-1, showDays=True, labeled=True, filename=False):
         if horizon < 0:
             horizon = np.amax(self.data[:,0])
 
@@ -285,4 +284,6 @@ class MHP:
         ax.set_ylim([-self.dim, 1])
         ax.set_xlabel('Days')
         plt.tight_layout()
-
+        if filename != False:
+            plt.savefig(filename, bbox_inches='tight')
+            print("events plot saved to", filename)
