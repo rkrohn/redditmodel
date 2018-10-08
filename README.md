@@ -15,3 +15,7 @@ Code for modelling reddit cascades.
 **modified_seismic.py** starting to tweak the basic SEISMIC model in hopes of generating a retweet cascade/tree, instead of just a final count
 
 **tweet.csv** sample data for testing SEISMIC code, gives one retweet cascade
+
+**MHP.py** lightweight multivariate Hawkes process simulation code from https://github.com/stmorse/hawkes and https://stmorse.github.io/journal/Hawkes-python.html; slightly modified for our purposes
+
+**hawkes_tree.py** eventually, should generate a comment cascade (tree) given parameters - work in progress
