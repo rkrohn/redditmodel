@@ -73,8 +73,7 @@ class MHP:
                 decIstar = False
             else:
                 # otherwise, we just had an event, so recalc Istar (inclusive of last event)
-                Istar = np.sum(lastrates) + \
-                        self.omega * np.sum(self.alpha[:,uj])
+                Istar = np.sum(lastrates) + self.omega * np.sum(self.alpha[:,uj])
 
             # generate new event
             s += np.random.exponential(scale=1./Istar)
