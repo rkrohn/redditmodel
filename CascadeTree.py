@@ -31,7 +31,7 @@ class CascadeTree:
 		# same layout using matplotlib with no labels
 		plt.clf()
 		pos = graphviz_layout(self.G, prog='dot')
-		nx.draw(self.G, pos, with_labels=False, arrows=False, node_size=50)
+		nx.draw(self.G, pos, with_labels=False, arrows=False, node_size=15)
 		plt.savefig(filename)
 
 '''
