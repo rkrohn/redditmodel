@@ -162,7 +162,7 @@ def build_cascades(code, posts = False, comments = False):
 #given compiled cascades, return distribution dictionary of subreddit -> number of posts
 #function will load cascades if not passed in
 #if display == True, print the distribution
-def get_subreddits(code, cascades = False, display = True):
+def get_subreddits(code, cascades = False, display = False):
 	#no cascades, load them first
 	if cascades == False:
 		cascades, comments, missing_posts, missing_comments = build_cascades(code)
@@ -172,11 +172,12 @@ def get_subreddits(code, cascades = False, display = True):
 
 	#print distribution if desired
 	if display:
-		for key, value in subreddit_dist:
+		for key, value in subreddit_dist.items():
 			print(key, value)
 
 	#save distribution to json file
 	print("Saving subreddit distribution to results/%s_post_subreddit_dist.json" % code)
+	file_utils.verify_dir("results")
 	file_utils.save_json(subreddit_dist, "results/%s_post_subreddit_dist.json" % code)
 
 	return subreddit_dist
