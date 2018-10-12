@@ -294,11 +294,3 @@ def save_posts(code, posts):
 	print("   Posts saved")
 #end save_posts
 
-code = "crypto"
-
-print("Processing", code)
-
-posts, comments = load_reddit_data(code)
-cascades.build_cascades(posts, comments, code)
-
-#load_exogenous_data(code)
