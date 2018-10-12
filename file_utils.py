@@ -5,6 +5,7 @@ import gzip
 import tarfile
 import pickle
 import csv
+import os
 
 DISPLAY = True
 
@@ -99,3 +100,9 @@ def unzip_gz(source, dest):
 	outF.write(s)
 	outF.close()
 #end unzip_gz
+
+#given a path to a directory, create it if it does not exist
+def verify_dir(path):
+	if not os.path.exists(path):
+		os.makedirs(path)
+#end verify_dir
