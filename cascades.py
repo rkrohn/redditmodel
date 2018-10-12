@@ -36,7 +36,7 @@ def build_cascades(code, posts = False, comments = False):
 	#if no loaded posts/comments, load those up first
 	posts, comments = load_model_data.load_reddit_data(code)
 
-	print("Extracting post/comment structure for", len(posts), "and", len(comments), "comments")
+	print("Extracting post/comment structure for", len(posts), "posts and", len(comments), "comments")
 
 	#add replies field to all posts/comments, init to empty list
 	data_utils.add_field(posts, "replies", [])
@@ -158,6 +158,29 @@ def build_cascades(code, posts = False, comments = False):
 
 	return cascades, comments, missing_posts, missing_comments
 #end build_cascades
+
+#given compiled cascades, return distribution dictionary of subreddit -> number of posts
+#function will load cascades if not passed in
+#if display == True, print the distribution
+def get_subreddits(code, cascades = False, display = True):
+	#no cascades, load them first
+	if cascades == False:
+		cascades, comments, missing_posts, missing_comments = build_cascades(code)
+
+	#get distribution
+	subreddit_dist = data_utils.dictionary_field_dist(cascades, 'subreddit')
+
+	#print distribution if desired
+	if display:
+		for key, value in subreddit_dist:
+			print(key, value)
+
+	#save distribution to json file
+	print("Saving subreddit distribution to results/%s_post_subreddit_dist.json" % code)
+	file_utils.save_json(subreddit_dist, "results/%s_post_subreddit_dist.json" % code)
+
+	return subreddit_dist
+#end get_subreddits
 
 #given the root of a cascade (top-level post for first call, comment for remainder), 
 #traverse the cascade and count total number of comments
