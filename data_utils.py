@@ -42,6 +42,15 @@ def list_to_dict_duplicates(data_list, key_field):
 	return data_dict
 #end list_to_dict_duplicates
 
+#given a list of dictionary objects (all with the same set of fields), create a distribution dictionary for key_field
+#dist[key_field] -> count of objects with that field value
+def dictionary_field_dist(data_list, key_field):
+	dist_dict = defaultdict(int)
+	for key, value in data_list.items():
+		dist_dict[value[key_field]] += 1
+	return dist_dict
+#end dictionary_field_dist
+
 #given two list of dictionary objects (posts or comments), combine into a single list
 #if duplicates (determined by id) are encountered, retain the newest version (by retrieved_on)
 #as long as it does not contain any [deleted] fields
