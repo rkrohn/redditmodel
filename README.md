@@ -18,4 +18,8 @@ Code for modelling reddit cascades.
 
 **MHP.py** lightweight multivariate Hawkes process simulation code from https://github.com/stmorse/hawkes and https://stmorse.github.io/journal/Hawkes-python.html; slightly modified for our purposes
 
+**Node.py** lightweight node structure for cascade trees, used by hawkes_tree.py and CascadeTree.py
+
+**CascadeTree.py** structure to visualize (and maybe eventually analyze) a cascade tree, given the root as a Node object
+
 **hawkes_tree.py** eventually, should generate a comment cascade (tree) given parameters - work in progress
