@@ -2,12 +2,16 @@ import data_utils
 import file_utils
 import os
 import glob
+import load_model_data
 
 #given a list of posts and a list of comments, reconstruct the post/comment (cascade) structure
 #store cascade in the following way using a dictionary
 #	post id -> post object
 # 	post/comment replies field -> list of direct replies
-def build_cascades(posts, comments, code):
+#if loading directly from cascades, just pass in the code
+#otherwise (no cascades to read), pass in loaded posts and comments
+#if no cascades and no loaded comments, load them first
+def build_cascades(code, posts = False, comments = False):
 	#if cascades already exist, read from cache
 	if os.path.exists("data_cache/%s_cascades/%s_cascade_posts.pkl" % (code, code)) and (os.path.exists("data_cache/%s_cascades/%s_cascade_comments.pkl" % (code, code)) or os.path.exists("data_cache/%s_cascades/%s_cascade_comments_1.pkl" % (code, code))):
 		#load from pickle
@@ -24,17 +28,27 @@ def build_cascades(posts, comments, code):
 				comments.extend(new_comments)
 		missing_posts = file_utils.load_json("data_cache/%s_cascades/%s_cascade_missing_posts.json" % (code, code))
 		missing_comments = file_utils.load_json("data_cache/%s_cascades/%s_cascade_missing_comments.json" % (code, code))
-		print("   Loaded", len(cascades), "with", len(comments), "comments")
+		print("   Loaded", len(cascades), "cascades with", len(comments), "comments")
 		return cascades, comments, missing_posts, missing_comments
+
+	#if no cached cascades, build them from scratch
+
+	#if no loaded posts/comments, load those up first
+	posts, comments = load_model_data.load_reddit_data(code)
 
 	print("Extracting post/comment structure for", len(posts), "and", len(comments), "comments")
 
 	#add replies field to all posts/comments, init to empty list
 	data_utils.add_field(posts, "replies", [])
 	data_utils.add_field(comments, "replies", [])
+	#add placeholder field to all posts/comments, flag indicates if we created a dummy object
+	data_utils.add_field(posts, 'placeholder', False)
+	data_utils.add_field(comments, 'placeholder', False)
 
 	#add comment_count field to all post objects as well: count total number of comments all the way down the cascade
 	data_utils.add_field(posts, "comment_count", 0)
+	#and add a missing_comments field to all post objects: set True if we find any missing comments in this cascade
+	data_utils.add_field(posts, "missing_comments", False)
 
 	#grab list of fields for each type of object (used to create placeholders when items are missing)
 	post_fields = list(posts[0].keys())
@@ -46,16 +60,13 @@ def build_cascades(posts, comments, code):
 	link_id_h = post parent
 	if a parent_id starts with t1_, you remove t1_ and match the rest against a comment id 
 	if it starts with t3_, you remove t3_ and match the rest against a submission id.
-	linked_id always starts with t3_, since it always point to a submission.
+	linked_id always starts with t3_, since it always points to a submission.
 	'''
 
 	#create dictionary of post id -> post object to store cascades
 	cascades = data_utils.list_to_dict(posts, "id_h")
 
-	#convert list of posts to dictionary, where key is post id
-	posts = data_utils.list_to_dict(posts, "id_h")
-	#print(posts["90fvEAzkd97SnUviXxKj3Q"])
-	#and do the same with the comments
+	#convert list of comments to dictionary, where key is comment id
 	comments = data_utils.list_to_dict(comments, "id_h")
 
 	#now that we can find posts and comments at will, let's build the dictionary!
@@ -101,7 +112,8 @@ def build_cascades(posts, comments, code):
 					cascades[post_parent]['comment_count'] += 1		#add manufactured comment to counter
 					cascades[post_parent]['replies'].append(direct_parent)	#and add to replies
 					comments[direct_parent]['parent_id_h'] = post_parent
-					missing_comments.add(direct_parent)
+					cascades[post_parent]['missing_comments'] = True	#flag this cascade as containing missing comments
+					missing_comments.add(direct_parent)		#add comment to list of missing
 				#add current comment to replies field of parent comment
 				comments[direct_parent]['replies'].append(comment_id)
 		except:
@@ -113,9 +125,10 @@ def build_cascades(posts, comments, code):
 					print(field, comment[field])
 			exit(0)
 
-	print("\nProcessed", comment_count,  "comments")
+	print("\nProcessed", comment_count,  "comments in", len(cascades), "cascades")
 	print("   ", len(missing_posts), "missing posts")
 	print("   ", len(missing_comments), "missing comments")
+	print("   ", len([x for x in cascades if cascades[x]['missing_comments']]), "cascades with missing comments")
 
 	#verify the above process, a couple different ways
 
@@ -169,8 +182,11 @@ def create_object(identifier, fields):
 		obj[field] = None
 	obj['id_h'] = identifier
 	obj['replies'] = []
+	obj['placeholder'] = True
 	if 'comment_count' in fields:
 		obj['comment_count'] = 0
+	if 'missing_comments' in fields:
+		obj['missing_comments'] = True
 	return obj
 #end create_object
 
