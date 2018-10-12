@@ -2,6 +2,8 @@
 
 Code for modelling reddit cascades.
 
+**reddit_model.py** driver for data loading and analysis
+
 **load_model_data.py** load reddit and exogenous data for chosen situation (cyber, crypto, or cve)
 
 **cascades.py** given loaded posts and comments for a particular domain (cyber, crypto, or cve), reconstruct the post cascade structure; this includes the creation of "dummy" objects for any posts/comments that are referred to by links, but are not present in the data
