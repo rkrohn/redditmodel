@@ -48,7 +48,9 @@ def build_cascades(code, posts = False, comments = False):
 	data_utils.add_field(comments, 'placeholder', False)
 
 	#add comment_count field to all post objects as well: count total number of comments all the way down the cascade
-	data_utils.add_field(posts, "comment_count", 0)
+	data_utils.add_field(posts, "comment_count_total", 0)
+	#and direct replies only
+	data_utils.add_field(posts, "comment_count_direct", 0)
 	#and add a missing_comments field to all post objects: set True if we find any missing comments in this cascade
 	data_utils.add_field(posts, "missing_comments", False)
 
@@ -77,22 +79,24 @@ def build_cascades(code, posts = False, comments = False):
 	comment_count = 0
 	missing_comments = set()	#missing comments
 	missing_posts = set()		#missing posts
-	for comment_id, comment in comments.copy().items():
+	for comment_id in list(comments.keys()):
+
 		#get immediate parent (post or comment)
-		direct_parent = comment['parent_id_h'][3:]
-		direct_parent_type = "post" if comment['parent_id_h'][:2] == "t3" else "comment"
+		direct_parent = comments[comment_id]['parent_id_h'][3:]
+		direct_parent_type = "post" if comments[comment_id]['parent_id_h'][:2] == "t3" else "comment"
 		#get post parent
-		post_parent = comment['link_id_h'][3:]
+		post_parent = comments[comment_id]['link_id_h'][3:]
 		comment_count += 1
 
-		#add this comment to replies list of immediate parent
+		#add this comment to replies list of immediate parent, and update counters on post_parent
 		try:
 			#if post parent missing, create placeholder
 			if post_parent not in cascades:
 				cascades[post_parent] = create_object(post_parent, post_fields)
 				missing_posts.add(post_parent)
-			#update overall post comment count
-			cascades[post_parent]['comment_count'] += 1
+
+			#update overall post comment count for this new comment
+			cascades[post_parent]['comment_count_total'] += 1
 
 			#now handle direct parent, post or comment
 			#parent is post
@@ -101,20 +105,26 @@ def build_cascades(code, posts = False, comments = False):
 				if direct_parent not in cascades:
 					cascades[direct_parent] = create_object(direct_parent, post_fields)
 					missing_posts.add(direct_parent)
-				#add this comment to replies field of post
+				#add this comment to replies field of post (no total comment increment, done above)
 				cascades[direct_parent]['replies'].append(comment_id)
+				#add 1 to direct comment count field
+				cascades[direct_parent]['comment_count_direct'] += 1
+
 			#parent is comment
 			else:	
 				#missing comment, create placeholder to contain replies, point to parent post by default
 				if direct_parent not in comments:
-					temp = create_object(direct_parent, comment_fields)
-					comments[direct_parent] = temp
+					comments[direct_parent] = create_object(direct_parent, comment_fields)
 					#point this placeholder comment to the top-level post
 					comments[direct_parent]['link_id_h'] = post_parent
-					cascades[post_parent]['comment_count'] += 1		#add manufactured comment to counter
-					cascades[post_parent]['replies'].append(direct_parent)	#and add to replies
 					comments[direct_parent]['parent_id_h'] = post_parent
-					cascades[post_parent]['missing_comments'] = True	#flag this cascade as containing missing comments
+					#add manufactured comment to counters
+					cascades[post_parent]['comment_count_total'] += 1
+					cascades[post_parent]['comment_count_direct'] += 1	
+					#and add to replies	
+					cascades[post_parent]['replies'].append(direct_parent)	
+					#flag this cascade as containing missing comments
+					cascades[post_parent]['missing_comments'] = True	
 					missing_comments.add(direct_parent)		#add comment to list of missing
 				#add current comment to replies field of parent comment
 				comments[direct_parent]['replies'].append(comment_id)
@@ -122,9 +132,9 @@ def build_cascades(code, posts = False, comments = False):
 			print("FAIL")
 			print(len(missing_posts), "posts")
 			print(len(missing_comments), "comments")
-			for field in comment:
+			for field in comments[comment_id]:
 				if field != "replies":
-					print(field, comment[field])
+					print(field, comments[comment_id][field])
 			exit(0)
 
 	print("\nProcessed", comment_count,  "comments in", len(cascades), "cascades")
@@ -135,10 +145,12 @@ def build_cascades(code, posts = False, comments = False):
 	#verify the above process, a couple different ways
 
 	#count comments from parent counters across all cascades
+	'''
 	total_comments = 0
 	for post_id, post in cascades.items():
 		total_comments += post['comment_count']
 	print(total_comments, "from post counters")
+	'''
 
 	#traverse each cascade and count comments, check against stored comment count
 	'''
@@ -199,7 +211,13 @@ def top_level_comment_response_dist(code, cascades = False, comments = False):
 
 	#for each post, look at all top-level replies
 	for post_id, post in cascades.items():		#loop posts
+		#if this post is a dummy object, throw an error to the user and move on
+		if post['placeholder']:
+			print("Data contains placeholder post. Please use remove_missing to filter out incomplete cascades first.")
+			exit(0)
+
 		post_time = post['created_utc']		#grab post time to compute reply delay
+
 		for comment_id in post['replies']:		#loop replies
 			#get response time in minutes for this comment
 			response_time = int((comments[comment_id]['created_utc'] - post_time) / 60.0)
@@ -224,7 +242,7 @@ def top_level_comment_response_dist(code, cascades = False, comments = False):
 
 	#plot
 	file_utils.verify_dir("plots")
-	plot_utils.plot_dict_data(response_times, "reply delay time (minutes)", "number of replies", "Top-Level Comment Response Time Distribution", filename = "plots/%s_top_level_comment_response_times.png" % code)
+	plot_utils.plot_dict_data(response_times, "reply delay time (minutes)", "number of replies", "Top-Level Comment Response Time Distribution", filename = "plots/%s_top_level_comment_response_times.png" % code, log_scale_x = True, log_scale_y = True)
 
 #end top_level_comment_response_dist
 
@@ -272,8 +290,9 @@ def create_object(identifier, fields):
 	obj['id_h'] = identifier
 	obj['replies'] = []
 	obj['placeholder'] = True
-	if 'comment_count' in fields:
-		obj['comment_count'] = 0
+	if 'comment_count_total' in fields:
+		obj['comment_count_total'] = 0
+		obj['comment_count_direct'] = 0
 	if 'missing_comments' in fields:
 		obj['missing_comments'] = True
 	return obj
