@@ -3,6 +3,7 @@ import file_utils
 import os
 import glob
 import load_model_data
+from collections import defaultdict
 
 #given a list of posts and a list of comments, reconstruct the post/comment (cascade) structure
 #store cascade in the following way using a dictionary
@@ -182,6 +183,28 @@ def get_subreddits(code, cascades = False, display = False):
 
 	return subreddit_dist
 #end get_subreddits
+
+
+
+#given cascades and comments, remove any cascades containing missing elements (posts or comments)
+def remove_missing(code, cascades = False, comments = False):
+	#load data if missing
+	if cascades == False or comments == False:
+		print("loading data - build cascades")
+		cascades, comments, missing_posts, missing_comments = build_cascades(code)
+
+	print("\nStarting with", len(cascades), "cascades and", len(comments), "comments")
+
+	#loop all posts, only keep ones that are both real and have no missing comments
+	cascades = {key:value for (key,value) in cascades.items() if value['placeholder'] == False and value['missing_comments'] == False}
+
+	#loop all comments, only keep the ones that are real and that we kept the parent post for
+	comments = {key:value for (key,value) in comments.items() if value['placeholder'] == False and value['link_id_h'][3:] in cascades}
+
+	print("Filtered to", len(cascades), "complete cascades with", len(comments), "comments")
+
+	return cascades, comments
+#end remove_missing
 
 #given the root of a cascade (top-level post for first call, comment for remainder), 
 #traverse the cascade and count total number of comments

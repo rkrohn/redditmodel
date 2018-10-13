@@ -4,7 +4,10 @@ import cascade_analysis
 #driver for all the other things
 
 
-code = "crypto"			#set use case/domain: must be crypto, cyber, or cve
+code = "cve"			#set use case/domain: must be crypto, cyber, or cve
+						#crypto for dry run
+						#cyber takes forever
+						#cve fastest
 
 print("Processing", code)
 
@@ -16,8 +19,13 @@ print("Processing", code)
 #load_exogenous_data(code)
 
 #build/load cascades (auto-load as a result, either raw data or cached cascades)
-#cascades, comments, missing_posts, missing_comments = cascades.build_cascades(code)
-
-#load cascades and get subreddit distribution
 cascades, comments, missing_posts, missing_comments = cascade_analysis.build_cascades(code)
-cascade_analysis.get_subreddits(code, cascades)
+
+#optional: filter out cascades with any missing elements (posts or comments)
+cascades, comments = cascade_analysis.remove_missing(code, cascades, comments)
+
+#get subreddit distribution
+#cascade_analysis.get_subreddits(code, cascades)
+
+#get/plot top-level comment response time distribution
+#cascade_analysis.top_level_comment_response_dist(code, cascades, comments)
