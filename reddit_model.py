@@ -22,10 +22,10 @@ print("Processing", code)
 cascades, comments, missing_posts, missing_comments = cascade_analysis.build_cascades(code)
 
 #optional: filter out cascades with any missing elements (posts or comments)
-cascades, comments = cascade_analysis.remove_missing(code, cascades, comments)
+#cascades, comments = cascade_analysis.remove_missing(code, cascades, comments)
 
 #get subreddit distribution
 #cascade_analysis.get_subreddits(code, cascades)
 
 #get/plot top-level comment response time distribution
-#cascade_analysis.top_level_comment_response_dist(code, cascades, comments)
+cascade_analysis.top_level_comment_response_dist(code, cascades, comments)

@@ -1,5 +1,6 @@
 import data_utils
 import file_utils
+import plot_utils
 import os
 import glob
 import load_model_data
@@ -184,7 +185,48 @@ def get_subreddits(code, cascades = False, display = False):
 	return subreddit_dist
 #end get_subreddits
 
+#given cascades and comments, determine and plot response time distribution of top-level comments only
+#take initial post as t = 0, and comment as time since post
+def top_level_comment_response_dist(code, cascades = False, comments = False):
+	#load data if missing
+	if cascades == False or comments == False:
+		cascades, comments, missing_posts, missing_comments = build_cascades(code)
 
+	print("\nComputing top-level comment response time distribution")
+
+	#response time dictionary: time in minutes -> number of responses with that delay
+	response_times = defaultdict(int)
+
+	#for each post, look at all top-level replies
+	for post_id, post in cascades.items():		#loop posts
+		post_time = post['created_utc']		#grab post time to compute reply delay
+		for comment_id in post['replies']:		#loop replies
+			#get response time in minutes for this comment
+			response_time = int((comments[comment_id]['created_utc'] - post_time) / 60.0)
+			if response_time < 0:
+				print("negative response time!")
+				print("\nPOST", post_time, post['created_date'])
+				for key, value in post.items():
+					#if key != "replies":
+					print(key, "\t", value)
+				print("\nCOMMENT", comments[comment_id]['created_utc'], comments[comment_id]['created_date'])
+				for key, value in comments[comment_id].items():
+					if key != "replies":
+						print(key, "\t", value)
+				exit(0)
+			#add one to counter for this response time (binned by minutes)
+			response_times[response_time] += 1
+
+	#save response time distribution
+	print("Saving top-level comment response time distributiion to results/%s_top_level_comment_respone_time_dist.json and plotting in plots/%s_top_level_comment_response_times.png" % (code, code) )
+	file_utils.verify_dir("results")
+	file_utils.save_json(response_times, "results/%s_top_level_comment_respone_time_dist.json" % code)
+
+	#plot
+	file_utils.verify_dir("plots")
+	plot_utils.plot_dict_data(response_times, "reply delay time (minutes)", "number of replies", "Top-Level Comment Response Time Distribution", filename = "plots/%s_top_level_comment_response_times.png" % code)
+
+#end top_level_comment_response_dist
 
 #given cascades and comments, remove any cascades containing missing elements (posts or comments)
 def remove_missing(code, cascades = False, comments = False):
