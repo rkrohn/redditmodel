@@ -5,7 +5,7 @@ import tarfile
 import os
 import shutil
 import glob
-import cascades
+import cascade_analysis
 
 #load all reddit data (comments and posts), and save as pickles
 #code = {cyber, crypto, cve}, indicating reddit data to load
