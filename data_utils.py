@@ -3,11 +3,12 @@
 from collections import defaultdict
 from operator import itemgetter
 import re
+import copy
 
 #add a field and associated value to all items in list of dictionaries
 def add_field(data, key, value):
 	for item in data:
-		item.update( {key: value})
+		item.update( {key: copy.deepcopy(value)})
 	return data
 #end add_field
 
@@ -16,20 +17,10 @@ def add_field(data, key, value):
 def list_to_dict(data_list, key_field):
 	data_dict = {}
 	for item in data_list:
+		#print a message if duplicate items to alert the user
 		if item[key_field] in data_dict:
 			print("\nduplicate!")
-			bad = False
-			for key in item:
-				if item[key] != data_dict[item[key_field]][key]:
-					if bad == False:
-						print("match fail")
-					print(key)
-					print("   ", item[key])
-					print("   ", data_dict[item[key_field]][key])
-					bad = True
-			if bad == False:
-				print("match")
-		data_dict[item[key_field]] = item
+		data_dict[item[key_field]] = item 		#add item to dictionary
 	return data_dict
 #end list_to_dict
 
