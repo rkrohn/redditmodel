@@ -199,7 +199,7 @@ def get_subreddits(code, cascades = False, display = False):
 
 #given cascades and comments, determine and plot response time distribution of top-level comments only
 #take initial post as t = 0, and comment as time since post
-def top_level_comment_response_dist(code, cascades = False, comments = False):
+def top_level_comment_response_dist(code, cascades = False, comments = False, bin_minutes = 1):
 	#load data if missing
 	if cascades == False or comments == False:
 		cascades, comments, missing_posts, missing_comments = build_cascades(code)
@@ -220,29 +220,23 @@ def top_level_comment_response_dist(code, cascades = False, comments = False):
 
 		for comment_id in post['replies']:		#loop replies
 			#get response time in minutes for this comment
-			response_time = int((comments[comment_id]['created_utc'] - post_time) / 60.0)
+			response_time = int((comments[comment_id]['created_utc'] - post_time) / (bin_minutes * 60.0)) * bin_minutes
+
+			#if response time is somehow negative, throw an error message but keep running
 			if response_time < 0:
-				print("negative response time!")
-				print("\nPOST", post_time, post['created_date'])
-				for key, value in post.items():
-					#if key != "replies":
-					print(key, "\t", value)
-				print("\nCOMMENT", comments[comment_id]['created_utc'], comments[comment_id]['created_date'])
-				for key, value in comments[comment_id].items():
-					if key != "replies":
-						print(key, "\t", value)
-				exit(0)
+				print("Warning: negative response time!")
 			#add one to counter for this response time (binned by minutes)
 			response_times[response_time] += 1
 
 	#save response time distribution
-	print("Saving top-level comment response time distributiion to results/%s_top_level_comment_respone_time_dist.json and plotting in plots/%s_top_level_comment_response_times.png" % (code, code) )
+	print("Saving top-level comment response time distributiion to results/%s_top_level_comment_respone_time_dist_%s.json and plotting in plots/%s_top_level_comment_response_times_%s.png" % (code, bin_minutes, code, bin_minutes) )
 	file_utils.verify_dir("results")
-	file_utils.save_json(response_times, "results/%s_top_level_comment_respone_time_dist.json" % code)
+	file_utils.save_json(response_times, "results/%s_top_level_comment_respone_time_dist_%s.json" % (code, bin_minutes))
 
 	#plot
 	file_utils.verify_dir("plots")
-	plot_utils.plot_dict_data(response_times, "reply delay time (minutes)", "number of replies", "Top-Level Comment Response Time Distribution", filename = "plots/%s_top_level_comment_response_times.png" % code, log_scale_x = True, log_scale_y = True)
+	plot_utils.plot_dict_data(response_times, "reply delay time (minutes)", "number of replies", "Top-Level Comment Response Time Distribution - %s Minute Bins" % bin_minutes, filename = "plots/%s_top_level_comment_response_times_%s.png" % (code, bin_minutes), x_min = 0, log_scale_x = True, log_scale_y = True)
+	plot_utils.plot_dict_data(response_times, "reply delay time (minutes)", "number of replies", "Top-Level Comment Response Time Distribution - %s Minute Bins" % bin_minutes, filename = "plots/%s_top_level_comment_response_times_%s_zoom.png" % (code, bin_minutes), x_min = 0, x_max = 60*24, log_scale_x = True, log_scale_y = True)
 
 #end top_level_comment_response_dist
 
