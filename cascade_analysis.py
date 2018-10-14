@@ -229,9 +229,9 @@ def top_level_comment_response_dist(code, cascades = False, comments = False, bi
 			response_times[response_time] += 1
 
 	#save response time distribution
-	print("Saving top-level comment response time distributiion to results/%s_top_level_comment_respone_time_dist_%s.json and plotting in plots/%s_top_level_comment_response_times_%s.png" % (code, bin_minutes, code, bin_minutes) )
+	print("Saving top-level comment response time distribution to results/%s_top_level_comment_response_time_dist_%s.json and plotting in plots/%s_top_level_comment_response_times_%s.png" % (code, bin_minutes, code, bin_minutes) )
 	file_utils.verify_dir("results")
-	file_utils.save_json(response_times, "results/%s_top_level_comment_respone_time_dist_%s.json" % (code, bin_minutes))
+	file_utils.save_json(response_times, "results/%s_top_level_comment_response_time_dist_%s.json" % (code, bin_minutes))
 
 	#plot
 	file_utils.verify_dir("plots")
@@ -239,6 +239,34 @@ def top_level_comment_response_dist(code, cascades = False, comments = False, bi
 	plot_utils.plot_dict_data(response_times, "reply delay time (minutes)", "number of replies", "Top-Level Comment Response Time Distribution - %s Minute Bins" % bin_minutes, filename = "plots/%s_top_level_comment_response_times_%s_zoom.png" % (code, bin_minutes), x_min = 0, x_max = 60*24, log_scale_x = True, log_scale_y = True)
 
 #end top_level_comment_response_dist
+
+#given loaded cascades, plot our direct reply count against the provided num_comments to check the correlation
+def check_comment_count(code, cascades = False):
+	#load data if missing
+	if cascades == False:
+		print("loading data - build cascades")
+		cascades, comments, missing_posts, missing_comments = build_cascades(code)
+
+	#data dictionary: key is num_comments field, value is number of direct replies we found
+	direct_count_dict = defaultdict(list)
+	#and one for the total number of comments, since that might be more what they're giving us
+	total_count_dict = defaultdict(list)
+
+	#process each cascade
+	for post_id, post in cascades.items():
+		direct_count_dict[post['num_comments']].append(post['comment_count_direct'])
+		total_count_dict[post['num_comments']].append( post['comment_count_total'])
+
+	#convert lists to average
+	for key in direct_count_dict.keys():
+		direct_count_dict[key] = sum(direct_count_dict[key]) / len(direct_count_dict[key])
+		total_count_dict[key] = sum(total_count_dict[key]) / len(total_count_dict[key])
+
+	#plot results (no save for now)
+	file_utils.verify_dir("plots")
+	plot_utils.plot_mult_dict_data([direct_count_dict, total_count_dict], ['cascade direct replies', 'cascade total comments'], 'num_comments from data', 'comments from cascade', 'Number of Comments: Given vs Counted', filename = "plots/%s_comment_counts.png" % code)
+
+#end check_comment_count
 
 #given cascades and comments, remove any cascades containing missing elements (posts or comments)
 def remove_missing(code, cascades = False, comments = False):

@@ -82,6 +82,47 @@ def plot_dict_data(data, xlabel, ylabel, title, filename = "", x_min = 0, x_max 
 	#call plotting method on list data
 	plot_data(x, y, xlabel, ylabel, title, filename, 0, 0, log_scale_x, log_scale_y)
 		
+#same as plot_dict_data, but handles multiple data lines
+#data_lists should be a list of data dictionaries
+#legend labels is a list corresponding to the data lists
+def plot_mult_dict_data(data_lists, legend_labels, xlabel, ylabel, title, filename = "", x_min = 0, x_max = 0, log_scale_x = False, log_scale_y = False):
+
+	plt.clf()	
+	fig, ax = plt.subplots()
+
+	#process each dictionary
+	for data in data_lists:
+		#break dictionary data into lists
+		x = []
+		y = []
+		for key in sorted(data.keys()):
+			#only include data within x-axis range so plot method will set y-axis range correctly
+			if (x_min == 0 and x_max == 0) or (key >= x_min and key <= x_max):
+				x.append(key)
+				y.append(data[key])
+
+		plt.plot(x, y)
+
+	#rest of plot setup
+	plt.title(title)
+	plt.legend(legend_labels, loc='best')
+	plt.xlabel(xlabel)
+	plt.ylabel(ylabel)
+	if log_scale_x:
+		ax.set_xscale('log')
+	if log_scale_y:
+		ax.set_yscale('log')
+	if x_max != 0 and x_min != 0:
+		plt.xlim(xmin=x_min, xmax=x_max)
+	elif x_max != 0:
+		plt.xlim(xmin=0, xmax=x_max)
+	elif x_min != 0:
+		plt.xlim(xmin=x_min, xmax=x_max)	
+	if filename == "":
+		plt.show()
+	else:
+		plt.savefig(filename, bbox_inches='tight')
+
 		
 #plot data given as x and 2 y lists	- will have 2 y axes on plot
 def plot_two_axes(x, data1, data2, xlabel, ylabel1, ylabel2, title, filename = ""):

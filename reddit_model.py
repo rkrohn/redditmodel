@@ -25,7 +25,11 @@ cascades, comments, missing_posts, missing_comments = cascade_analysis.build_cas
 cascades, comments = cascade_analysis.remove_missing(code, cascades, comments)
 
 #get subreddit distribution
-#cascade_analysis.get_subreddits(code, cascades)
+cascade_analysis.get_subreddits(code, cascades)
 
 #get/plot top-level comment response time distribution
-cascade_analysis.top_level_comment_response_dist(code, cascades, comments)
+cascade_analysis.top_level_comment_response_dist(code, cascades, comments)		#1 minute bins
+cascade_analysis.top_level_comment_response_dist(code, cascades, comments, bin_minutes = 30)	#30 minute bins
+
+#look at number of top-level comments from two sources
+cascade_analysis.check_comment_count(code, cascades)	
