@@ -1,11 +1,11 @@
 {
-    "DopeCoin": 63,
-    "Bitcoin": 232635,
     "Lisk": 2537,
-    "paycon": 2,
-    "orocoin": 10,
-    "Monero": 12941,
+    "Bitcoin": 232633,
+    "DopeCoin": 63,
     "pivx": 841,
     "ethereum": 50403,
-    "Donationcoin": 4
+    "orocoin": 10,
+    "Donationcoin": 4,
+    "Monero": 12941,
+    "paycon": 2
 }
