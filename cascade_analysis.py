@@ -228,12 +228,14 @@ def top_level_comment_response_dist(code, cascades = False, comments = False, bi
 			#add one to counter for this response time (binned by minutes)
 			response_times[response_time] += 1
 
-	#save response time distribution
-	print("Saving top-level comment response time distribution to results/%s_top_level_comment_response_time_dist_%s.json and plotting in plots/%s_top_level_comment_response_times_%s.png" % (code, bin_minutes, code, bin_minutes) )
-	file_utils.verify_dir("results")
-	file_utils.save_json(response_times, "results/%s_top_level_comment_response_time_dist_%s.json" % (code, bin_minutes))
+	#save response time distribution, but only if bin_minutes = 1
+	if bin_minutes == 1:
+		print("Saving top-level comment response time distribution to results/%s_top_level_comment_response_time_dist_%s.json" % (code, bin_minutes))
+		file_utils.verify_dir("results")
+		file_utils.save_json(response_times, "results/%s_top_level_comment_response_time_dist_%s.json" % (code, bin_minutes))
 
-	#plot
+	#plot everything
+	print("Plotting top-level comment response time distribution to plots/%s_top_level_comment_response_times_%s.png" % (code, bin_minutes))
 	file_utils.verify_dir("plots")
 	plot_utils.plot_dict_data(response_times, "reply delay time (minutes)", "number of replies", "Top-Level Comment Response Time Distribution - %s Minute Bins" % bin_minutes, filename = "plots/%s_top_level_comment_response_times_%s.png" % (code, bin_minutes), x_min = 0, log_scale_x = True, log_scale_y = True)
 	plot_utils.plot_dict_data(response_times, "reply delay time (minutes)", "number of replies", "Top-Level Comment Response Time Distribution - %s Minute Bins" % bin_minutes, filename = "plots/%s_top_level_comment_response_times_%s_zoom.png" % (code, bin_minutes), x_min = 0, x_max = 60*24, log_scale_x = True, log_scale_y = True)
