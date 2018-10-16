@@ -1,7 +1,10 @@
 import networkx as nx
 from networkx.drawing.nx_agraph import graphviz_layout
 import matplotlib.pyplot as plt
+plt.switch_backend('agg')
 import Node
+import warnings
+warnings.filterwarnings("ignore")
 
 class CascadeTree:
 	#pass in tree as Node object of root (see Node.py class)
