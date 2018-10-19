@@ -4,7 +4,9 @@
 import json
 import numpy as np
 import matplotlib.pyplot as plt
+plt.switch_backend('agg')
 import networkx as nx
+from networkx.drawing.nx_agraph import graphviz_layout
 from collections import OrderedDict
 import gc
 from itertools import islice
@@ -18,21 +20,9 @@ import pickle
 import multiprocessing as mp
 from copy import deepcopy
 import os
-
-
-# # Upload a set of trees
-
-# In this work the preprocessed set of trees is used. Each tree is asssumed to be a networkx Graph (undirected) with key node attributes: 'root': Bool - if the node is the post; 'created': int, POSIX timestamp -- creation time of the node. 
-
-dump_filename = './sample_trees.dump'
-final_tree_list = pickle.load(open (dump_filename, "rb"))
-
-
-# Create a list of all trees sorted by its size
-
-
-Otrees_list = sorted(final_tree_list, key=lambda t: nx.number_of_nodes(t), reverse=False)
-print(len(Otrees_list))
+from collections import defaultdict
+import warnings
+warnings.filterwarnings("ignore")
 
 
 # ## Inference of parameters of a process
@@ -449,18 +439,52 @@ def get_trunc_tree_no_relabel(tree, trunc_value):
 def get_size_tree(tree):
     return nx.number_of_nodes(tree)
 
+#visualize graph, save to file (probably not going to look very pretty, but you can usually identify the root)
+def viz_graph(g, filename):
+		# same layout using matplotlib with no labels
+		plt.clf()
+		pos = graphviz_layout(g, prog='dot')
+		nx.draw(g, pos, with_labels=False, arrows=False, node_size=15)
+		plt.savefig(filename)
+
+#given a tree and root, count the number of nodes on each level
+def count_nodes_per_level(g, root):
+	paths = nx.shortest_path_length(g, root)
+	depth_counts = defaultdict(int)
+	for node, depth in paths.items():
+		depth_counts[depth] += 1
+
+	return depth_counts
 
 # # Main function
+
+print("")
+
+# # Upload a set of trees
+
+# In this work the preprocessed set of trees is used. Each tree is asssumed to be a networkx Graph (undirected) with key node attributes: 'root': Bool - if the node is the post; 'created': int, POSIX timestamp -- creation time of the node. 
+
+dump_filename = './sample_trees.dump'
+final_tree_list = pickle.load(open (dump_filename, "rb"))
+
+# Create a list of all trees sorted by its size
+
+Otrees_list = sorted(final_tree_list, key=lambda t: nx.number_of_nodes(t), reverse=False)
+print("read", len(Otrees_list), "trees")
 
 # Introducing the parameters
 
 i = 13
-sim_num_runs = 50
-t_learn_list = ['4h', '6h', '8h', '12h']
-trunc_values = [240, 360, 480, 720]
+#sim_num_runs = 50
+sim_num_runs = 1
+#t_learn_list = ['4h', '6h', '8h', '12h']
+t_learn_list = [ '4h' ]
+#trunc_values = [240, 360, 480, 720]
+trunc_values = [240]
 
 tree = Otrees_list[i]
-len(tree)
+print("tree size", len(tree))
+viz_graph(tree, "hawkes_testing/input_tree.png")
 
 
 # Here is the main code. Go through *trunc_values*, cut the *tree* into *given_tree* available at the current t_learn from *trunc_values*, infer parameters for $\mu(t)$ and $\phi(t)$, grow the tree according to the Hawkes model.
@@ -468,6 +492,7 @@ len(tree)
 result_dict = {}
 
 root, root_creation_time = get_root(tree)		#fetch root of tree
+#print("root created", root_creation_time)
 
 result_dict['true_size'] = get_size_tree(tree)	#save true size of tree for comarison later
 list_hawkes_sizes = [[] for i in range(0,len(trunc_values))]	#init empty list for each of the truncation sizes
@@ -475,10 +500,14 @@ list_hawkes_sizes = [[] for i in range(0,len(trunc_values))]	#init empty list fo
 run_success = True
 
 #test all training lengths
-for t in range(0,len(trunc_values)):
-    print("     ---    T_LEARN = ", t_learn_list[t], "   ---")
-    t_learn = trunc_values[t]		#current learning time in minutes
+for trunc_time in range(0,len(trunc_values)):
+    print("\n     ---    T_LEARN = ", t_learn_list[trunc_time], "   ---")
+
+    #filter tree to training window
+    t_learn = trunc_values[trunc_time]		#current learning time in minutes
     given_tree = get_trunc_tree_no_relabel(tree, t_learn)		#filter tree, only observe stuff in training window
+    print("filter tree to", len(given_tree), "nodes")
+    viz_graph(given_tree, "hawkes_testing/filtered_tree.png")
 
     #break if size of the observed tree is too small for prediction at that moment
     if len(given_tree) <= 10:  
@@ -489,42 +518,69 @@ for t in range(0,len(trunc_values)):
         run_success = False
         continue
 
-    #fit the weibull based on root comment times
+    #get root comment times (in minutes) for fitting
     root_comment_times = get_root_comment_times(given_tree)
+    print(len(root_comment_times), "root comment times in filtered tree,", len(get_root_comment_times(tree)), "in full tree\n")
+    #print(str(root_comment_times), "(minutes)\n")
+
+    #fit the weibull based on root comment times
     mu_params = mu_parameters_estimation(root_comment_times)		
     if mu_params == None:  # if loglikelihood estimation fails - use curve_fit
         mu_params = mu_func_fit_weibull(root_comment_times)
-    print("Mu_params:", mu_params)
+    print("Mu_params:", "\n   a", mu_params[0], "\n   b", mu_params[1], "\n   alpha", mu_params[2], "\n")	#a, b, alpha
 
     #fit log-normal based on all other comment times
     other_comment_times = get_other_comment_times(given_tree)
     phi_params = phi_parameters_estimation(other_comment_times)
-    print("Phi_params:", phi_params)
+    print("Phi_params:", "\n   mu", phi_params[0], "\n   sigma", phi_params[1], "\n")	#mu, sigma
 
     #estimate branching factor (average number of replies per comment)
     n_b = nb_parameters_estimation(given_tree, root)
-    print("n_b:", n_b)
+    print("branching factor n_b:", n_b, "\n")
     
-    hawkes_times = []
     given_tree = get_trunc_tree(tree, t_learn)	#filter tree, but this time set timestamps to minutes
-    add_count = sim_num_runs/5
-    for j in range(0,sim_num_runs):
-        hawkes_times.clear()
-        if j % add_count==0:
-            print(j, " of HAWKES trees simulated for the tree i=", i)
+
+    #print level breakdown of source tree
+    depth_counts = count_nodes_per_level(tree, root)
+    print("original tree nodes per level:")
+    for depth, count in depth_counts.items():
+    	print(depth, ":", count)
+    print("")
+
+    add_count = sim_num_runs / 5
+    for j in range(0, sim_num_runs):		#repeated simulations
+
+        #intermittent prints to show progress
+        if j % add_count == 0:
+            print(j, "of", sim_num_runs, "HAWKES trees simulated for the tree i =", i)
+
         sim_tree, success = simulate_comment_tree(given_tree, t_learn, mu_params, phi_params, n_b)	#simulate!
+        #viz just the first sim tree for now (slows the process waaaaay down to do them all)
+        if j == 0:
+        	viz_graph(sim_tree, "hawkes_testing/sim_tree_%s.png" % j)
         if success:
-            list_hawkes_sizes[t].append(len(sim_tree))
+            list_hawkes_sizes[trunc_time].append(len(sim_tree))
         else:
             print('Generation failed! Too many nodes')
             print("RUN " + str(i) + ": T_learn: "+ t_learn_list[t] + ': Generation HAWKES failed! Too many nodes')
-            list_hawkes_sizes[t] = [-1]
+            list_hawkes_sizes[trunc_time] = [-1]
             break
-    print("\n")
-result_dict['hawkes_sizes'] = list_hawkes_sizes
-result_dict["run_success"] = run_success
-print('Sequence done!')
 
+        #print final simulated tree sizes against initial tree size (filtered tree starting point)
+        depth_counts = count_nodes_per_level(sim_tree, get_root(sim_tree)[0])
+        depth_counts_start = count_nodes_per_level(given_tree, get_root(given_tree)[0])
+        print("sim tree nodes per level:")
+        for depth, count in depth_counts.items():
+            print(depth, ":", count, "(" + str(depth_counts_start[depth] if depth in depth_counts_start else 0), "observed)")
+        print("")
+
+    print("")
+
+print('Sequence done!\n')
+#save generated tree sizes
+result_dict['hawkes_sizes'] = list_hawkes_sizes
+print("generated tree sizes:", list_hawkes_sizes)
+result_dict["run_success"] = run_success
 
 # Output the average relative size error.
 
