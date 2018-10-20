@@ -132,6 +132,7 @@ def generate_mu_poisson_times(start_time, params, T = 7200, N_max = 2000):   # W
         #if random value less than ratio of true event rate to thinning rate, accept
         if U < mu_func(t,a,b, alpha) / lbd:
             thin_poisson_times.append(t)		#save this event time
+            #print("accept time", t)
 
             #update thinning rate if necessary for next event generation
             if (alpha>1 and t>b*((alpha-1)/alpha)**(1/alpha)) or (alpha>0 and alpha<1):
@@ -211,6 +212,8 @@ def simulate_comment_tree(given_tree, start_time, params_mu, params_phi, n_b, N_
     T2 = 7200  # hard set: -//- for comments to comments
     #also cap number of comments (default function argument)
 
+    print("simulating!")
+
     #copy tree
     g = nx.Graph()
     g = given_tree.copy()
@@ -225,12 +228,14 @@ def simulate_comment_tree(given_tree, start_time, params_mu, params_phi, n_b, N_
     root_node_list = []
     for u in g.neighbors(root):
         root_node_list.append(u)
+    #print("root children", root_node_list)
 
     #get list of existing comments to other comments
     comment_node_list = []
     for v in g.nodes()[1:]:
         if v not in root_node_list:
             comment_node_list.append(v)
+    #print("comments", comment_node_list)
 
     #process all existing comment replies
     while len(comment_node_list) > 0:
@@ -262,7 +267,7 @@ def simulate_comment_tree(given_tree, start_time, params_mu, params_phi, n_b, N_
             del tree_node_list[0]
             comment_time = g.node[current_node]['created']
 
-            #generate replies to this comment (deeper level now)
+            #generate replies to this new comment (deeper level now)
             further_comment_times = generate_phi_poisson_times(float(start_time-comment_time), params_phi, n_b, T2 )
             further_comment_times = [i+comment_time for i in further_comment_times]
 
@@ -284,6 +289,7 @@ def simulate_comment_tree(given_tree, start_time, params_mu, params_phi, n_b, N_
     #generate new top-level comments, process each individually
     new_root_comment_times = generate_mu_poisson_times(float(start_time), params_mu, T)
     for t in new_root_comment_times:
+
     	#create new node, add to graph
         node_index += 1
         g.add_node(node_index, created = t, root = False)
@@ -361,11 +367,14 @@ def get_root(g):
     return None
 
 #given a tree, return sorted list of comment reply times in minutes (originally stored in seconds)
-def get_root_comment_times(tree):
+def get_root_comment_times(tree, seconds_to_minutes = True):
     r, root_time = get_root(tree)
     root_comment_times = []
     for u in tree.neighbors(r):
-        root_comment_times.append((tree.node[u]['created'] - root_time)/60)  # in minutes
+        if seconds_to_minutes:
+            root_comment_times.append((tree.node[u]['created'] - root_time)/60)  # in minutes
+        else:
+            root_comment_times.append(tree.node[u]['created'] - root_time)  # no conversion
     root_comment_times.sort()
     return root_comment_times
 
@@ -456,6 +465,29 @@ def count_nodes_per_level(g, root):
 
 	return depth_counts
 
+#plot input top-level comment distribution vs. fitted Weibull curve
+def plot_dist_and_fit(times, params, filename):
+
+	def weib_func(t, a, b, alpha): # a>0, b>0, alpha>0  --- Weibull pdf
+		return (a*alpha/b)*(t/b)**(alpha-1)*np.exp(-(t/b)**alpha)
+
+	plt.clf()
+	fig, ax1 = plt.subplots()
+	
+	ax1.hist(times, bins=50, normed=False)	#plot histogram for true post distribution (observed comments only)
+	ax1.set_xlabel('time (minutes)')
+	ax1.set_ylabel('root comment frequency')
+
+	#plot fitted weibull curve
+	ax2 = ax1.twinx()
+	x = np.arange(0, max(times), 1)
+	y = [weib_func(t, params[0], params[1], params[2]) for t in x]
+	ax2.plot(x, y, 'r-')
+	ax2.set_ylabel('Weibull fit', color='r')
+
+	plt.savefig("hawkes_testing/%s" % filename)
+
+
 # # Main function
 
 print("")
@@ -529,6 +561,8 @@ for trunc_time in range(0,len(trunc_values)):
         mu_params = mu_func_fit_weibull(root_comment_times)
     print("Mu_params:", "\n   a", mu_params[0], "\n   b", mu_params[1], "\n   alpha", mu_params[2], "\n")	#a, b, alpha
 
+    plot_dist_and_fit(root_comment_times, mu_params, "observed_dist_fit.png")
+
     #fit log-normal based on all other comment times
     other_comment_times = get_other_comment_times(given_tree)
     phi_params = phi_parameters_estimation(other_comment_times)
@@ -554,7 +588,23 @@ for trunc_time in range(0,len(trunc_values)):
         if j % add_count == 0:
             print(j, "of", sim_num_runs, "HAWKES trees simulated for the tree i =", i)
 
-        sim_tree, success = simulate_comment_tree(given_tree, t_learn, mu_params, phi_params, n_b)	#simulate!
+        #simulate by added to observed tree
+        sim_tree, success = simulate_comment_tree(given_tree, t_learn, mu_params, phi_params, n_b)
+
+        #simulate from empty starting tree (just the root)
+        '''
+        empty_tree = nx.Graph()
+        empty_tree = given_tree.copy()
+        r, root_creation_time = get_root(given_tree)
+        nodes_to_delete = []
+        for u in empty_tree.nodes():
+            if empty_tree.node[u]['root'] == False:
+                nodes_to_delete.append(u)
+        for u in nodes_to_delete:
+            empty_tree.remove_node(u)
+        sim_tree, success = simulate_comment_tree(empty_tree, 0, mu_params, phi_params, n_b)
+        '''
+
         #viz just the first sim tree for now (slows the process waaaaay down to do them all)
         if j == 0:
         	viz_graph(sim_tree, "hawkes_testing/sim_tree_%s.png" % j)
@@ -574,6 +624,8 @@ for trunc_time in range(0,len(trunc_values)):
             print(depth, ":", count, "(" + str(depth_counts_start[depth] if depth in depth_counts_start else 0), "observed)")
         print("")
 
+        plot_dist_and_fit(get_root_comment_times(sim_tree, seconds_to_minutes=False), mu_params, "simulate_dist_fit.png")
+
     print("")
 
 print('Sequence done!\n')
@@ -587,6 +639,7 @@ result_dict["run_success"] = run_success
 for i, size_list in enumerate(result_dict['hawkes_sizes']):
     print("t_learn:", t_learn_list[i], 
           "| avg size error:", np.abs(np.mean(size_list)-result_dict['true_size'])/result_dict['true_size'])
+print("")
 
 
 
