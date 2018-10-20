@@ -336,8 +336,8 @@ def simulate_comment_tree(given_tree, start_time, params_mu, params_phi, n_b, N_
 # Curve_fit of $\mu(t)$ (less precise for prediction)
 
 def mu_func_fit_weibull(list_times, res=60, runs = 10, T_max = 3*1440, large_params = [1000, 10000, 20], start_params = [50, 400, 2.3]):
-    def weib_func(t, a, b, alpha): # a>0, b>0, alpha>0  --- Weibull pdf
-        return (a*alpha/b)*(t/b)**(alpha-1)*np.exp(-(t/b)**alpha)
+    #def weib_func(t, a, b, alpha): # a>0, b>0, alpha>0  --- Weibull pdf
+    #    return (a*alpha/b)*(t/b)**(alpha-1)*np.exp(-(t/b)**alpha)
     
     bins = np.arange(0, max([T_max, max(list_times)]), res)
     hist, bins = np.histogram(list_times, bins)  # construct histogram of the root comments appearance 
@@ -465,11 +465,11 @@ def count_nodes_per_level(g, root):
 
 	return depth_counts
 
-#plot input top-level comment distribution vs. fitted Weibull curve
-def plot_dist_and_fit(times, params, filename):
-
-	def weib_func(t, a, b, alpha): # a>0, b>0, alpha>0  --- Weibull pdf
+def weib_func(t, a, b, alpha): # a>0, b>0, alpha>0  --- Weibull pdf
 		return (a*alpha/b)*(t/b)**(alpha-1)*np.exp(-(t/b)**alpha)
+
+#plot input top-level comment distribution vs. fitted Weibull curve
+def plot_dist_and_fit(times, params, filename):	
 
 	plt.clf()
 	fig, ax1 = plt.subplots()
@@ -485,6 +485,26 @@ def plot_dist_and_fit(times, params, filename):
 	ax2.plot(x, y, 'r-')
 	ax2.set_ylabel('Weibull fit', color='r')
 
+	plt.savefig("hawkes_testing/%s" % filename)
+
+#given observed and simulated comment times, and fitted Weibull params, plot all the things
+def plot_all(obs, sim, params, filename):
+
+	plt.clf()
+	fig, ax1 = plt.subplots()
+	
+	ax1.hist([obs, sim], bins=50, stacked=True, normed=False, color=["blue", "green"], label=["observed", "simulated"])	#plot histogram for true post distribution (observed comments only)
+	ax1.set_xlabel('time (minutes)')
+	ax1.set_ylabel('root comment frequency')
+
+	#plot fitted weibull curve
+	ax2 = ax1.twinx()
+	x = np.arange(0, max(sim), 1)
+	y = [weib_func(t, params[0], params[1], params[2]) for t in x]
+	ax2.plot(x, y, 'r-', label="Weibull fit")
+	ax2.set_ylabel('Weibull fit', color='r')
+
+	ax1.legend()
 	plt.savefig("hawkes_testing/%s" % filename)
 
 
@@ -624,7 +644,12 @@ for trunc_time in range(0,len(trunc_values)):
             print(depth, ":", count, "(" + str(depth_counts_start[depth] if depth in depth_counts_start else 0), "observed)")
         print("")
 
-        plot_dist_and_fit(get_root_comment_times(sim_tree, seconds_to_minutes=False), mu_params, "simulate_dist_fit.png")
+        sim_root_comment_times = get_root_comment_times(sim_tree, seconds_to_minutes=False)
+        plot_dist_and_fit(sim_root_comment_times, mu_params, "simulate_dist_fit.png")
+
+        #get comment times from simulation separate from the observed
+        new_root_comment_times = sim_root_comment_times[len(root_comment_times):]
+        plot_all(root_comment_times, [t for t in new_root_comment_times if t not in root_comment_times], mu_params, "dist_fit.png")
 
     print("")
 
