@@ -488,14 +488,23 @@ def plot_dist_and_fit(times, params, filename):
 	plt.savefig("hawkes_testing/%s" % filename)
 
 #given observed and simulated comment times, and fitted Weibull params, plot all the things
-def plot_all(obs, sim, params, filename):
+def plot_all(obs, sim, actual, params, filename):
 
 	plt.clf()
-	fig, ax1 = plt.subplots()
+	fig, ax1 = plt.subplots(figsize=(8, 6))
+
+	max_time = max(sim + actual) + 5	#last time, +5 for plot buffer
+
+	#first: plot side-by-side histogram of entire simulated tree (including observed) against actual tree
 	
-	ax1.hist([obs, sim], bins=50, stacked=True, normed=False, color=["blue", "green"], label=["observed", "simulated"])	#plot histogram for true post distribution (observed comments only)
+	#plot histogram for simulated tree, stacking observed and simulated together
+	bins = np.linspace(0, max_time, 30)
+	ax1.hist([actual, obs + sim], bins, stacked=False, normed=False, color=["blue", "green"], label=["actual", "simulated"])	
 	ax1.set_xlabel('time (minutes)')
 	ax1.set_ylabel('root comment frequency')
+
+	#then, plot observed times on top of the final simulated version to emulate a stacked graph
+	ax1.hist([[], obs], bins, normed=False, color=["red", "orange"], label=["", "observed"])
 
 	#plot fitted weibull curve
 	ax2 = ax1.twinx()
@@ -647,9 +656,10 @@ for trunc_time in range(0,len(trunc_values)):
         sim_root_comment_times = get_root_comment_times(sim_tree, seconds_to_minutes=False)
         plot_dist_and_fit(sim_root_comment_times, mu_params, "simulate_dist_fit.png")
 
-        #get comment times from simulation separate from the observed
+        #get comment times from simulation separate from the observed; also get actual comment times
         new_root_comment_times = sim_root_comment_times[len(root_comment_times):]
-        plot_all(root_comment_times, [t for t in new_root_comment_times if t not in root_comment_times], mu_params, "dist_fit.png")
+        actual_comment_times = get_root_comment_times(tree)
+        plot_all(root_comment_times, new_root_comment_times, actual_comment_times, mu_params, "dist_fit.png")
 
     print("")
 
