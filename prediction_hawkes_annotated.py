@@ -212,8 +212,6 @@ def simulate_comment_tree(given_tree, start_time, params_mu, params_phi, n_b, N_
     T2 = 7200  # hard set: -//- for comments to comments
     #also cap number of comments (default function argument)
 
-    print("simulating!")
-
     #copy tree
     g = nx.Graph()
     g = given_tree.copy()
@@ -488,7 +486,7 @@ def plot_dist_and_fit(times, params, filename):
 	plt.savefig("hawkes_testing/%s" % filename)
 
 #given observed and simulated comment times, and fitted Weibull params, plot all the things
-def plot_all(obs, sim, actual, params, filename):
+def plot_all(obs, sim, actual, params, fit_full, filename):
 
 	plt.clf()
 	fig, ax1 = plt.subplots(figsize=(8, 6))
@@ -504,14 +502,17 @@ def plot_all(obs, sim, actual, params, filename):
 	ax1.set_ylabel('root comment frequency')
 
 	#then, plot observed times on top of the final simulated version to emulate a stacked graph
-	ax1.hist([[], obs], bins, normed=False, color=["red", "orange"], label=["", "observed"])
+	ax1.hist([[], obs], bins, normed=False, color=["red", "orange"], label=["", "given"])
 
 	#plot fitted weibull curve
 	ax2 = ax1.twinx()
 	x = np.arange(0, max(sim), 1)
 	y = [weib_func(t, params[0], params[1], params[2]) for t in x]
 	ax2.plot(x, y, 'r-', label="Weibull fit")
-	ax2.set_ylabel('Weibull fit', color='r')
+	if fit_full:
+		ax2.set_ylabel('Weibull fit (full tree)', color='r')
+	else:
+		ax2.set_ylabel('Weibull fit (observed tree)', color='r')
 
 	ax1.legend()
 	plt.savefig("hawkes_testing/%s" % filename)
@@ -543,6 +544,15 @@ t_learn_list = [ '4h' ]
 #trunc_values = [240, 360, 480, 720]
 trunc_values = [240]
 
+#new parameters - let's make this code do something it's not designed for!
+TRAIN_FULL_TREE = False 			#if True, train on the entire tree, not just a portion
+								#if False, train on a portion of the tree dictated by trunc_values
+
+PREDICT_FROM_ROOT = False 		#if True, predict new tree structure from an empty root (no observed comments)
+								#if False, predict additional comments from the observed range defined by trunc_values
+
+
+#pull one tree for testing
 tree = Otrees_list[i]
 print("tree size", len(tree))
 viz_graph(tree, "hawkes_testing/input_tree.png")
@@ -580,8 +590,12 @@ for trunc_time in range(0,len(trunc_values)):
         continue
 
     #get root comment times (in minutes) for fitting
-    root_comment_times = get_root_comment_times(given_tree)
-    print(len(root_comment_times), "root comment times in filtered tree,", len(get_root_comment_times(tree)), "in full tree\n")
+    if TRAIN_FULL_TREE:
+    	root_comment_times = get_root_comment_times(tree)	#entire cascade tree
+    	print(len(root_comment_times), "root comment times in full tree")
+    else:
+    	root_comment_times = get_root_comment_times(given_tree)		#filtered tree
+    	print(len(root_comment_times), "root comment times in filtered tree,", len(get_root_comment_times(tree)), "in full tree\n")
     #print(str(root_comment_times), "(minutes)\n")
 
     #fit the weibull based on root comment times
@@ -593,19 +607,26 @@ for trunc_time in range(0,len(trunc_values)):
     plot_dist_and_fit(root_comment_times, mu_params, "observed_dist_fit.png")
 
     #fit log-normal based on all other comment times
-    other_comment_times = get_other_comment_times(given_tree)
+    if TRAIN_FULL_TREE:
+    	other_comment_times = get_other_comment_times(tree)		#full tree
+    else:
+    	other_comment_times = get_other_comment_times(given_tree)	#filtered tree
     phi_params = phi_parameters_estimation(other_comment_times)
     print("Phi_params:", "\n   mu", phi_params[0], "\n   sigma", phi_params[1], "\n")	#mu, sigma
 
     #estimate branching factor (average number of replies per comment)
-    n_b = nb_parameters_estimation(given_tree, root)
+    if TRAIN_FULL_TREE:
+    	n_b = nb_parameters_estimation(tree, root)
+    else:
+    	n_b = nb_parameters_estimation(given_tree, root)
     print("branching factor n_b:", n_b, "\n")
     
+    root_comment_times = get_root_comment_times(given_tree)		#done training, get filtered root_comment_times
     given_tree = get_trunc_tree(tree, t_learn)	#filter tree, but this time set timestamps to minutes
 
     #print level breakdown of source tree
     depth_counts = count_nodes_per_level(tree, root)
-    print("original tree nodes per level:")
+    print("full original tree nodes per level:")
     for depth, count in depth_counts.items():
     	print(depth, ":", count)
     print("")
@@ -614,8 +635,8 @@ for trunc_time in range(0,len(trunc_values)):
     for j in range(0, sim_num_runs):		#repeated simulations
 
         #intermittent prints to show progress
-        if j % add_count == 0:
-            print(j, "of", sim_num_runs, "HAWKES trees simulated for the tree i =", i)
+        #if j % add_count == 0:
+        #    print(j, "of", sim_num_runs, "HAWKES trees simulated for the tree i =", i)
 
         #simulate by added to observed tree
         sim_tree, success = simulate_comment_tree(given_tree, t_learn, mu_params, phi_params, n_b)
@@ -653,13 +674,14 @@ for trunc_time in range(0,len(trunc_values)):
             print(depth, ":", count, "(" + str(depth_counts_start[depth] if depth in depth_counts_start else 0), "observed)")
         print("")
 
+        #get all root comment times from the simulation
         sim_root_comment_times = get_root_comment_times(sim_tree, seconds_to_minutes=False)
         plot_dist_and_fit(sim_root_comment_times, mu_params, "simulate_dist_fit.png")
 
-        #get comment times from simulation separate from the observed; also get actual comment times
+        #get comment times from simulation separate from the observed/given; also get actual comment times
         new_root_comment_times = sim_root_comment_times[len(root_comment_times):]
         actual_comment_times = get_root_comment_times(tree)
-        plot_all(root_comment_times, new_root_comment_times, actual_comment_times, mu_params, "dist_fit.png")
+        plot_all(root_comment_times, new_root_comment_times, actual_comment_times, mu_params, TRAIN_FULL_TREE, "dist_fit.png")
 
     print("")
 
