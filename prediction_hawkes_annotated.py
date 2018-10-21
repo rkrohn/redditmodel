@@ -21,6 +21,7 @@ import multiprocessing as mp
 from copy import deepcopy
 import os
 from collections import defaultdict
+import math
 import warnings
 warnings.filterwarnings("ignore")
 
@@ -104,6 +105,9 @@ def generate_mu_poisson_times(start_time, params, T = 7200, N_max = 2000):   # W
     #evaluate weibull at time t, return result
     def mu_func(t, a, b, alpha): # a>0, b>0, alpha>0  --- Weibull
         f = (a*alpha/b)*(t/b)**(alpha-1)*np.exp(-(t/b)**alpha)
+        #special-case to prevent infinte returns
+        if math.isinf(f):
+        	f = 1.0
         return f
 
     thin_poisson_times = []
@@ -501,8 +505,9 @@ def plot_all(obs, sim, actual, params, fit_full, filename):
 	ax1.set_xlabel('time (minutes)')
 	ax1.set_ylabel('root comment frequency')
 
-	#then, plot observed times on top of the final simulated version to emulate a stacked graph
-	ax1.hist([[], obs], bins, normed=False, color=["red", "orange"], label=["", "given"])
+	#then, plot observed times on top of the final simulated version to emulate a stacked graph - if there were observed root comments
+	if len(obs) > 0:
+		ax1.hist([[], obs], bins, normed=False, color=["red", "orange"], label=["", "given"])
 
 	#plot fitted weibull curve
 	ax2 = ax1.twinx()
@@ -545,10 +550,10 @@ t_learn_list = [ '4h' ]
 trunc_values = [240]
 
 #new parameters - let's make this code do something it's not designed for!
-TRAIN_FULL_TREE = False 			#if True, train on the entire tree, not just a portion
+TRAIN_FULL_TREE = True 			#if True, train on the entire tree, not just a portion
 								#if False, train on a portion of the tree dictated by trunc_values
 
-PREDICT_FROM_ROOT = False 		#if True, predict new tree structure from an empty root (no observed comments)
+PREDICT_FROM_ROOT = True 		#if True, predict new tree structure from an empty root (no observed comments)
 								#if False, predict additional comments from the observed range defined by trunc_values
 
 
@@ -638,22 +643,21 @@ for trunc_time in range(0,len(trunc_values)):
         #if j % add_count == 0:
         #    print(j, "of", sim_num_runs, "HAWKES trees simulated for the tree i =", i)
 
-        #simulate by added to observed tree
-        sim_tree, success = simulate_comment_tree(given_tree, t_learn, mu_params, phi_params, n_b)
-
-        #simulate from empty starting tree (just the root)
-        '''
-        empty_tree = nx.Graph()
-        empty_tree = given_tree.copy()
-        r, root_creation_time = get_root(given_tree)
-        nodes_to_delete = []
-        for u in empty_tree.nodes():
-            if empty_tree.node[u]['root'] == False:
-                nodes_to_delete.append(u)
-        for u in nodes_to_delete:
-            empty_tree.remove_node(u)
-        sim_tree, success = simulate_comment_tree(empty_tree, 0, mu_params, phi_params, n_b)
-        '''
+        if PREDICT_FROM_ROOT:
+	        #simulate from empty starting tree (just the root)
+	        empty_tree = nx.Graph()
+	        empty_tree = given_tree.copy()
+	        r, root_creation_time = get_root(given_tree)
+	        nodes_to_delete = []
+	        for u in empty_tree.nodes():
+	            if empty_tree.node[u]['root'] == False:
+	                nodes_to_delete.append(u)
+	        for u in nodes_to_delete:
+	            empty_tree.remove_node(u)
+	        sim_tree, success = simulate_comment_tree(empty_tree, 0, mu_params, phi_params, n_b)
+        else:
+        	#simulate by added to observed tree
+        	sim_tree, success = simulate_comment_tree(given_tree, t_learn, mu_params, phi_params, n_b)
 
         #viz just the first sim tree for now (slows the process waaaaay down to do them all)
         if j == 0:
@@ -671,14 +675,16 @@ for trunc_time in range(0,len(trunc_values)):
         depth_counts_start = count_nodes_per_level(given_tree, get_root(given_tree)[0])
         print("sim tree nodes per level:")
         for depth, count in depth_counts.items():
-            print(depth, ":", count, "(" + str(depth_counts_start[depth] if depth in depth_counts_start else 0), "observed)")
+            print(depth, ":", count, "(" + str(depth_counts_start[depth] if depth in depth_counts_start and PREDICT_FROM_ROOT == False else 0), "given)")
         print("")
 
         #get all root comment times from the simulation
         sim_root_comment_times = get_root_comment_times(sim_tree, seconds_to_minutes=False)
         plot_dist_and_fit(sim_root_comment_times, mu_params, "simulate_dist_fit.png")
 
-        #get comment times from simulation separate from the observed/given; also get actual comment times
+        #get comment times from simulation separate from the observed/given; also get actual comment times        
+       	if PREDICT_FROM_ROOT:		#if predicted from empty root, no observed comments
+       		root_comment_times = []
         new_root_comment_times = sim_root_comment_times[len(root_comment_times):]
         actual_comment_times = get_root_comment_times(tree)
         plot_all(root_comment_times, new_root_comment_times, actual_comment_times, mu_params, TRAIN_FULL_TREE, "dist_fit.png")
