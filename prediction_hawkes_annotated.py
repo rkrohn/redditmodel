@@ -107,7 +107,7 @@ def generate_mu_poisson_times(start_time, params, T = 7200, N_max = 2000):   # W
         f = (a*alpha/b)*(t/b)**(alpha-1)*np.exp(-(t/b)**alpha)
         #special-case to prevent infinte returns
         if math.isinf(f):
-        	f = 1.0
+        	f = 2.25
         return f
 
     thin_poisson_times = []
