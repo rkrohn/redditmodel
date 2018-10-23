@@ -1,3 +1,6 @@
 data_cache
 __pycache__
 *.pyc
+list_tar.py
+tensor_testing/tf-decompose/
+
