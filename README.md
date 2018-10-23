@@ -24,6 +24,8 @@ Code for modelling reddit cascades.
 
 **hawkes_tree.py** eventually, should generate a comment cascade (tree) given parameters - work in progress
 
+**fit_weibull.py** given a sequence of event times, fit a Weibull pdf to the distribution
+
 
 **Directories**
 
