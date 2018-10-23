@@ -487,7 +487,7 @@ def plot_dist_and_fit(times, params, filename):
 	ax2.plot(x, y, 'r-')
 	ax2.set_ylabel('Weibull fit', color='r')
 
-	plt.savefig("hawkes_testing/%s" % filename)
+	plt.savefig("plots/%s" % filename)
 
 #given observed and simulated comment times, and fitted Weibull params, plot all the things
 def plot_all(obs, sim, actual, params, fit_full, filename):
@@ -520,7 +520,7 @@ def plot_all(obs, sim, actual, params, fit_full, filename):
 		ax2.set_ylabel('Weibull fit (observed tree)', color='r')
 
 	ax1.legend()
-	plt.savefig("hawkes_testing/%s" % filename)
+	plt.savefig("plots/%s" % filename)
 
 
 # # Main function
@@ -560,7 +560,7 @@ PREDICT_FROM_ROOT = True 		#if True, predict new tree structure from an empty ro
 #pull one tree for testing
 tree = Otrees_list[i]
 print("tree size", len(tree))
-viz_graph(tree, "hawkes_testing/input_tree.png")
+viz_graph(tree, "plots/input_tree.png")
 
 
 # Here is the main code. Go through *trunc_values*, cut the *tree* into *given_tree* available at the current t_learn from *trunc_values*, infer parameters for $\mu(t)$ and $\phi(t)$, grow the tree according to the Hawkes model.
@@ -583,7 +583,7 @@ for trunc_time in range(0,len(trunc_values)):
     t_learn = trunc_values[trunc_time]		#current learning time in minutes
     given_tree = get_trunc_tree_no_relabel(tree, t_learn)		#filter tree, only observe stuff in training window
     print("filter tree to", len(given_tree), "nodes")
-    viz_graph(given_tree, "hawkes_testing/filtered_tree.png")
+    viz_graph(given_tree, "plots/filtered_tree.png")
 
     #break if size of the observed tree is too small for prediction at that moment
     if len(given_tree) <= 10:  
@@ -661,7 +661,7 @@ for trunc_time in range(0,len(trunc_values)):
 
         #viz just the first sim tree for now (slows the process waaaaay down to do them all)
         if j == 0:
-        	viz_graph(sim_tree, "hawkes_testing/sim_tree_%s.png" % j)
+        	viz_graph(sim_tree, "plots/sim_tree_%s.png" % j)
         if success:
             list_hawkes_sizes[trunc_time].append(len(sim_tree))
         else:
