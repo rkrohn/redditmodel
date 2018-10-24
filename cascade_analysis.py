@@ -353,3 +353,18 @@ def save_cascade_comments(code, comments):
 	else:
 		file_utils.save_pickle(comments, "data_cache/%s_cascades/%s_cascade_comments.pkl" % (code, code))
 #end save_comments
+
+#given a set of cascades and a subreddit, filter cascades to only those from that subreddit
+def filter_cascades_by_subreddit(cascades, subreddit):
+	filtered_cascades = {}		#dictionary for filtered cascades
+
+	print("Filtering to posts in", subreddit, "subreddit")
+
+	for cascade_id, cascade_post in cascades.items():
+		if cascade_post['subreddit'] == subreddit:
+			filtered_cascades[cascade_id] = cascade_post
+
+	print("Found", len(filtered_cascades), "for subreddit", subreddit, "(from", len(cascades), "cascades)\n")
+
+	return filtered_cascades
+#end filter_cascades by subreddit
