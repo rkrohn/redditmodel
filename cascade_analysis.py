@@ -1,3 +1,6 @@
+#handles creation and analysis of reddit cascades
+#for cascade manipulation/helper functions, see cascade_manip.py
+
 import data_utils
 import file_utils
 import plot_utils
@@ -301,21 +304,6 @@ def remove_missing(code, cascades = False, comments = False):
 	return cascades, comments
 #end remove_missing
 
-#given the root of a cascade (top-level post for first call, comment for remainder), 
-#traverse the cascade and count total number of comments
-#   node = current node to traverse down from (call on top-level post to traverse entire cascade)
-#   comments = dictionary of coment id -> comment object containing all comments
-def traverse_cascade(node, comments):
-	total_comments = 0		#total number of comments in cascade
-
-	#loop and recurse on all replies
-	for reply_id in node['replies']:
-		total_comments += traverse_cascade(comments[reply_id], comments)		#add this reply's comments to total
-	total_comments += len(node['replies'])		#add all direct comments to total
-
-	return total_comments
-#end traverse_cascade
-
 #create empty/placeholder object with desired fields and id
 #set all fields to None, since we have no data for this missing object
 def create_object(identifier, fields):
@@ -353,18 +341,3 @@ def save_cascade_comments(code, comments):
 	else:
 		file_utils.save_pickle(comments, "data_cache/%s_cascades/%s_cascade_comments.pkl" % (code, code))
 #end save_comments
-
-#given a set of cascades and a subreddit, filter cascades to only those from that subreddit
-def filter_cascades_by_subreddit(cascades, subreddit):
-	filtered_cascades = {}		#dictionary for filtered cascades
-
-	print("Filtering to posts in", subreddit, "subreddit")
-
-	for cascade_id, cascade_post in cascades.items():
-		if cascade_post['subreddit'] == subreddit:
-			filtered_cascades[cascade_id] = cascade_post
-
-	print("Found", len(filtered_cascades), "for subreddit", subreddit, "(from", len(cascades), "cascades)\n")
-
-	return filtered_cascades
-#end filter_cascades by subreddit

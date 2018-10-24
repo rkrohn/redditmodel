@@ -6,7 +6,11 @@ Code for modelling reddit cascades.
 
 **load_model_data.py** load reddit and exogenous data for chosen situation (cyber, crypto, or cve)
 
-**cascade_analysis.py** given loaded posts and comments for a particular domain (cyber, crypto, or cve), reconstruct the post cascade structure (this includes the creation of "dummy" objects for any posts/comments that are referred to by links, but are not present in the data); various cascade analysis tasks
+**cascade_analysis.py** given loaded posts and comments for a particular domain (cyber, crypto, or cve), reconstruct the post cascade structure (this includes the creation of "dummy" objects for any posts/comments that are referred to by links, but are not present in the data); various cascade analysis tasks (entire set of cascades, not an individual one)
+
+**cascade_manip.py** helper methods for working with cascades - filtering, sorting, etc
+
+**fit_cascade.py** given a single reddit cascade (assumed to be complete), fit a weibull and log-normal to prepare for cascade simulation
 
 **data_utils.py** functions for data manipulation
 
@@ -26,8 +30,10 @@ Code for modelling reddit cascades.
 
 **fit_weibull.py** given a sequence of event times, fit a Weibull pdf to the distribution
 
+**fit_lognormal.py** given a sequence of event times, fit a log-normal to the distribution
 
-**Directories**
+
+### Directories
 
 fit_testing : code from testing various fit methods
 
