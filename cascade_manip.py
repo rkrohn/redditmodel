@@ -51,7 +51,7 @@ def traverse_cascade(node, comments):
 def filter_cascades_by_subreddit(cascades, subreddit):
 	filtered_cascades = {}		#dictionary for filtered cascades
 
-	print("Filtering to posts in", subreddit, "subreddit")
+	print("\nFiltering to posts in", subreddit, "subreddit")
 
 	for cascade_id, cascade_post in cascades.items():
 		if cascade_post['subreddit'] == subreddit:
@@ -61,3 +61,35 @@ def filter_cascades_by_subreddit(cascades, subreddit):
 
 	return filtered_cascades
 #end filter_cascades by subreddit
+
+
+#given a list of post objects, filter the comments to only those in those cascades
+def filter_comments_by_posts(cascades, comments):
+	comment_ids = set()		#build set of comment ids to include in filtered dictionary
+
+	print("\nFiltering comments to match posts")
+
+	#loop all posts, built list of comment ids
+	for post_id, post in cascades.items():
+		comment_ids.update(get_cascade_comment_ids(post, comments))		#add this posts's comments to overall list
+
+	#filter comments to only those in the list
+	filtered_comments = { comment_id : comments[comment_id] for comment_id in comment_ids }
+
+	print("Filtered to", len(filtered_comments), "comments (from", len(comments), "comments)\n")
+#end filter_comments_by_post
+
+
+#given a single post object, get set of all comment ids in the corresponding cascade
+#(must pass in all comments that are a part of that post at minimum)
+def get_cascade_comment_ids(post, comments):
+	comment_ids = set()		#set to hold overall list of comment ids
+
+	nodes_to_visit = post['replies']	#init queue to direct post replies
+	while len(nodes_to_visit) != 0:
+		curr = nodes_to_visit.pop(0)	#grab current comment id
+		comment_ids.add(curr)			#add this comment to set of cascade comments
+		nodes_to_visit.extend(comments[curr]['replies'])	#add this comment's replies to queue
+
+	return comment_ids
+#end get_cascade_comment_ids
