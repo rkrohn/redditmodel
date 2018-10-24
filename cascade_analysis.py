@@ -166,7 +166,7 @@ def build_cascades(code, posts = False, comments = False):
 
 	#save cascades for later loading
 	cascade_manip.save_cascades(code, cascades)				#cascades
-	cascade_manip.save_cascade_comments(code, comments)		#comments
+	cascade_manip.save_comments(code, comments)		#comments
 	file_utils.save_json(list(missing_posts), "data_cache/%s_cascades/%s_cascade_missing_posts.json" % (code, code))
 	file_utils.save_json(list(missing_comments), "data_cache/%s_cascades/%s_cascade_missing_comments.json" % (code, code))
 
