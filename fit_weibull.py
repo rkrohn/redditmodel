@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # coding: utf-8
 
+
 #functions to fit a Weibull distribution to a series of event times in minutes
 #based on the code from https://arxiv.org/pdf/1801.10082.pdf, with modifications
 
@@ -12,8 +13,10 @@
 #   lambda      scale parameter (b in the source paper)
 #   a           scalar multiplier (directly from the paper)
 
+
 import numpy as np
 from scipy.optimize import curve_fit, minimize
+
 
 #given a list of event times, fit a weibull function, returning parameters a, lbd, and k
 #use random perturbation to correct for poor initial guesses a maximum of <runs> times
@@ -22,7 +25,7 @@ def weibull_parameters_estimation(event_times, runs = 10, large_params = [1000, 
 
     #given weibull parameters a, k, and lambda (lbd), return the value of the negative 
     #loglikelihood function across all time values 
-    def weib_loglikelihood(var):  # var = (a,b,alpha) (a, lbd, k)
+    def weib_loglikelihood(var):    #var = (a, lbd, k)
         #extract params from tuple
         a = var[0]
         lbd = var[1]
@@ -54,8 +57,9 @@ def weibull_parameters_estimation(event_times, runs = 10, large_params = [1000, 
         else:
             break
 
-    return fit_params     # [a, lbd, k]
+    return fit_params     #[a, lbd, k]
 #end weibull_parameters_estimation
+
 
 #perform a curve_fit of the weibull function (less precise than parameter estimation method)
 #unmodified from original, exept for comments
@@ -82,11 +86,13 @@ def func_fit_weibull(event_times, res=60, runs = 10, T_max = 3*1440, large_param
     return fit_params     # [a, lbd, k]
 #end func_fit_weibull
 
+
 #given Weibull parameters, return the value of the Weibull pdf at time t
 #all parameters must be > 0
 def weib_func(t, a, lbd, k):
 		return (a* k/lbd) * (t/lbd)**(k-1) * np.exp(-(t/lbd)**k)
 #end weib_fuct
+
 
 #given event times, fit the weibull function
 #if both methods fail, returns None for all parameters
@@ -98,9 +104,14 @@ def fit_weibull(event_times, display = True):
         params = func_fit_weibull(event_times)
 
     if display:
-        print("Weibull params:", "\n   a\t\t", params[0], "\n   lambda\t", params[1], "\n   k\t\t", params[2], "\n")
+        if params[0] == None:
+            print("Weibull fit failed")
+        else:
+            print("Weibull params:", "\n   a\t\t", params[0], "\n   lambda\t", params[1], "\n   k\t\t", params[2], "\n")
 
     return params   #(a, lambda, k)
+#end fit_weibull
+
 
 #Usage example
 '''
