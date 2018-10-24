@@ -4,6 +4,7 @@
 import data_utils
 import file_utils
 import plot_utils
+import cascade_manip
 import os
 import glob
 import load_model_data
@@ -164,12 +165,8 @@ def build_cascades(code, posts = False, comments = False):
 	'''
 
 	#save cascades for later loading
-	#make sure directory exists
-	if not os.path.exists("data_cache/%s_cascades" % code):
-		os.makedirs("data_cache/%s_cascades" % code)
-	print("Saving cascades to data_cache/%s_cascades/%s_cascade_<file contents>.pkl" % (code, code))
-	file_utils.save_pickle(cascades, "data_cache/%s_cascades/%s_cascade_posts.pkl" % (code, code))
-	save_cascade_comments(code, comments)		#cascade comments
+	cascade_manip.save_cascades(code, cascades)				#cascades
+	cascade_manip.save_cascade_comments(code, comments)		#comments
 	file_utils.save_json(list(missing_posts), "data_cache/%s_cascades/%s_cascade_missing_posts.json" % (code, code))
 	file_utils.save_json(list(missing_comments), "data_cache/%s_cascades/%s_cascade_missing_comments.json" % (code, code))
 

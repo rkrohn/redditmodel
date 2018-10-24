@@ -1,13 +1,9 @@
 #handles manipulation of reddit cascades (helper functions)
 #for cascade creation and analysis, see cascade_analysis.py
 
-import data_utils
 import file_utils
-import plot_utils
+import cascade_analysis
 import os
-import glob
-import load_model_data
-from collections import defaultdict
 
 
 #given cascades and comments, remove any cascades containing missing elements (posts or comments)
@@ -15,7 +11,7 @@ def remove_missing(code, cascades = False, comments = False):
 	#load data if missing
 	if cascades == False or comments == False:
 		print("loading data - build cascades")
-		cascades, comments, missing_posts, missing_comments = build_cascades(code)
+		cascades, comments, missing_posts, missing_comments = cascade_analysis.build_cascades(code)
 
 	print("\nStarting with", len(cascades), "cascades and", len(comments), "comments")
 
@@ -77,6 +73,8 @@ def filter_comments_by_posts(cascades, comments):
 	filtered_comments = { comment_id : comments[comment_id] for comment_id in comment_ids }
 
 	print("Filtered to", len(filtered_comments), "comments (from", len(comments), "comments)\n")
+
+	return filtered_comments
 #end filter_comments_by_post
 
 
@@ -93,3 +91,66 @@ def get_cascade_comment_ids(post, comments):
 
 	return comment_ids
 #end get_cascade_comment_ids
+
+
+#save cascades (complete or filtered) to pickle
+#if filtered = False, saving all cascades for this code
+#if filtered is a string, indicates subreddit cascades are filtered by
+def save_cascades(code, cascades, filtered = False):
+	if filtered == False:
+		file_utils.verify_dir("data_cache/%s_cascades" % code)
+		print("Saving cascades to data_cache/%s_cascades/%s_cascade_<file contents>.pkl" % (code, code))
+		file_utils.save_pickle(cascades, "data_cache/%s_cascades/%s_cascade_posts.pkl" % (code, code))
+	else:
+		file_utils.verify_dir("data_cache/filtered_cascades")
+		print("Saving filtered cascades to data_cache/filtered_cascades/%s_%s_cascades.pkl" % (code, filtered))
+		file_utils.save_pickle(cascades, "data_cache/filtered_cascades/%s_%s_cascades.pkl" % (code, filtered))
+#end save_cascades
+
+
+#save cascade comments (complete or filtered) to pickle
+#if filtered = False, saving all comments for this code
+#if filtered is a string, indicates subreddit comments are filtered by
+def save_comments(code, comments, filtered = False):
+	if filtered == False:
+		print("Saving comments to data_cache/%s_cascades/%s_cascade_comments.pkl" % (code, code))
+		#save all comments to pickle
+		file_utils.verify_dir("data_cache/%s_cascades" % code)
+		#break cyber comments into separate files, because memory error
+		if code == "cyber":
+			temp = {}		#temporary dictionary to hold a chunk of comments
+			count = 0
+			for comment_id, comment in comments.items():
+				temp[comment_id] = comment
+				count += 1
+				if count % 1000000 == 0:
+					file_utils.save_pickle(temp, "data_cache/%s_cascades/%s_cascade_comments_%s.pkl" % (code, code, count//1000000))
+					temp = {}
+			#last save
+			file_utils.save_pickle(temp, "data_cache/%s_cascades/%s_cascade_comments_%s.pkl" % (code, code, count//1000000))
+		else:
+			file_utils.save_pickle(comments, "data_cache/%s_cascades/%s_cascade_comments.pkl" % (code, code))
+	else:
+		file_utils.verify_dir("data_cache/filtered_cascades")
+		print("Saving filtered comments to data_cache/filtered_cascades/%s_%s_comments.pkl" % (code, filtered))
+		file_utils.save_pickle(comments, "data_cache/filtered_cascades/%s_%s_comments.pkl" % (code, filtered))
+#end save_comments
+
+
+#load filtered posts/comments from saved pickle
+def load_filtered_cascades(code, subreddit):
+	#if files don't exist, quit
+	if os.path.exists("data_cache/filtered_cascades/%s_%s_comments.pkl" % (code, subreddit)) == False or os.path.exists("data_cache/filtered_cascades/%s_%s_cascades.pkl" % (code, subreddit)) == False:
+		print("No saved filtered cascades - exiting")
+		exit(0)
+
+	print("\nLoading", subreddit, "posts and comments from cache")
+
+	#load from file
+	cascades = file_utils.load_pickle("data_cache/filtered_cascades/%s_%s_cascades.pkl" % (code, subreddit))
+	comments = file_utils.load_pickle("data_cache/filtered_cascades/%s_%s_comments.pkl" % (code, subreddit))
+
+	print("Loaded", len(cascades), "posts and", len(comments), "comments\n")
+
+	return cascades, comments
+#end load_filtered_cascades

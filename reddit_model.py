@@ -1,10 +1,11 @@
 import load_model_data
 import cascade_analysis
+import cascade_manip
 
 #driver for all the other things
 
 
-code = "cve"			#set use case/domain: must be crypto, cyber, or cve
+code = "crypto"			#set use case/domain: must be crypto, cyber, or cve
 						#crypto for dry run
 						#cyber takes forever
 						#cve fastest
@@ -19,17 +20,35 @@ print("Processing", code)
 #load_exogenous_data(code)
 
 #build/load cascades (auto-load as a result, either raw data or cached cascades)
+'''
 cascades, comments, missing_posts, missing_comments = cascade_analysis.build_cascades(code)
-
 #optional: filter out cascades with any missing elements (posts or comments)
-cascades, comments = cascade_analysis.remove_missing(code, cascades, comments)
+cascades, comments = cascade_manip.remove_missing(code, cascades, comments)
+'''
 
 #get subreddit distribution
-cascade_analysis.get_subreddits(code, cascades)
+#cascade_analysis.get_subreddits(code, cascades)
 
 #get/plot top-level comment response time distribution
-cascade_analysis.top_level_comment_response_dist(code, cascades, comments)		#1 minute bins
-cascade_analysis.top_level_comment_response_dist(code, cascades, comments, bin_minutes = 30)	#30 minute bins
+#cascade_analysis.top_level_comment_response_dist(code, cascades, comments)		#1 minute bins
+#cascade_analysis.top_level_comment_response_dist(code, cascades, comments, bin_minutes = 30)	#30 minute bins
 
 #look at number of top-level comments from two sources
-cascade_analysis.check_comment_count(code, cascades)	
+#cascade_analysis.check_comment_count(code, cascades)	
+
+#filter cascades by a particular subreddit
+'''
+subreddit = "Lisk"
+filtered_cascades = cascade_manip.filter_cascades_by_subreddit(cascades, subreddit)
+#and filter comments to match those posts
+filtered_comments = cascade_manip.filter_comments_by_posts(filtered_cascades, comments)
+#save these filtered potss/comments for easier loading later
+cascade_manip.save_cascades(code, filtered_cascades, subreddit)
+cascade_manip.save_comments(code, filtered_comments, subreddit)
+'''
+
+
+#or, load cached filtered posts/comments
+
+subreddit = "Lisk"
+filtered_cascades, filtered_comments = cascade_manip.load_filtered_cascades(code, subreddit)
