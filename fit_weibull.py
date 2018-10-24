@@ -105,9 +105,9 @@ def fit_weibull(event_times, display = True):
 
     if display:
         if params[0] == None:
-            print("Weibull fit failed")
+            print("\nWeibull fit failed\n")
         else:
-            print("Weibull params:", "\n   a\t\t", params[0], "\n   lambda\t", params[1], "\n   k\t\t", params[2], "\n")
+            print("\nWeibull params:", "\n   a\t\t", params[0], "\n   lambda\t", params[1], "\n   k\t\t", params[2], "\n")
 
     return params   #(a, lambda, k)
 #end fit_weibull
