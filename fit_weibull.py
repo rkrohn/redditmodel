@@ -82,7 +82,12 @@ def func_fit_weibull(event_times, res=60, runs = 10, T_max = 3*1440, large_param
     
     param_set = np.asarray(start_params)
     for i in range(runs):
-        fit_params, pcov = curve_fit(weib_func, xdata = center_bins, ydata = hist/res, p0 = param_set, bounds = (0.00001, 1000000), maxfev = 1000000)
+        try:
+            fit_params, pcov = curve_fit(weib_func, xdata = center_bins, ydata = hist/res, p0 = param_set, bounds = (0.00001, 1000000), maxfev = 1000000)
+        except Exception as e:
+            #catch the ValueError that sometimes occurs when fitting few events
+            #really shouldn't happen, but just in case...
+            print("Error encountered in func_fit_weibull for", len(event_times), "events:", e)
         #if bad fit, perturb the initial guess and re-fit
         if fit_params[0] > large_params[0] or fit_params[1] > large_params[1] or fit_params[2] > large_params[2]:
             param_set += np.array([np.random.normal(0, start_params[0]/10), np.random.normal(0, start_params[1]/10), np.random.normal(0, start_params[2]/4)])
@@ -115,9 +120,12 @@ def fit_weibull(event_times, display = False):
         return DEFAULT_WEIBULL_NONE
 
     params = weibull_parameters_estimation(event_times)     #try loglikelihood estimation first
-    #if that fails, use curve fit
+    #if that fails, use curve fit if more than one item
     if params == None:
-        params = func_fit_weibull(event_times)
+        if len(event_times) == 1:
+            params = func_fit_weibull(event_times)
+        else:
+            params = [None, None, None]     #next if will catch this
 
     #if both fail, and only one comment, hardcode
     if params[0] == None and len(event_times) == 1: 
