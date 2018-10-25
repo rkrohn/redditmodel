@@ -71,8 +71,7 @@ def func_fit_weibull(event_times, res=60, runs = 10, T_max = 3*1440, large_param
     
     param_set = np.asarray(start_params)
     for i in range(runs):
-        fit_params, pcov = curve_fit(weib_func, xdata = center_bins, ydata = hist/res, p0 = param_set, 
-                                     bounds = (0.0001, 100000))
+        fit_params, pcov = curve_fit(weib_func, xdata = center_bins, ydata = hist/res, p0 = param_set, bounds = (0.0001, 100000))
         #if bad fit, perturb the initial guess and re-fit
         if fit_params[0] > large_params[0] or fit_params[1] > large_params[1] or fit_params[2] > large_params[2]:
             param_set += np.array([np.random.normal(0, start_params[0]/10), np.random.normal(0, start_params[1]/10), np.random.normal(0, start_params[2]/4)])

@@ -83,7 +83,7 @@ def filter_comments_by_posts(cascades, comments):
 def get_cascade_comment_ids(post, comments):
 	comment_ids = set()		#set to hold overall list of comment ids
 
-	nodes_to_visit = post['replies']	#init queue to direct post replies
+	nodes_to_visit = [] + post['replies']	#init queue to direct post replies
 	while len(nodes_to_visit) != 0:
 		curr = nodes_to_visit.pop(0)	#grab current comment id
 		comment_ids.add(curr)			#add this comment to set of cascade comments
