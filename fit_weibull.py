@@ -16,6 +16,17 @@
 
 import numpy as np
 from scipy.optimize import curve_fit, minimize
+import warnings
+warnings.filterwarnings("ignore")   #hide the warnings that optimize sometimes throws
+
+
+#HARDCODED PARAMS - only used when fit/estimation fails
+
+DEFAULT_WEIBULL_NONE = [1, 1, 0.15]     #param results if post has NO comments to fit
+                                        #force a distribution heavily weighted towards the left, then decreasing
+
+DEFAULT_WEIBULL_SINGLE = [1, 2, 0.75]   #param result if post has ONE comment and other fit methods fail
+                                        #force a distribution heavily weighted towards the left, then decreasing
 
 
 #given a list of event times, fit a weibull function, returning parameters a, lbd, and k
@@ -71,7 +82,7 @@ def func_fit_weibull(event_times, res=60, runs = 10, T_max = 3*1440, large_param
     
     param_set = np.asarray(start_params)
     for i in range(runs):
-        fit_params, pcov = curve_fit(weib_func, xdata = center_bins, ydata = hist/res, p0 = param_set, bounds = (0.0001, 100000))
+        fit_params, pcov = curve_fit(weib_func, xdata = center_bins, ydata = hist/res, p0 = param_set, bounds = (0.00001, 1000000), maxfev = 1000000)
         #if bad fit, perturb the initial guess and re-fit
         if fit_params[0] > large_params[0] or fit_params[1] > large_params[1] or fit_params[2] > large_params[2]:
             param_set += np.array([np.random.normal(0, start_params[0]/10), np.random.normal(0, start_params[1]/10), np.random.normal(0, start_params[2]/4)])
@@ -96,17 +107,29 @@ def weib_func(t, a, lbd, k):
 #given event times, fit the weibull function
 #if both methods fail, returns None for all parameters
 #otherwise, returns a, lambda, and k paramters
-def fit_weibull(event_times, display = True):
+def fit_weibull(event_times, display = False):
+    #no events to fit, hardcode
+    if len(event_times) == 0:
+        if display:
+            print("No events to fit, setting Weibull params:", "\n   a\t\t", DEFAULT_WEIBULL_NONE[0], "\n   lambda\t", DEFAULT_WEIBULL_NONE[1], "\n   k\t\t", DEFAULT_WEIBULL_NONE[2], "\n")
+        return DEFAULT_WEIBULL_NONE
+
     params = weibull_parameters_estimation(event_times)     #try loglikelihood estimation first
     #if that fails, use curve fit
     if params == None:
         params = func_fit_weibull(event_times)
 
+    #if both fail, and only one comment, hardcode
+    if params[0] == None and len(event_times) == 1: 
+        if display:
+            print("Single event fit failed, setting Weibull params:", "\n   a\t\t", DEFAULT_WEIBULL_SINGLE[0], "\n   lambda\t", DEFAULT_WEIBULL_SINGLE[1], "\n   k\t\t", DEFAULT_WEIBULL_SINGLE[2], "\n")
+        return DEFAULT_WEIBULL_SINGLE
+
     if display:
         if params[0] == None:
-            print("\nWeibull fit failed\n")
+            print("Weibull fit failed\n")
         else:
-            print("\nWeibull params:", "\n   a\t\t", params[0], "\n   lambda\t", params[1], "\n   k\t\t", params[2], "\n")
+            print("Weibull params:", "\n   a\t\t", params[0], "\n   lambda\t", params[1], "\n   k\t\t", params[2], "\n")
 
     return params   #(a, lambda, k)
 #end fit_weibull

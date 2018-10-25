@@ -17,6 +17,12 @@ from scipy.optimize import minimize
 from scipy.special import erf
 
 
+#HARDCODED PARAMS - only used when fit/estimation fails
+
+DEFAULT_LOGNORMAL = [0, 1.5]    #param results if post has no comment replies to fit
+                                #mu = 0, sigma = 1.5 should allow for occasional comment replies, but not many
+
+
 #given a list of event times, fit a lognormal function, returning parameters mu and sigma
 #use random perturbation to correct for poor initial guesses a maximum of <runs> times
 #if no good fit found, return None indicating failure
@@ -29,7 +35,7 @@ def lognorm_parameters_estimation(event_times, runs = 10, large_params = [20, 20
         mu = var[0]
         sigma = var[1]
 
-        t_n = event_times[-1]   #grab last event tim
+        t_n = event_times[-1]   #grab last event time
 
         f = (-1/2 - (1/2) * erf((np.log(t_n)-mu) / (np.sqrt(2)*sigma)) ) + len(event_times) * np.log(1 / (sigma * np.sqrt(2 * np.pi)))
         for t in event_times:
@@ -72,14 +78,21 @@ def lognorm_func(t, mu, sigma):
 #given event times, fit the lognormal distribution
 #if fit fails, return None
 #otherwise, returns mu and lambda paramters
-def fit_lognormal(event_times, display = True):
+def fit_lognormal(event_times, display = False):
+
+    #no event times (ie, no comment replies), hardcode some values
+    if len(event_times) == 0:
+        if display:   
+            print("No events to fit, setting Log-normal params:", "\n   mu\t\t", DEFAULT_LOGNORMAL[0], "\n   sigma\t", DEFAULT_LOGNORMAL[1], "\n")
+        return DEFAULT_LOGNORMAL    
+
     params = lognorm_parameters_estimation(event_times)     #try loglikelihood estimation first
 
     if display:
         if params == None:
-            print("\nlognormal fit failed\n")
+            print("lognormal fit failed\n")
         else:
-            print("\nLog-normal params:", "\n   mu\t\t", params[0], "\n   sigma\t", params[1], "\n")
+            print("Log-normal params:", "\n   mu\t\t", params[0], "\n   sigma\t", params[1], "\n")
 
     return params   #(mu, sigma)
 #end fit_lognormal
