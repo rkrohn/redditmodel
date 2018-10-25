@@ -99,7 +99,7 @@ def get_cascade_comment_ids(post, comments):
 def save_cascades(code, cascades, filtered = False):
 	if filtered == False:
 		file_utils.verify_dir("data_cache/%s_cascades" % code)
-		print("Saving cascades to data_cache/%s_cascades/%s_cascade_<file contents>.pkl" % (code, code))
+		print("Saving cascades to data_cache/%s_cascades/%s_cascade_posts.pkl" % (code, code))
 		file_utils.save_pickle(cascades, "data_cache/%s_cascades/%s_cascade_posts.pkl" % (code, code))
 	else:
 		file_utils.verify_dir("data_cache/filtered_cascades")
@@ -135,6 +135,41 @@ def save_comments(code, comments, filtered = False):
 		print("Saving filtered comments to data_cache/filtered_cascades/%s_%s_comments.pkl" % (code, filtered))
 		file_utils.save_pickle(comments, "data_cache/filtered_cascades/%s_%s_comments.pkl" % (code, filtered))
 #end save_comments
+
+
+#save cascade fitted parameters (complete or filtered) to pickle
+#if filtered = False, saving all cascade params for this code
+#if filtered is a string, indicates subreddit cascade params are filtered by
+def save_cascade_params(code, cascade_params, filtered = False):
+	if filtered == False:
+		file_utils.verify_dir("data_cache/fitted_params/" % code)
+		print("Saving cascade params to data_cache/fitted_params/%s_cascade_params.pkl" % (code, code))
+		file_utils.save_pickle(cascade_params, "data_cache/fitted_params/%s_cascade_params.pkl" % (code, code))
+	else:
+		file_utils.verify_dir("data_cache/fitted_params")
+		print("Saving filtered cascades to data_cache/fitted_params/%s_%s_cascade_params.pkl" % (code, filtered))
+		file_utils.save_pickle(cascade_params, "data_cache/fitted_params/%s_%s_cascade_params.pkl" % (code, filtered))
+#end save_cascade_params
+
+
+#load saved cascade parameters from pickle
+#if filtered = False, loading all cascade params for this code
+#if filtered is a string, indicates subreddit cascade params are filtered by
+def load_cascade_params(code, filtered = False):
+	if filtered == False:
+		filename = "data_cache/fitted_params/%s_cascade_params.pkl" % (code, code)
+	else:
+		filename = "data_cache/fitted_params/%s_%s_cascade_params.pkl" % (code, filtered)
+
+	if os.path.exists(filename) == False:		
+		print("No saved cascade parameters - exiting")
+		exit(0)
+	else:
+		print("Loading cascade parameters from cache")
+		params = file_utils.load_pickle(filename)
+
+	return params
+#end load_cascade_params
 
 
 #load filtered posts/comments from saved pickle
