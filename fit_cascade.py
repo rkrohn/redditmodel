@@ -106,11 +106,12 @@ def estimate_branching_factor(post, comments):
 def fit_cascade_model(post, comments, display = False):
 
     #print by-level breakdown of this cascade
-    depth_counts = count_nodes_per_level(post, comments)
-    print("cascade nodes per level:")
-    for depth, count in depth_counts.items():
-        print(depth, ":", count)
-    print("")
+    if display:
+        depth_counts = count_nodes_per_level(post, comments)
+        print("cascade nodes per level:")
+        for depth, count in depth_counts.items():
+            print(depth, ":", count)
+        print("")
 
     #fit weibull to root comment times
     root_comment_times = get_root_comment_times(post, comments)   
