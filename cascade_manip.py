@@ -157,7 +157,7 @@ def save_cascade_params(code, cascade_params, filtered = False):
 #if filtered is a string, indicates subreddit cascade params are filtered by
 def load_cascade_params(code, filtered = False):
 	if filtered == False:
-		filename = "data_cache/fitted_params/%s_cascade_params.pkl" % (code, code)
+		filename = "data_cache/fitted_params/%s_cascade_params.pkl" % code
 	else:
 		filename = "data_cache/fitted_params/%s_%s_cascade_params.pkl" % (code, filtered)
 
@@ -165,7 +165,7 @@ def load_cascade_params(code, filtered = False):
 		print("No saved cascade parameters - exiting")
 		exit(0)
 	else:
-		print("Loading cascade parameters from cache")
+		print("Loading cascade parameters from cache:", filename)
 		params = file_utils.load_pickle(filename)
 
 	return params
