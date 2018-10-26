@@ -27,12 +27,13 @@ DEFAULT_WEIBULL_NONE = [1, 1, 0.15]     #param results if post has NO comments t
 
 DEFAULT_WEIBULL_SINGLE = [1, 2, 0.75]   #param result if post has ONE comment and other fit methods fail
                                         #force a distribution heavily weighted towards the left, then decreasing
+                                        #use this same hardcode for other fit failures, but set a equal to the number of replies
 
 
 #given a list of event times, fit a weibull function, returning parameters a, lbd, and k
 #use random perturbation to correct for poor initial guesses a maximum of <runs> times
 #if no good fit found, return None indicating failure
-def weibull_parameters_estimation(event_times, runs = 10, large_params = [1000, 10000, 20], start_params = [20, 500, 2.3]):
+def weibull_parameters_estimation(event_times, runs = 20, large_params = [1000, 10000, 20], start_params = [20, 500, 2.3]):
 
     #given weibull parameters a, k, and lambda (lbd), return the value of the negative 
     #loglikelihood function across all time values 
@@ -74,7 +75,7 @@ def weibull_parameters_estimation(event_times, runs = 10, large_params = [1000, 
 
 #perform a curve_fit of the weibull function (less precise than parameter estimation method)
 #unmodified from original, exept for comments
-def func_fit_weibull(event_times, res=60, runs = 10, T_max = 3*1440, large_params = [1000, 10000, 20], start_params = [50, 400, 2.3]):
+def func_fit_weibull(event_times, res=60, runs = 20, T_max = 3*1440, large_params = [1000, 10000, 20], start_params = [50, 400, 2.3]):
     
     bins = np.arange(0, max([T_max, max(event_times)]), res)
     hist, bins = np.histogram(event_times, bins)  #construct histogram of the root comments appearance 
@@ -88,6 +89,14 @@ def func_fit_weibull(event_times, res=60, runs = 10, T_max = 3*1440, large_param
             #catch the ValueError that sometimes occurs when fitting few events
             #really shouldn't happen, but just in case...
             print("Error encountered in func_fit_weibull for", len(event_times), "events:", e)
+            try:
+                fit_params
+            except NameError:
+                #perturb if previous curve_fit super-failed
+                param_set += np.array([np.random.normal(0, start_params[0]/10), np.random.normal(0, start_params[1]/10), np.random.normal(0, start_params[2]/4)])
+                #if too many bad results, return fail
+                if i == runs-1:
+                    fit_params = [None, None, None]
         #if bad fit, perturb the initial guess and re-fit
         if fit_params[0] > large_params[0] or fit_params[1] > large_params[1] or fit_params[2] > large_params[2]:
             param_set += np.array([np.random.normal(0, start_params[0]/10), np.random.normal(0, start_params[1]/10), np.random.normal(0, start_params[2]/4)])
@@ -122,16 +131,19 @@ def fit_weibull(event_times, display = False):
     params = weibull_parameters_estimation(event_times)     #try loglikelihood estimation first
     #if that fails, use curve fit if more than one item
     if params == None:
-        if len(event_times) == 1:
+        if len(event_times) != 1:
             params = func_fit_weibull(event_times)
         else:
             params = [None, None, None]     #next if will catch this
 
-    #if both fail, and only one comment, hardcode
-    if params[0] == None and len(event_times) == 1: 
+    #if both fail, hardcode - not sure what else to do
+    if params[0] == None: 
+        params = DEFAULT_WEIBULL_SINGLE
+        if len(event_times) > 1:
+            params[0] = len(event_times)
         if display:
-            print("Single event fit failed, setting Weibull params:", "\n   a\t\t", DEFAULT_WEIBULL_SINGLE[0], "\n   lambda\t", DEFAULT_WEIBULL_SINGLE[1], "\n   k\t\t", DEFAULT_WEIBULL_SINGLE[2], "\n")
-        return DEFAULT_WEIBULL_SINGLE
+            print("Fit failed, setting Weibull params:", "\n   a\t\t", params[0], "\n   lambda\t", params[1], "\n   k\t\t", params[2], "\n")
+        return params
 
     if display:
         if params[0] == None:
