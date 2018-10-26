@@ -5,10 +5,12 @@ import data_utils
 import file_utils
 import plot_utils
 import cascade_manip
+import fit_cascade
 import os
 import glob
 import load_model_data
 from collections import defaultdict
+import re
 
 #given a list of posts and a list of comments, reconstruct the post/comment (cascade) structure
 #store cascade in the following way using a dictionary
@@ -338,3 +340,53 @@ def save_cascade_comments(code, comments):
 	else:
 		file_utils.save_pickle(comments, "data_cache/%s_cascades/%s_cascade_comments.pkl" % (code, code))
 #end save_comments
+
+#fit model parameters for all cascades given, loading any saved ones to get a headstart
+def fit_all_cascades(code, cascades, comments, subreddit = False):
+	#anything to load? if so, load the latest checkpoint
+	#build glob filestring - to get all matching checkpoints
+	if subreddit == False:
+		filename = "data_cache/fitted_params/%s*_cascade_params.pkl" % code
+	else:
+		filename = "data_cache/fitted_params/%s_%s*_cascade_params.pkl" % (code, subreddit)
+
+	#extract matching filenames and their numeric values, selecting the most complete one to load
+	files = glob.glob(filename)
+	best_int = -1		#count of records in best file - set to "" if a complete file is found
+	for file in files:
+		file_int = re.search(r'\d+', file)
+		#if no number in filename, have a complete file - use that
+		if file_int is None:
+			best_int = ""
+			break
+		else:
+			file_int = int(file_int.group())
+			if file_int > best_int:
+				best_int = file_int
+
+	#load checkpoint, if we have one
+	if best_int != -1:
+		cascade_params = cascade_manip.load_cascade_params(code, subreddit + str(best_int))
+		print("Loaded", len(cascade_params), "fitted cascade parameters")
+
+	#fit any cascades that have not been fitted before, add to params dictionary: post_id -> params
+	post_count = len(cascade_params)
+	print("\nFitting all cascade models")
+	for post_id, post in cascades.items():
+		#if this cascade already fitted, skip
+		if post_id in cascade_params:
+			continue
+		#fit the current cascade (filtering comments to just this post is not required)
+		cascade_params[post_id] = fit_cascade.fit_cascade_model(post, comments)
+		post_count += 1
+		if post_count % 50 == 0:
+			print("Fitted", post_count, "cascades")
+			cascade_manip.save_cascade_params(code, cascade_params, subreddit + str(post_count))
+
+	#dump params to file
+	print("Fitted a total of", len(cascade_params), "cascades")
+	cascade_manip.save_cascade_params(code, cascade_params, subreddit)
+
+	#return all params, loaded and newly fitted
+	return cascade_params
+#end fit_all_cascades
