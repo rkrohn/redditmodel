@@ -190,11 +190,11 @@ def generate_lognorm_times(params, n_b, start_time = 0, T = 7200, N_max = 200): 
 #end generate_lognorm_times
 
 
-#overall simulation function, work from root down, generating as we go
+#overall simulation function, work from root down, generating as we go - this version only returns a sorted list of times!
 #generate root comments based on fitted weibull, comment replies based on fitted log-normal
 #requires fitted weibull and log-normal distribution to define hawkes process
 #model params = [a, lbd, k, mu, sigma, n_b] (first 3 weibull, next 2 lognorm, last branching factor)
-def simulate_comment_tree(model_params, display = True):
+def simulate_comment_tree_times_only(model_params, display = True):
     weibull_params, lognorm_params, n_b = unpack_params(model_params)   #unfold parameters
 
     #simulate from empty starting tree (just the root, no observed comments
@@ -211,13 +211,49 @@ def simulate_comment_tree(model_params, display = True):
         reply_times = generate_lognorm_times(lognorm_params, n_b, start_time = comment)
         all_replies.extend(reply_times)
         needs_replies.extend(reply_times)
-        print("   ", "*" if comment in root_comment_times else "", comment, ":", reply_times)
-    #need to run this deeper, but good enough for today
+        if display:
+        	print("   ", "*" if comment in root_comment_times else "", comment, ":", reply_times)
 
     if display:
         print("Simulated cascade has", len(root_comment_times), "replies and", len(all_replies), "total comments")
 
     return sorted(all_replies)  #for now, just return sorted list of all reply times
+#end simulate_comment_tree
+
+#overall simulation function, work from root down, generating as we go
+#returns a tree stored using a dictionary structure (for easy field additions later) and a sorted list of all comment times
+#generate root comments based on fitted weibull, comment replies based on fitted log-normal
+#requires fitted weibull and log-normal distribution to define hawkes process
+#model params = [a, lbd, k, mu, sigma, n_b] (first 3 weibull, next 2 lognorm, last branching factor)
+def simulate_comment_tree(model_params, display = True):
+    weibull_params, lognorm_params, n_b = unpack_params(model_params)   #unfold parameters
+
+    #simulate from empty starting tree (just the root, no observed comments
+    #get root comment times
+    root_comment_times = generate_weibull_times(weibull_params)
+    if display:
+        print("new root comments:", root_comment_times, "\n")
+
+    #construct root object - each node is a dictionary with 'time' and 'children' fields
+    root = {'time' : 0}
+    root['children'] = [{'time' : child_time, 'children' : list()} for child_time in root_comment_times]
+
+    #generate deeper comments for each root comment (and each of their comments, etc)
+    needs_replies = [] + root['children']
+    all_replies = [] + root_comment_times
+    while len(needs_replies) != 0:
+        comment = needs_replies.pop()	#get current object
+        reply_times = generate_lognorm_times(lognorm_params, n_b, start_time = comment['time'])		#get reply times
+        comment['children'] = [{'time' : reply_time, 'children' : list()} for reply_time in reply_times]	#add child objects
+        needs_replies.extend(comment['children'])		#add children to list to be processed
+        all_replies.extend(reply_times)
+        if display:
+        	print("   ", comment['time'], ":", reply_times)
+
+    if display:
+        print("Simulated cascade has", len(root_comment_times), "replies and", len(all_replies), "total comments")
+
+    return root, sorted(all_replies)  #return root of tree AND list of sorted reply times
 #end simulate_comment_tree
 
 
