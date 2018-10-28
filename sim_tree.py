@@ -204,11 +204,14 @@ def simulate_comment_tree(model_params, display = True):
         print("new root comments:", root_comment_times, "\n")
 
     #generate deeper comments for each root comment (and each of their comments, etc)
+    needs_replies = [] + root_comment_times
     all_replies = [] + root_comment_times
-    for comment in root_comment_times:
-        reply_times = [t + comment for t in generate_lognorm_times(lognorm_params, n_b)]
+    while len(needs_replies) != 0:
+        comment = needs_replies.pop()
+        reply_times = generate_lognorm_times(lognorm_params, n_b, start_time = comment)
         all_replies.extend(reply_times)
-        print("   ", comment, ":", reply_times)
+        needs_replies.extend(reply_times)
+        print("   ", "*" if comment in root_comment_times else "", comment, ":", reply_times)
     #need to run this deeper, but good enough for today
 
     if display:
