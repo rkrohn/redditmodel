@@ -1,6 +1,11 @@
 import load_model_data
 import cascade_analysis
 import cascade_manip
+import fit_cascade
+import file_utils
+import sim_tree
+
+import random
 
 #driver for all the other things
 
@@ -9,6 +14,8 @@ code = "crypto"			#set use case/domain: must be crypto, cyber, or cve
 						#crypto for dry run
 						#cyber takes forever
 						#cve fastest
+
+subreddit = 'Lisk'		#process a particular subreddit if desired
 
 print("Processing", code)
 
@@ -36,6 +43,7 @@ cascades, comments = cascade_manip.remove_missing(code, cascades, comments)
 #look at number of top-level comments from two sources
 #cascade_analysis.check_comment_count(code, cascades)	
 
+
 #filter cascades by a particular subreddit
 '''
 subreddit = "Lisk"
@@ -47,8 +55,34 @@ cascade_manip.save_cascades(code, filtered_cascades, subreddit)
 cascade_manip.save_comments(code, filtered_comments, subreddit)
 '''
 
-
 #or, load cached filtered posts/comments
+#cascades, comments = cascade_manip.load_filtered_cascades(code, subreddit)
 
-subreddit = "Lisk"
-filtered_cascades, filtered_comments = cascade_manip.load_filtered_cascades(code, subreddit)
+
+#load cascades and fit params to all of them, loading checkpoints if they exist
+'''
+cascades, comments = cascade_manip.load_filtered_cascades(code, subreddit)	#load posts + comments
+cascade_analysis.fit_all_cascades(code, cascades, comments, subreddit)		#load saved fits, and fit the rest
+'''
+
+
+#or, load specific saved cascade params from file
+
+cascades, comments = cascade_manip.load_filtered_cascades(code, subreddit)	#load posts + comments
+cascade_params = cascade_manip.load_cascade_params(code, subreddit + "50")
+
+
+#simulate cascade based on fitted params of a single (possibly random) post
+random_post_id = "BitkI6YOhOueIKiphn5okA" #random.choice(list(cascade_params.keys()))
+random_post = cascades[random_post_id]
+print(random_post_id)
+print("Random post has", len(random_post['replies']), "replies and", random_post['comment_count_total'], "total comments\n")
+
+#pull params and simulate
+post_params = cascade_params[random_post_id]
+root, all_replies = sim_tree.simulate_comment_tree(post_params)
+
+actual_post_comment_times = sorted(fit_cascade.get_root_comment_times(random_post, comments) + fit_cascade.get_other_comment_times(random_post, comments))
+sim_tree.plot_all(all_replies, actual_post_comment_times, "gen_tree.png")
+sim_tree.plot_root_comments([child['time'] for child in root['children']], fit_cascade.get_root_comment_times(random_post, comments), "gen_tree_root.png", params = post_params[:3])
+#maybe want to break this plot down, at least into root/deeper, if not by level
