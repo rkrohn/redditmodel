@@ -377,6 +377,7 @@ def fit_all_cascades(code, cascades, comments, subreddit = False):
 		if post_id in cascade_params:
 			continue
 		#fit the current cascade (filtering comments to just this post is not required)
+		print("Fitting cascade", post_id)
 		cascade_params[post_id] = fit_cascade.fit_cascade_model(post, comments)
 		post_count += 1
 		if post_count % 50 == 0:
