@@ -10,35 +10,11 @@
 #based on the code from https://arxiv.org/pdf/1801.10082.pdf, with modifications
 
 
-'''
-import json
-import numpy as np
-import matplotlib.pyplot as plt
-plt.switch_backend('agg')
-import networkx as nx
-from networkx.drawing.nx_agraph import graphviz_layout
-from collections import OrderedDict
-import gc
-from itertools import islice
-import time
-from scipy.optimize import curve_fit, minimize
-from scipy.special import erf, gamma
-from IPython.display import clear_output
-import warnings
-from operator import itemgetter
-import pickle
-import multiprocessing as mp
-from copy import deepcopy
-import os
-from collections import defaultdict
-import math
-import warnings
-warnings.filterwarnings("ignore")
-'''
-
 from fit_weibull import *
 from fit_lognormal import *
 import math
+import matplotlib.pyplot as plt
+plt.switch_backend('agg')
 
 
 #HARDCODED VALUES
@@ -265,3 +241,48 @@ def unpack_params(params):
 
     return weibull_params, lognorm_params, n_b
 #end unpack_params
+
+
+#given observed and simulated comment times, plot comparison histogram
+def plot_all(sim, actual, filename):
+    plt.clf()
+    fig, ax1 = plt.subplots(figsize=(8, 6))
+
+    max_time = max(sim + actual) + 5    #last time, +5 for plot buffer
+
+    #plot side-by-side histogram of entire simulated tree against actual tree
+    bins = np.linspace(0, max_time, 30)
+    ax1.hist([actual, sim], bins, stacked=False, normed=False, color=["blue", "green"], label=["actual", "simulated"])  
+    ax1.set_xlabel('time (minutes)')
+    ax1.set_ylabel('comment frequency')
+    ax1.legend()
+    plt.savefig(filename)
+#end plot_all
+
+
+#given observed and simulated root comment times, and fitted Weibull params, plot all the things
+def plot_root_comments(sim, actual, filename, params = None):
+    plt.clf()
+    fig, ax1 = plt.subplots(figsize=(8, 6))
+
+    max_time = max(sim + actual) + 5    #last time, +5 for plot buffer
+
+    #first: plot side-by-side histogram of entire simulated tree against actual tree
+    
+    #plot histogram for simulated tree, stacking observed and simulated together
+    bins = np.linspace(0, max_time, 30)
+    ax1.hist([actual, sim], bins, stacked=False, normed=False, color=["blue", "green"], label=["actual", "simulated"])  
+    ax1.set_xlabel('time (minutes)')
+    ax1.set_ylabel('comment frequency')
+
+    #plot fitted weibull curve
+    if params != None:
+        ax2 = ax1.twinx()
+        x = np.arange(0, max(sim), 1)
+        y = [weib_func(t, params[0], params[1], params[2]) for t in x]
+        ax2.plot(x, y, 'r-', label="Weibull fit")
+        ax2.set_ylabel('Weibull fit', color='r')
+
+    ax1.legend()
+    plt.savefig(filename)
+#end plot_root_comments
