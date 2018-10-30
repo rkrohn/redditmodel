@@ -83,6 +83,9 @@ post_params = cascade_params[random_post_id]
 root, all_replies = sim_tree.simulate_comment_tree(post_params)
 
 actual_post_comment_times = sorted(fit_cascade.get_root_comment_times(random_post, comments) + fit_cascade.get_other_comment_times(random_post, comments))
-sim_tree.plot_all(all_replies, actual_post_comment_times, "gen_tree.png")
-sim_tree.plot_root_comments([child['time'] for child in root['children']], fit_cascade.get_root_comment_times(random_post, comments), "gen_tree_root.png", params = post_params[:3])
+sim_tree.plot_all(all_replies, actual_post_comment_times, "gen_tree_replies.png")
+sim_tree.plot_root_comments([child['time'] for child in root['children']], fit_cascade.get_root_comment_times(random_post, comments), "gen_tree_root_replies.png", params = post_params[:3])
 #maybe want to break this plot down, at least into root/deeper, if not by level
+
+#visualize the simulated tree
+sim_tree.viz_tree(root, "gen_tree.png")

@@ -15,6 +15,11 @@ from fit_lognormal import *
 import math
 import matplotlib.pyplot as plt
 plt.switch_backend('agg')
+import networkx as nx
+from networkx.drawing.nx_agraph import graphviz_layout
+import warnings
+warnings.filterwarnings("ignore")   #supress some matplotlib warnings
+import itertools
 
 
 #HARDCODED VALUES
@@ -183,7 +188,7 @@ def simulate_comment_tree_times_only(model_params, display = True):
     needs_replies = [] + root_comment_times
     all_replies = [] + root_comment_times
     while len(needs_replies) != 0:
-        comment = needs_replies.pop()
+        comment = needs_replies.pop(0)
         reply_times = generate_lognorm_times(lognorm_params, n_b, start_time = comment)
         all_replies.extend(reply_times)
         needs_replies.extend(reply_times)
@@ -198,6 +203,7 @@ def simulate_comment_tree_times_only(model_params, display = True):
 
 #overall simulation function, work from root down, generating as we go
 #returns a tree stored using a dictionary structure (for easy field additions later) and a sorted list of all comment times
+#current fields: time, id (arbitrarily assigned), children (list)
 #generate root comments based on fitted weibull, comment replies based on fitted log-normal
 #requires fitted weibull and log-normal distribution to define hawkes process
 #model params = [a, lbd, k, mu, sigma, n_b] (first 3 weibull, next 2 lognorm, last branching factor)
@@ -211,16 +217,17 @@ def simulate_comment_tree(model_params, display = True):
         print("new root comments:", root_comment_times, "\n")
 
     #construct root object - each node is a dictionary with 'time' and 'children' fields
-    root = {'time' : 0}
-    root['children'] = [{'time' : child_time, 'children' : list()} for child_time in root_comment_times]
+    root = {'time' : 0, 'id' : 0}       #root at time 0, id is 0
+    node_id = itertools.count(start = 1)      #iterator counter for node ids, start at 1 for root replies
+    root['children'] = [{'time' : child_time, 'children' : list(), 'id' : next(node_id)} for child_time in root_comment_times]
 
     #generate deeper comments for each root comment (and each of their comments, etc)
     needs_replies = [] + root['children']
     all_replies = [] + root_comment_times
     while len(needs_replies) != 0:
-        comment = needs_replies.pop()	#get current object
+        comment = needs_replies.pop(0)	#get current object
         reply_times = generate_lognorm_times(lognorm_params, n_b, start_time = comment['time'])		#get reply times
-        comment['children'] = [{'time' : reply_time, 'children' : list()} for reply_time in reply_times]	#add child objects
+        comment['children'] = [{'time' : reply_time, 'children' : list(), 'id' : next(node_id)} for reply_time in reply_times]	#add child objects
         needs_replies.extend(comment['children'])		#add children to list to be processed
         all_replies.extend(reply_times)
         if display:
@@ -286,3 +293,30 @@ def plot_root_comments(sim, actual, filename, params = None):
     ax1.legend()
     plt.savefig(filename)
 #end plot_root_comments
+
+
+#given the root of a simulated tree (dictionary structure), visualize the cascade tree
+def viz_tree(root, filename):
+    #build networkx graph to use for viz
+    G = nx.DiGraph()
+
+    #get list of edges as returned by BFS
+    edges = []
+    nodes = [(root, None)]  #queue contains tree node and parent
+    while len(nodes) != 0:
+        curr, parent = nodes.pop(0)
+        #if node has parent, add edge
+        if parent != None:
+            edges.append((parent, curr['id']))
+        nodes.extend([(child, curr['id']) for child in curr['children']])
+    print("\n", edges, "\n")
+
+    G.add_edges_from(edges)     #add all edges to graph
+
+    #plot the tree!
+    plt.clf()
+    pos = graphviz_layout(G, prog='dot')
+    nx.draw(G, pos, with_labels=False, arrows=False, node_size=15)
+    plt.savefig(filename)
+#end viz_tree
+
