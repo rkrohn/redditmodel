@@ -2,7 +2,7 @@
 
 Code for modelling reddit cascades.
 
-**reddit_model.py** driver for data loading and analysis
+**reddit_model.py** driver for all other things: data load an analysis, cascade fitting, tree simulation, etc
 
 **load_model_data.py** load reddit and exogenous data for chosen situation (cyber, crypto, or cve)
 
@@ -18,19 +18,11 @@ Code for modelling reddit cascades.
 
 **plot_utils.py** functions for generating and saving plots
 
-**tweet.csv** sample data for testing SEISMIC code, gives one retweet cascade
-
-**MHP.py** lightweight multivariate Hawkes process simulation code from https://github.com/stmorse/hawkes and https://stmorse.github.io/journal/Hawkes-python.html; slightly modified for our purposes
-
-**Node.py** lightweight node structure for cascade trees, used by hawkes_tree.py and CascadeTree.py
-
-**CascadeTree.py** structure to visualize (and maybe eventually analyze) a cascade tree, given the root as a Node object
-
-**hawkes_tree.py** eventually, should generate a comment cascade (tree) given parameters - work in progress
-
 **fit_weibull.py** given a sequence of event times, fit a Weibull pdf to the distribution
 
 **fit_lognormal.py** given a sequence of event times, fit a log-normal to the distribution
+
+**sim_tree.py** given model parameters (Weibull, lognormal, and branching factor), simulate a new comment cascade by generating comment times via a Hawkes process
 
 
 ### Directories
@@ -46,4 +38,7 @@ results : results files from analyses
 seismic : original and modified SEISMIC code; Python version of SEISMIC model code (http://snap.stanford.edu/seismic/) based on associated Twitter paper (https://arxiv.org/pdf/1506.02594.pdf); predicts the final retweet count of a particular tweet based on the observed retweet history
 
 tensor_testing : trying out some tensor libraries/methods
+
+hawkes_tree : old code for generating test Hawkes trees and visualizing them (replaced by new sim_tree.py and associated); contains the following files: *MHP.py*: lightweight multivariate Hawkes process simulation code from https://github.com/stmorse/hawkes and https://stmorse.github.io/journal/Hawkes-python.html, slightly modified for our purposes; *Node.py*: lightweight node structure for cascade trees, used by hawkes_tree.py and CascadeTree.py; *CascadeTree.py*: structure to visualize a cascade tree, given the root as a Node object; *hawkes_tree.py*: eventually, should generate a comment cascade (tree) given parameters - work in progress
+
 
