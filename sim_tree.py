@@ -213,8 +213,6 @@ def simulate_comment_tree(model_params, display = True):
     #simulate from empty starting tree (just the root, no observed comments
     #get root comment times
     root_comment_times = generate_weibull_times(weibull_params)
-    if display:
-        print("new root comments:", root_comment_times, "\n")
 
     #construct root object - each node is a dictionary with 'time' and 'children' fields
     root = {'time' : 0, 'id' : 0}       #root at time 0, id is 0
@@ -230,11 +228,10 @@ def simulate_comment_tree(model_params, display = True):
         comment['children'] = [{'time' : reply_time, 'children' : list(), 'id' : next(node_id)} for reply_time in reply_times]	#add child objects
         needs_replies.extend(comment['children'])		#add children to list to be processed
         all_replies.extend(reply_times)
-        if display:
-        	print("   ", comment['time'], ":", reply_times)
 
     if display:
-        print("Simulated cascade has", len(root_comment_times), "replies and", len(all_replies), "total comments")
+        print_tree(root)
+        print("\nSimulated cascade has", len(root_comment_times), "replies and", len(all_replies), "total comments")
 
     return root, sorted(all_replies)  #return root of tree AND list of sorted reply times
 #end simulate_comment_tree
@@ -309,7 +306,6 @@ def viz_tree(root, filename):
         if parent != None:
             edges.append((parent, curr['id']))
         nodes.extend([(child, curr['id']) for child in curr['children']])
-    print("\n", edges, "\n")
 
     G.add_edges_from(edges)     #add all edges to graph
 
@@ -320,3 +316,17 @@ def viz_tree(root, filename):
     plt.savefig(filename)
 #end viz_tree
 
+
+#uses DFS to print the tree structure (just the comment times, but easily modified)
+def print_tree(root, level=0):
+    visited = set()    #set of visited nodes
+    stack = [(root, 0)]     #node processing stack
+
+    while len(stack) != 0:
+        curr, level = stack.pop()  #get last node added to stack
+        print("    " * level + "%.3f" % curr['time'] if level != 0 else "root = 0")   #print this comment time
+        if curr['id'] not in visited:
+            visited.add(curr['id'])
+            #append children in reverse time order so final output is sorted
+            stack.extend([(child, level+1) for child in curr['children']][::-1])    
+#end print_tree
