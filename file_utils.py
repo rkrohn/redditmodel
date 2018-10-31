@@ -106,3 +106,9 @@ def verify_dir(path):
 	if not os.path.exists(path):
 		os.makedirs(path)
 #end verify_dir
+
+#given a filepath, return true if the file exists
+#(tiny helper function, because I can never remember this syntax!)
+def verify_file(path):
+	return os.path.exists(path)
+#end verify_file
