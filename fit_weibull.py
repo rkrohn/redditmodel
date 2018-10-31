@@ -124,14 +124,10 @@ def fit_weibull(event_times, display = False):
             print("No events to fit, setting Weibull params:", "\n   a\t\t", DEFAULT_WEIBULL_NONE[0], "\n   lambda\t", DEFAULT_WEIBULL_NONE[1], "\n   k\t\t", DEFAULT_WEIBULL_NONE[2], "\n")
         return DEFAULT_WEIBULL_NONE
 
-    if display:
-        print("Weibull param estimation")
     params = weibull_parameters_estimation(event_times)     #try loglikelihood estimation first
     #if that fails, use curve fit if more than one item
     if params == None:
         if len(event_times) != 1:
-            if display:
-                print("Weibull curve fit")
             params = func_fit_weibull(event_times)
         else:
             params = [None, None, None]     #next if will catch this
