@@ -4,6 +4,7 @@ import cascade_manip
 import fit_cascade
 import file_utils
 import sim_tree
+import param_tensor
 
 import random
 
@@ -70,9 +71,20 @@ cascade_analysis.fit_all_cascades(code, cascades, comments, subreddit)		#load sa
 
 cascades, comments = cascade_manip.load_filtered_cascades(code, subreddit)	#load posts + comments
 cascade_params = cascade_manip.load_cascade_params(code, subreddit + "50")
+#filter cascades/comments to fitted posts (for testing)
+cascades = {post_id : post for post_id, post in cascades.items() if post_id in cascade_params}
+print("Filtered to", len(cascades), "posts with fitted parameters")
+cascade_manip.filter_comments_by_posts(cascades, comments)
+
+
+#build a tensor for these fitted params and corresponding posts
+#first, tokenize all post titles
+for post_id, post in cascades.items():
+	param_tensor.extract_tokens(post)
 
 
 #simulate cascade based on fitted params of a single (possibly random) post
+'''
 random_post_id = "BitkI6YOhOueIKiphn5okA" #random.choice(list(cascade_params.keys()))
 random_post = cascades[random_post_id]
 print(random_post_id)
@@ -89,3 +101,4 @@ sim_tree.plot_root_comments([child['time'] for child in root['children']], fit_c
 
 #visualize the simulated tree
 sim_tree.viz_tree(root, "gen_tree.png")
+'''
