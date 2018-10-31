@@ -77,12 +77,9 @@ print("Filtered to", len(cascades), "posts with fitted parameters")
 cascade_manip.filter_comments_by_posts(cascades, comments)
 
 
-#build a tensor for these fitted params and corresponding posts\
+#build a tensor for these fitted params and corresponding posts
 tensor = ParamTensor()
-#first, tokenize all post titles
-for post_id, post in cascades.items():
-	tensor.extract_tokens(post)
-	break
+tensor.build_tensor(cascades, cascade_params)
 
 
 #simulate cascade based on fitted params of a single (possibly random) post
