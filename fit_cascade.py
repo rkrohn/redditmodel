@@ -4,7 +4,6 @@
 #see fit_weibull.py and fit_lognormal.py for more details on fitting process
 
 
-import cascade_manip
 from fit_weibull import *
 from fit_lognormal import *
 from collections import defaultdict
@@ -46,11 +45,17 @@ def get_other_comment_times(post, comments):
     root_time = get_root_time(post)     #get post time in seconds to use as offset
 
     #get list of comment ids that are not on the root
-    all_comment_ids = cascade_manip.get_cascade_comment_ids(post, comments)     #all post comments in a set
     root_comment_ids = post['replies']      #replies to root
-    other_comment_ids = [comment_id for comment_id in all_comment_ids if comment_id not in root_comment_ids]
+    #build list of all non-root replies for this post
+    other_comment_ids = []
+    nodes_to_visit = [] + post['replies']   #init queue to direct post replies
+    while len(nodes_to_visit) != 0:
+        curr = nodes_to_visit.pop(0)    #grab current comment id
+        if curr not in root_comment_ids:
+            other_comment_ids.append(curr)           #add this comment to set of cascade comments
+        nodes_to_visit.extend(comments[curr]['replies'])    #add this comment's replies to queue
 
-    #loop comment ids of non-root replies
+    #loop comment ids of non-root replies, extract time
     for comment_id in other_comment_ids:
         other_comment_times.append((comments[comment_id]['created_utc'] - root_time) / 60)  #offset time in minutes
 
@@ -87,8 +92,8 @@ def count_nodes_per_level(post, comments):
 
 
 #estimate branching number n_b: 1 - (root degree / total comments)
-def estimate_branching_factor(post, comments):
-    num_comments = get_cascade_size(post, comments)
+#pass in post object and total number of replies
+def estimate_branching_factor(post, num_comments):
     #hardcode or estimate, depending on number of comments
     if num_comments == 0:
         n_b = DEFAULT_BRANCHING     #hardcode to maybe allow for rare comment replies
@@ -108,21 +113,21 @@ def fit_cascade_model(post, comments, display = False):
     #print by-level breakdown of this cascade
     if display:
         depth_counts = count_nodes_per_level(post, comments)
-        print("cascade nodes per level:")
+        print("input cascade nodes per level:")
         for depth, count in depth_counts.items():
             print(depth, ":", count)
         print("")
 
     #fit weibull to root comment times
     root_comment_times = get_root_comment_times(post, comments)   
-    a, lbd, k = fit_weibull(root_comment_times)
+    a, lbd, k = fit_weibull(root_comment_times, display)
 
     #fit log-normal to all other comment times
     other_comment_times = get_other_comment_times(post, comments)
-    mu, sigma = fit_lognormal(other_comment_times)
+    mu, sigma = fit_lognormal(other_comment_times, display)
 
     #estimate branching factor
-    n_b = estimate_branching_factor(post, comments)
+    n_b = estimate_branching_factor(post, len(root_comment_times) + len(other_comment_times))
     if display:
         print("branching factor :", n_b, "\n")
 
