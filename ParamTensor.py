@@ -2,6 +2,14 @@
 
 import string
 import numpy as np
+'''
+import tensorly as tl
+from tensorly.decomposition import tucker
+from tensorly import tucker_to_tensor
+'''
+import numpy as np
+
+
 
 #params are indexed as follows:
 #	a 		0
@@ -30,6 +38,10 @@ class ParamTensor:
 			self.user_idx = {}			#maps user_id -> tensor index
 			self.token_idx = {}			#maps token string -> tensor index
 			self.post_tokens = {}		#maps post_id -> set of tokens
+			self.sparse_param_tensors = []		#will contain a list of tensorly tensor objects, one per parameter, 
+												#as created from post data - many 0's/holes
+			self.complete_param_tensors = []	#list of complete tensorly tensor objects, one per parameter
+												#created by factorizing the sparse versions, then reconstituting
 	#end __init__
 
 
@@ -84,6 +96,35 @@ class ParamTensor:
 						self.tensor[i][user_id][token_id] /= self.tensor_count[user_id][token_id]
 
 		print("   Filled", sparse_count, "entries of", len(self.user_idx) * len(self.token_idx))
+
+		#convert np array to tensorly tensor (actually, one tensor per parameter)
+		'''
+		for i in range(6):
+			self.sparse_param_tensors.append(tl.tensor(self.tensor[i]))
+			if i == 0:
+				print(self.sparse_param_tensors[i])
+		'''
+
+		#decompose the tensors, then recompose into a (hopefully) complete tensor
+		for i in range(6):
+			print(self.tensor[i], "\n")
+
+			#factors = parafac(self.sparse_param_tensors[i], rank=2)
+			#self.complete_param_tensors.append(tl.kruskal_to_tensor(factors))
+			#print(self.complete_param_tensors[i])
+
+			'''
+			core, factors = tucker(self.sparse_param_tensors[i], ranks=[500, 600])
+			print("")
+			print(tucker_to_tensor(core, factors))
+			'''
+
+			u, s, vh = np.linalg.svd(self.tensor[i], full_matrices=True)
+			print("shapes", u.shape, s.shape, vh.shape, "\n")
+			print(u[:, :2] * s[:2], "\n")
+			print(np.dot(u[:, :2] * s[:2], vh[:2, :]))
+
+			break
 
 		print("")
 
