@@ -70,16 +70,15 @@ cascade_analysis.fit_all_cascades(code, cascades, comments, subreddit)		#load sa
 #or, load specific saved cascade params from file
 
 cascades, comments = cascade_manip.load_filtered_cascades(code, subreddit)	#load posts + comments
-cascade_params = cascade_manip.load_cascade_params(code, subreddit + "50")
+cascade_params = cascade_manip.load_cascade_params(code, subreddit + "500")
 #filter cascades/comments to fitted posts (for testing)
 cascades = {post_id : post for post_id, post in cascades.items() if post_id in cascade_params}
 print("Filtered to", len(cascades), "posts with fitted parameters")
 cascade_manip.filter_comments_by_posts(cascades, comments)
 
 
-#build a tensor for these fitted params and corresponding posts
-tensor = ParamTensor()
-tensor.build_tensor(cascades, cascade_params)
+
+
 
 
 #simulate cascade based on fitted params of a single (possibly random) post

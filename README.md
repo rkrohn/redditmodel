@@ -37,7 +37,7 @@ results : results files from analyses
 
 seismic : original and modified SEISMIC code; Python version of SEISMIC model code (http://snap.stanford.edu/seismic/) based on associated Twitter paper (https://arxiv.org/pdf/1506.02594.pdf); predicts the final retweet count of a particular tweet based on the observed retweet history
 
-tensor_testing : trying out some tensor libraries/methods
+tensor_testing : trying out some tensor libraries/methods, and the abandoned ParamTensor
 
 hawkes_tree : old code for generating test Hawkes trees and visualizing them (replaced by new sim_tree.py and associated); contains the following files: *MHP.py*: lightweight multivariate Hawkes process simulation code from https://github.com/stmorse/hawkes and https://stmorse.github.io/journal/Hawkes-python.html, slightly modified for our purposes; *Node.py*: lightweight node structure for cascade trees, used by hawkes_tree.py and CascadeTree.py; *CascadeTree.py*: structure to visualize a cascade tree, given the root as a Node object; *hawkes_tree.py*: eventually, should generate a comment cascade (tree) given parameters - work in progress
 
