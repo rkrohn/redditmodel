@@ -66,6 +66,9 @@ class ParamGraph:
 		#identify nodes as <user>--<word>
 		#edge between nodes with either a user or a word in common
 
+		multi_param_nodes_count = 0		#count number of nodes with multiple parameter sets
+		multi_param_words = set()		#set of words that have multiple params for any single user
+
 		#add edges between words used by the same user
 		for user, words in self.users.items():			
 			word_pairs = list(itertools.combinations(words, 2))		#get all 2-word combos from this user
@@ -77,6 +80,13 @@ class ParamGraph:
 
 			for word_pair in word_pairs:
 				self.graph.add_edge(self.__node_name(user, word_pair[0]), self.__node_name(user, word_pair[1]))
+
+			for word, params in words.items():
+				if len(params) > 1:
+					multi_param_nodes_count += 1
+					multi_param_words.add(word)
+
+		multi_user_words = set()	#set of words used by more than one user
 
 		#add edges between users that used the same word
 		for word, users in self.tokens.items():
@@ -90,7 +100,12 @@ class ParamGraph:
 			for user_pair in user_pairs:
 				self.graph.add_edge(self.__node_name(user_pair[0], word), self.__node_name(user_pair[1], word))
 
+			if len(users) > 1:
+				multi_user_words.add(word)
+
 		print("Finished graph has", self.graph.number_of_nodes(), "nodes and", self.graph.size(), "edges")
+		print("  ", multi_param_nodes_count, "nodes have multi-params, affected words are", multi_param_words)
+		print("  ", len(multi_user_words), "tokens used by more than one user")
 
 	#end build_graph
 
@@ -113,13 +128,13 @@ class ParamGraph:
 	#also build complete set of tokens, seen across all posts
 	def __get_users_and_tokens(self, posts, params):
 		self.users = defaultdict(lambda: defaultdict(list))		#user->word->params
-		self.tokens = defaultdict(list)		#word->users
+		self.tokens = defaultdict(set)		#word->users
 
 		for post_id, post in posts.items():
 			post_words = self.__extract_tokens(post)		#get tokens for this post
 			for word in post_words:
 				self.users[post['author_h']][word].append(params[post_id])
-				self.tokens[word].append(post['author_h'])
+				self.tokens[word].add(post['author_h'])
 	#end __build_user_dict
 
 
