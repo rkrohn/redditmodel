@@ -80,7 +80,6 @@ cascade_manip.filter_comments_by_posts(cascades, comments)
 #build a ParamGraph for these posts
 pgraph = ParamGraph()
 pgraph.build_graph(cascades, cascade_params)
-pgraph.viz_graph("edge_graph.png")
 
 
 #simulate cascade based on fitted params of a single (possibly random) post

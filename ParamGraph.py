@@ -24,6 +24,9 @@ from networkx.drawing.nx_agraph import graphviz_layout
 #	sigma	4
 #	n_b		5
 
+#global display setting for the class: applies to debug-type output only
+DISPLAY = False
+
 class ParamGraph:
 
 
@@ -67,9 +70,10 @@ class ParamGraph:
 		for user, words in self.users.items():			
 			word_pairs = list(itertools.combinations(words, 2))		#get all 2-word combos from this user
 
-			print("\nuser:\t", user)
-			print("   words:\n    ", list(words.keys()))
-			print("   word pairs:\n    ", word_pairs)
+			if DISPLAY:
+				print("\nuser:\t", user)
+				print("   words:\n    ", list(words.keys()))
+				print("   word pairs:\n    ", word_pairs)
 
 			for word_pair in word_pairs:
 				self.graph.add_edge(self.__node_name(user, word_pair[0]), self.__node_name(user, word_pair[1]))
@@ -78,14 +82,14 @@ class ParamGraph:
 		for word, users in self.tokens.items():
 			user_pairs = list(itertools.combinations(users, 2))		#get all 2-user combos for this word
 
-			print("\nword:\t", word)
-			print("   users:\n    ", users)
-			print("   user pairs:\n    ", user_pairs)
+			if DISPLAY:
+				print("\nword:\t", word)
+				print("   users:\n    ", users)
+				print("   user pairs:\n    ", user_pairs)
 
 			for user_pair in user_pairs:
 				self.graph.add_edge(self.__node_name(user_pair[0], word), self.__node_name(user_pair[1], word))
 
-		#print("graph edges\n", self.graph.edges())
 		print("Finished graph has", self.graph.number_of_nodes(), "nodes and", self.graph.size(), "edges")
 
 	#end build_graph
@@ -96,6 +100,14 @@ class ParamGraph:
 	def __node_name(self, user, word):
 		return user + "--" + word
 	#end __node_name
+
+
+	#given node name, extract user and word the node represents
+	#(tiny helper method, but perform reverse of __node_name)
+	def __unpack_node(self, name):
+		return name.split("--")		#return user, then word
+	#end __unpack_node
+
 
 	#given set of posts and fitted params, and build user_id->word->list of param sets dictionary
 	#also build complete set of tokens, seen across all posts
