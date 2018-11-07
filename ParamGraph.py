@@ -9,6 +9,7 @@ import string
 import numpy
 from collections import defaultdict
 import itertools
+import operator
 
 import matplotlib.pyplot as plt
 plt.switch_backend('agg')
@@ -108,6 +109,23 @@ class ParamGraph:
 		print("  ", len(multi_user_words), "tokens used by more than one user")
 
 	#end build_graph
+
+
+	#run pagerank on the graph currently stored in self.graph
+	#returns dictionary of node_id->pagerank value, where all values sum to ~1
+	def pagerank(self):
+		rank = nx.pagerank(self.graph)
+
+		#print 10 highest rank nodes
+		if DISPLAY:
+			print("\nPagerank results, top 10 nodes")
+			sorted_rank = sorted(rank.items(), key=operator.itemgetter(1), reverse = True)
+			for pair in sorted_rank[:10]:
+				print("  ", pair[0], "\t", pair[1])
+			print("sum of pagerank values:", sum([value for key, value in rank.items()]))
+
+		return rank
+	#end pagerank
 
 
 	#given user and word, get corresponding node name 
