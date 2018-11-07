@@ -8,6 +8,7 @@ from ParamGraph import ParamGraph
 
 import random
 
+
 #driver for all the other things
 
 
@@ -77,9 +78,15 @@ print("Filtered to", len(cascades), "posts with fitted parameters")
 cascade_manip.filter_comments_by_posts(cascades, comments)
 
 
-#build a ParamGraph for these posts
+#build a ParamGraph for these posts, run pagerank, and save class instance for later
 pgraph = ParamGraph()
 pgraph.build_graph(cascades, cascade_params)
+pgraph.pagerank()
+file_utils.save_pickle(pgraph, "class_pickle_test.pkl")
+
+
+#or, load a saved class instance - skipping cascade loads and graph construction
+#pgraph = file_utils.load_pickle("class_pickle_test.pkl")
 
 
 #simulate cascade based on fitted params of a single (possibly random) post

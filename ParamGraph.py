@@ -28,7 +28,10 @@ from networkx.drawing.nx_agraph import graphviz_layout
 #global display setting for the class: applies to debug-type output only
 DISPLAY = False
 
-class ParamGraph:
+#to save an instance of this class, simply use file_utils.save_pickle
+#then use file_utils.load_pickle to restore the object
+
+class ParamGraph(object):
 
 
 	def __init__(self, filename = None):
@@ -45,6 +48,7 @@ class ParamGraph:
 			self.graph = nx.Graph()		#line/edge graph of users and words (generated based on bipartite grpah)
 			self.users = None			#user->word->params dict
 			self.tokens = None			#word->users dict (no params)
+			self.static_rank = None 	#pagerank results for static (initial) graph
 
 	#end __init__
 
@@ -105,26 +109,26 @@ class ParamGraph:
 				multi_user_words.add(word)
 
 		print("Finished graph has", self.graph.number_of_nodes(), "nodes and", self.graph.size(), "edges")
-		print("  ", multi_param_nodes_count, "nodes have multi-params, affected words are", multi_param_words)
+		print("  ", multi_param_nodes_count, "nodes have multi-params, labelled by", len(multi_param_words), "tokens")
 		print("  ", len(multi_user_words), "tokens used by more than one user")
 
 	#end build_graph
 
 
 	#run pagerank on the graph currently stored in self.graph
-	#returns dictionary of node_id->pagerank value, where all values sum to ~1
+	#save dictionary of node_id->pagerank value to self.static_rank, where all values sum to ~1
 	def pagerank(self):
-		rank = nx.pagerank(self.graph)
+		print("\nComputing pagerank for graph of", self.graph.number_of_nodes(), "nodes")
+		self.static_rank = nx.pagerank(self.graph)
 
 		#print 10 highest rank nodes
 		if DISPLAY:
-			print("\nPagerank results, top 10 nodes")
-			sorted_rank = sorted(rank.items(), key=operator.itemgetter(1), reverse = True)
+			print("Pagerank results, top 10 nodes")
+			sorted_rank = sorted(self.static_rank.items(), key=operator.itemgetter(1), reverse = True)
 			for pair in sorted_rank[:10]:
 				print("  ", pair[0], "\t", pair[1])
-			print("sum of pagerank values:", sum([value for key, value in rank.items()]))
-
-		return rank
+		
+		print("   Sum of pagerank values:", sum([value for key, value in self.static_rank.items()]))
 	#end pagerank
 
 
@@ -145,7 +149,7 @@ class ParamGraph:
 	#given set of posts and fitted params, and build user_id->word->list of param sets dictionary
 	#also build complete set of tokens, seen across all posts
 	def __get_users_and_tokens(self, posts, params):
-		self.users = defaultdict(lambda: defaultdict(list))		#user->word->params
+		self.users = defaultdict(ddl)		#user->word->params (hacky method for nested dict to allow for pickle)
 		self.tokens = defaultdict(set)		#word->users
 
 		for post_id, post in posts.items():
@@ -153,7 +157,7 @@ class ParamGraph:
 			for word in post_words:
 				self.users[post['author_h']][word].append(params[post_id])
 				self.tokens[word].add(post['author_h'])
-	#end __build_user_dict
+	#end __get_users_and_tokens
 
 
 	#given a post, extract words by tokenizing and normalizing (no limitization for now)
@@ -181,16 +185,8 @@ class ParamGraph:
 		print("Graph visual saved to", filename)
 	#end viz_graph
 
-
-	#load a tensor from saved pickle
-	def load_cached_graph(self):
-		print("unpickle some things")
-	#end load_cached_tensor
-
-
-	#dump a pickle to tensor
-	def save_graph(self):
-		print("pickle some things")
-	#end save_tensor
-
 #end ParamTensor
+
+
+def ddl():
+	return defaultdict(list)
