@@ -137,11 +137,39 @@ class ParamGraph(object):
 		#tokenize this post, grab post user
 		tokens = self.__extract_tokens(post)
 		user = post['author_h']
-		if True:#DISPLAY:
-			print("   user:", user, "\ntokens:", tokens)
+
+		#grab list of any words used previously by this user (not including those used now)
+		prev_tokens = set(self.users[user].keys())
+		unique_prev_tokens = prev_tokens - tokens
+
+		if DISPLAY:
+			print("   user:", user, "\n   tokens:", tokens)
+			print("   previous tokens:", prev_tokens, "\n   unique prev:", unique_prev_tokens)
 
 		#add nodes and connecting edges for this post to the graph (or rather, a copy of the graph)
+		print("   Incorporating new post into existing graph")
 		temp_graph = self.graph.copy()
+
+		#add word-edges between words of this post, and between new/old word pairs
+		word_pairs = list(itertools.combinations(tokens, 2))	#pairs of words from new post
+		combo_pairs = list(itertools.product(tokens, unique_prev_tokens))		#pairs of new word + old word
+		for word_pair in itertools.chain(word_pairs, combo_pairs):
+			temp_graph.add_edge(self.__node_name(user, word_pair[0]), self.__node_name(user, word_pair[1]))
+
+		#add edges between this post's user and other users that used the same word
+		for word in tokens:
+			#get list of other users for current word (exclude the current user)
+			word_users = [word_user for word_user in self.tokens[word] if word_user != user]	
+
+			for word_user in word_users:
+				temp_graph.add_edge(self.__node_name(word_user, word), self.__node_name(user, word))
+
+		print("   Updated graph has", temp_graph.number_of_nodes(), "nodes and", temp_graph.size(), "edges")
+
+		return
+
+
+
 
 	#end infer_params
 
