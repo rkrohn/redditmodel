@@ -34,21 +34,12 @@ DISPLAY = False
 class ParamGraph(object):
 
 
-	def __init__(self, filename = None):
-		#if given filename of cached tensor, load from disk
-		if filename != None and file_utils.verify_file(filename):
-			load_cached_tensor(filename)
-		#given filename, but file doesn't exist - error message, and create a new empty tensor object
-		elif filename != None:
-			print("No cached tensor to load - creating new object")
-			filename = None
-
-		#no filename given, create new tensor object
-		if filename == None:
-			self.graph = nx.Graph()		#line/edge graph of users and words (generated based on bipartite grpah)
-			self.users = None			#user->word->params dict
-			self.tokens = None			#word->users dict (no params)
-			self.static_rank = None 	#pagerank results for static (initial) graph
+	def __init__(self):
+		self.graph = nx.Graph()		#line/edge graph of users and words (generated based on bipartite grpah)
+		self.post_ids = None 		#set of post_ids represented by this object's graph
+		self.users = None			#user->word->params dict
+		self.tokens = None			#word->users dict (no params)
+		self.static_rank = None 	#pagerank results for static (initial) graph
 
 	#end __init__
 
@@ -59,7 +50,9 @@ class ParamGraph(object):
 		if len(posts) != len(params):
 			print("Post and paramter sets are not the same size - skipping tensor build")
 			return
-		print("Building param graph for", len(posts), "posts")
+		print("\nBuilding param graph for", len(posts), "posts")
+
+		self.post_ids = set(posts.keys())
 
 		#build user->word->params dictionary, and set of all tokens
 		self.__get_users_and_tokens(posts, params)
@@ -130,6 +123,27 @@ class ParamGraph(object):
 		
 		print("   Sum of pagerank values:", sum([value for key, value in self.static_rank.items()]))
 	#end pagerank
+
+
+	#given a single post object (not a part of current graph or pagerank), infer parameters
+	def infer_params(self, post):
+		#verify that post not already represented in graph
+		if post['id_h'] in self.post_ids:
+			print("Post already represented in graph - no parameters to infer")
+			return False
+
+		print("\nInferring parameters for post", post['id_h'])
+
+		#tokenize this post, grab post user
+		tokens = self.__extract_tokens(post)
+		user = post['author_h']
+		if True:#DISPLAY:
+			print("   user:", user, "\ntokens:", tokens)
+
+		#add nodes and connecting edges for this post to the graph (or rather, a copy of the graph)
+		temp_graph = self.graph.copy()
+
+	#end infer_params
 
 
 	#given user and word, get corresponding node name 
