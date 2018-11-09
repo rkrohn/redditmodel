@@ -35,7 +35,7 @@ class ParamGraph(object):
 
 
 	def __init__(self):
-		self.graph = nx.Graph()		#line/edge graph of users and words (generated based on bipartite grpah)
+		self.graph = None			#line/edge graph of users and words (generated based on bipartite grpah)
 		self.post_ids = None 		#set of post_ids represented by this object's graph
 		self.users = None			#user->word->params dict
 		self.tokens = None			#word->users dict (no params)
@@ -63,6 +63,7 @@ class ParamGraph(object):
 		#one node for each user-word pair (no matter how many times a user used that word)
 		#identify nodes as <user>--<word>
 		#edge between nodes with either a user or a word in common
+		self.graph = nx.Graph()
 
 		multi_param_nodes_count = 0		#count number of nodes with multiple parameter sets
 		multi_param_words = set()		#set of words that have multiple params for any single user
@@ -127,6 +128,11 @@ class ParamGraph(object):
 
 	#given a single post object (not a part of current graph or pagerank), infer parameters
 	def infer_params(self, post):
+		#verify that we have a graph and pre-computed pagerank
+		if self.graph == None or self.static_rank == None:
+			print("Must build graph and compute pagerank before inferring parameters")
+			return False
+
 		#verify that post not already represented in graph
 		if post['id_h'] in self.post_ids:
 			print("Post already represented in graph - no parameters to infer")
@@ -147,7 +153,7 @@ class ParamGraph(object):
 			print("   previous tokens:", prev_tokens, "\n   unique prev:", unique_prev_tokens)
 
 		#add nodes and connecting edges for this post to the graph (or rather, a copy of the graph)
-		print("   Incorporating new post into existing graph")
+		print("   Incorporating new post into existing graph...")
 		temp_graph = self.graph.copy()
 
 		#add word-edges between words of this post, and between new/old word pairs
@@ -166,12 +172,48 @@ class ParamGraph(object):
 
 		print("   Updated graph has", temp_graph.number_of_nodes(), "nodes and", temp_graph.size(), "edges")
 
-		return
+		#find highest-ranked neighbor of any of the new nodes, use those parameters
 
+		#get list of nodes representing this post
+		post_nodes = [self.__node_name(user, word) for word in tokens]
 
+		#get list of existing neighbors of these nodes (not new post node neighbors), and compute frequency of each neighbor
+		neighbors = list(itertools.chain.from_iterable([temp_graph[node].keys() for node in post_nodes]))
+		neighbors = [neighbor for neighbor in neighbors if neighbor in self.static_rank]	#remove post nodes without defined params
+		neighbor_freq = {neighbor : neighbors.count(neighbor) for neighbor in neighbors}
 
+		#get ranking of each neighbor
+		neighbor_rank = {neighbor : self.static_rank[neighbor] for neighbor in neighbor_freq.keys()}
+		if DISPLAY:
+			for neighbor, rank in sorted(neighbor_rank.items(), key=operator.itemgetter(1)):
+				neighbor_user, neighbor_word = self.__unpack_node(neighbor)
+				print(neighbor, "\t", rank, "\t", neighbor_freq[neighbor], "\t", self.users[neighbor_user][neighbor_word])
 
+		#pull best match: neighbor of any of the post nodes with the highest rank
+		best_match_node, best_match_rank = max(neighbor_rank.items(), key=operator.itemgetter(1))
+		best_match_params = self.__get_params(best_match_node)
+		print("   Pulling params from", best_match_node + ":\n     ", best_match_params)
+
+		return best_match_params
 	#end infer_params
+
+	#given a node (user-word pair), get a single set of params
+	def __get_params(self, node):
+		#unpack the node into user and word
+		user, word = self.__unpack_node(node)
+
+		#fetch params from class data
+		params = self.users[user][word]
+
+		#average all parameter sets together
+		avg = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+		for item in params:
+			for i in range(6):
+				avg[i] += item[i]
+		avg = [item / len(params) for item in avg]
+
+		return avg
+	#end __get_params
 
 
 	#given user and word, get corresponding node name 
