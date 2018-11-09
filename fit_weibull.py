@@ -110,7 +110,9 @@ def func_fit_weibull(event_times, res=60, runs = 20, T_max = 3*1440, large_param
 #given Weibull parameters, return the value of the Weibull pdf at time t
 #all parameters must be > 0
 def weib_func(t, a, lbd, k):
-		return (a* k/lbd) * (t/lbd)**(k-1) * np.exp(-(t/lbd)**k)
+    if t == 0 and k < 1:
+        return float('Inf')
+    return (a* k/lbd) * (t/lbd)**(k-1) * np.exp(-(t/lbd)**k)
 #end weib_fuct
 
 
