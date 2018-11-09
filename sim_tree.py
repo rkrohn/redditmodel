@@ -207,7 +207,7 @@ def simulate_comment_tree_times_only(model_params, display = True):
 #generate root comments based on fitted weibull, comment replies based on fitted log-normal
 #requires fitted weibull and log-normal distribution to define hawkes process
 #model params = [a, lbd, k, mu, sigma, n_b] (first 3 weibull, next 2 lognorm, last branching factor)
-def simulate_comment_tree(model_params, display = True):
+def simulate_comment_tree(model_params, display = False):
     weibull_params, lognorm_params, n_b = unpack_params(model_params)   #unfold parameters
 
     #simulate from empty starting tree (just the root, no observed comments
@@ -231,7 +231,7 @@ def simulate_comment_tree(model_params, display = True):
 
     if display:
         print_tree(root)
-        print("\nSimulated cascade has", len(root_comment_times), "replies and", len(all_replies), "total comments")
+    print("\nSimulated cascade has", len(root_comment_times), "replies and", len(all_replies), "total comments")
 
     return root, sorted(all_replies)  #return root of tree AND list of sorted reply times
 #end simulate_comment_tree
@@ -248,7 +248,7 @@ def unpack_params(params):
 
 
 #given observed and simulated comment times, plot comparison histogram
-def plot_all(sim, actual, filename):
+def plot_two_comparison(sim, actual, filename):
     plt.clf()
     fig, ax1 = plt.subplots(figsize=(8, 6))
 
@@ -261,7 +261,23 @@ def plot_all(sim, actual, filename):
     ax1.set_ylabel('comment frequency')
     ax1.legend()
     plt.savefig(filename)
-#end plot_all
+#end plot_two_comparison
+
+#given observed, simulated, and simulated from inferred comment times, plot comparison histogram
+def plot_three_comparison(sim, sim_infer, actual, filename):
+    plt.clf()
+    fig, ax1 = plt.subplots(figsize=(8, 6))
+
+    max_time = max(sim + actual) + 5    #last time, +5 for plot buffer
+
+    #plot side-by-side histogram of entire simulated tree against actual tree
+    bins = np.linspace(0, max_time, 30)
+    ax1.hist([actual, sim, sim_infer], bins, stacked=False, normed=False, color=["blue", "green", "purple"], label=["actual", "simulated", "inferred+sim"])  
+    ax1.set_xlabel('time (minutes)')
+    ax1.set_ylabel('comment frequency')
+    ax1.legend()
+    plt.savefig(filename)
+#end plot_three_comparison
 
 
 #given observed and simulated root comment times, and fitted Weibull params, plot all the things
