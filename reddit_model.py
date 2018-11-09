@@ -71,7 +71,7 @@ cascade_analysis.fit_all_cascades(code, cascades, comments, subreddit)		#load sa
 #or, load specific saved cascade params from file
 
 cascades, comments = cascade_manip.load_filtered_cascades(code, subreddit)	#load posts + comments
-cascade_params = cascade_manip.load_cascade_params(code, subreddit + "100")
+cascade_params = cascade_manip.load_cascade_params(code, subreddit + "500")
 #filter cascades/comments to fitted posts (for testing)
 cascades = {post_id : post for post_id, post in cascades.items() if post_id in cascade_params}
 print("Filtered to", len(cascades), "posts with fitted parameters")
@@ -79,7 +79,7 @@ cascade_manip.filter_comments_by_posts(cascades, comments)
 
 
 #pull out one random cascade from those loaded for testing
-test_post_id = random.choice(list(cascades.keys()))
+test_post_id = "tpcPtvQdwzfL8VN-Xpbxpg" #random.choice(list(cascades.keys())) #"BitkI6YOhOueIKiphn5okA" #"kRl5UtFpGFEaAQ374AREfw" #random.choice(list(cascades.keys()))
 test_post = cascades.pop(test_post_id)
 test_post_params = cascade_params.pop(test_post_id)
 print("Random post:", test_post_id, "\n   " + test_post['title_m'], "\n  ", test_post_params)
@@ -91,27 +91,36 @@ pgraph.build_graph(cascades, cascade_params)
 pgraph.pagerank()
 #file_utils.save_pickle(pgraph, "class_pickle_test.pkl")
 
-#infer parameters for the random post
-pgraph.infer_params(test_post)
-
-
 #or, load a saved class instance - skipping cascade loads and graph construction
 #pgraph = file_utils.load_pickle("class_pickle_test.pkl")
+
+#infer parameters for the random post
+test_post_inferred_params = pgraph.infer_params(test_post)
+#simulate from inferred params
+print("\nSimulating inferred: ", end='')
+infer_root, infer_all_replies = sim_tree.simulate_comment_tree(test_post_inferred_params)
+
+#compare to both the actual cascade, and a simulation based on the fitted parameters
+print("Simulating fitted: ", end='')
+fit_root, fit_all_replies = sim_tree.simulate_comment_tree(test_post_params)
+actual_all_replies = sorted(fit_cascade.get_root_comment_times(test_post, comments) + fit_cascade.get_other_comment_times(test_post, comments))
+print("Actual cascade has", len(actual_all_replies), "comments")
+sim_tree.plot_three_comparison(fit_all_replies, infer_all_replies, actual_all_replies, "gen_tree_replies.png")
 
 
 #simulate cascade based on fitted params of a single (possibly random) post
 '''
 random_post_id = "BitkI6YOhOueIKiphn5okA" #random.choice(list(cascade_params.keys()))
 random_post = cascades[random_post_id]
-print(random_post_id)
-print("Random post has", len(random_post['replies']), "replies and", random_post['comment_count_total'], "total comments\n")
+print("Random post", random_post_id, "has", len(random_post['replies']), "replies and", random_post['comment_count_total'], "total comments\n")
 
-#pull params and simulate
+#pull params and simulate from fitted params
 post_params = cascade_params[random_post_id]
 root, all_replies = sim_tree.simulate_comment_tree(post_params)
 
+#pull actual cascade comment times for comparison, plot
 actual_post_comment_times = sorted(fit_cascade.get_root_comment_times(random_post, comments) + fit_cascade.get_other_comment_times(random_post, comments))
-sim_tree.plot_all(all_replies, actual_post_comment_times, "gen_tree_replies.png")
+sim_tree.plot_two_comparison(sim_all_replies, actual_post_comment_times, "gen_tree_replies.png")
 sim_tree.plot_root_comments([child['time'] for child in root['children']], fit_cascade.get_root_comment_times(random_post, comments), "gen_tree_root_replies.png", params = post_params[:3])
 #maybe want to break this plot down, at least into root/deeper, if not by level
 
