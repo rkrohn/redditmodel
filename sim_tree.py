@@ -231,7 +231,7 @@ def simulate_comment_tree(model_params, display = False):
 
     if display:
         print_tree(root)
-    print("\nSimulated cascade has", len(root_comment_times), "replies and", len(all_replies), "total comments")
+    print("Simulated cascade has", len(root_comment_times), "replies and", len(all_replies), "total comments")
 
     return root, sorted(all_replies)  #return root of tree AND list of sorted reply times
 #end simulate_comment_tree
@@ -268,7 +268,7 @@ def plot_three_comparison(sim, sim_infer, actual, filename):
     plt.clf()
     fig, ax1 = plt.subplots(figsize=(8, 6))
 
-    max_time = max(sim + actual) + 5    #last time, +5 for plot buffer
+    max_time = max(sim + actual + sim_infer) + 5    #last time, +5 for plot buffer
 
     #plot side-by-side histogram of entire simulated tree against actual tree
     bins = np.linspace(0, max_time, 30)
