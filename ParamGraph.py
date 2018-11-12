@@ -15,6 +15,7 @@ import matplotlib.pyplot as plt
 plt.switch_backend('agg')
 import networkx as nx
 from networkx.drawing.nx_agraph import graphviz_layout
+from node2vec import Node2Vec
 
 
 #params are indexed as follows:
@@ -105,25 +106,7 @@ class ParamGraph(object):
 		print("Finished graph has", self.graph.number_of_nodes(), "nodes and", self.graph.size(), "edges")
 		print("  ", multi_param_nodes_count, "nodes have multi-params, labelled by", len(multi_param_words), "tokens")
 		print("  ", len(multi_user_words), "tokens used by more than one user")
-
 	#end build_graph
-
-
-	#run pagerank on the graph currently stored in self.graph
-	#save dictionary of node_id->pagerank value to self.static_rank, where all values sum to ~1
-	def pagerank(self):
-		print("\nComputing pagerank for graph of", self.graph.number_of_nodes(), "nodes")
-		self.static_rank = nx.pagerank(self.graph)
-
-		#print 10 highest rank nodes
-		if DISPLAY:
-			print("Pagerank results, top 10 nodes")
-			sorted_rank = sorted(self.static_rank.items(), key=operator.itemgetter(1), reverse = True)
-			for pair in sorted_rank[:10]:
-				print("  ", pair[0], "\t", pair[1])
-		
-		print("   Sum of pagerank values:", sum([value for key, value in self.static_rank.items()]))
-	#end pagerank
 
 
 	#given a single post object (not a part of current graph or pagerank), infer parameters
@@ -172,29 +155,9 @@ class ParamGraph(object):
 
 		print("   Updated graph has", temp_graph.number_of_nodes(), "nodes and", temp_graph.size(), "edges")
 
-		#find highest-ranked neighbor of any of the new nodes, use those parameters
+		#now that we've added the new-post nodes to the graph, infer parameters using node2vec
 
-		#get list of nodes representing this post
-		post_nodes = [self.__node_name(user, word) for word in tokens]
 
-		#get list of existing neighbors of these nodes (not new post node neighbors), and compute frequency of each neighbor
-		neighbors = list(itertools.chain.from_iterable([temp_graph[node].keys() for node in post_nodes]))
-		neighbors = [neighbor for neighbor in neighbors if neighbor in self.static_rank]	#remove post nodes without defined params
-		neighbor_freq = {neighbor : neighbors.count(neighbor) for neighbor in neighbors}
-
-		#get ranking of each neighbor
-		neighbor_rank = {neighbor : self.static_rank[neighbor] for neighbor in neighbor_freq.keys()}
-		if DISPLAY:
-			for neighbor, rank in sorted(neighbor_rank.items(), key=operator.itemgetter(1)):
-				neighbor_user, neighbor_word = self.__unpack_node(neighbor)
-				print(neighbor, "\t", rank, "\t", neighbor_freq[neighbor], "\t", self.users[neighbor_user][neighbor_word])
-
-		#pull best match: neighbor of any of the post nodes with the highest rank
-		best_match_node, best_match_rank = max(neighbor_rank.items(), key=operator.itemgetter(1))
-		best_match_params = self.__get_params(best_match_node)
-		print("   Pulling params from", best_match_node + ":\n     ", best_match_params)
-
-		return best_match_params
 	#end infer_params
 
 	#given a node (user-word pair), get a single set of params

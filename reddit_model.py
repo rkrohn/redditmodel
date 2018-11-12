@@ -69,27 +69,29 @@ cascade_analysis.fit_all_cascades(code, cascades, comments, subreddit)		#load sa
 
 
 #or, load specific saved cascade params from file
-
 cascades, comments = cascade_manip.load_filtered_cascades(code, subreddit)	#load posts + comments
 cascade_params = cascade_manip.load_cascade_params(code, subreddit + "500")
+
+
 #filter cascades/comments to fitted posts (for testing)
 cascades = {post_id : post for post_id, post in cascades.items() if post_id in cascade_params}
 print("Filtered to", len(cascades), "posts with fitted parameters")
 cascade_manip.filter_comments_by_posts(cascades, comments)
 
 
-#pull out one random cascade from those loaded for testing
-test_post_id = "tpcPtvQdwzfL8VN-Xpbxpg" #random.choice(list(cascades.keys())) #"BitkI6YOhOueIKiphn5okA" #"kRl5UtFpGFEaAQ374AREfw" #random.choice(list(cascades.keys()))
+#pull out one random cascade from those loaded for testing, remove from all cascades
+
+test_post_id = random.choice(list(cascades.keys())) #"BitkI6YOhOueIKiphn5okA" #"kRl5UtFpGFEaAQ374AREfw" #random.choice(list(cascades.keys()))
 test_post = cascades.pop(test_post_id)
 test_post_params = cascade_params.pop(test_post_id)
 print("Random post:", test_post_id, "\n   " + test_post['title_m'], "\n  ", test_post_params)
 
 
-#build a ParamGraph for set of posts, run pagerank, and save class instance for later
+
+#build a ParamGraph for set of posts
 pgraph = ParamGraph()
 pgraph.build_graph(cascades, cascade_params)
-pgraph.pagerank()
-#file_utils.save_pickle(pgraph, "class_pickle_test.pkl")
+#file_utils.save_pickle(pgraph, "class_pickle_test.pkl")	#save class instance for later
 
 #or, load a saved class instance - skipping cascade loads and graph construction
 #pgraph = file_utils.load_pickle("class_pickle_test.pkl")
@@ -120,7 +122,7 @@ root, all_replies = sim_tree.simulate_comment_tree(post_params)
 
 #pull actual cascade comment times for comparison, plot
 actual_post_comment_times = sorted(fit_cascade.get_root_comment_times(random_post, comments) + fit_cascade.get_other_comment_times(random_post, comments))
-sim_tree.plot_two_comparison(sim_all_replies, actual_post_comment_times, "gen_tree_replies.png")
+sim_tree.plot_two_comparison(all_replies, actual_post_comment_times, "gen_tree_replies.png")
 sim_tree.plot_root_comments([child['time'] for child in root['children']], fit_cascade.get_root_comment_times(random_post, comments), "gen_tree_root_replies.png", params = post_params[:3])
 #maybe want to break this plot down, at least into root/deeper, if not by level
 
