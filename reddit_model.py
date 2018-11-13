@@ -70,7 +70,7 @@ cascade_analysis.fit_all_cascades(code, cascades, comments, subreddit)		#load sa
 
 #or, load specific saved cascade params from file
 cascades, comments = cascade_manip.load_filtered_cascades(code, subreddit)	#load posts + comments
-cascade_params = cascade_manip.load_cascade_params(code, subreddit + "500")
+cascade_params = cascade_manip.load_cascade_params(code, subreddit + "50")
 
 
 #filter cascades/comments to fitted posts (for testing)
@@ -81,7 +81,7 @@ cascade_manip.filter_comments_by_posts(cascades, comments)
 
 #pull out one random cascade from those loaded for testing, remove from all cascades
 
-test_post_id = random.choice(list(cascades.keys())) #"BitkI6YOhOueIKiphn5okA" #"kRl5UtFpGFEaAQ374AREfw" #random.choice(list(cascades.keys()))
+test_post_id = "WYNap8ZYQ6kc0lKZRAX3tA" #"BitkI6YOhOueIKiphn5okA" #"kRl5UtFpGFEaAQ374AREfw" #random.choice(list(cascades.keys()))
 test_post = cascades.pop(test_post_id)
 test_post_params = cascade_params.pop(test_post_id)
 print("Random post:", test_post_id, "\n   " + test_post['title_m'], "\n  ", test_post_params)
@@ -98,6 +98,8 @@ pgraph.build_graph(cascades, cascade_params)
 
 #infer parameters for the random post
 test_post_inferred_params = pgraph.infer_params(test_post)
+print("\nFitted params:", test_post_params)
+print("Inferred params:", test_post_inferred_params)
 #simulate from inferred params
 print("\nSimulating inferred: ", end='')
 infer_root, infer_all_replies = sim_tree.simulate_comment_tree(test_post_inferred_params)

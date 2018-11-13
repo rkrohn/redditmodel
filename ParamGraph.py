@@ -40,7 +40,6 @@ class ParamGraph(object):
 		self.post_ids = None 		#set of post_ids represented by this object's graph
 		self.users = None			#user->word->params dict
 		self.tokens = None			#word->users dict (no params)
-		self.static_rank = None 	#pagerank results for static (initial) graph
 
 	#end __init__
 
@@ -109,10 +108,11 @@ class ParamGraph(object):
 	#end build_graph
 
 
-	#given a single post object (not a part of current graph or pagerank), infer parameters
+	#given a single post object (not a part of current graph), infer parameters
+	#new post only added to graph temporarily, not permanently - thereby not affecting future parameter inference
 	def infer_params(self, post):
-		#verify that we have a graph and pre-computed pagerank
-		if self.graph == None or self.static_rank == None:
+		#verify that we have a graph
+		if self.graph == None:
 			print("Must build graph and compute pagerank before inferring parameters")
 			return False
 
@@ -157,16 +157,68 @@ class ParamGraph(object):
 
 		#now that we've added the new-post nodes to the graph, infer parameters using node2vec
 
+		#precompute probabilities and generate walks
+		print("\nRunning node2vec...")
+		node2vec = Node2Vec(temp_graph, dimensions=16, walk_length=10, num_walks=200, workers=16, quiet=True)	#example uses 64 dimensions and walk_length 10, let's go smaller
+		#compute embeddings - dimensions and workers automatically passed from the Node2Vec constructor
+		model = node2vec.fit(window=10, min_count=1, batch_words=4)
+		print("Done")
+
+		#get list of nodes representing this post (not necessarily all new, bad name)
+		new_nodes = [self.__node_name(user, word) for word in tokens]
+
+		#init average
+		avg_params = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]		
+
+		#look for most similar nodes to each post node
+		for node in new_nodes:
+			#if already have params for this node, use those
+			node_params = self.__get_params(node)
+			if node_params != False:
+				print(node, ": param lookup", node_params)
+			#otherwise, infer based on most similar node in graph with defined params
+			else:
+				#pull params from best match with defined params
+				node_params = None
+				match_val = None
+				match_node = None
+				top_count = 0
+
+				while node_params == None:
+					top_count += 10		#increase, in case we had to go further (fetch batches of 10)
+					#get most similar nodes
+					similar = model.wv.most_similar(node, topn=top_count)
+					#find best match with defined parameters
+					for match in similar:
+						match_params = self.__get_params(match[0])	#returns list of tuples (node, similarity), sorted by similarity
+						if match_params != False:
+							node_params = match_params
+							match_val = match[1]
+							match_node = match[0]
+							break
+				print(node, ": param infer", match_node, "->", node_params, "with similarity", match_val)
+
+			#combine all node params together - simple average for now, could be changed
+			for i in range(6):
+				avg_params[i] += node_params[i]
+
+		#processed all node, finish and return
+		avg_params = [param / len(new_nodes) for param in avg_params]
+		return avg_params
 
 	#end infer_params
 
 	#given a node (user-word pair), get a single set of params
+	#if no params for this node exist, return False
 	def __get_params(self, node):
 		#unpack the node into user and word
 		user, word = self.__unpack_node(node)
 
-		#fetch params from class data
-		params = self.users[user][word]
+		#fetch params from class data - if they exist
+		if user in self.users and word in self.users[user]:
+			params = self.users[user][word]
+		else:
+			return False
 
 		#average all parameter sets together
 		avg = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
