@@ -97,7 +97,7 @@ pgraph.build_graph(cascades, cascade_params)
 #pgraph = file_utils.load_pickle("class_pickle_test.pkl")
 
 #infer parameters for the random post
-test_post_inferred_params = pgraph.infer_params(test_post)
+test_post_inferred_params = pgraph.infer_params(test_post, mode='weighted', skip_default=True)
 print("\nFitted params:", test_post_params)
 print("Inferred params:", test_post_inferred_params)
 #simulate from inferred params
@@ -107,8 +107,9 @@ infer_root, infer_all_replies = sim_tree.simulate_comment_tree(test_post_inferre
 #compare to both the actual cascade, and a simulation based on the fitted parameters
 print("Simulating fitted: ", end='')
 fit_root, fit_all_replies = sim_tree.simulate_comment_tree(test_post_params)
-actual_all_replies = sorted(fit_cascade.get_root_comment_times(test_post, comments) + fit_cascade.get_other_comment_times(test_post, comments))
-print("Actual cascade has", len(actual_all_replies), "comments")
+actual_root_replies = fit_cascade.get_root_comment_times(test_post, comments)
+actual_all_replies = sorted(actual_root_replies + fit_cascade.get_other_comment_times(test_post, comments))
+print("Actual cascade has", len(actual_root_replies), "replies and", len(actual_all_replies), "total comments")
 sim_tree.plot_three_comparison(fit_all_replies, infer_all_replies, actual_all_replies, "gen_tree_replies.png")
 
 
