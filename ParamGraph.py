@@ -110,7 +110,12 @@ class ParamGraph(object):
 
 	#given a single post object (not a part of current graph), infer parameters
 	#new post only added to graph temporarily, not permanently - thereby not affecting future parameter inference
-	def infer_params(self, post):
+	#mode indicates inference method, must be one of the following:
+	#	average - simple average of most-similar to each of the post nodes
+	#	weighted - weighted average of most-similar, where weight is similarity
+	#	max - take params directly from most-similar of all post nodes (if a node has defined params, use those)
+	#if skip_default is True, disregard any hardcoded default parameters in averages and most-similar selections
+	def infer_params(self, post, mode, skip_default = True):
 		#verify that we have a graph
 		if self.graph == None:
 			print("Must build graph and compute pagerank before inferring parameters")
@@ -119,6 +124,11 @@ class ParamGraph(object):
 		#verify that post not already represented in graph
 		if post['id_h'] in self.post_ids:
 			print("Post already represented in graph - no parameters to infer")
+			return False
+
+		#verify valid mode
+		if mode != 'average' and mode != 'weighted' and mode != 'max':
+			print("Invalid mode, must be one of \"average\", \"weighted\" or \"max\"")
 			return False
 
 		print("\nInferring parameters for post", post['id_h'])
@@ -158,7 +168,7 @@ class ParamGraph(object):
 		#now that we've added the new-post nodes to the graph, infer parameters using node2vec
 
 		#precompute probabilities and generate walks
-		print("\nRunning node2vec...")
+		print("\nRunning node2vec... ", end='')
 		node2vec = Node2Vec(temp_graph, dimensions=16, walk_length=10, num_walks=200, workers=16, quiet=True)	#example uses 64 dimensions and walk_length 10, let's go smaller
 		#compute embeddings - dimensions and workers automatically passed from the Node2Vec constructor
 		model = node2vec.fit(window=10, min_count=1, batch_words=4)
@@ -167,50 +177,88 @@ class ParamGraph(object):
 		#get list of nodes representing this post (not necessarily all new, bad name)
 		new_nodes = [self.__node_name(user, word) for word in tokens]
 
-		#init average
-		avg_params = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]		
+		#init average for 'average' and 'weighted' modes
+		avg_params = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+		divisor = 0.0	
+		#other tracking for 'max' mode
+		max_similarity = None
+		max_match_node = None
+		max_params = None
+
+		#init params and associated
+		node_params = None
+		similarity = None
+		match_node = None
 
 		#look for most similar nodes to each post node
 		for node in new_nodes:
-			#if already have params for this node, use those
-			node_params = self.__get_params(node)
-			if node_params != False:
-				print(node, ": param lookup", node_params)
+
+			#if already have params for this node, use those - as long as they don't violate the current skip_default setting
+			node_params = self.__get_params(node, skip_default)
+			if node_params != False and ((skip_default == True and True not in self.__check_default(node_params)) or skip_default == False):
+				if DISPLAY:
+					print(node, ": param lookup", node_params)
+				similarity = 1
+				match_node = node
+
 			#otherwise, infer based on most similar node in graph with defined params
 			else:
-				#pull params from best match with defined params
-				node_params = None
-				match_val = None
-				match_node = None
+				#pull params from best match with defined params				
 				top_count = 0
+				node_params = None 		#reset for loop check
 
+				#loop until we get some params
 				while node_params == None:
 					top_count += 10		#increase, in case we had to go further (fetch batches of 10)
 					#get most similar nodes
+					#returns list of tuples (node, similarity), sorted by similarity
 					similar = model.wv.most_similar(node, topn=top_count)
-					#find best match with defined parameters
+					#find best match with defined parameters (these are sorted by similarity)
 					for match in similar:
-						match_params = self.__get_params(match[0])	#returns list of tuples (node, similarity), sorted by similarity
-						if match_params != False:
+						match_params = self.__get_params(match[0], skip_default)
+						#if skipping default and these params are defaults... skip them!
+						if match_params != False and skip_default == True and True in self.__check_default(match_params):
+							continue
+						elif match_params != False:
 							node_params = match_params
-							match_val = match[1]
+							similarity = match[1]
 							match_node = match[0]
 							break
-				print(node, ": param infer", match_node, "->", node_params, "with similarity", match_val)
+				if DISPLAY:
+					print(node, ": param infer from", match_node, "with similarity", similarity, "\n   ", node_params)
 
-			#combine all node params together - simple average for now, could be changed
-			for i in range(6):
-				avg_params[i] += node_params[i]
+			#combine all node params together, depending on mode
+			#'max' mode
+			if mode == 'max' and (max_similarity == None or similarity > max_similarity):
+				max_similarity = similarity
+				max_match_node = match_node
+				max_params = node_params
+
+			#'average' or 'weighted' modes
+			else:
+				for i in range(6):
+					#standard average
+					if mode == 'average':
+						avg_params[i] += node_params[i]
+						divisor += 1
+					#weighted average
+					elif mode == 'weighted':
+						avg_params[i] += node_params[i] * similarity
+						divisor += similarity
 
 		#processed all node, finish and return
-		avg_params = [param / len(new_nodes) for param in avg_params]
-		return avg_params
-
+		if mode == 'max':
+			return max_params
+		else:	#weighted or average
+			avg_params = [param / divisor for param in avg_params]
+			return avg_params
 	#end infer_params
 
 	#given a node (user-word pair), get a single set of params
 	#if no params for this node exist, return False
-	def __get_params(self, node):
+	#if skip_default is True, disregard any hardcoded default parameters in average 
+	#(and assume that any default params in the set invalidate the rest)
+	def __get_params(self, node, skip_default):
 		#unpack the node into user and word
 		user, word = self.__unpack_node(node)
 
@@ -222,10 +270,21 @@ class ParamGraph(object):
 
 		#average all parameter sets together
 		avg = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+		divisor = 0
 		for item in params:
+			#if this param set contains any defaults, skip it
+			if True in self.__check_default(item):
+				continue
+			#not defaults, contribute to average
 			for i in range(6):
 				avg[i] += item[i]
-		avg = [item / len(params) for item in avg]
+			divisor += 1
+
+		#final average calculation
+		if divisor != 0:
+			avg = [item / divisor for item in avg]
+		else:
+			return False
 
 		return avg
 	#end __get_params
@@ -243,6 +302,42 @@ class ParamGraph(object):
 	def __unpack_node(self, name):
 		return name.split("--")		#return user, then word
 	#end __unpack_node
+
+
+	#given a set of post parameters, check if they are default settings
+	#params come packaged as: a, lbd, k, mu, sigma, n_b
+	#return three bools, one each for weibull, lognormal, and branching, true if those params are default hardcodes
+	def __check_default(self, params):
+		#default param settings, taken from fit_weibull, fit_lognormal, and fit_cascade (respectively)
+		#weibull params: a, lambda, k
+		DEFAULT_WEIBULL_NONE = [1, 1, 0.15]     #param results if post has NO comments to fit
+		DEFAULT_WEIBULL_SINGLE = [1, 2, 0.75]	#param result if post has ONE comment and other fit methods fail
+												#for other fit fails, set a = number of comments (index 0)
+		#lognormal: mu, sigma
+		DEFAULT_LOGNORMAL = [0, 1.5]    #param results if post has no comment replies to fit
+		#branching factor
+		DEFAULT_BRANCHING = 0.05        #default branching factor n_b if post has no comments, or post comments have no replies
+
+		weibull_params, lognorm_params, n_b = self.__unpack_params(params)
+
+		#check weibull
+		if weibull_params == DEFAULT_WEIBULL_NONE or weibull_params == DEFAULT_WEIBULL_SINGLE or (weibull_params[1] == DEFAULT_WEIBULL_SINGLE[1] and weibull_params[2] == DEFAULT_WEIBULL_SINGLE[2]):
+			weibull = True
+		else:
+			weibull = False
+
+		return weibull, lognorm_params == DEFAULT_LOGNORMAL, n_b == DEFAULT_BRANCHING
+	#end __check_default
+
+
+    #helper function to unpack parameters as given to separate items
+	def __unpack_params(self, params):
+		weibull_params = params[:3]
+		lognorm_params = params[3:5]
+		n_b = params[5]
+
+		return weibull_params, lognorm_params, n_b
+	#end __unpack_params
 
 
 	#given set of posts and fitted params, and build user_id->word->list of param sets dictionary
