@@ -12,7 +12,7 @@ from collections import defaultdict
 #HARDCODED PARAMS - only used when fit/estimation fails
 #see fit_lognormal and fit_weibull for those hardcoded values
 
-DEFAULT_BRANCHING = 0.05        #default branching factor n_b if post has no comments, orpost comments have no replies
+DEFAULT_BRANCHING = 0.05        #default branching factor n_b if post has no comments, or post comments have no replies
                                 #0.05 should allow for rare comments 
 
 
