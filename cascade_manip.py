@@ -176,8 +176,8 @@ def load_cascade_params(code, filtered = False):
 def load_filtered_cascades(code, subreddit):
 	#if files don't exist, quit
 	if os.path.exists("data_cache/filtered_cascades/%s_%s_comments.pkl" % (code, subreddit)) == False or os.path.exists("data_cache/filtered_cascades/%s_%s_cascades.pkl" % (code, subreddit)) == False:
-		print("No saved filtered cascades - exiting")
-		exit(0)
+		print("No saved filtered cascades")
+		return False, False
 
 	print("\nLoading", subreddit, "posts and comments from cache")
 
