@@ -2,7 +2,8 @@
 #requires three command line args: domain, input filename of seed posts, and output filename for simulation json results
 
 import file_utils
-from ParamGraph import ParamGraph
+from newParamGraph import ParamGraph
+import cascade_manip
 
 import sys
 import json
@@ -100,8 +101,43 @@ raw_post_seeds = load_reddit_seeds(infile)
 post_seeds = defaultdict(list)
 for post in raw_post_seeds:
 	post_seeds[post['subreddit']].append(post)
-print({key : len(post_seeds[key]) for key in post_seeds})
+print({key : len(post_seeds[key]) for key in post_seeds}, "\n")
 
 #process each subreddit
-for subreddit in post_seeds:
-	
+for subreddit, seeds in post_seeds.items():
+	#TESTING ONLY!!!!
+	if subreddit != "Bitcoin":
+		continue
+
+	print("Processing", subreddit)
+
+	#load subreddit posts (don't need the comments!)
+	sub_posts = cascade_manip.load_filtered_posts(domain, subreddit)
+	#load subreddit parameters
+	sub_params = cascade_manip.load_cascade_params(domain, subreddit+"100")
+
+	#filter posts - TESTING ONLY!!!!!!!!
+	sub_posts = {post_id : post for post_id, post in sub_posts.items() if post_id in sub_params}
+	print("Filtered to", len(sub_posts), "posts with fitted parameters")
+
+	#verify loads
+	if sub_posts == False or sub_params == False:
+		print("Load failed - exiting")
+		exit(0)
+
+	#build graph of these posts/params
+	sub_graph = ParamGraph()
+	sub_graph.build_graph(sub_posts, sub_params)
+
+	#add all seed posts from this subreddit to graph
+	for post in seeds:
+		sub_graph.add_post(post)
+	print("Updated graph has", sub_graph.graph.number_of_nodes(), "nodes and", sub_graph.graph.size(), "edges")
+
+	#run node2vec to get embeddings
+	sub_graph.run_node2vec()
+
+	#for each post, infer parameters and simulate
+	for post in seeds:
+		inferred_params = sub_graph.infer_params(post, 'weighted')
+		print(inferred_params)
