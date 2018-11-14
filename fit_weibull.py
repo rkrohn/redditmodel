@@ -75,7 +75,7 @@ def weibull_parameters_estimation(event_times, runs = 20, large_params = [1000, 
 
 #perform a curve_fit of the weibull function (less precise than parameter estimation method)
 #unmodified from original, exept for comments
-def func_fit_weibull(event_times, res=60, runs = 20, T_max = 3*1440, large_params = [1000, 10000, 20], start_params = [50, 400, 2.3]):
+def func_fit_weibull(event_times, res=60, runs = 20, T_max = 3*1440, large_params = [1000, 10000, 20], start_params = [50, 400, 2.3], display=False):
     
     bins = np.arange(0, max([T_max, max(event_times)]), res)
     hist, bins = np.histogram(event_times, bins)  #construct histogram of the root comments appearance 
@@ -90,7 +90,8 @@ def func_fit_weibull(event_times, res=60, runs = 20, T_max = 3*1440, large_param
         except Exception as e:
             #catch the ValueError that sometimes occurs when fitting few events
             #really shouldn't happen, but just in case...
-            print("Error encountered in func_fit_weibull for", len(event_times), "events:", e)
+            if display:
+                print("Error encountered in func_fit_weibull for", len(event_times), "events:", e)
             fail = True     #set flag to trigger a perturbation
             
         #if bad fit, perturb the initial guess and re-fit

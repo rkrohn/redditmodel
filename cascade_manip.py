@@ -47,13 +47,13 @@ def traverse_cascade(node, comments):
 def filter_cascades_by_subreddit(cascades, subreddit):
 	filtered_cascades = {}		#dictionary for filtered cascades
 
-	print("\nFiltering to posts in", subreddit, "subreddit")
+	print("Filtering to posts in", subreddit, "subreddit")
 
 	for cascade_id, cascade_post in cascades.items():
 		if cascade_post['subreddit'] == subreddit:
 			filtered_cascades[cascade_id] = cascade_post
 
-	print("Found", len(filtered_cascades), "for subreddit", subreddit, "(from", len(cascades), "cascades)\n")
+	print("Found", len(filtered_cascades), "for subreddit", subreddit, "(from", len(cascades), "cascades)")
 
 	return filtered_cascades
 #end filter_cascades by subreddit
@@ -63,7 +63,7 @@ def filter_cascades_by_subreddit(cascades, subreddit):
 def filter_comments_by_posts(cascades, comments):
 	comment_ids = set()		#build set of comment ids to include in filtered dictionary
 
-	print("\nFiltering comments to match posts")
+	print("Filtering comments to match posts")
 
 	#loop all posts, built list of comment ids
 	for post_id, post in cascades.items():
@@ -72,7 +72,7 @@ def filter_comments_by_posts(cascades, comments):
 	#filter comments to only those in the list
 	filtered_comments = { comment_id : comments[comment_id] for comment_id in comment_ids }
 
-	print("Filtered to", len(filtered_comments), "comments (from", len(comments), "comments)\n")
+	print("Filtered to", len(filtered_comments), "comments (from", len(comments), "comments)")
 
 	return filtered_comments
 #end filter_comments_by_post
@@ -179,13 +179,13 @@ def load_filtered_cascades(code, subreddit):
 		print("No saved filtered cascades")
 		return False, False
 
-	print("\nLoading", subreddit, "posts and comments from cache")
+	print("Loading", subreddit, "posts and comments from cache")
 
 	#load from file
 	cascades = file_utils.load_pickle("data_cache/filtered_cascades/%s_%s_cascades.pkl" % (code, subreddit))
 	comments = file_utils.load_pickle("data_cache/filtered_cascades/%s_%s_comments.pkl" % (code, subreddit))
 
-	print("Loaded", len(cascades), "posts and", len(comments), "comments\n")
+	print("Loaded", len(cascades), "posts and", len(comments), "comments")
 
 	return cascades, comments
 #end load_filtered_cascades
