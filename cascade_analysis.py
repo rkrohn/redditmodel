@@ -380,7 +380,7 @@ def fit_all_cascades(code, cascades, comments, subreddit = False):
 		print("Fitting cascade", post_id)
 		cascade_params[post_id] = fit_cascade.fit_cascade_model(post, comments)
 		post_count += 1
-		if post_count % 50 == 0:
+		if post_count % 100 == 0:
 			print("Fitted", post_count, "cascades")
 			cascade_manip.save_cascade_params(code, cascade_params, subreddit + str(post_count))
 
