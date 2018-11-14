@@ -179,13 +179,31 @@ def load_filtered_cascades(code, subreddit):
 		print("No saved filtered cascades")
 		return False, False
 
-	print("Loading", subreddit, "posts and comments from cache")
+	print("Loading", subreddit, "posts and comments from cache...")
 
 	#load from file
 	cascades = file_utils.load_pickle("data_cache/filtered_cascades/%s_%s_cascades.pkl" % (code, subreddit))
 	comments = file_utils.load_pickle("data_cache/filtered_cascades/%s_%s_comments.pkl" % (code, subreddit))
 
-	print("Loaded", len(cascades), "posts and", len(comments), "comments")
+	print("   Loaded", len(cascades), "posts and", len(comments), "comments")
 
 	return cascades, comments
 #end load_filtered_cascades
+
+
+#load filtered posts (not comments) from saved pickle
+def load_filtered_posts(code, subreddit):
+	#if files don't exist, quit
+	if os.path.exists("data_cache/filtered_cascades/%s_%s_cascades.pkl" % (code, subreddit)) == False:
+		print("No saved filtered posts")
+		return False
+
+	print("Loading", subreddit, "posts from cache...")
+
+	#load from file
+	posts = file_utils.load_pickle("data_cache/filtered_cascades/%s_%s_cascades.pkl" % (code, subreddit))
+
+	print("   Loaded", len(posts), "posts")
+
+	return posts
+#end load_filtered_posts
