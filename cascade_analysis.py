@@ -368,16 +368,19 @@ def fit_all_cascades(code, cascades, comments, subreddit = False):
 	if best_int != -1:
 		cascade_params = cascade_manip.load_cascade_params(code, subreddit + str(best_int))
 		print("Loaded", len(cascade_params), "fitted cascade parameters")
+	#otherwise, empty dictionary
+	else:
+		cascade_params = {}
 
 	#fit any cascades that have not been fitted before, add to params dictionary: post_id -> params
 	post_count = len(cascade_params)
-	print("\nFitting all cascade models")
+	print("Fitting all cascade models")
 	for post_id, post in cascades.items():
 		#if this cascade already fitted, skip
 		if post_id in cascade_params:
 			continue
 		#fit the current cascade (filtering comments to just this post is not required)
-		print("Fitting cascade", post_id)
+		#print("Fitting cascade", post_id)
 		cascade_params[post_id] = fit_cascade.fit_cascade_model(post, comments)
 		post_count += 1
 		if post_count % 100 == 0:
