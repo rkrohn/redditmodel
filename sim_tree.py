@@ -202,7 +202,7 @@ def simulate_comment_tree_times_only(model_params, display = True):
 #end simulate_comment_tree
 
 #overall simulation function, work from root down, generating as we go
-#returns a tree stored using a dictionary structure (for easy field additions later) and a sorted list of all comment times
+#returns a tree stored using a dictionary structure (for easy field additions later) and a sorted list of all comment times - note comment times are in MINUTES from original post, not seconds
 #current fields: time, id (arbitrarily assigned), children (list)
 #generate root comments based on fitted weibull, comment replies based on fitted log-normal
 #requires fitted weibull and log-normal distribution to define hawkes process
@@ -231,7 +231,7 @@ def simulate_comment_tree(model_params, display = False):
 
     if display:
         print_tree(root)
-    print("Simulated cascade has", len(root_comment_times), "replies and", len(all_replies), "total comments")
+        print("Simulated cascade has", len(root_comment_times), "replies and", len(all_replies), "total comments")
 
     return root, sorted(all_replies)  #return root of tree AND list of sorted reply times
 #end simulate_comment_tree
