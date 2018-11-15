@@ -116,12 +116,12 @@ class ParamGraph(object):
 	def add_post(self, post):
 		#verify that we have a graph
 		if self.graph == None:
-			print("Must build graph and compute pagerank before inferring parameters")
+			print("Must build graph before inferring parameters")
 			return False
 
 		#verify that post not already represented in graph
 		if post['id_h'] in self.post_ids:
-			print("Post already represented in graph - no parameters to infer")
+			print("Post already represented in graph - no changes to graph")
 			return False
 
 		#tokenize this post, grab post user
@@ -184,7 +184,7 @@ class ParamGraph(object):
 
 		#precompute probabilities and generate walks
 		print("Running node2vec...")
-		node2vec = Node2Vec(self.graph, dimensions=16, walk_length=10, num_walks=200, workers=1, quiet=False)	#example uses 64 dimensions and walk_length 10, let's go smaller
+		node2vec = Node2Vec(self.graph, dimensions=16, walk_length=10, num_walks=200, workers=4, quiet=False)	#example uses 64 dimensions and walk_length 10, let's go smaller
 
 		#compute embeddings - dimensions and workers automatically passed from the Node2Vec constructor
 		self.model = node2vec.fit(window=10, min_count=1, batch_words=4)
