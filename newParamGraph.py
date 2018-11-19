@@ -50,7 +50,7 @@ class ParamGraph(object):
 	def build_graph(self, posts, params):
 		#make sure we have same number of posts and paramters
 		if len(posts) != len(params):
-			print("Post and paramter sets are not the same size - skipping tensor build")
+			print("Post and paramter sets are not the same size - skipping graph build")
 			return
 		print("Building param graph for", len(posts), "posts")
 
@@ -340,14 +340,14 @@ class ParamGraph(object):
 	#given user and word, get corresponding node name 
 	#(tiny helper method, but makes it easy to change the naming scheme)
 	def __node_name(self, user, word):
-		return user + "--" + word
+		return user + "**" + word
 	#end __node_name
 
 
 	#given node name, extract user and word the node represents
 	#(tiny helper method, but perform reverse of __node_name)
 	def __unpack_node(self, name):
-		return name.split("--")		#return user, then word
+		return name.split("**")		#return user, then word
 	#end __unpack_node
 
 
@@ -426,7 +426,7 @@ class ParamGraph(object):
 		print("Graph visual saved to", filename)
 	#end viz_graph
 
-#end ParamTensor
+#end ParamGraph
 
 
 def ddl():
