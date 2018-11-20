@@ -52,7 +52,7 @@ subreddit = "Lisk"
 filtered_cascades = cascade_manip.filter_cascades_by_subreddit(cascades, subreddit)
 #and filter comments to match those posts
 filtered_comments = cascade_manip.filter_comments_by_posts(filtered_cascades, comments)
-#save these filtered potss/comments for easier loading later
+#save these filtered posts/comments for easier loading later
 cascade_manip.save_cascades(code, filtered_cascades, subreddit)
 cascade_manip.save_comments(code, filtered_comments, subreddit)
 '''
@@ -70,7 +70,7 @@ cascade_analysis.fit_all_cascades(code, cascades, comments, subreddit)		#load sa
 
 #or, load specific saved cascade params from file
 cascades, comments = cascade_manip.load_filtered_cascades(code, subreddit)	#load posts + comments
-cascade_params = cascade_manip.load_cascade_params(code, subreddit + "50")
+cascade_params = cascade_manip.load_cascade_params(code, subreddit) # + "50")
 
 
 #filter cascades/comments to fitted posts (for testing)
