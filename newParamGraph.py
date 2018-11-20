@@ -113,7 +113,7 @@ class ParamGraph(object):
 
 	#given a single post object (sorry, on you to loop), add relevant nodes to graph
 	#this WILL change the class's graph, not make a temporary copy
-	def add_post(self, post):
+	def add_post(self, post, params=None):
 		#verify that we have a graph
 		if self.graph == None:
 			print("Must build graph before inferring parameters")
@@ -128,21 +128,26 @@ class ParamGraph(object):
 		tokens = self.__extract_tokens(post)
 		user = post['author_h']
 
+		#edge case check: if we've never seen this user, and ALL the tokens are unfamiliar... bad day
+		if user not in self.users and len([word for word in tokens if word in self.tokens]) == 0:
+			print("No way to connect this post to graph!")
+			return ["disconnect"] + list(tokens)
+
 		#grab list of any words used previously by this user (not including those used now)
-		prev_tokens = set(self.users[user].keys())
+		prev_tokens = set(self.users[user].keys()) if user in self.users else set()
 		unique_prev_tokens = prev_tokens - tokens
 
 		if DISPLAY:
+			print("Incorporating post into existing graph...")
+			print("   Existing graph has", self.graph.number_of_nodes(), "nodes and", self.graph.size(), "edges")
 			print("   user:", user, "\n   tokens:", tokens)
 			print("   previous tokens:", prev_tokens, "\n   unique prev:", unique_prev_tokens)
 
 		#add nodes and connecting edges for this post to the graph (or rather, a copy of the graph)
-		if DISPLAY:
-			print("Incorporating post into existing graph...")
 
 		#add word-edges between words of this post, and between new/old word pairs
 		word_pairs = list(itertools.combinations(tokens, 2))	#pairs of words from new post
-		combo_pairs = list(itertools.product(tokens, unique_prev_tokens))		#pairs of new word + old word
+		combo_pairs = list(itertools.product(tokens, unique_prev_tokens))		#pairs of new word + old word by same user
 		for word_pair in itertools.chain(word_pairs, combo_pairs):
 			self.graph.add_edge(self.__node_name(user, word_pair[0]), self.__node_name(user, word_pair[1]))
 
@@ -162,6 +167,14 @@ class ParamGraph(object):
 
 		#add this post to graph tracking
 		self.post_ids.add(post['id_h'])
+		#tokens: add user to list
+		#users: add token to dictionary, 
+		for token in tokens:
+			self.tokens[token].add(user)
+			if params != None:
+				self.users[user][token].append(params)
+			elif token not in self.users[user]:
+				self.users[user][token]
 
 		#invalidate any model
 		self.model = None
@@ -184,7 +197,7 @@ class ParamGraph(object):
 
 		#precompute probabilities and generate walks
 		print("Running node2vec...")
-		node2vec = Node2Vec(self.graph, dimensions=16, walk_length=10, num_walks=200, workers=4, quiet=False)	#example uses 64 dimensions and walk_length 10, let's go smaller
+		node2vec = Node2Vec(self.graph, dimensions=16, walk_length=10, num_walks=200, workers=2, quiet=False)	#example uses 64 dimensions and walk_length 10, let's go smaller
 
 		#compute embeddings - dimensions and workers automatically passed from the Node2Vec constructor
 		self.model = node2vec.fit(window=10, min_count=1, batch_words=4)
@@ -204,8 +217,9 @@ class ParamGraph(object):
 	def infer_params(self, post, mode, skip_default = True):		
 		#verify that post already represented in graph
 		if post['id_h'] not in self.post_ids or post['id_h'] not in self.post_node_dict:
-			print("Post not represented in graph - cannot infer parameters")
-			return False
+			#no params? node must not be connected to graph - use average of subreddit params, since that's the best we can do
+			print("Post not represented in graph - cannot infer parameters - using graph average")
+			return self.__avg_params(skip_default)
 
 		#verify that we have a model
 		if self.model == None:
@@ -301,6 +315,40 @@ class ParamGraph(object):
 			return avg_params
 	#end infer_params
 
+
+	#for posts not connected to graph (ie, new user and all new tokens), take the average of all graph params
+	#average all nodes together, where an individual node might be an average
+	def __avg_params(self, skip_default):
+		all_params = []		#list of all params, across entire graph
+		#loop all nodes, average
+		for node in list(self.graph.nodes()):
+			node_params = self.__get_params(node, skip_default)
+			#append to list if valid
+			if node_params != False:
+				all_params.append(node_params)
+
+		#average all of those together
+		avg = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+		divisor = 0
+		for item in all_params:
+			#if this param set contains any defaults and we want to skip those, skip it
+			if skip_default and True in self.__check_default(item):
+				continue
+			#not defaults, contribute to average
+			for i in range(6):
+				avg[i] += item[i]
+			divisor += 1
+
+		#final average calculation
+		if divisor != 0:
+			avg = [item / divisor for item in avg]
+		else:
+			return False
+
+		return avg
+	#end __avg_params
+
+
 	#given a node (user-word pair), get a single set of params
 	#if no params for this node exist, return False
 	#if skip_default is True, disregard any hardcoded default parameters in average 
@@ -319,8 +367,8 @@ class ParamGraph(object):
 		avg = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
 		divisor = 0
 		for item in params:
-			#if this param set contains any defaults, skip it
-			if True in self.__check_default(item):
+			#if this param set contains any defaults and we want to skip those, skip it
+			if skip_default and True in self.__check_default(item):
 				continue
 			#not defaults, contribute to average
 			for i in range(6):
