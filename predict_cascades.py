@@ -10,9 +10,13 @@ import sys
 import json
 from collections import defaultdict
 import random
+import string
 
 
 DISPLAY = False		#toggle debug print statements
+MAX_GRAPH_POSTS = 50	#maximum number of library posts to include in graph for paramter inference
+MAX_TOKEN_MATCH_POSTS = 5		#maximum number of token-matchin posts to add to graph when inferring params for a
+								#post by an unseen user with all new tokens
 
 #creates submission json file
 #domain - simulation domain, must be one of 'crypto', 'cyber', or 'CVE'
@@ -160,6 +164,23 @@ def tree_to_events(root, seedID, seedTime):
 #end tree_to_events
 
 
+#given a post, extract words by tokenizing and normalizing (no limitization for now)
+#removes all leading/trailing punctuation
+#converts list to set to remove duplicates (if we want that?)
+#duplicate of method in ParamGraph, but we don't want to break class boundaries
+def extract_tokens(post):
+	punctuations = list(string.punctuation)		#get list of punctuation characters
+	punctuations.append('—')	#kill these too
+	
+	title = post['title_m']		#grab post title as new string		
+	tokens = [word.lower() for word in title.split()]	#tokenize and normalize (to lower)		
+	tokens = [word.strip("".join(punctuations)) for word in tokens]		#strip trailing and leading punctuation
+	tokens = [word for word in tokens if word != '' and word not in punctuations and word != '']		#remove punctuation-only tokens and empty strings
+
+	return set(tokens)		#convert to set before returning
+#end extract_tokens
+
+
 #main execution begins here
 print("")
 
@@ -180,24 +201,34 @@ raw_post_seeds = load_reddit_seeds(infile)
 post_seeds = defaultdict(list)
 for post in raw_post_seeds:
 	post_seeds[post['subreddit']].append(post)
-print({key : len(post_seeds[key]) for key in post_seeds}, "\n")
+print({key : len(post_seeds[key]) for key in post_seeds})
 
 all_events = []		#list for all sim events, across all seed posts
+post_counter = 1	#counter of posts to simulate, across all subreddits
 
 #process each subreddit
 for subreddit, seeds in post_seeds.items():
 	'''
 	#TESTING ONLY!!!!
-	if subreddit != "pivx":
+	if subreddit != "Bitcoin":
 		continue
 	'''
 
 	print("\nProcessing", subreddit, "with", len(seeds), "posts to simulate")
 
 	#load subreddit posts (don't need the comments!)
-	sub_posts = cascade_manip.load_filtered_posts(domain, subreddit)
+	raw_sub_posts = cascade_manip.load_filtered_posts(domain, subreddit)
 	#load subreddit parameters
-	sub_params = cascade_manip.load_cascade_params(domain, subreddit)
+	raw_sub_params = cascade_manip.load_cascade_params(domain, subreddit)
+
+	'''
+	#verifying the graph build
+	#build graph with all loaded posts
+	print("\nBuilding full graph")
+	full_graph = ParamGraph()
+	full_graph.build_graph(raw_sub_posts, raw_sub_params)
+	print("")
+	'''
 
 	#filter posts - TESTING ONLY!!!!!!!! - if you didn't load all the params
 	'''
@@ -206,36 +237,120 @@ for subreddit, seeds in post_seeds.items():
 	'''
 
 	#verify loads
-	if sub_posts == False or sub_params == False:
+	if raw_sub_posts == False or raw_sub_params == False:
 		print("Load failed - exiting")
 		exit(0)
 
+	#remove seed posts from fitted list - no cheating
+	for post in seeds:
+		if post['id_h'] in raw_sub_posts:
+			raw_sub_posts.pop(post['id_h'])
+			raw_sub_params.pop(post['id_h'])
+	print(len(raw_sub_posts), "remaining after removing seed posts")
+
+	'''
+	#verifying the graph build
+	#build graph again, this time with filtered, then adding in the posts
+	print("\nBuilding additive graph")
+	add_graph = ParamGraph()
+	add_graph.build_graph(raw_sub_posts, raw_sub_params)
+	for post in seeds:
+		add_graph.add_post(post)
+	print("Finished graph has", add_graph.graph.number_of_nodes(), "nodes and", add_graph.graph.size(), "edges\n")
+	'''
+
 	#get list of posting users to pull comment user ids from
 	#list, not set, so more frequent posters are more likely to come up
-	user_ids = [post['author_h'] for post_id, post in sub_posts.items() if post['author_h'] != "[Deleted]" ]
+	user_ids = [post['author_h'] for post_id, post in raw_sub_posts.items() if post['author_h'] != "[Deleted]" ]
+
+	#print dates of posts
+	#find earliest date of seed posts
+	earliest = -1
+	earliest_post = None
+	latest = -1
+	latest_post = None
+	for post in seeds:
+		if post['created_utc'] < earliest or earliest == -1:
+			earliest = post['created_utc']
+			earliest_post = post
+		if post['created_utc'] > latest or latest == -1:
+			latest = post['created_utc']
+			latest_post = post
+
+
+	print("earliest post", earliest, earliest_post['created_date'])
+	print("latest post", latest, latest_post['created_date'])	
+
+	#list of authors of seed posts
+	authors = [post['author_h'] for post in seeds]
+	print(len(authors), "authors in seed posts")
+
+	#filter the posts: only those ocurring between the sim post timestamps, and created by users in the author pool
+	sub_posts = {key: value for key, value in raw_sub_posts.items() if value['created_utc'] >= earliest and value['created_utc'] <= latest and value['author_h'] in authors}
+	sub_params = {key: value for key, value in raw_sub_params.items() if key in sub_posts}
+	print("Filtered to", len(sub_posts), "posts")
+
+	#no more than MAX_GRAPH_POSTS posts, or this will never finish
+	if len(sub_posts) > MAX_GRAPH_POSTS:
+		#sample down
+		keep = random.sample(sub_posts.keys(), MAX_GRAPH_POSTS)
+		sub_posts = {key: sub_posts[key] for key in keep}
+		sub_params = {key: sub_params[key] for key in keep}
+	#too few? draw more
+	if len(sub_posts) < MAX_GRAPH_POSTS:
+		#add more
+		draw_keys = [key for key in raw_sub_posts.keys() if key not in sub_posts.keys()]
+		num_draw = MAX_GRAPH_POSTS - len(sub_posts)
+		more = random.sample(draw_keys, num_draw)
+		sub_posts.update({key: raw_sub_posts[key] for key in more})
+		sub_params.update({key: raw_sub_params[key] for key in more})
+	print("Using", len(sub_posts), "posts for inference (" + str(len(sub_params)), "params)")
 
 	#build graph of these posts/params
-	#sub_graph = ParamGraph()
-	#sub_graph.build_graph(sub_posts, sub_params)
+	sub_graph = ParamGraph()
+	sub_graph.build_graph(sub_posts, sub_params)
 
 	graph_infer = False
 
 	#add all seed posts from this subreddit to graph
-	for post in seeds:		
+	for post in seeds:
+
 		#check if we already have params for this post - if not, flag for inference and add post to graph
 		if post['id_h'] not in sub_params:
-			#sub_graph.add_post(post)
-			print("FAIL no params for post")
 			graph_infer = True
-	#print("Updated graph has", sub_graph.graph.number_of_nodes(), "nodes and", sub_graph.graph.size(), "edges")
+			res = sub_graph.add_post(post)
+			if res != True:
+				print(res)
+
+			#check for isolated node
+			if type(res) == list and res[0] == "disconnect":
+				tokens = set(res[1:])	#tokens from the disconnected post
+
+				#can we find a post in our library with some of these tokens, or the same user? to get the node connected
+				matching_posts = {key:value for key, value in raw_sub_posts.items() if len(tokens.intersection(extract_tokens(value))) != 0 or value['author_h'] == post['author_h']}
+				#if too many matching token posts, sample down
+				if len(matching_posts) > MAX_TOKEN_MATCH_POSTS:
+					keep = random.sample(matching_posts.keys(), MAX_TOKEN_MATCH_POSTS)
+					matching_posts = {key: matching_posts[key] for key in keep}
+				#if no matching token/user posts - make a guess and move on, will use average of the subreddit for params
+				elif len(matching_posts) == 0:
+					print("   No matching posts! Using subreddit average")
+					print(post['author_h'], tokens)
+				#add the matching posts to the graph
+				print("   Adding", len(matching_posts), "token-matching posts to graph")
+				for post_id, matching_post in matching_posts.items():
+					sub_graph.add_post(matching_post, raw_sub_params[post_id])
+				#and re-add the seed post
+				sub_graph.add_post(post)
+	print("Updated graph has", sub_graph.graph.number_of_nodes(), "nodes and", sub_graph.graph.size(), "edges")
 
 	#run node2vec to get embeddings - if we have to infer parameters
 	if graph_infer:
 		sub_graph.run_node2vec()
 
-
 	#for each post, infer parameters and simulate
 	for post in seeds:
+
 		#if have fitted params, use those
 		if post['id_h'] in sub_params:
 			post_params = sub_params[post['id_h']]
@@ -245,12 +360,6 @@ for subreddit, seeds in post_seeds.items():
 
 		#simulate a comment tree! just the event times first
 		sim_root, all_times = sim_tree.simulate_comment_tree(post_params)
-
-		#TESTING ONLY!!!! force a result with a couple comments, so I can make sure stuff works
-		'''
-		while len(all_times) < 2:
-			sim_root, all_times = sim_tree.simulate_comment_tree(post_params)
-		'''
 
 		#convert that to desired output format
 		#{"rootID": "t3_-dt8ErhaKuULHekBf_ke3A", "communityID": "t5_2s3qj", "actionType": "post", "parentID": "t3_-dt8ErhaKuULHekBf_ke3A", "nodeTime": "1421194091", "nodeUserID": "XHa80wD0LQJNlMcrUD32pQ", "nodeID": "t3_-dt8ErhaKuULHekBf_ke3A"}
@@ -267,6 +376,9 @@ for subreddit, seeds in post_seeds.items():
 
 		#add these events to running list
 		all_events.extend(post_events)
+
+		print("Finished post", post_counter, "/", len(raw_post_seeds))
+		post_counter += 1
 
 #finished all posts across all subreddit, time to dump
 print("Finished simulation, have", len(all_events), "events to save")
