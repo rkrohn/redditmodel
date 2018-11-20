@@ -38,8 +38,10 @@ class ParamGraph(object):
 	def __init__(self):
 		self.graph = None			#line/edge graph of users and words (generated based on bipartite grpah)
 		self.post_ids = None 		#set of post_ids represented by this object's graph
+		self.post_node_dict = {}	#dictionary of post-id->list of post nodes (created in add_post, used by infer_params)
 		self.users = None			#user->word->params dict
 		self.tokens = None			#word->users dict (no params)
+		self.model = None 			#node2vec embedding model
 
 	#end __init__
 
@@ -48,9 +50,9 @@ class ParamGraph(object):
 	def build_graph(self, posts, params):
 		#make sure we have same number of posts and paramters
 		if len(posts) != len(params):
-			print("Post and paramter sets are not the same size - skipping tensor build")
+			print("Post and paramter sets are not the same size - skipping graph build")
 			return
-		print("\nBuilding param graph for", len(posts), "posts")
+		print("Building param graph for", len(posts), "posts")
 
 		self.post_ids = set(posts.keys())
 
@@ -103,57 +105,51 @@ class ParamGraph(object):
 				multi_user_words.add(word)
 
 		print("Finished graph has", self.graph.number_of_nodes(), "nodes and", self.graph.size(), "edges")
-		print("  ", multi_param_nodes_count, "nodes have multi-params, labelled by", len(multi_param_words), "tokens")
-		print("  ", len(multi_user_words), "tokens used by more than one user")
+		if DISPLAY:
+			print("  ", multi_param_nodes_count, "nodes have multi-params, labelled by", len(multi_param_words), "tokens")
+			print("  ", len(multi_user_words), "tokens used by more than one user")
 	#end build_graph
 
 
-	#given a single post object (not a part of current graph), infer parameters
-	#new post only added to graph temporarily, not permanently - thereby not affecting future parameter inference
-	#mode indicates inference method, must be one of the following:
-	#	average - simple average of most-similar to each of the post nodes
-	#	weighted - weighted average of most-similar, where weight is similarity
-	#	max - take params directly from most-similar of all post nodes (if a node has defined params, use those)
-	#if skip_default is True, disregard any hardcoded default parameters in averages and most-similar selections
-	def infer_params(self, post, mode, skip_default = True):
+	#given a single post object (sorry, on you to loop), add relevant nodes to graph
+	#this WILL change the class's graph, not make a temporary copy
+	def add_post(self, post, params=None):
 		#verify that we have a graph
 		if self.graph == None:
-			print("Must build graph and compute pagerank before inferring parameters")
+			print("Must build graph before inferring parameters")
 			return False
 
 		#verify that post not already represented in graph
 		if post['id_h'] in self.post_ids:
-			print("Post already represented in graph - no parameters to infer")
+			print("Post already represented in graph - no changes to graph")
 			return False
-
-		#verify valid mode
-		if mode != 'average' and mode != 'weighted' and mode != 'max':
-			print("Invalid mode, must be one of \"average\", \"weighted\" or \"max\"")
-			return False
-
-		print("\nInferring parameters for post", post['id_h'])
 
 		#tokenize this post, grab post user
 		tokens = self.__extract_tokens(post)
 		user = post['author_h']
 
+		#edge case check: if we've never seen this user, and ALL the tokens are unfamiliar... bad day
+		if user not in self.users and len([word for word in tokens if word in self.tokens]) == 0:
+			print("No way to connect this post to graph!")
+			return ["disconnect"] + list(tokens)
+
 		#grab list of any words used previously by this user (not including those used now)
-		prev_tokens = set(self.users[user].keys())
+		prev_tokens = set(self.users[user].keys()) if user in self.users else set()
 		unique_prev_tokens = prev_tokens - tokens
 
 		if DISPLAY:
+			print("Incorporating post into existing graph...")
+			print("   Existing graph has", self.graph.number_of_nodes(), "nodes and", self.graph.size(), "edges")
 			print("   user:", user, "\n   tokens:", tokens)
 			print("   previous tokens:", prev_tokens, "\n   unique prev:", unique_prev_tokens)
 
 		#add nodes and connecting edges for this post to the graph (or rather, a copy of the graph)
-		print("   Incorporating new post into existing graph...")
-		temp_graph = self.graph.copy()
 
 		#add word-edges between words of this post, and between new/old word pairs
 		word_pairs = list(itertools.combinations(tokens, 2))	#pairs of words from new post
-		combo_pairs = list(itertools.product(tokens, unique_prev_tokens))		#pairs of new word + old word
+		combo_pairs = list(itertools.product(tokens, unique_prev_tokens))		#pairs of new word + old word by same user
 		for word_pair in itertools.chain(word_pairs, combo_pairs):
-			temp_graph.add_edge(self.__node_name(user, word_pair[0]), self.__node_name(user, word_pair[1]))
+			self.graph.add_edge(self.__node_name(user, word_pair[0]), self.__node_name(user, word_pair[1]))
 
 		#add edges between this post's user and other users that used the same word
 		for word in tokens:
@@ -161,21 +157,86 @@ class ParamGraph(object):
 			word_users = [word_user for word_user in self.tokens[word] if word_user != user]	
 
 			for word_user in word_users:
-				temp_graph.add_edge(self.__node_name(word_user, word), self.__node_name(user, word))
+				self.graph.add_edge(self.__node_name(word_user, word), self.__node_name(user, word))
 
-		print("   Updated graph has", temp_graph.number_of_nodes(), "nodes and", temp_graph.size(), "edges")
-
-		#now that we've added the new-post nodes to the graph, infer parameters using node2vec
-
-		#precompute probabilities and generate walks
-		print("\nRunning node2vec... ", end='')
-		node2vec = Node2Vec(temp_graph, dimensions=16, walk_length=10, num_walks=200, workers=16, quiet=True)	#example uses 64 dimensions and walk_length 10, let's go smaller
-		#compute embeddings - dimensions and workers automatically passed from the Node2Vec constructor
-		model = node2vec.fit(window=10, min_count=1, batch_words=4)
-		print("Done")
+		if DISPLAY:
+			print("   Updated graph has", self.graph.number_of_nodes(), "nodes and", self.graph.size(), "edges")
 
 		#get list of nodes representing this post (not necessarily all new, bad name)
-		new_nodes = [self.__node_name(user, word) for word in tokens]
+		self.post_node_dict[post['id_h']] = [self.__node_name(user, word) for word in tokens]
+
+		#add this post to graph tracking
+		self.post_ids.add(post['id_h'])
+		#tokens: add user to list
+		#users: add token to dictionary, 
+		for token in tokens:
+			self.tokens[token].add(user)
+			if params != None:
+				self.users[user][token].append(params)
+			elif token not in self.users[user]:
+				self.users[user][token]
+
+		#invalidate any model
+		self.model = None
+
+		return True
+	#end add_post
+
+
+	#assuming a pre-built graph, run node2vec to generate model and embeddings
+	def run_node2vec(self):
+		#if have a model already, skip rerunning
+		if self.model != None:
+			print("Reusing existing model")
+			return True
+
+		#verify that we have a graph
+		if self.graph == None:
+			print("Must build graph and compute pagerank before inferring parameters")
+			return False
+
+		#precompute probabilities and generate walks
+		print("Running node2vec...")
+		node2vec = Node2Vec(self.graph, dimensions=16, walk_length=10, num_walks=200, workers=2, quiet=False)	#example uses 64 dimensions and walk_length 10, let's go smaller
+
+		#compute embeddings - dimensions and workers automatically passed from the Node2Vec constructor
+		self.model = node2vec.fit(window=10, min_count=1, batch_words=4)
+
+		print("Done")
+		return True
+	#end run_node2vec
+
+
+	#given a single post object (already added to graph), and a fitted model, infer parameters
+	#must pass in the list of post_nodes returned by add_post
+	#mode indicates inference method, must be one of the following:
+	#	average - simple average of most-similar to each of the post nodes
+	#	weighted - weighted average of most-similar, where weight is similarity
+	#	max - take params directly from most-similar of all post nodes (if a node has defined params, use those)
+	#if skip_default is True, disregard any hardcoded default parameters in averages and most-similar selections
+	def infer_params(self, post, mode, skip_default = True):		
+		#verify that post already represented in graph
+		if post['id_h'] not in self.post_ids or post['id_h'] not in self.post_node_dict:
+			#no params? node must not be connected to graph - use average of subreddit params, since that's the best we can do
+			print("Post not represented in graph - cannot infer parameters - using graph average")
+			return self.__avg_params(skip_default)
+
+		#verify that we have a model
+		if self.model == None:
+			print("No fitted Node2Vec model - cannot infer parameters")
+			return False
+
+		#verify valid mode
+		if mode != 'average' and mode != 'weighted' and mode != 'max':
+			print("Invalid mode, must be one of \"average\", \"weighted\" or \"max\"")
+			return False
+
+		print("Inferring parameters for post", post['id_h'])
+		
+		#infer parameters using fitted node2vec model
+
+		#pull post nodes
+		post_nodes = self.post_node_dict[post['id_h']]
 
 		#init average for 'average' and 'weighted' modes
 		avg_params = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
@@ -191,7 +252,7 @@ class ParamGraph(object):
 		match_node = None
 
 		#look for most similar nodes to each post node
-		for node in new_nodes:
+		for node in post_nodes:
 
 			#if already have params for this node, use those - as long as they don't violate the current skip_default setting
 			node_params = self.__get_params(node, skip_default)
@@ -212,7 +273,7 @@ class ParamGraph(object):
 					top_count += 10		#increase, in case we had to go further (fetch batches of 10)
 					#get most similar nodes
 					#returns list of tuples (node, similarity), sorted by similarity
-					similar = model.wv.most_similar(node, topn=top_count)
+					similar = self.model.wv.most_similar(node, topn=top_count)
 					#find best match with defined parameters (these are sorted by similarity)
 					for match in similar:
 						match_params = self.__get_params(match[0], skip_default)
@@ -254,6 +315,40 @@ class ParamGraph(object):
 			return avg_params
 	#end infer_params
 
+
+	#for posts not connected to graph (ie, new user and all new tokens), take the average of all graph params
+	#average all nodes together, where an individual node might be an average
+	def __avg_params(self, skip_default):
+		all_params = []		#list of all params, across entire graph
+		#loop all nodes, average
+		for node in list(self.graph.nodes()):
+			node_params = self.__get_params(node, skip_default)
+			#append to list if valid
+			if node_params != False:
+				all_params.append(node_params)
+
+		#average all of those together
+		avg = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+		divisor = 0
+		for item in all_params:
+			#if this param set contains any defaults and we want to skip those, skip it
+			if skip_default and True in self.__check_default(item):
+				continue
+			#not defaults, contribute to average
+			for i in range(6):
+				avg[i] += item[i]
+			divisor += 1
+
+		#final average calculation
+		if divisor != 0:
+			avg = [item / divisor for item in avg]
+		else:
+			return False
+
+		return avg
+	#end __avg_params
+
+
 	#given a node (user-word pair), get a single set of params
 	#if no params for this node exist, return False
 	#if skip_default is True, disregard any hardcoded default parameters in average 
@@ -272,8 +367,8 @@ class ParamGraph(object):
 		avg = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
 		divisor = 0
 		for item in params:
-			#if this param set contains any defaults, skip it
-			if True in self.__check_default(item):
+			#if this param set contains any defaults and we want to skip those, skip it
+			if skip_default and True in self.__check_default(item):
 				continue
 			#not defaults, contribute to average
 			for i in range(6):
@@ -293,14 +388,14 @@ class ParamGraph(object):
 	#given user and word, get corresponding node name 
 	#(tiny helper method, but makes it easy to change the naming scheme)
 	def __node_name(self, user, word):
-		return user + "--" + word
+		return user + "**" + word
 	#end __node_name
 
 
 	#given node name, extract user and word the node represents
 	#(tiny helper method, but perform reverse of __node_name)
 	def __unpack_node(self, name):
-		return name.split("--")		#return user, then word
+		return name.split("**")		#return user, then word
 	#end __unpack_node
 
 
@@ -379,7 +474,7 @@ class ParamGraph(object):
 		print("Graph visual saved to", filename)
 	#end viz_graph
 
-#end ParamTensor
+#end ParamGraph
 
 
 def ddl():

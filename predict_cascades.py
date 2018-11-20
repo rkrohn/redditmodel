@@ -2,7 +2,7 @@
 #requires three command line args: domain, input filename of seed posts, and output filename for simulation json results
 
 import file_utils
-from newParamGraph import ParamGraph
+from ParamGraph import ParamGraph
 import cascade_manip
 import sim_tree
 
@@ -319,8 +319,6 @@ for subreddit, seeds in post_seeds.items():
 		if post['id_h'] not in sub_params:
 			graph_infer = True
 			res = sub_graph.add_post(post)
-			if res != True:
-				print(res)
 
 			#check for isolated node
 			if type(res) == list and res[0] == "disconnect":
@@ -335,7 +333,6 @@ for subreddit, seeds in post_seeds.items():
 				#if no matching token/user posts - make a guess and move on, will use average of the subreddit for params
 				elif len(matching_posts) == 0:
 					print("   No matching posts! Using subreddit average")
-					print(post['author_h'], tokens)
 				#add the matching posts to the graph
 				print("   Adding", len(matching_posts), "token-matching posts to graph")
 				for post_id, matching_post in matching_posts.items():

@@ -70,7 +70,7 @@ cascade_analysis.fit_all_cascades(code, cascades, comments, subreddit)		#load sa
 
 #or, load specific saved cascade params from file
 cascades, comments = cascade_manip.load_filtered_cascades(code, subreddit)	#load posts + comments
-cascade_params = cascade_manip.load_cascade_params(code, subreddit) # + "50")
+cascade_params = cascade_manip.load_cascade_params(code, subreddit + "100")
 
 
 #filter cascades/comments to fitted posts (for testing)
@@ -97,7 +97,9 @@ pgraph.build_graph(cascades, cascade_params)
 #pgraph = file_utils.load_pickle("class_pickle_test.pkl")
 
 #infer parameters for the random post
-test_post_inferred_params = pgraph.infer_params(test_post, mode='weighted', skip_default=True)
+pgraph.add_post(test_post)	#add post to graph
+pgraph.run_node2vec()		#node2vec
+test_post_inferred_params = pgraph.infer_params(test_post, mode='weighted', skip_default=True)	#infer
 print("\nFitted params:", test_post_params)
 print("Inferred params:", test_post_inferred_params)
 #simulate from inferred params
