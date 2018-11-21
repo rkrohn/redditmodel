@@ -1,9 +1,9 @@
 #methods for building and performing lookups from the param graph
 #start with a bipartite graph of users and words, with edges labelled with parameters
-#perform a bipartite projection to get a graph of parameter nodes
+#perform a bipartite projection (ish) to get a graph of parameter nodes
 
 #a new post introduces new nodes to this graph, but with undefined parameters
-#use PageRank to get these missing parameters
+#use node2vec to get these missing parameters
 
 import string
 import numpy
