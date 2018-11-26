@@ -22,7 +22,7 @@ root, all_replies = sim_tree.simulate_comment_tree(example_post_params)
 #some qualitative visualization
 actual_post_comment_times = sorted(fit_cascade.get_root_comment_times(example_post, example_comments) + fit_cascade.get_other_comment_times(example_post, example_comments))	#get actual comment times of example_post
 #plot distribution of actual vs simulated comment times (all comments)
-sim_tree.plot_all(all_replies, actual_post_comment_times, "gen_tree_replies.png")
+sim_tree.plot_two_comparison(all_replies, actual_post_comment_times, "gen_tree_replies.png")
 #plot distribution of actual vs simulated root comments
 sim_tree.plot_root_comments([child['time'] for child in root['children']], fit_cascade.get_root_comment_times(example_post, example_comments), "gen_tree_root_replies.png", params = example_post_params[:3])
 
