@@ -31,8 +31,18 @@ def get_root_comment_times(post, comments):
 
     #loop replies
     for comment_id in post['replies']:
-        if comments[comment_id]['created_utc'] - root_time < 0:
+        #if comment occurs less than 60 seconds before the post (assume clock weirdness), set to 0 and move to next
+        if comments[comment_id]['created_utc'] - root_time < 0 and root_time - comments[comment_id]['created_utc'] < 60:
+            root_comment_times.append(0.0)
+        #if comment occurs more than a minute before the post, error and quit
+        elif comments[comment_id]['created_utc'] - root_time < 0:
             print("NEGATIVE COMMENT TIME - FAIL!!!!")
+            print(post)
+            print("root time", root_time)
+            reply_times = []
+            for ident in post['replies']:
+                reply_times.append(comments[ident]['created_utc'])
+            print("reply times", sorted(reply_times))
             exit(0)
             
         root_comment_times.append((comments[comment_id]['created_utc'] - root_time) / 60)       #get time between post and comment in minutes
