@@ -13,10 +13,8 @@ code = "crypto"			#set use case/domain: must be crypto, cyber, or cve
 
 print("\nProcessing", code)
 
-#build/load cascades (auto-load as a result, either raw data or cached cascades)
-cascades, comments, missing_posts, missing_comments = cascade_analysis.build_cascades(code)
-#optional: filter out cascades with any missing elements (posts or comments)
-cascades, comments = cascade_manip.remove_missing(code, cascades, comments)
+cascades = None
+comments = None
 
 #load the subreddit distribution for these cascades
 subreddit_dist = file_utils.load_json("results/%s_post_subreddit_dist.json" % code)
@@ -24,6 +22,11 @@ subreddit_dist = file_utils.load_json("results/%s_post_subreddit_dist.json" % co
 
 #loop all subreddits for this code
 for subreddit in sorted(subreddit_dist.keys()):
+	'''
+	if subreddit != 'Bitcoin':
+		continue
+	'''
+
 	print("\nProcessing", subreddit)
 
 	#load filtered, if they exist
@@ -31,6 +34,15 @@ for subreddit in sorted(subreddit_dist.keys()):
 
 	#don't exist, filter them now
 	if filtered_cascades == False:
+
+		#have we loaded the raw cascades/comments yet? if not, do it now
+		#(waiting until now in case we have all the filtered versions and don't need these at all)
+		if cascades == None or comments == None:
+			#build/load cascades (auto-load as a result, either raw data or cached cascades)
+			cascades, comments, missing_posts, missing_comments = cascade_analysis.build_cascades(code)
+			#optional: filter out cascades with any missing elements (posts or comments)
+			cascades, comments = cascade_manip.remove_missing(code, cascades, comments)
+
 		#filter cascades by a particular subreddit
 		filtered_cascades = cascade_manip.filter_cascades_by_subreddit(cascades, subreddit)
 		#and filter comments to match those posts
