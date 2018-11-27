@@ -57,8 +57,9 @@ def weibull_parameters_estimation(event_times, runs = 20, large_params = [1000, 
         result = minimize(weib_loglikelihood, param_set, method = 'L-BFGS-B', bounds = ((0.0001, None), (0.0001, None),(0.0001, None)))
         fit_params = list(result.get('x'))
 
-        #if bad fit, perturb the initial guess and re-fit
-        if fit_params[0] > large_params[0] or fit_params[1] > large_params[1] or fit_params[2] > large_params[2]:
+        #if bad fit (or failed fit, that returned initial params), perturb the initial guess and re-fit
+        #if you get the initial params back, fit failed
+        if (fit_params[0] > large_params[0] or fit_params[1] > large_params[1] or fit_params[2] > large_params[2]) or (fit_params[0] == param_set[0] and fit_params[1] == param_set[1] and fit_params[2] == param_set[2]):
             param_set += np.array([np.random.normal(0, start_params[0]/10), np.random.normal(0, start_params[1]/10),
                                   np.random.normal(0, start_params[2]/10)])
 
@@ -125,7 +126,7 @@ def fit_weibull(event_times, display = False):
     if len(event_times) == 0:
         if display:
             print("No events to fit, setting Weibull params:", "\n   a\t\t", DEFAULT_WEIBULL_NONE[0], "\n   lambda\t", DEFAULT_WEIBULL_NONE[1], "\n   k\t\t", DEFAULT_WEIBULL_NONE[2], "\n")
-        return DEFAULT_WEIBULL_NONE
+        return list(DEFAULT_WEIBULL_NONE)
 
     params = weibull_parameters_estimation(event_times)     #try loglikelihood estimation first
     #if that fails, use curve fit if more than one item
@@ -137,7 +138,7 @@ def fit_weibull(event_times, display = False):
 
     #if both fail, hardcode - not sure what else to do
     if params[0] == None: 
-        params = DEFAULT_WEIBULL_SINGLE
+        params = list(DEFAULT_WEIBULL_SINGLE)
         if len(event_times) > 1:
             params[0] = len(event_times)
         if display:
