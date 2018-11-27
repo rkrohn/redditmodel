@@ -26,17 +26,20 @@ def build_cascades(code, posts = False, comments = False):
 		print("Loading cascades from data_cache")
 		cascades = file_utils.load_pickle("data_cache/%s_cascades/%s_cascade_posts.pkl" % (code, code))
 		#comments: either a single file, or multiple files
+		print("Loading comments from data_cache")
 		if os.path.exists("data_cache/%s_cascades/%s_cascade_comments.pkl" % (code, code)):
 			comments = file_utils.load_pickle("data_cache/%s_cascades/%s_cascade_comments.pkl" % (code, code))
-		else:
-			comments = []
+		else:			
+			comments = {}
 			files = sorted(glob.glob('data_cache/%s_cascades/%s_cascade_comments*' % (code, code)))
 			for file in files:
+				print("Loading", file)
 				new_comments = file_utils.load_pickle(file)
-				comments.extend(new_comments)
+				comments.update(new_comments)
 		missing_posts = file_utils.load_json("data_cache/%s_cascades/%s_cascade_missing_posts.json" % (code, code))
 		missing_comments = file_utils.load_json("data_cache/%s_cascades/%s_cascade_missing_comments.json" % (code, code))
 		print("   Loaded", len(cascades), "cascades with", len(comments), "comments")
+		print("     ", len(missing_posts), "missing posts", len(missing_comments), "missing comments")
 		return cascades, comments, missing_posts, missing_comments
 
 	#if no cached cascades, build them from scratch
@@ -379,6 +382,7 @@ def fit_all_cascades(code, cascades, comments, subreddit = False):
 		#if this cascade already fitted, skip
 		if post_id in cascade_params:
 			continue
+
 		#fit the current cascade (filtering comments to just this post is not required)
 		#print("Fitting cascade", post_id)
 		cascade_params[post_id] = fit_cascade.fit_cascade_model(post, comments)
