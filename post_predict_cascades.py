@@ -216,37 +216,54 @@ for subreddit, seeds in post_seeds.items():
 
 	print("\nProcessing", subreddit, "with", len(seeds), "posts to simulate")
 
-	#load subreddit posts (don't need the comments!)
-	sub_posts = cascade_manip.load_filtered_posts(domain, subreddit)
-	#load subreddit parameters
-	sub_params = cascade_manip.load_cascade_params(domain, subreddit + '100')
+	#if have a cached graph, load and use that instead of rebuilding
+	if file_utils.verify_file("graph_cache/%s_post_graph.pkl" % subreddit) and file_utils.verify_file("graph_cache/%s_user_ids.pkl" % subreddit):
+		print("Loading post graph from graph_cache/%s_post_graph.pkl and user id list from graph_cache/%s_user_ids.pkl" % (subreddit, subreddit))
+		sub_graph = file_utils.load_pickle("graph_cache/%s_post_graph.pkl" % subreddit)
+		user_ids = 	file_utils.load_pickle("graph_cache/%s_user_ids.pkl" % subreddit)
+		print("Loaded graph has", sub_graph.graph.number_of_nodes(), "nodes and", sub_graph.graph.size(), "edges")
+
+	#no cached, build graph from raw posts and params
+	else:
+		#load subreddit posts (don't need the comments!)
+		sub_posts = cascade_manip.load_filtered_posts(domain, subreddit)
+		#load subreddit parameters
+		sub_params = cascade_manip.load_cascade_params(domain, subreddit)
 
 
-	#filter posts - TESTING ONLY!!!!!!!! - if you didn't load all the params
-	
-	sub_posts = {post_id : post for post_id, post in sub_posts.items() if post_id in sub_params}
-	print("Filtered to", len(sub_posts), "posts with fitted parameters")
-	
+		#filter posts - TESTING ONLY!!!!!!!! - if you didn't load all the params
+		'''
+		sub_posts = {post_id : post for post_id, post in sub_posts.items() if post_id in sub_params}
+		print("Filtered to", len(sub_posts), "posts with fitted parameters")
+		'''
 
-	#verify loads
-	if sub_posts == False or sub_params == False:
-		print("Load failed - exiting")
+		#verify loads
+		if sub_posts == False or sub_params == False:
+			print("Load failed - exiting")
+			exit(0)
+
+		#remove seed posts from fitted list - no cheating
+		'''
+		for post in seeds:
+			if post['id_h'] in sub_posts:
+				sub_posts.pop(post['id_h'])
+				sub_params.pop(post['id_h'])
+		print(len(sub_posts), "remaining after removing seed posts")
+		'''
+
+		#get list of posting users to pull comment user ids from
+		#list, not set, so more frequent posters are more likely to come up
+		user_ids = [post['author_h'] for post_id, post in sub_posts.items() if post['author_h'] != "[Deleted]" ]
+
+		#build graph of all posts/params
+		sub_graph = ParamGraph()
+		sub_graph.build_graph(sub_posts, sub_params)
+
+		#pickle this graph, save it for later
+		print("Saving post graph to graph_cache/%s_post_graph.pkl and user id list to graph_cache/%s_user_ids.pkl" % (subreddit, subreddit))
+		file_utils.save_pickle(sub_graph, "graph_cache/%s_post_graph.pkl" % subreddit)
+		file_utils.save_pickle(user_ids, "graph_cache/%s_user_ids.pkl" % subreddit)
 		exit(0)
-
-	#remove seed posts from fitted list - no cheating
-	for post in seeds:
-		if post['id_h'] in sub_posts:
-			sub_posts.pop(post['id_h'])
-			sub_params.pop(post['id_h'])
-	print(len(sub_posts), "remaining after removing seed posts")
-
-	#get list of posting users to pull comment user ids from
-	#list, not set, so more frequent posters are more likely to come up
-	user_ids = [post['author_h'] for post_id, post in sub_posts.items() if post['author_h'] != "[Deleted]" ]
-
-	#build graph of all posts/params
-	sub_graph = ParamGraph()
-	sub_graph.build_graph(sub_posts, sub_params)
 
 	#add all seed posts from this subreddit to graph
 	for post in seeds:
