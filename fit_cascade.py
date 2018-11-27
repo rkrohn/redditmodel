@@ -27,11 +27,15 @@ def get_root_time(post):
 def get_root_comment_times(post, comments):
     root_comment_times = []     #build list of reply times
 
-    root_time = get_root_time(post)     #get post time in seconds to use as offset    
+    root_time = get_root_time(post)     #get post time in seconds to use as offset
 
     #loop replies
     for comment_id in post['replies']:
-        root_comment_times.append((comments[comment_id]['created_utc'] - root_time) / 60)  #get time between post and comment in minutes
+        if comments[comment_id]['created_utc'] - root_time < 0:
+            print("NEGATIVE COMMENT TIME - FAIL!!!!")
+            exit(0)
+            
+        root_comment_times.append((comments[comment_id]['created_utc'] - root_time) / 60)       #get time between post and comment in minutes
 
     root_comment_times.sort()   #sort by time
     return root_comment_times
@@ -119,11 +123,15 @@ def fit_cascade_model(post, comments, display = False):
         print("")
 
     #fit weibull to root comment times
-    root_comment_times = get_root_comment_times(post, comments)   
+    root_comment_times = get_root_comment_times(post, comments)
+    if display: 
+        print("root comments", root_comment_times)
     a, lbd, k = fit_weibull(root_comment_times, display)
 
     #fit log-normal to all other comment times
     other_comment_times = get_other_comment_times(post, comments)
+    if display:
+        print("other comments", other_comment_times)
     mu, sigma = fit_lognormal(other_comment_times, display)
 
     #estimate branching factor
