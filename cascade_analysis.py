@@ -379,8 +379,8 @@ def fit_all_cascades(code, cascades, comments, subreddit = False):
 	post_count = len(cascade_params)
 	print("Fitting all cascade models")
 	for post_id, post in cascades.items():
-		#if this cascade already fitted, skip
-		if post_id in cascade_params:
+		#if this cascade already fitted, and params are valid, skip
+		if post_id in cascade_params and (cascade_params[post_id][0] != 20 and cascade_params[post_id][1] != 500 and cascade_params[post_id][2] != 2.3):
 			continue
 
 		#fit the current cascade (filtering comments to just this post is not required)
