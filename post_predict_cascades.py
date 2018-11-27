@@ -14,7 +14,7 @@ import string
 
 
 DISPLAY = False		#toggle debug print statements
-MAX_GRAPH_POSTS = 500	#maximum number of library posts to include in graph for paramter inference if mode != full_graph
+MAX_GRAPH_POSTS = 50	#maximum number of library posts to include in graph for paramter inference if mode != full_graph
 MAX_TOKEN_MATCH_POSTS = 5		#maximum number of token-matching posts to add to graph when inferring params for a
 								#post by an unseen user with all new tokens
 
@@ -285,7 +285,6 @@ for subreddit, seeds in post_seeds.items():
 
 			#filter the posts: only those by users in the author pool
 			sub_posts = {key: value for key, value in raw_sub_posts.items() if value['author_h'] in authors}
-			sub_params = {key: value for key, value in raw_sub_params.items() if key in sub_posts}
 
 			graph_authors = set([post['author_h'] for post_id, post in sub_posts.items()])
 			print("   Filtered to", len(sub_posts), "posts by", len(graph_authors), "authors")
@@ -297,10 +296,10 @@ for subreddit, seeds in post_seeds.items():
 				keep = set()
 				for author in graph_authors:
 					keep.add(random.choice([key for key, value in sub_posts.items() if value['author_h'] == author]))
-				#sample down
-				keep.update(random.sample([key for key in sub_posts.keys() if key not in keep], MAX_GRAPH_POSTS-len(keep)))
+				#sample down (as far as we can, while maintaining one post per author)
+				if MAX_GRAPH_POSTS - len(keep) > 0:
+					keep.update(random.sample([key for key in sub_posts.keys() if key not in keep], MAX_GRAPH_POSTS-len(keep)))
 				sub_posts = {key: sub_posts[key] for key in keep}
-				sub_params = {key: sub_params[key] for key in keep}
 			#too few? draw more
 			if len(sub_posts) < MAX_GRAPH_POSTS:
 				print("   Drawing more posts...")
@@ -309,7 +308,6 @@ for subreddit, seeds in post_seeds.items():
 				num_draw = MAX_GRAPH_POSTS - len(sub_posts)
 				more = random.sample(draw_keys, num_draw)
 				sub_posts.update({key: raw_sub_posts[key] for key in more})
-				sub_params.update({key: raw_sub_params[key] for key in more})
 
 			graph_authors = set([post['author_h'] for post_id, post in sub_posts.items()])
 			print("   Sampled to", len(sub_posts), "posts by", len(set([post['author_h'] for post_id, post in sub_posts.items()])), "authors for inference (" +  str(len(graph_authors)), "seed authors)")
@@ -345,6 +343,9 @@ for subreddit, seeds in post_seeds.items():
 					else:
 						print("   Adding", len(matching_posts), "token-matching posts to graph")
 						sub_posts.update(matching_posts)
+
+			#make sure params match posts			
+			sub_params = {key: value for key, value in raw_sub_params.items() if key in sub_posts}
 
 			graph_authors = set([post['author_h'] for post_id, post in sub_posts.items()])
 			print("   Using", len(sub_posts), "posts by", len(set([post['author_h'] for post_id, post in sub_posts.items()])), "authors for inference (" +  str(len(graph_authors)), "seed authors)")
@@ -385,7 +386,8 @@ for subreddit, seeds in post_seeds.items():
 		#add these events to running list
 		all_events.extend(post_events)
 
-		print("Finished post", post_counter, "/", len(raw_post_seeds))
+		if post_counter % 50 == 0:
+			print("Finished post", post_counter, "/", len(raw_post_seeds))
 		post_counter += 1
 
 #finished all posts across all subreddit, time to dump
