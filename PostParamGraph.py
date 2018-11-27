@@ -143,6 +143,8 @@ class ParamGraph(object):
 				if weight != False:
 					self.graph.add_edge(post['id_h'], other_post, weight=weight)		#add edge
 
+
+
 		if DISPLAY:
 			print("   Updated graph has", self.graph.number_of_nodes(), "nodes and", self.graph.size(), "edges")
 
@@ -220,11 +222,13 @@ class ParamGraph(object):
 		#if already have params for this node, use those - as long as they don't violate the current skip_default setting
 		lookup_params = self.__get_params(post_name, skip_default)
 		if lookup_params != False:
-			print("Direct param lookup for post", post_name)
+			if DISPLAY:
+				print("Direct param lookup for post", post_name)
 			return lookup_params
 
 		#infer parameters using fitted node2vec model, based on most similar node in graph with defined params
-		print("Inferring parameters for post", post_name)				
+		if DISPLAY:
+			print("Inferring parameters for post", post_name)				
 
 		#init average for 'average' and 'weighted' modes
 		avg_params = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
