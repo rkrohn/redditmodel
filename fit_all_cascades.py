@@ -21,9 +21,10 @@ cascades, comments = cascade_manip.remove_missing(code, cascades, comments)
 #load the subreddit distribution for these cascades
 subreddit_dist = file_utils.load_json("results/%s_post_subreddit_dist.json" % code)
 
+
 #loop all subreddits for this code
 for subreddit in sorted(subreddit_dist.keys()):
-	print("\n" + subreddit)
+	print("\nProcessing", subreddit)
 
 	#load filtered, if they exist
 	filtered_cascades, filtered_comments = cascade_manip.load_filtered_cascades(code, subreddit)
@@ -33,11 +34,10 @@ for subreddit in sorted(subreddit_dist.keys()):
 		#filter cascades by a particular subreddit
 		filtered_cascades = cascade_manip.filter_cascades_by_subreddit(cascades, subreddit)
 		#and filter comments to match those posts
-		filtered_comments = cascade_manip.filter_comments_by_posts(filtered_cascades, comments)
+		filtered_cascades, filtered_comments = cascade_manip.filter_comments_by_posts(filtered_cascades, comments)
 		#save these filtered posts/comments for easier loading later
 		cascade_manip.save_cascades(code, filtered_cascades, subreddit)
 		cascade_manip.save_comments(code, filtered_comments, subreddit)
-
 
 	#fit params to all of the filtered cascades, loading checkpoints if they exist
 	cascade_analysis.fit_all_cascades(code, filtered_cascades, filtered_comments, subreddit)		
