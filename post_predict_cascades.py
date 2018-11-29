@@ -199,8 +199,8 @@ else:
 	mode = "full_graph"
 
 #verify valid mode
-if mode != "full_graph" and  mode != "user_sample":
-	print("Invalid graph mode, must be one of: full_graph, user_sample")
+if mode != "full_graph" and  mode != "user_sample" and mode != "direct_sim":
+	print("Invalid graph mode, must be one of: full_graph, user_sample, direct_sim")
 	exit(0)
 
 #print some log-ish stuff in case output being piped and saved
@@ -208,8 +208,10 @@ print("Domain", domain)
 print("Input", infile)
 print("Output", outfile)
 print("Mode", mode)
-print("\nTarget graph size", MAX_GRAPH_POSTS)
-print("Max token match posts", MAX_TOKEN_MATCH_POSTS, "\n")
+if mode == "user_sample":
+	print("\nTarget graph size", MAX_GRAPH_POSTS)
+	print("Max token match posts", MAX_TOKEN_MATCH_POSTS)
+print("")
 
 #load post seeds
 raw_post_seeds = load_reddit_seeds(infile)
@@ -258,12 +260,13 @@ for subreddit, seeds in post_seeds.items():
 			print("Load failed - exiting")
 			exit(0)
 
-		#remove seed posts from fitted list - no cheating
-		for post in seeds:
-			if post['id_h'] in raw_sub_posts:
-				raw_sub_posts.pop(post['id_h'])
-				raw_sub_params.pop(post['id_h'])
-		print(len(raw_sub_posts), "remaining after removing seed posts")
+		#remove seed posts from fitted list - no cheating, unless run is set that way
+		if mode != "direct_sim":
+			for post in seeds:
+				if post['id_h'] in raw_sub_posts:
+					raw_sub_posts.pop(post['id_h'])
+					raw_sub_params.pop(post['id_h'])
+			print(len(raw_sub_posts), "remaining after removing seed posts")
 
 		#get list of posting users to pull comment user ids from
 		#list, not set, so more frequent posters are more likely to come up
@@ -273,6 +276,15 @@ for subreddit, seeds in post_seeds.items():
 		if mode == "full_graph":
 			sub_posts = raw_sub_posts
 			raw_sub_params = raw_sub_params
+			print("Using all posts in inference graph")
+
+		#if direct sim mode, limit graph to just the seed posts, since we don't need anything else 
+		#(and we're not going to build a graph anyway)
+		elif mode == "direct_sim":
+			seed_ids = [post['id_h'] for post in seeds]
+			sub_posts = {key: value for key, value in raw_sub_posts.items() if key in seed_ids}
+			sub_params = {key: value for key, value in raw_sub_params.items() if key in seed_ids}
+			print("Removing all extraneous posts for direct parameter lookup")
 
 		#if set to user_sample mode, sample down the full post history to only posts by the seed authors
 		#(plus a few more to ensure token connectivity, if at all possible)
@@ -285,7 +297,6 @@ for subreddit, seeds in post_seeds.items():
 
 			#filter the posts: only those by users in the author pool
 			sub_posts = {key: value for key, value in raw_sub_posts.items() if value['author_h'] in authors}
-
 			graph_authors = set([post['author_h'] for post_id, post in sub_posts.items()])
 			print("   Filtered to", len(sub_posts), "posts by", len(graph_authors), "authors")
 
@@ -350,32 +361,43 @@ for subreddit, seeds in post_seeds.items():
 			graph_authors = set([post['author_h'] for post_id, post in sub_posts.items()])
 			print("   Using", len(sub_posts), "posts by", len(set([post['author_h'] for post_id, post in sub_posts.items()])), "authors for inference (" +  str(len(graph_authors)), "seed authors)")
 
-		#build graph of all posts/params
-		sub_graph = ParamGraph()
-		sub_graph.build_graph(sub_posts, sub_params)
+		#build graph of all posts/params - if we need a graph at all
+		if mode != "direct_sim":
+			sub_graph = ParamGraph()
+			sub_graph.build_graph(sub_posts, sub_params)
 
-		#pickle this graph, save it for later
-		'''
-		print("Saving post graph to graph_cache/%s_post_graph.pkl and user id list to graph_cache/%s_user_ids.pkl" % (subreddit, subreddit))
-		file_utils.save_pickle(sub_graph, "graph_cache/%s_post_graph.pkl" % subreddit)
-		file_utils.save_pickle(user_ids, "graph_cache/%s_user_ids.pkl" % subreddit)
-		exit(0)
-		'''
+			#pickle this graph, save it for later
+			'''
+			print("Saving post graph to graph_cache/%s_post_graph.pkl and user id list to graph_cache/%s_user_ids.pkl" % (subreddit, subreddit))
+			file_utils.save_pickle(sub_graph, "graph_cache/%s_post_graph.pkl" % subreddit)
+			file_utils.save_pickle(user_ids, "graph_cache/%s_user_ids.pkl" % subreddit)
+			exit(0)
+			'''
 
-	#add all seed posts from this subreddit to graph
-	print("Adding seed posts to graph")
-	for post in seeds:
-		res = sub_graph.add_post(post)
-	print("   Updated graph has", sub_graph.graph.number_of_nodes(), "nodes and", sub_graph.graph.size(), "edges")
+	#add all seed posts from this subreddit to graph, if not already there
+	if mode != "direct_sim":
+		print("Adding seed posts to graph")
+		for post in seeds:
+			res = sub_graph.add_post(post)
+		print("   Updated graph has", sub_graph.graph.number_of_nodes(), "nodes and", sub_graph.graph.size(), "edges")
 
 	#run node2vec to get embeddings - if we have to infer parameters
-	sub_graph.run_node2vec()
+	if mode != "direct_sim":
+		sub_graph.run_node2vec()
 
 	#for each post, infer parameters and simulate
+	print("Simulating comment trees...")
 	for post in seeds:
 
-		#infer params
-		post_params = sub_graph.infer_params(post, 'weighted', avg_count=5)
+		#infer/lookup params
+		if mode == "direct_sim":
+			if post['id_h'] in sub_params:
+				post_params = sub_params[post['id_h']]
+			else:
+				print("Seed post", post['id_h'], "does not have fitted paramters - exiting")
+				exit(0)
+		else:
+			post_params = sub_graph.infer_params(post, 'weighted', avg_count=5)
 
 		#simulate a comment tree! just the event times first
 		sim_root, all_times = sim_tree.simulate_comment_tree(post_params)
