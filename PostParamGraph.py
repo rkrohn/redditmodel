@@ -177,7 +177,7 @@ class ParamGraph(object):
 
 		#precompute probabilities and generate walks
 		print("Running node2vec...")
-		node2vec = Node2Vec(self.graph, dimensions=16, walk_length=10, num_walks=200, workers=4, quiet=False)	#example uses 64 dimensions and walk_length 10, let's go smaller
+		node2vec = Node2Vec(self.graph, dimensions=16, walk_length=10, num_walks=200, workers=4, quiet=True)	#example uses 64 dimensions and walk_length 10, let's go smaller
 
 		#compute embeddings - dimensions and workers automatically passed from the Node2Vec constructor
 		self.model = node2vec.fit(window=10, min_count=1, batch_words=4)
