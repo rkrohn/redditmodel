@@ -181,6 +181,81 @@ def extract_tokens(post):
 #end extract_tokens
 
 
+#given complete set of posts/params for current subreddit, and seed posts,
+#sample down to reach the target graph size
+def user_sample_graph(raw_sub_posts, raw_sub_params, seeds):
+	#set of authors of seed posts
+	authors = set([post['author_h'] for post in seeds])
+	print("  ", len(authors), "authors in seed posts")
+
+	#filter the posts: only those by users in the author pool
+	sub_posts = {key: value for key, value in raw_sub_posts.items() if value['author_h'] in authors}
+	graph_authors = set([post['author_h'] for post_id, post in sub_posts.items()])
+	print("   Filtered to", len(sub_posts), "posts by", len(graph_authors), "authors")
+
+	#no more than MAX_GRAPH_POSTS posts, or this will never finish
+	if len(sub_posts) > MAX_GRAPH_POSTS:
+		print("   Sampling down...")
+		#keep at least one post by each author that we have posts for (pick a random one)
+		keep = set()
+		for author in graph_authors:
+			keep.add(random.choice([key for key, value in sub_posts.items() if value['author_h'] == author]))
+		#sample down (as far as we can, while maintaining one post per author)
+		if MAX_GRAPH_POSTS - len(keep) > 0:
+			keep.update(random.sample([key for key in sub_posts.keys() if key not in keep], MAX_GRAPH_POSTS-len(keep)))
+		sub_posts = {key: sub_posts[key] for key in keep}
+	#too few? draw more
+	if len(sub_posts) < MAX_GRAPH_POSTS:
+		print("   Drawing more posts...")
+		#add more
+		draw_keys = [key for key in raw_sub_posts.keys() if key not in sub_posts.keys()]
+		num_draw = MAX_GRAPH_POSTS - len(sub_posts)
+		more = random.sample(draw_keys, num_draw)
+		sub_posts.update({key: raw_sub_posts[key] for key in more})
+
+	graph_authors = set([post['author_h'] for post_id, post in sub_posts.items()])
+	print("   Sampled to", len(sub_posts), "posts by", len(set([post['author_h'] for post_id, post in sub_posts.items()])), "authors for inference (" +  str(len(graph_authors)), "seed authors)")
+
+	#can we connect all the seed posts to this sampled version of the graph? check authors and tokens
+	graph_authors = set([post['author_h'] for post_id, post in sub_posts.items()])	#updated list of graph authors
+
+	#build list of tokens represented in graph (extra work, yes, repeated in graph build)
+	graph_tokens = set()
+	for post_id, post in sub_posts.items():
+		graph_tokens.update(extract_tokens(post))
+
+	#check to see if all seed posts can be connected to this graph
+	for post in seeds:
+		#post author in graph, no need for token match
+		if post['author_h'] in graph_authors:
+			continue
+
+		post_tokens = extract_tokens(post)		#get tokens from this post
+		#if no token connection, try to draw some more posts to allow for connection
+		if len(graph_tokens.intersection(post_tokens)) == 0:
+			#can we find a post in our library with some of these tokens? to get the node connected
+			matching_posts = {key:value for key, value in raw_sub_posts.items() if len(post_tokens.intersection(extract_tokens(value))) != 0}
+			#if too many matching token posts, sample down
+			if len(matching_posts) > MAX_TOKEN_MATCH_POSTS:
+				keep = random.sample(matching_posts.keys(), MAX_TOKEN_MATCH_POSTS)
+				matching_posts = {key: matching_posts[key] for key in keep}
+
+			#if no matching token/user posts - params will basically be a guess
+			if len(matching_posts) == 0:
+				print("   Cannot connect seed post to graph - parameter inference compromised")
+			#add the matching posts to the graph
+			else:
+				print("   Adding", len(matching_posts), "token-matching posts to graph")
+				sub_posts.update(matching_posts)
+
+	#make sure params match posts			
+	sub_params = {key: value for key, value in raw_sub_params.items() if key in sub_posts}
+
+	#return sampled posts and params
+	return sub_posts, sub_params
+#end user_sample_graph
+
+
 #main execution begins here
 print("")
 
@@ -291,75 +366,11 @@ for subreddit, seeds in post_seeds.items():
 		elif mode == "user_sample":
 			print("Reducing graph size based on seed post authors")
 
-			#set of authors of seed posts
-			authors = set([post['author_h'] for post in seeds])
-			print("  ", len(authors), "authors in seed posts")
-
-			#filter the posts: only those by users in the author pool
-			sub_posts = {key: value for key, value in raw_sub_posts.items() if value['author_h'] in authors}
-			graph_authors = set([post['author_h'] for post_id, post in sub_posts.items()])
-			print("   Filtered to", len(sub_posts), "posts by", len(graph_authors), "authors")
-
-			#no more than MAX_GRAPH_POSTS posts, or this will never finish
-			if len(sub_posts) > MAX_GRAPH_POSTS:
-				print("   Sampling down...")
-				#keep at least one post by each author that we have posts for (pick a random one)
-				keep = set()
-				for author in graph_authors:
-					keep.add(random.choice([key for key, value in sub_posts.items() if value['author_h'] == author]))
-				#sample down (as far as we can, while maintaining one post per author)
-				if MAX_GRAPH_POSTS - len(keep) > 0:
-					keep.update(random.sample([key for key in sub_posts.keys() if key not in keep], MAX_GRAPH_POSTS-len(keep)))
-				sub_posts = {key: sub_posts[key] for key in keep}
-			#too few? draw more
-			if len(sub_posts) < MAX_GRAPH_POSTS:
-				print("   Drawing more posts...")
-				#add more
-				draw_keys = [key for key in raw_sub_posts.keys() if key not in sub_posts.keys()]
-				num_draw = MAX_GRAPH_POSTS - len(sub_posts)
-				more = random.sample(draw_keys, num_draw)
-				sub_posts.update({key: raw_sub_posts[key] for key in more})
-
-			graph_authors = set([post['author_h'] for post_id, post in sub_posts.items()])
-			print("   Sampled to", len(sub_posts), "posts by", len(set([post['author_h'] for post_id, post in sub_posts.items()])), "authors for inference (" +  str(len(graph_authors)), "seed authors)")
-
-			#can we connect all the seed posts to this sampled version of the graph? check authors and tokens
-			graph_authors = set([post['author_h'] for post_id, post in sub_posts.items()])	#updated list of graph authors
-
-			#build list of tokens represented in graph (extra work, yes, repeated in graph build)
-			graph_tokens = set()
-			for post_id, post in sub_posts.items():
-				graph_tokens.update(extract_tokens(post))
-
-			#check to see if all seed posts can be connected to this graph
-			for post in seeds:
-				#post author in graph, no need for token match
-				if post['author_h'] in graph_authors:
-					continue
-
-				post_tokens = extract_tokens(post)		#get tokens from this post
-				#if no token connection, try to draw some more posts to allow for connection
-				if len(graph_tokens.intersection(post_tokens)) == 0:
-					#can we find a post in our library with some of these tokens? to get the node connected
-					matching_posts = {key:value for key, value in raw_sub_posts.items() if len(post_tokens.intersection(extract_tokens(value))) != 0}
-					#if too many matching token posts, sample down
-					if len(matching_posts) > MAX_TOKEN_MATCH_POSTS:
-						keep = random.sample(matching_posts.keys(), MAX_TOKEN_MATCH_POSTS)
-						matching_posts = {key: matching_posts[key] for key in keep}
-
-					#if no matching token/user posts - params will basically be a guess
-					if len(matching_posts) == 0:
-						print("   Cannot connect seed post to graph - parameter inference compromised")
-					#add the matching posts to the graph
-					else:
-						print("   Adding", len(matching_posts), "token-matching posts to graph")
-						sub_posts.update(matching_posts)
-
-			#make sure params match posts			
-			sub_params = {key: value for key, value in raw_sub_params.items() if key in sub_posts}
+			sub_posts, sub_params = user_sample_graph(raw_sub_posts, raw_sub_params, seeds)
 
 			graph_authors = set([post['author_h'] for post_id, post in sub_posts.items()])
 			print("   Using", len(sub_posts), "posts by", len(set([post['author_h'] for post_id, post in sub_posts.items()])), "authors for inference (" +  str(len(graph_authors)), "seed authors)")
+
 
 		#build graph of all posts/params - if we need a graph at all
 		if mode != "direct_sim":
