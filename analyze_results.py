@@ -34,8 +34,7 @@ for ident in data:
 		#loop metrics
 		for metric in data[ident][topic]:
 			#add this to updated data
-			if data[ident][topic][metric] != None:
-				row[topic + " : " + metric] = data[ident][topic][metric]
+			row[topic + " : " + metric] = data[ident][topic][metric]
 	dump_data.append(row)
 
 #build list of csv columns
