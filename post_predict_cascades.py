@@ -68,7 +68,7 @@ def reddit_sim_to_json(domain, events, outfile):
                   'data'     : events}
             
     with open(outfile,'w') as f:
-        json.dump(submission, f)
+        json.dump(submission, f, indent=3, sort_keys=False)
 
     print("Done")
 
