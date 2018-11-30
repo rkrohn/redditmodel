@@ -18,6 +18,9 @@ MAX_GRAPH_POSTS = 50	#maximum number of library posts to include in graph for pa
 MAX_TOKEN_MATCH_POSTS = 5		#maximum number of token-matching posts to add to graph when inferring params for a
 								#post by an unseen user with all new tokens
 
+POST_PREFIX = "t3_"
+COMMENT_PREFIX = "t1_"
+
 #creates submission json file
 #domain - simulation domain, must be one of 'crypto', 'cyber', or 'CVE'
 #events - list of simulation events, each a dictionary with the following fields: 
@@ -110,10 +113,10 @@ def build_cascade_events(root, post, user_ids):
 
 	#set the rest of the fields, the same for all events in this cascade
 	for event in events:
-		event['rootID'] = post['id_h']
+		event['rootID'] = POST_PREFIX + post['id_h']
 		event['communityID'] = post['subreddit_id']
 		#assign user to each event - random from known users for now
-		event['nodeUserID'] = post['author_h'] if event['nodeID'] == post['id_h'] else random.choice(user_ids)
+		event['nodeUserID'] = post['author_h'] if event['nodeID'] == POST_PREFIX + post['id_h'] else random.choice(user_ids)
 
 	if DISPLAY:
 		print(post['id_h'], post['author_h'], post['created_utc'])
@@ -144,13 +147,13 @@ def tree_to_events(root, seedID, seedTime):
 		new_event = {'nodeTime': str(int(curr['time'] * 60) + seedTime)}		#convert offset to seconds, add to seed time, convert entire time to string
 		#set nodeid if comment
 		if parent != None:
-			new_event['nodeID'] = "comment" + str(NEXT_ID)
+			new_event['nodeID'] = COMMENT_PREFIX + "comment" + str(NEXT_ID)		#include comment prefix
 			NEXT_ID += 1
 		#nodeID = seed post ID if at root
 		else:
-			new_event['nodeID'] = seedID
+			new_event['nodeID'] = POST_PREFIX + seedID
 		#set parent of this event
-		new_event['parentID'] = seedID if parent == None else parent
+		new_event['parentID'] = POST_PREFIX + seedID if parent == None else parent
 		#set actionType of this event
 		new_event['actionType'] = 'post' if parent == None else 'comment'
 		#add new event to list
@@ -338,6 +341,11 @@ for subreddit, seeds in post_seeds.items():
 		#remove seed posts from fitted list - no cheating, unless run is set that way
 		if mode != "direct_sim":
 			for post in seeds:
+				#if post id contains the t3_ prefix, strip it off so we don't have to change everything
+				#(will manually add it back to output later)
+				if post['id_h'].startswith(POST_PREFIX):
+					post['id_h'] = post['id_h'][3:]
+
 				if post['id_h'] in raw_sub_posts:
 					raw_sub_posts.pop(post['id_h'])
 					raw_sub_params.pop(post['id_h'])
