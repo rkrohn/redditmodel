@@ -3,4 +3,5 @@ __pycache__
 *.pyc
 list_tar.py
 tensor_testing/tf-decompose/
+*.emb
 
