@@ -170,17 +170,19 @@ def save_cascade_params(code, cascade_params, filtered = False):
 #load saved cascade parameters from pickle
 #if filtered = False, loading all cascade params for this code
 #if filtered is a string, indicates subreddit cascade params are filtered by
-def load_cascade_params(code, filtered = False):
+def load_cascade_params(code, filtered = False, display=True):
 	if filtered == False:
 		filename = "data_cache/fitted_params/%s_cascade_params.pkl" % code
 	else:
 		filename = "data_cache/fitted_params/%s_%s_cascade_params.pkl" % (code, filtered)
 
-	if os.path.exists(filename) == False:		
-		print("No saved cascade parameters - exiting")
+	if os.path.exists(filename) == False:
+		if display:	
+			print("No saved cascade parameters - exiting")
 		exit(0)
 	else:
-		print("Loading cascade parameters from cache:", filename)
+		if display:
+			print("Loading cascade parameters from cache:", filename)
 		params = file_utils.load_pickle(filename)
 
 	return params
