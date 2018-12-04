@@ -44,7 +44,7 @@ void node2vec(PWNet& InNet, const double& ParamP, const double& ParamQ,
 			WalksDone++;		//add to counter
 		}
 	}
-	printf("\nWalksVV dimensions: (%d, %d)", WalksVV.GetXDim(), WalksVV.GetYDim());
+	//printf("\nWalksVV dimensions: (%d, %d)", WalksVV.GetXDim(), WalksVV.GetYDim());
 
 	if (Verbose)
 	{

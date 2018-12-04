@@ -37,6 +37,7 @@ void ParseArgs(int& argc, char* argv[], TStr& InFile, TStr& OutFile,
 	OutputWalks = Env.IsArgStr("-ow", "Output random walks instead of embeddings.");
 }
 
+//read edgelist graph from input file and construct graph
 void ReadGraph(TStr& InFile, bool& Directed, bool& Weighted, bool& Verbose, PWNet& InNet) 
 {
 	TFIn FIn(InFile);
@@ -74,6 +75,7 @@ void ReadGraph(TStr& InFile, bool& Directed, bool& Weighted, bool& Verbose, PWNe
 	}
 }
 
+//dump embeddings (and optional walks) to output file
 void WriteOutput(TStr& OutFile, TIntFltVH& EmbeddingsHV, TVVec<TInt, int64>& WalksVV,
  bool& OutputWalks) 
 	{

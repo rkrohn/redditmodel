@@ -100,6 +100,7 @@ void InitUnigramTable(TIntV& Vocab, TIntV& KTable, TFltV& UTable)
 		UTable[curr] = 1;		//set uval to 1
 	}
 
+	/*
 	printf("Unigram Table\n");
 	for (int64 i = 0; i < UTable.Len(); i++)
 		printf("%lf  ", UTable[i]);
@@ -109,6 +110,7 @@ void InitUnigramTable(TIntV& Vocab, TIntV& KTable, TFltV& UTable)
 	for (int64 i = 0; i < KTable.Len(); i++)
 		printf("%lf  ", KTable[i]);
 	printf("\n");
+	*/
 }
 
 //draw a random word based on unigram table for negative sampling (math magic)
@@ -163,18 +165,18 @@ void TrainModel(TVVec<TInt, int64>& WalksVV, const int& Dimensions,
 
 	//extract current walk into it's own vector
 	TIntV WalkV(WalksVV.GetYDim());
-	printf("\nCURRENT WALK: ");
+	//printf("\nCURRENT WALK: ");
 	for (int j = 0; j < WalksVV.GetYDim(); j++) 
 	{ 
 		WalkV[j] = WalksVV(CurrWalk,j); 
-		printf("%d ", WalkV[j]);
+		//printf("%d ", WalkV[j]);
 	}
-	printf(" (len %d)", WalkV.Len());
+	//printf(" (len %d)", WalkV.Len());
 
 	//loop nodes/words in current walk
 	for (int64 WordI=0; WordI<WalkV.Len(); WordI++)
 	{
-		printf("\nProcessing position %d in current walk (walk %d)\n", WordI, CurrWalk);
+		//printf("\nProcessing position %d in current walk (walk %d)\n", WordI, CurrWalk);
 
 		//every 10,000 words, do some things
 		if ( WordCntAll%10000 == 0 ) 
@@ -200,7 +202,7 @@ void TrainModel(TVVec<TInt, int64>& WalksVV, const int& Dimensions,
 
 		int Offset = Rnd.GetUniDevInt() % WinSize;		//draw random offset, from 0 to WinSize-1
 														//this is the amount we will "shrink" the window size by
-		printf("   Offset %d : ", Offset);
+		//printf("   Offset %d : ", Offset);
 		//a is the offset into the current window, relative to the window start
 		//window start is defined by the randomly-drawn Offset - which defines how many words at the start of the window to skip
 		//(a is NOT a walk/sentence index - relative to window)
@@ -214,7 +216,7 @@ void TrainModel(TVVec<TInt, int64>& WalksVV, const int& Dimensions,
 			if (CurrWordI < 0){ continue; }
 			if (CurrWordI >= WalkV.Len()){ continue; }
 
-			printf("%d ", a);
+			//printf("%d ", a);
 
 			int64 CurrWord = WalkV[CurrWordI];		//pull word from walk corresponding to this position
 			for (int i = 0; i < Dimensions; i++) { Neu1eV[i] = 0; }		//reset neuron
@@ -318,10 +320,12 @@ void LearnEmbeddings(TVVec<TInt, int64>& WalksVV, const int& Dimensions,
 	TIntV Vocab(NNodes);		//arry-type container, one space for each "word" (node), holds frequencies
 	LearnVocab(WalksVV, Vocab);		//count number of times each word/node is used
 
+	/*
 	printf("Vocab (%d words)\n", Vocab.Len());
 	for (int64 i = 0; i < Vocab.Len(); i++)
 		printf("%.10e  ", Vocab[i]);
 	printf("\n");
+	*/
 
 	TIntV KTable(NNodes);		//vector of integers, length of vocabulary
 	TFltV UTable(NNodes);		//vector of floats, lenght of vocabulary
@@ -334,6 +338,7 @@ void LearnEmbeddings(TVVec<TInt, int64>& WalksVV, const int& Dimensions,
 	InitPosEmb(Vocab, Dimensions, Rnd, SynPos);		//init embedding with random values
 	InitNegEmb(Vocab, Dimensions, SynNeg);			//all 0
 
+	/*
 	printf("SynPos dim: (%d, %d)\n", SynPos.GetXDim(), SynPos.GetYDim());
 	printf("SynPos (first rows only)\n");
 	for (int64 i = 0; i < SynPos.GetXDim(); i++)	//loop nodes/words
@@ -346,11 +351,12 @@ void LearnEmbeddings(TVVec<TInt, int64>& WalksVV, const int& Dimensions,
 		if (i == 0)
 			break;
 	}
+	*/
 
 	InitUnigramTable(Vocab, KTable, UTable);		//compute unigram table - somewhat related to prob/freq?
 
 	//build exptable
-	printf("Table Size: %d\n", TableSize);
+	//printf("Table Size: %d\n", TableSize);
 	TFltV ExpTable(TableSize);
 #pragma omp parallel for schedule(dynamic)
 	for (int i = 0; i < TableSize; i++ )
