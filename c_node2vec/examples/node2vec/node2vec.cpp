@@ -9,12 +9,13 @@
 void ParseArgs(int& argc, char* argv[], TStr& InFile, TStr& OutFile,
 	int& Dimensions, int& WalkLen, int& NumWalks, int& WinSize, int& Iter,
 	bool& Verbose, double& ParamP, double& ParamQ, bool& Directed, bool& Weighted,
-	bool& OutputWalks) 
+	bool& OutputWalks, TStr& InitInFile) 
 {
 	Env = TEnv(argc, argv, TNotify::StdNotify);
 	Env.PrepArgs(TStr::Fmt("\nAn algorithmic framework for representational learning on graphs."));
 	InFile = Env.GetIfArgPrefixStr("-i:", "graph/karate.edgelist",
 	"Input graph path");
+	InitInFile = Env.GetIfArgPrefixStr("-s:", "", "Initial embeddings input file. Default is None.");
 	OutFile = Env.GetIfArgPrefixStr("-o:", "emb/karate.emb",
 	"Output graph path");
 	Dimensions = Env.GetIfArgPrefixInt("-d:", 128,
@@ -75,6 +76,62 @@ void ReadGraph(TStr& InFile, bool& Directed, bool& Weighted, bool& Verbose, PWNe
 	}
 }
 
+//read initial embeddings values from file, save to hash
+void ReadInitialEmbeddings(TStr& InitInFile, TIntFltVH& InitEmbeddingsHV, bool& Verbose, int Dimensions)
+{
+	TFIn FIn(InitInFile);
+	int64 LineCnt = 0;
+	try 
+	{
+		while (!FIn.Eof()) 
+		{
+			//get next line of file
+			TStr Ln;
+			FIn.GetNextLn(Ln);
+
+			//split out comments
+			TStr Line, Comment;
+			Ln.SplitOnCh(Line,'#',Comment);
+
+			//tokenize the line
+			TStrV Tokens;
+			Line.SplitOnWs(Tokens);
+
+			//too few tokens, skip this line
+			if(Tokens.Len() < Dimensions+1){ continue; }
+
+			//extract tokens
+			int64 NId = Tokens[0].GetInt();		//node id
+			//printf("%ld ", NId);
+
+			//params for this node
+			TFltV CurrV(Dimensions);
+			for (int i = 0; i < Dimensions; i++)
+			{
+				//get embedding value
+				CurrV[i] = Tokens[i+1].GetFlt();
+				//printf("%f ", CurrV[i]);
+				
+			}
+			InitEmbeddingsHV.AddDat(NId, CurrV);	//add vector to this node's initial embeddings
+
+			//printf("\n");
+			LineCnt++;
+		}
+		if (Verbose) { printf("Read %lld lines from %s\n", (long long)LineCnt, InitInFile.CStr()); }
+	} 
+	catch (PExcept Except) 
+	{
+		if (Verbose) 
+		{
+			printf("Read %lld lines from %s, then %s\n", (long long)LineCnt, InitInFile.CStr(),
+			Except->GetStr().CStr());
+		}
+	}
+
+	
+}
+
 //dump embeddings (and optional walks) to output file
 void WriteOutput(TStr& OutFile, TIntFltVH& EmbeddingsHV, TVVec<TInt, int64>& WalksVV,
  bool& OutputWalks) 
@@ -97,8 +154,7 @@ void WriteOutput(TStr& OutFile, TIntFltVH& EmbeddingsHV, TVVec<TInt, int64>& Wal
 				}
 			}
 		}
-		//return;
-		FOut.PutLn();
+		return;
 	}
 	bool First = 1;
 	for (int i = EmbeddingsHV.FFirstKeyId(); EmbeddingsHV.FNextKeyId(i);) 
@@ -123,24 +179,35 @@ void WriteOutput(TStr& OutFile, TIntFltVH& EmbeddingsHV, TVVec<TInt, int64>& Wal
 
 int main(int argc, char* argv[])
 {
-	TStr InFile, OutFile;
+	TStr InFile, InitInFile, OutFile;
 	int Dimensions, WalkLen, NumWalks, WinSize, Iter;
 	double ParamP, ParamQ;
 	bool Directed, Weighted, Verbose, OutputWalks;
 
 	//parse command line args
 	ParseArgs(argc, argv, InFile, OutFile, Dimensions, WalkLen, NumWalks, WinSize,
-	Iter, Verbose, ParamP, ParamQ, Directed, Weighted, OutputWalks);
+	Iter, Verbose, ParamP, ParamQ, Directed, Weighted, OutputWalks, InitInFile);
 
 	PWNet InNet = PWNet::New();		//network object
 	TIntFltVH EmbeddingsHV;			//embeddings object - hash int to vector of floats
 	TVVec <TInt, int64> WalksVV;	//walks?
+	TIntFltVH InitEmbeddingsHV;		//initial embedding object setting: hash int to vector of floats
 
 	ReadGraph(InFile, Directed, Weighted, Verbose, InNet);		//read graph from edgelist
 
+	//for now, require the initial embeddings file - because that's what we're doing, and I don't care enough to do this clean right now
+	if (InitInFile.Len() == 0)
+	{
+		printf("Must provide initial embeddings file with -s option. Exiting.");
+		return 0;
+	}
+
+	//read initial embeddings
+	ReadInitialEmbeddings(InitInFile, InitEmbeddingsHV, Verbose, Dimensions);
+
 	//run node2vec: network, configuration parameters, objects for walks and embeddings
 	node2vec(InNet, ParamP, ParamQ, Dimensions, WalkLen, NumWalks, WinSize, Iter, 
-	Verbose, OutputWalks, WalksVV, EmbeddingsHV);
+	Verbose, OutputWalks, WalksVV, EmbeddingsHV, InitEmbeddingsHV);
 
 	//dump results
 	WriteOutput(OutFile, EmbeddingsHV, WalksVV, OutputWalks);

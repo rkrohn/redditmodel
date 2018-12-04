@@ -164,7 +164,7 @@ int64 PredictMemoryRequirements(PWNet& InNet)
 void SimulateWalk(PWNet& InNet, int64 StartNId, const int& WalkLen, TRnd& Rnd, TIntV& WalkV)
 {
 	WalkV.Add(StartNId);		//add starting node id to random walk
-
+	
 	//if desired length is 1, done
 	if (WalkLen == 1)
 		return;

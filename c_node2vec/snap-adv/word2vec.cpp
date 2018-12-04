@@ -137,15 +137,33 @@ void InitNegEmb(TIntV& Vocab, const int& Dimensions, TVVec<TFlt, int64>& SynNeg)
 
 //Initialize positive embeddings - set all to random values
 //this is the hidden layer, aka the final embeddings
-void InitPosEmb(TIntV& Vocab, const int& Dimensions, TRnd& Rnd, TVVec<TFlt, int64>& SynPos)
+void InitPosEmb(TIntV& Vocab, const int& Dimensions, TRnd& Rnd, TVVec<TFlt, int64>& SynPos, TIntFltVH& InitEmbeddingsHV, TIntIntH& RnmBackH)
 {
+	printf("Initializing embeddings...\n");
 	SynPos = TVVec<TFlt, int64>(Vocab.Len(),Dimensions);
 	for (int64 i = 0; i < SynPos.GetXDim(); i++)	//loop nodes/words
 	{
+		//fetch initial embeddings vector for this word
+		int64 orig_id = RnmBackH.GetDat(i);		//get original id
+		printf("%d -> %d: ", orig_id, i);
+		bool valid = false;
+		if (InitEmbeddingsHV.IsKey(orig_id))
+		{
+			valid = true;
+			printf("copy ");
+		}
+		TFltV CurrV = InitEmbeddingsHV.GetDat(orig_id);
 		for (int j = 0; j < SynPos.GetYDim(); j++) 		//loop embedding dimensions
 		{
-			SynPos(i,j) =(Rnd.GetUniDev()-0.5)/Dimensions;	//random values, ranging -.5/dimensions to 0.5/dimensions (all near 0)
+			if (valid)
+			{
+				SynPos(i,j) = CurrV[j];		//if have initial embedding, use it
+			}
+			else
+				SynPos(i,j) = (Rnd.GetUniDev()-0.5)/Dimensions; //random values, ranging -.5/dimensions to 0.5/dimensions (all near 0)
+			printf("%f ", SynPos(i, j));
 		}
+		printf("\n");
 	}
 }
 
@@ -288,12 +306,13 @@ void TrainModel(TVVec<TInt, int64>& WalksVV, const int& Dimensions,
 
 //learn embeddings for "words" (nodes) based on "sentences" (walks)
 //pass in: walks, embedding dimensions/size, context window size, number of SGD epochs, verbose flag, container for embeddings
+//note that the walks may contain a 0, which indicates no node travel there - why it works that way, I do not know
 void LearnEmbeddings(TVVec<TInt, int64>& WalksVV, const int& Dimensions,
 	const int& WinSize, const int& Iter, const bool& Verbose,
-	TIntFltVH& EmbeddingsHV)
+	TIntFltVH& EmbeddingsHV, TIntFltVH& InitEmbeddingsHV)
 	{
-	TIntIntH RnmH;		//hash type for mapping
-	TIntIntH RnmBackH;
+	TIntIntH RnmH;		//hash type for mapping, given node id -> consecutive node id
+	TIntIntH RnmBackH;	//reverse hash, assigned consecutive node id -> given node id
 	int64 NNodes = 0;	//node counter
 
 	//renaming nodes into consecutive numbers (because reasons)
@@ -335,7 +354,7 @@ void LearnEmbeddings(TVVec<TInt, int64>& WalksVV, const int& Dimensions,
 	TRnd Rnd(time(NULL));		//seed the randomizer
 
 	//initialize positive and negative embeddings: len(vocab) * Dimensions
-	InitPosEmb(Vocab, Dimensions, Rnd, SynPos);		//init embedding with random values
+	InitPosEmb(Vocab, Dimensions, Rnd, SynPos, InitEmbeddingsHV, RnmBackH);		//init embedding with random values - but not random anymore!
 	InitNegEmb(Vocab, Dimensions, SynNeg);			//all 0
 
 	/*

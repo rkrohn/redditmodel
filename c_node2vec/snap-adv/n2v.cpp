@@ -5,7 +5,7 @@ void node2vec(PWNet& InNet, const double& ParamP, const double& ParamQ,
 	const int& Dimensions, const int& WalkLen, const int& NumWalks,
 	const int& WinSize, const int& Iter, const bool& Verbose,
 	const bool& OutputWalks, TVVec<TInt, int64>& WalksVV,
-	TIntFltVH& EmbeddingsHV)
+	TIntFltVH& EmbeddingsHV, TIntFltVH& InitEmbeddingsHV)
 	{
 	//Preprocess transition probabilities - in biasedrandomwalk
 	PreprocessTransitionProbs(InNet, ParamP, ParamQ, Verbose);
@@ -24,7 +24,7 @@ void node2vec(PWNet& InNet, const double& ParamP, const double& ParamQ,
 	for (int64 i = 0; i < NumWalks; i++)
 	{
 		NIdsV.Shuffle(Rnd);		//shuffle node ids
-#pragma omp parallel for schedule(dynamic)		//parallel!!
+//#pragma omp parallel for schedule(dynamic)		//parallel!!
 		//loop shuffled node ids
 		for (int64 j = 0; j < NIdsV.Len(); j++)
 		{
@@ -54,19 +54,19 @@ void node2vec(PWNet& InNet, const double& ParamP, const double& ParamQ,
 	//Learning embeddings
 	if (true) //(!OutputWalks)
 	{
-		LearnEmbeddings(WalksVV, Dimensions, WinSize, Iter, Verbose, EmbeddingsHV);
+		LearnEmbeddings(WalksVV, Dimensions, WinSize, Iter, Verbose, EmbeddingsHV, InitEmbeddingsHV);
 	}
 }
 
 void node2vec(PWNet& InNet, const double& ParamP, const double& ParamQ,
 	const int& Dimensions, const int& WalkLen, const int& NumWalks,
 	const int& WinSize, const int& Iter, const bool& Verbose,
-	TIntFltVH& EmbeddingsHV)
+	TIntFltVH& EmbeddingsHV, TIntFltVH& InitEmbeddingsHV)
 	{
 	TVVec <TInt, int64> WalksVV;
 	bool OutputWalks = 0;
 	node2vec(InNet, ParamP, ParamQ, Dimensions, WalkLen, NumWalks, WinSize,
-	 Iter, Verbose, OutputWalks, WalksVV, EmbeddingsHV);
+	 Iter, Verbose, OutputWalks, WalksVV, EmbeddingsHV, InitEmbeddingsHV);
 }
 
 
@@ -74,7 +74,7 @@ void node2vec(const PNGraph& InNet, const double& ParamP, const double& ParamQ,
 	const int& Dimensions, const int& WalkLen, const int& NumWalks,
 	const int& WinSize, const int& Iter, const bool& Verbose,
 	const bool& OutputWalks, TVVec<TInt, int64>& WalksVV,
-	TIntFltVH& EmbeddingsHV)
+	TIntFltVH& EmbeddingsHV, TIntFltVH& InitEmbeddingsHV)
 	{
 	PWNet NewNet = PWNet::New();
 	for (TNGraph::TEdgeI EI = InNet->BegEI(); EI < InNet->EndEI(); EI++)
@@ -84,25 +84,25 @@ void node2vec(const PNGraph& InNet, const double& ParamP, const double& ParamQ,
 		NewNet->AddEdge(EI.GetSrcNId(), EI.GetDstNId(), 1.0);
 	}
 	node2vec(NewNet, ParamP, ParamQ, Dimensions, WalkLen, NumWalks, WinSize, Iter, 
-	 Verbose, OutputWalks, WalksVV, EmbeddingsHV);
+	 Verbose, OutputWalks, WalksVV, EmbeddingsHV, InitEmbeddingsHV);
 }
 
 void node2vec(const PNGraph& InNet, const double& ParamP, const double& ParamQ,
 	const int& Dimensions, const int& WalkLen, const int& NumWalks,
 	const int& WinSize, const int& Iter, const bool& Verbose,
-	TIntFltVH& EmbeddingsHV)
+	TIntFltVH& EmbeddingsHV, TIntFltVH& InitEmbeddingsHV)
 	{
 	TVVec <TInt, int64> WalksVV;
 	bool OutputWalks = 0;
 	node2vec(InNet, ParamP, ParamQ, Dimensions, WalkLen, NumWalks, WinSize,
-	 Iter, Verbose, OutputWalks, WalksVV, EmbeddingsHV);
+	 Iter, Verbose, OutputWalks, WalksVV, EmbeddingsHV, InitEmbeddingsHV);
 }
 
 void node2vec(const PNEANet& InNet, const double& ParamP, const double& ParamQ,
 	const int& Dimensions, const int& WalkLen, const int& NumWalks,
 	const int& WinSize, const int& Iter, const bool& Verbose,
 	const bool& OutputWalks, TVVec<TInt, int64>& WalksVV,
-	TIntFltVH& EmbeddingsHV)
+	TIntFltVH& EmbeddingsHV, TIntFltVH& InitEmbeddingsHV)
 	{
 	PWNet NewNet = PWNet::New();
 	for (TNEANet::TEdgeI EI = InNet->BegEI(); EI < InNet->EndEI(); EI++)
@@ -112,17 +112,17 @@ void node2vec(const PNEANet& InNet, const double& ParamP, const double& ParamQ,
 		NewNet->AddEdge(EI.GetSrcNId(), EI.GetDstNId(), InNet->GetFltAttrDatE(EI,"weight"));
 	}
 	node2vec(NewNet, ParamP, ParamQ, Dimensions, WalkLen, NumWalks, WinSize, Iter, 
-	 Verbose, OutputWalks, WalksVV, EmbeddingsHV);
+	 Verbose, OutputWalks, WalksVV, EmbeddingsHV, InitEmbeddingsHV);
 }
 
 void node2vec(const PNEANet& InNet, const double& ParamP, const double& ParamQ,
 	const int& Dimensions, const int& WalkLen, const int& NumWalks,
 	const int& WinSize, const int& Iter, const bool& Verbose,
- TIntFltVH& EmbeddingsHV)
+ TIntFltVH& EmbeddingsHV, TIntFltVH& InitEmbeddingsHV)
  {
 	TVVec <TInt, int64> WalksVV;
 	bool OutputWalks = 0;
 	node2vec(InNet, ParamP, ParamQ, Dimensions, WalkLen, NumWalks, WinSize,
-	 Iter, Verbose, OutputWalks, WalksVV, EmbeddingsHV);
+	 Iter, Verbose, OutputWalks, WalksVV, EmbeddingsHV, InitEmbeddingsHV);
 }
 
