@@ -11,6 +11,9 @@ code = "crypto"			#set use case/domain: must be crypto, cyber, or cve
 						#cyber takes forever
 						#cve fastest
 
+pickle_save = False 	#if True, save fitted parameters dictionary to pickle
+						#if False, save to human-readable text file instead
+
 print("\nProcessing", code)
 
 cascades = None
@@ -22,10 +25,10 @@ subreddit_dist = file_utils.load_json("results/%s_post_subreddit_dist.json" % co
 
 #loop all subreddits for this code
 for subreddit in sorted(subreddit_dist.keys()):
-	'''
-	if subreddit != 'Bitcoin':
+	
+	if subreddit != 'Lisk':
 		continue
-	'''
+	
 
 	print("\nProcessing", subreddit)
 
@@ -52,4 +55,14 @@ for subreddit in sorted(subreddit_dist.keys()):
 		cascade_manip.save_comments(code, filtered_comments, subreddit)
 
 	#fit params to all of the filtered cascades, loading checkpoints if they exist
-	cascade_analysis.fit_all_cascades(code, filtered_cascades, filtered_comments, subreddit)		
+	all_params = cascade_analysis.fit_all_cascades(code, filtered_cascades, filtered_comments, pickle_save, subreddit)	
+
+	#if not saving to pickle, save to text file now
+	if pickle_save == False:
+		with open("data_cache/txt_params/%s_params.txt" % subreddit, "w") as f: 
+			for post_id, params in all_params.items():
+				f.write(post_id + " ")
+				for i in range(len(params)):
+					f.write((' ' if i > 0 else '') + str(params[i]))
+				f.write("\n")
+		print("Saved text-readable params to data_cache/txt_params/%s_params.txt" % subreddit)

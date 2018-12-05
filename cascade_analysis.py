@@ -345,35 +345,40 @@ def save_cascade_comments(code, comments):
 #end save_comments
 
 #fit model parameters for all cascades given, loading any saved ones to get a headstart
-def fit_all_cascades(code, cascades, comments, subreddit = False):
+def fit_all_cascades(code, cascades, comments, pickle_save, subreddit = False):
 	#anything to load? if so, load the latest checkpoint
-	#build glob filestring - to get all matching checkpoints
-	if subreddit == False:
-		filename = "data_cache/fitted_params/%s*_cascade_params.pkl" % code
-	else:
-		filename = "data_cache/fitted_params/%s_%s*_cascade_params.pkl" % (code, subreddit)
-
-	#extract matching filenames and their numeric values, selecting the most complete one to load
-	files = glob.glob(filename)
-	best_int = -1		#count of records in best file - set to "" if a complete file is found
-	for file in files:
-		file_int = re.search(r'\d+', file)
-		#if no number in filename, have a complete file - use that
-		if file_int is None:
-			best_int = ""
-			break
+	if pickle_save:
+		#build glob filestring - to get all matching checkpoints
+		if subreddit == False:
+			filename = "data_cache/fitted_params/%s*_cascade_params.pkl" % code
 		else:
-			file_int = int(file_int.group())
-			if file_int > best_int:
-				best_int = file_int
+			filename = "data_cache/fitted_params/%s_%s*_cascade_params.pkl" % (code, subreddit)
 
-	#load checkpoint, if we have one
-	if best_int != -1:
-		cascade_params = cascade_manip.load_cascade_params(code, subreddit + str(best_int))
-		print("Loaded", len(cascade_params), "fitted cascade parameters")
-	#otherwise, empty dictionary
+		#extract matching filenames and their numeric values, selecting the most complete one to load
+		files = glob.glob(filename)
+		best_int = -1		#count of records in best file - set to "" if a complete file is found
+		for file in files:
+			file_int = re.search(r'\d+', file)
+			#if no number in filename, have a complete file - use that
+			if file_int is None:
+				best_int = ""
+				break
+			else:
+				file_int = int(file_int.group())
+				if file_int > best_int:
+					best_int = file_int
+
+		#load checkpoint, if we have one
+		if best_int != -1:
+			cascade_params = cascade_manip.load_cascade_params(code, subreddit + str(best_int))
+			print("Loaded", len(cascade_params), "fitted cascade parameters")
+		#otherwise, empty dictionary
+		else:
+			cascade_params = {}
 	else:
 		cascade_params = {}
+
+	avg_quality = 0
 
 	#fit any cascades that have not been fitted before, add to params dictionary: post_id -> params
 	post_count = len(cascade_params)
@@ -386,14 +391,19 @@ def fit_all_cascades(code, cascades, comments, subreddit = False):
 		#fit the current cascade (filtering comments to just this post is not required)
 		#print("Fitting cascade", post_id)
 		cascade_params[post_id] = fit_cascade.fit_cascade_model(post, comments)
+		avg_quality += cascade_params[post_id][6]
 		post_count += 1
-		if post_count % 5000 == 0:
-			#print("Fitted", post_count, "cascades")
-			cascade_manip.save_cascade_params(code, cascade_params, subreddit + str(post_count))
+		if post_count % 500 == 0:
+			print("Fitted", post_count, "cascades")
+			if pickle_save:
+				cascade_manip.save_cascade_params(code, cascade_params, subreddit + str(post_count))
+
+	avg_quality /= len(cascade_params)
 
 	#dump params to file
-	print("Fitted a total of", len(cascade_params), "cascades")
-	cascade_manip.save_cascade_params(code, cascade_params, subreddit)
+	print("Fitted a total of", len(cascade_params), "cascades (average quality", str(avg_quality) + ")")
+	if pickle_save:
+		cascade_manip.save_cascade_params(code, cascade_params, subreddit)
 
 	#return all params, loaded and newly fitted
 	return cascade_params
