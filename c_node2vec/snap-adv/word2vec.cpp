@@ -172,7 +172,7 @@ void TrainModel(TVVec<TInt, int64>& WalksVV, const int& Dimensions,
 		const int& WinSize, const int& Iter, const bool& Verbose,
 		TIntV& KTable, TFltV& UTable, int64& WordCntAll, TFltV& ExpTable,
 		double& Alpha, int64 CurrWalk, TRnd& Rnd,
-		TVVec<TFlt, int64>& SynNeg, TVVec<TFlt, int64>& SynPos)
+		TVVec<TFlt, int64>& SynNeg, TVVec<TFlt, int64>& SynPos, TIntFltH& StickyFactorsH, TIntIntH& RnmBackH)
 		{
 	//neuron layers: one is internal embeddings, one is the output later, but I'm not sure which is which yet
 	//HAHA! one of them isn't even used - kill it with fire!
@@ -288,16 +288,31 @@ void TrainModel(TVVec<TInt, int64>& WalksVV, const int& Dimensions,
 				{
 					//multiply error by output layer weights, accumulate over all negative samples
 					Neu1eV[i] += Grad * SynNeg(Target,i);
-					//update outer layer weights: multiply output erro by hidden layer weights	
+					//update outer layer weights: multiply output error by hidden layer weights	
 					SynNeg(Target,i) += Grad * SynPos(CurrWord,i);	
 				}
 			}
 
 			//finished negative sampling for current neighbor word, update it's synpos
 			//updates hidden weights after hidden layer gradients for all negative samples have been accumulated
+			//does this word/node have a sticky factor? if so, use it
+			//fetch initial embeddings vector for this word
+			int64 orig_id = RnmBackH.GetDat(CurrWord);		//get original id for CurrWord
+			TFlt CurrSticky;
+			if (StickyFactorsH.IsKey(orig_id))
+			{
+				CurrSticky = StickyFactorsH.GetDat(orig_id);		//use cached sticky factor
+				//printf("%d -> %d: %f\n", orig_id, CurrWord, CurrSticky);
+			}
+			else
+			{
+				CurrSticky = 1.0;		//no sticky provided, use 1 for full adjustment effect
+				//printf("%d -> %d: no sticky, use 1.0\n", orig_id, CurrWord);
+			}
+			//update hidden weight
 			for (int i = 0; i < Dimensions; i++)
 			{
-				SynPos(CurrWord,i) += Neu1eV[i];		//this is where the embedding gets updated
+				SynPos(CurrWord,i) += CurrSticky * Neu1eV[i];		//this is where the embedding gets updated
 			}
 		}
 		WordCntAll++;		//finished current word in walk, update counter
@@ -400,7 +415,7 @@ void LearnEmbeddings(TVVec<TInt, int64>& WalksVV, const int& Dimensions,
 			//ktable, unigram table, wordcount, exptable, learning rate alpha, randomizer, 
 			//synneg (all 0, one per embedding pos), synpos (random values, one per embedding val)
 			TrainModel(WalksVV, Dimensions, WinSize, Iter, Verbose, KTable, UTable,
-			 WordCntAll, ExpTable, Alpha, i, Rnd, SynNeg, SynPos); 
+			 WordCntAll, ExpTable, Alpha, i, Rnd, SynNeg, SynPos, StickyFactorsH, RnmBackH); 
 			//this updates embeddings based on the current walk given to the function
 		}
 	}
