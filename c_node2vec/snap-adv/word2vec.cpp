@@ -309,7 +309,7 @@ void TrainModel(TVVec<TInt, int64>& WalksVV, const int& Dimensions,
 //note that the walks may contain a 0, which indicates no node travel there - why it works that way, I do not know
 void LearnEmbeddings(TVVec<TInt, int64>& WalksVV, const int& Dimensions,
 	const int& WinSize, const int& Iter, const bool& Verbose,
-	TIntFltVH& EmbeddingsHV, TIntFltVH& InitEmbeddingsHV)
+	TIntFltVH& EmbeddingsHV, TIntFltVH& InitEmbeddingsHV, TIntFltH& StickyFactorsH)
 	{
 	TIntIntH RnmH;		//hash type for mapping, given node id -> consecutive node id
 	TIntIntH RnmBackH;	//reverse hash, assigned consecutive node id -> given node id

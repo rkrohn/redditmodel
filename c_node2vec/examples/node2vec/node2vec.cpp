@@ -217,7 +217,7 @@ int main(int argc, char* argv[])
 
 	//run node2vec: network, configuration parameters, objects for walks and embeddings
 	node2vec(InNet, ParamP, ParamQ, Dimensions, WalkLen, NumWalks, WinSize, Iter, 
-	Verbose, OutputWalks, WalksVV, EmbeddingsHV, InitEmbeddingsHV);
+	Verbose, OutputWalks, WalksVV, EmbeddingsHV, InitEmbeddingsHV, StickyFactorsH);
 
 	//dump results
 	WriteOutput(OutFile, EmbeddingsHV, WalksVV, OutputWalks);
