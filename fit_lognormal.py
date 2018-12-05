@@ -22,6 +22,8 @@ from scipy.special import erf
 DEFAULT_LOGNORMAL = [0, 1.5]    #param results if post has no comment replies to fit
                                 #mu = 0, sigma = 1.5 should allow for occasional comment replies, but not many
 
+DEFAULT_QUALITY = 0.3           #default quality if any hardcode param is used
+
 
 #given a list of event times, fit a lognormal function, returning parameters mu and sigma
 #use random perturbation to correct for poor initial guesses a maximum of <runs> times
@@ -83,18 +85,24 @@ def fit_lognormal(event_times, display = False):
     #no event times (ie, no comment replies), hardcode some values
     if len(event_times) == 0:
         if display:   
-            print("No events to fit, setting Log-normal params:", "\n   mu\t\t", DEFAULT_LOGNORMAL[0], "\n   sigma\t", DEFAULT_LOGNORMAL[1], "\n")
-        return DEFAULT_LOGNORMAL    
+            print("No events to fit, setting Log-normal params: (quality", str(DEFAULT_QUALITY) + "\n   mu\t\t", DEFAULT_LOGNORMAL[0], "\n   sigma\t", DEFAULT_LOGNORMAL[1], "\n")
+        return list(DEFAULT_LOGNORMAL) + [DEFAULT_QUALITY]
 
     params = lognorm_parameters_estimation(event_times)     #try loglikelihood estimation first
 
-    if display:
-        if params == None:
+    if params == None:
+        if display:
             print("lognormal fit failed\n")
-        else:
-            print("Log-normal params:", "\n   mu\t\t", params[0], "\n   sigma\t", params[1], "\n")
+        print("Failed lognormal fit, exiting")
+        exit(0)
+        params = [None, None]
+        quality = 0
+    else:
+        quality = 0.9
+        if display:
+            print("Log-normal params: (quality", str(quality) + "), \n   mu\t\t", params[0], "\n   sigma\t", params[1], "\n")        
 
-    return params   #(mu, sigma)
+    return params + [quality]   #(mu, sigma)
 #end fit_lognormal
 
 

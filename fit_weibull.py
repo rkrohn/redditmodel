@@ -29,6 +29,8 @@ DEFAULT_WEIBULL_SINGLE = [1, 2, 0.75]   #param result if post has ONE comment an
                                         #force a distribution heavily weighted towards the left, then decreasing
                                         #use this same hardcode for other fit failures, but set a equal to the number of replies
 
+DEFAULT_QUALITY = 0.3                   #default quality if any hardcode param is used
+
 
 #given a list of event times, fit a weibull function, returning parameters a, lbd, and k
 #use random perturbation to correct for poor initial guesses a maximum of <runs> times
@@ -120,19 +122,22 @@ def weib_func(t, a, lbd, k):
 
 #given event times, fit the weibull function
 #if both methods fail, returns None for all parameters
-#otherwise, returns a, lambda, and k paramters
+#otherwise, returns a, lambda, and k parameters, and quality measure
 def fit_weibull(event_times, display = False):
+
     #no events to fit, hardcode
     if len(event_times) == 0:
         if display:
-            print("No events to fit, setting Weibull params:", "\n   a\t\t", DEFAULT_WEIBULL_NONE[0], "\n   lambda\t", DEFAULT_WEIBULL_NONE[1], "\n   k\t\t", DEFAULT_WEIBULL_NONE[2], "\n")
-        return list(DEFAULT_WEIBULL_NONE)
+            print("No events to fit, setting Weibull params: (quality", str(DEFAULT_QUALITY) + ")\n   a\t\t", DEFAULT_WEIBULL_NONE[0], "\n   lambda\t", DEFAULT_WEIBULL_NONE[1], "\n   k\t\t", DEFAULT_WEIBULL_NONE[2], "\n")
+        return list(DEFAULT_WEIBULL_NONE) + [DEFAULT_QUALITY]
 
     params = weibull_parameters_estimation(event_times)     #try loglikelihood estimation first
+    quality = 0.9
     #if that fails, use curve fit if more than one item
     if params == None:
         if len(event_times) != 1:
             params = func_fit_weibull(event_times)
+            quality = 0.8
         else:
             params = [None, None, None]     #next if will catch this
 
@@ -142,16 +147,16 @@ def fit_weibull(event_times, display = False):
         if len(event_times) > 1:
             params[0] = len(event_times)
         if display:
-            print("Fit failed, setting Weibull params:", "\n   a\t\t", params[0], "\n   lambda\t", params[1], "\n   k\t\t", params[2], "\n")
-        return params
+            print("Fit failed, setting Weibull params: (quality)", str(DEFAULT_QUALITY) + ")", "\n   a\t\t", params[0], "\n   lambda\t", params[1], "\n   k\t\t", params[2], "\n")
+        return params + [DEFAULT_QUALITY]
 
     if display:
         if params[0] == None:
             print("Weibull fit failed\n")
         else:
-            print("Weibull params:", "\n   a\t\t", params[0], "\n   lambda\t", params[1], "\n   k\t\t", params[2], "\n")
+            print("Weibull params: (quality", str(quality) + ")\n   a\t\t", params[0], "\n   lambda\t", params[1], "\n   k\t\t", params[2], "\n")
 
-    return params   #(a, lambda, k)
+    return params + [quality]   #(a, lambda, k, quality)
 #end fit_weibull
 
 

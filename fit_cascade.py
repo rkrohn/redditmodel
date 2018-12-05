@@ -14,6 +14,8 @@ from collections import defaultdict
 
 DEFAULT_BRANCHING = 0.05        #default branching factor n_b if post has no comments, or post comments have no replies
                                 #0.05 should allow for rare comments 
+DEFAULT_BRANCHING_QUALITY_HARDCODE = 0.3     #default quality for hardcoded branching factor
+DEFAULT_BRANCHING_QUALITY_DIVIDE = 0.9       #branching quality for division estimation
 
 
 #given a post, get creation time of the post in seconds (tiny helper function)
@@ -116,7 +118,7 @@ def estimate_branching_factor(post, num_comments):
     #if estimate is 0 (post comments have no replies), hardcode
     if n_b == 0:
         n_b = DEFAULT_BRANCHING       #hardcode to maybe allow for rare comment replies
-    return n_b
+    return n_b, (DEFAULT_BRANCHING_QUALITY_HARDCODE if n_b == DEFAULT_BRANCHING else DEFAULT_BRANCHING_QUALITY_DIVIDE)
 #end estimate_branching_factor
 
 
@@ -136,20 +138,23 @@ def fit_cascade_model(post, comments, display = False):
     root_comment_times = get_root_comment_times(post, comments)
     if display: 
         print("root comments", root_comment_times)
-    a, lbd, k = fit_weibull(root_comment_times, display)
+    a, lbd, k, weibull_quality = fit_weibull(root_comment_times, display)
 
     #fit log-normal to all other comment times
     other_comment_times = get_other_comment_times(post, comments)
     if display:
         print("other comments", other_comment_times)
-    mu, sigma = fit_lognormal(other_comment_times, display)
+    mu, sigma, lognorm_quality = fit_lognormal(other_comment_times, display)
 
     #estimate branching factor
-    n_b = estimate_branching_factor(post, len(root_comment_times) + len(other_comment_times))
+    n_b, branching_quality = estimate_branching_factor(post, len(root_comment_times) + len(other_comment_times))
     if display:
-        print("branching factor :", n_b, "\n")
+        print("branching factor :", n_b, "(quality", str(branching_quality) + ")\n")
+
+    #combine all quality measures together into a single one
+    quality = (3 * weibull_quality + 2 * lognorm_quality + branching_quality) / 6
 
     #return all parameters together - your job to keep the order straight ;)
-    return a, lbd, k, mu, sigma, n_b
+    return a, lbd, k, mu, sigma, n_b, quality
 #end fit_cascade_model
 
