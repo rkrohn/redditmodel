@@ -9,13 +9,13 @@
 void ParseArgs(int& argc, char* argv[], TStr& InFile, TStr& OutFile,
 	int& Dimensions, int& WalkLen, int& NumWalks, int& WinSize, int& Iter,
 	bool& Verbose, double& ParamP, double& ParamQ, bool& Directed, bool& Weighted,
-	bool& OutputWalks, TStr& InitInFile) 
+	bool& OutputWalks, TStr& InitInFile, bool& Sticky) 
 {
 	Env = TEnv(argc, argv, TNotify::StdNotify);
 	Env.PrepArgs(TStr::Fmt("\nAn algorithmic framework for representational learning on graphs."));
 	InFile = Env.GetIfArgPrefixStr("-i:", "graph/karate.edgelist",
 	"Input graph path");
-	InitInFile = Env.GetIfArgPrefixStr("-s:", "", "Initial embeddings input file. Default is None.");
+	InitInFile = Env.GetIfArgPrefixStr("-ie:", "", "Initial embeddings input file. Default is None.");
 	OutFile = Env.GetIfArgPrefixStr("-o:", "emb/karate.emb",
 	"Output graph path");
 	Dimensions = Env.GetIfArgPrefixInt("-d:", 128,
@@ -35,6 +35,7 @@ void ParseArgs(int& argc, char* argv[], TStr& InFile, TStr& OutFile,
 	Verbose = Env.IsArgStr("-v", "Verbose output.");
 	Directed = Env.IsArgStr("-dr", "Graph is directed.");
 	Weighted = Env.IsArgStr("-w", "Graph is weighted.");
+	Sticky = Env.IsArgStr("-s", "Using \"sticky\" factor.");
 	OutputWalks = Env.IsArgStr("-ow", "Output random walks instead of embeddings.");
 }
 
@@ -77,7 +78,7 @@ void ReadGraph(TStr& InFile, bool& Directed, bool& Weighted, bool& Verbose, PWNe
 }
 
 //read initial embeddings values from file, save to hash
-void ReadInitialEmbeddings(TStr& InitInFile, TIntFltVH& InitEmbeddingsHV, bool& Verbose, int Dimensions)
+void ReadInitialEmbeddings(TStr& InitInFile, TIntFltVH& InitEmbeddingsHV, bool& Sticky, TIntFltH& StickyFactorsH, bool& Verbose, int Dimensions)
 {
 	TFIn FIn(InitInFile);
 	int64 LineCnt = 0;
@@ -114,6 +115,14 @@ void ReadInitialEmbeddings(TStr& InitInFile, TIntFltVH& InitEmbeddingsHV, bool& 
 				
 			}
 			InitEmbeddingsHV.AddDat(NId, CurrV);	//add vector to this node's initial embeddings
+
+			//sticky factor if we have it
+			if (Sticky && Tokens.Len() >= Dimensions+2)
+			{
+				TFlt CurrStick = Tokens[Dimensions+1].GetFlt();
+				//printf("(%f)", CurrStick);
+				StickyFactorsH.AddDat(NId, CurrStick);
+			}
 
 			//printf("\n");
 			LineCnt++;
@@ -182,28 +191,29 @@ int main(int argc, char* argv[])
 	TStr InFile, InitInFile, OutFile;
 	int Dimensions, WalkLen, NumWalks, WinSize, Iter;
 	double ParamP, ParamQ;
-	bool Directed, Weighted, Verbose, OutputWalks;
+	bool Directed, Weighted, Verbose, OutputWalks, Sticky;
 
 	//parse command line args
 	ParseArgs(argc, argv, InFile, OutFile, Dimensions, WalkLen, NumWalks, WinSize,
-	Iter, Verbose, ParamP, ParamQ, Directed, Weighted, OutputWalks, InitInFile);
+	Iter, Verbose, ParamP, ParamQ, Directed, Weighted, OutputWalks, InitInFile, Sticky);
+
+	//for now, require the initial embeddings file - because that's what we're doing, and I don't care enough to do this clean right now
+	if (InitInFile.Len() == 0)
+	{
+		printf("Must provide initial embeddings file with -ie option. Exiting.");
+		return 0;
+	}
 
 	PWNet InNet = PWNet::New();		//network object
 	TIntFltVH EmbeddingsHV;			//embeddings object - hash int to vector of floats
 	TVVec <TInt, int64> WalksVV;	//walks?
 	TIntFltVH InitEmbeddingsHV;		//initial embedding object setting: hash int to vector of floats
+	TIntFltH StickyFactorsH;		//sticky factors: hash int node id to float
 
 	ReadGraph(InFile, Directed, Weighted, Verbose, InNet);		//read graph from edgelist
 
-	//for now, require the initial embeddings file - because that's what we're doing, and I don't care enough to do this clean right now
-	if (InitInFile.Len() == 0)
-	{
-		printf("Must provide initial embeddings file with -s option. Exiting.");
-		return 0;
-	}
-
 	//read initial embeddings
-	ReadInitialEmbeddings(InitInFile, InitEmbeddingsHV, Verbose, Dimensions);
+	ReadInitialEmbeddings(InitInFile, InitEmbeddingsHV, Sticky, StickyFactorsH, Verbose, Dimensions);
 
 	//run node2vec: network, configuration parameters, objects for walks and embeddings
 	node2vec(InNet, ParamP, ParamQ, Dimensions, WalkLen, NumWalks, WinSize, Iter, 
