@@ -139,18 +139,18 @@ void InitNegEmb(TIntV& Vocab, const int& Dimensions, TVVec<TFlt, int64>& SynNeg)
 //this is the hidden layer, aka the final embeddings
 void InitPosEmb(TIntV& Vocab, const int& Dimensions, TRnd& Rnd, TVVec<TFlt, int64>& SynPos, TIntFltVH& InitEmbeddingsHV, TIntIntH& RnmBackH)
 {
-	printf("Initializing embeddings...\n");
+	//printf("Initializing embeddings...\n");
 	SynPos = TVVec<TFlt, int64>(Vocab.Len(),Dimensions);
 	for (int64 i = 0; i < SynPos.GetXDim(); i++)	//loop nodes/words
 	{
 		//fetch initial embeddings vector for this word
 		int64 orig_id = RnmBackH.GetDat(i);		//get original id
-		printf("%d -> %d: ", orig_id, i);
+		//printf("%d -> %d: ", orig_id, i);
 		bool valid = false;
 		if (InitEmbeddingsHV.IsKey(orig_id))
 		{
 			valid = true;
-			printf("copy ");
+			//printf("copy ");
 		}
 		TFltV CurrV = InitEmbeddingsHV.GetDat(orig_id);
 		for (int j = 0; j < SynPos.GetYDim(); j++) 		//loop embedding dimensions
@@ -161,9 +161,9 @@ void InitPosEmb(TIntV& Vocab, const int& Dimensions, TRnd& Rnd, TVVec<TFlt, int6
 			}
 			else
 				SynPos(i,j) = (Rnd.GetUniDev()-0.5)/Dimensions; //random values, ranging -.5/dimensions to 0.5/dimensions (all near 0)
-			printf("%f ", SynPos(i, j));
+			//printf("%f ", SynPos(i, j));
 		}
-		printf("\n");
+		//printf("\n");
 	}
 }
 
