@@ -51,7 +51,6 @@ def load_subreddit_cascades(subreddit, domain):
 #given a post, extract words by tokenizing and normalizing (no limitization for now)
 #removes all leading/trailing punctuation
 #converts list to set to remove duplicates (if we want that?)
-#duplicate of method in ParamGraph, but we don't want to break class boundaries
 def extract_tokens(post):
 	punctuations = list(string.punctuation)		#get list of punctuation characters
 	punctuations.append('—')	#kill these too
@@ -117,18 +116,6 @@ def build_graph(posts):
 	graph = {}
 	nodes = set()
 
-	#add all as isolated nodes to start, to make sure they're all represented
-	#hmmm... not really sure how to handle isolated nodes in edgelists, so let's just ignore them and hope they aren't a problem!
-
-	#add edges with weight=1 between posts by the same user
-	for user, user_posts in users.items():
-		post_pairs = list(itertools.combinations(user_posts, 2))		#get all post pairs from this user
-
-		for post_pair in post_pairs:
-			graph[(posts[post_pair[0]]['id'], posts[post_pair[1]]['id'])] = 1.0
-			nodes.add(posts[post_pair[0]]['id'])
-			nodes.add(posts[post_pair[1]]['id'])
-
 	#add edges with weight=(# shared)/(# in shortest title) betwee posts sharing tokens
 	#loop only pairs that we know have tokens in common - FASTER
 	for token, token_posts in tokens.items():
@@ -138,21 +125,38 @@ def build_graph(posts):
 			node1 = posts[post_pair[0]]['id']
 			node2 = posts[post_pair[1]]['id']
 
+			#already an edge (and therefore a token edge) in the graph? skip
+			if (node1, node2) in graph or (node2, node1) in graph:
+				continue
+
 			#compute edge weight based on post token sets
 			weight = compute_edge_weight(posts[post_pair[0]]['tokens'], posts[post_pair[1]]['tokens'])
 
 			#if valid weight, add edge
 			if weight != False:
-				#already a user edge between them? just increase the weight
-				#want impact of both common user and common tokens (sure)
+				graph[(node1, node2)] = weight		#add edge
+				nodes.add(node1)
+				nodes.add(node2)
+
+	#add edges with weight=1 between posts by the same user
+	for user, user_posts in users.items():
+		post_pairs = list(itertools.combinations(user_posts, 2))		#get all post pairs from this user
+
+		for post_pair in post_pairs:
+				#fetch numeric ids for these posts
+				node1 = posts[post_pair[0]]['id']
+				node2 = posts[post_pair[1]]['id']
+
+				#already a user edge between these users? just increase the weight
+				#want impact of both common user and common tokens
 				#check both edge orientations to be sure
 				if (node1, node2) in graph:
-					graph[(node1, node2)] += weight
+					graph[(node1, node2)] += 1.0
 				elif (node2, node1) in graph:
-					graph[(node2, node1)] += weight
-				#otherwise, new edge with exactly this weight
+					graph[(node2, node1)] += 1.0
+				#new edge, just set weight
 				else:
-					graph[(node1, node2)] = weight		#add edge
+					graph[(node1, node2)] = 1.0
 					nodes.add(node1)
 					nodes.add(node2)
 
