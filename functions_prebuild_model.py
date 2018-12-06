@@ -147,7 +147,7 @@ def build_graph(posts):
 				node1 = posts[post_pair[0]]['id']
 				node2 = posts[post_pair[1]]['id']
 
-				#already a user edge between these users? just increase the weight
+				#already an edge (token edge) between these users? just increase the weight
 				#want impact of both common user and common tokens
 				#check both edge orientations to be sure
 				if (node1, node2) in graph:
