@@ -86,6 +86,7 @@ void ReadGraph(TStr& InFile, bool& Directed, bool& Weighted, bool& Verbose, PWNe
 }
 
 //read initial embeddings values from file, save to hash
+//assumes the sticky factors given are quality, so flip them (1-val) to get true sticky factor
 void ReadInitialEmbeddings(TStr& InitInFile, TIntFltVH& InitEmbeddingsHV, bool& Sticky, TIntFltH& StickyFactorsH, bool& Verbose, int Dimensions)
 {
 	TFIn FIn(InitInFile);
@@ -127,7 +128,7 @@ void ReadInitialEmbeddings(TStr& InitInFile, TIntFltVH& InitEmbeddingsHV, bool& 
 			//sticky factor if we have it
 			if (Sticky && Tokens.Len() >= Dimensions+2)
 			{
-				TFlt CurrStick = Tokens[Dimensions+1].GetFlt();
+				TFlt CurrStick = 1 - Tokens[Dimensions+1].GetFlt();
 				//printf("(%f)", CurrStick);
 				StickyFactorsH.AddDat(NId, CurrStick);
 			}
