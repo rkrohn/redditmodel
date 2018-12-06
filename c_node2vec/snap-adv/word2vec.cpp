@@ -147,12 +147,13 @@ void InitPosEmb(TIntV& Vocab, const int& Dimensions, TRnd& Rnd, TVVec<TFlt, int6
 		int64 orig_id = RnmBackH.GetDat(i);		//get original id
 		//printf("%d -> %d: ", orig_id, i);
 		bool valid = false;
+		TFltV CurrV;
 		if (InitEmbeddingsHV.IsKey(orig_id))
 		{
 			valid = true;
-			//printf("copy ");
-		}
-		TFltV CurrV = InitEmbeddingsHV.GetDat(orig_id);
+			CurrV = InitEmbeddingsHV.GetDat(orig_id);
+			//printf("copy \n");
+		}		
 		for (int j = 0; j < SynPos.GetYDim(); j++) 		//loop embedding dimensions
 		{
 			if (valid)
@@ -354,8 +355,9 @@ void LearnEmbeddings(TVVec<TInt, int64>& WalksVV, const int& Dimensions,
 	TIntV Vocab(NNodes);		//arry-type container, one space for each "word" (node), holds frequencies
 	LearnVocab(WalksVV, Vocab);		//count number of times each word/node is used
 
+	
+	//printf("Vocab (%d words)\n", Vocab.Len());
 	/*
-	printf("Vocab (%d words)\n", Vocab.Len());
 	for (int64 i = 0; i < Vocab.Len(); i++)
 		printf("%.10e  ", Vocab[i]);
 	printf("\n");
@@ -372,8 +374,9 @@ void LearnEmbeddings(TVVec<TInt, int64>& WalksVV, const int& Dimensions,
 	InitPosEmb(Vocab, Dimensions, Rnd, SynPos, InitEmbeddingsHV, RnmBackH);		//init embedding with random values - but not random anymore!
 	InitNegEmb(Vocab, Dimensions, SynNeg);			//all 0
 
+	
+	//printf("SynPos dim: (%d, %d)\n", SynPos.GetXDim(), SynPos.GetYDim());
 	/*
-	printf("SynPos dim: (%d, %d)\n", SynPos.GetXDim(), SynPos.GetYDim());
 	printf("SynPos (first rows only)\n");
 	for (int64 i = 0; i < SynPos.GetXDim(); i++)	//loop nodes/words
 	{
