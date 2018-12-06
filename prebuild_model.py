@@ -27,11 +27,18 @@ else:
 	crypto_subreddit_dist = file_utils.load_json("results/crypto_post_subreddit_dist.json")
 	cve_subreddit_dist = file_utils.load_json("results/cve_post_subreddit_dist.json")
 	cyber_subreddit_dist = file_utils.load_json("results/cyber_post_subreddit_dist.json")
-	#combine into single dictionary of subreddit -> domain code
-	subreddit_dict = {}
-	update_code_dict(subreddit_dict, crypto_subreddit_dist.keys(), "crypto")
-	update_code_dict(subreddit_dict, cve_subreddit_dist.keys(), "cve")
-	update_code_dict(subreddit_dict, cyber_subreddit_dist.keys(), "cyber")
+	#combine into single dictionary of subreddit -> list of corresponding domain codes
+	subreddit_dict = build_domain_dict([set(crypto_subreddit_dist.keys()), set(cve_subreddit_dist.keys()), set(cyber_subreddit_dist.keys())], ["crypto", "cve", "cyber"])
+	#now, kill all the duplicates! crypto and cyber scraped entire subreddits, 
+	#so any overlap is redudant and can be thrown away
+	#(yes, there are neater ways to do this, but I don't care!)
+	for item in subreddit_dict.keys():
+		if len(subreddit_dict[item]) > 1:
+			#crypto and cyber drowns out cve, so remove it
+			if ("crypto" in subreddit_dict[item] or "cyber" in subreddit_dict[item]) and "cve" in subreddit_dict[item]:
+				subreddit_dict[item].remove("cve")
+		subreddit_dict[item] = subreddit_dict[item][0]
+
 	#save as pickle for later
 	print("Saving subreddit->domain mapping to", subreddits_filepath)
 	file_utils.save_pickle(subreddit_dict, subreddits_filepath)
@@ -41,19 +48,18 @@ file_utils.verify_dir("model_files/params")
 file_utils.verify_dir("model_files/posts")
 file_utils.verify_dir("model_files/graphs")
 
-print(subreddit_dict['Bitcoin'])
-exit(0)
-
 #loop all subreddits
 for subreddit, domain in subreddit_dict.items():
 	'''
 	if subreddit != 'Lisk':
 		continue
 	'''
+	'''
 	if domain != "crypto":
 		continue
+	'''
 
-	print("\nProcessing", subreddit)
+	print("\nProcessing", subreddit, "in", domain, "domain")
 
 	#load filtered cascades for this subreddit
 	cascades, comments = load_subreddit_cascades(subreddit, domain)

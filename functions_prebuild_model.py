@@ -6,11 +6,20 @@ import string
 from collections import defaultdict
 import itertools
 
-#given a dictionary, add all keys to that dictionary, each with value
-def update_code_dict(dict, keys, value):
-	for key in keys:
-		dict[key] = value
-#end update_code_dict
+#given a list of itemsets, and a list of corresponding set labels, 
+#build a dictionary where item->list of corresponding labels
+def build_domain_dict(itemsets, labels):
+	labeled_items = defaultdict(list)		#dictionary for items, item->list of occurrence domains
+
+	for i in range(len(itemsets)):
+		for item in itemsets[i]:
+			labeled_items[item].append(labels[i])
+
+	#for item, occurrences in labeled_items.items():
+	#	print(item, occurrences)
+
+	return labeled_items
+#end build_domain_dict
 
 #load all posts and comments for given subreddit, removing any incomplete cascades
 def load_subreddit_cascades(subreddit, domain):
