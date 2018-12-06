@@ -54,6 +54,14 @@ void ReadGraph(TStr& InFile, bool& Directed, bool& Weighted, bool& Verbose, PWNe
 			Ln.SplitOnCh(Line,'#',Comment);
 			TStrV Tokens;
 			Line.SplitOnWs(Tokens);
+
+			//isolated nodes show up in edgelist as a single node id, alone on the line
+			if(Tokens.Len()==1)
+			{
+				int64 NId = Tokens[0].GetInt();
+				if (!InNet->IsNode(NId)){ InNet->AddNode(NId); }
+			}
+
 			if(Tokens.Len()<2){ continue; }
 			int64 SrcNId = Tokens[0].GetInt();
 			int64 DstNId = Tokens[1].GetInt();
