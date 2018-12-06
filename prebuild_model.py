@@ -15,6 +15,7 @@ posts_filepath = "model_files/posts/%s_posts.pkl"			#processed post data for eac
 params_filepath = "model_files/params/%s_params.txt"	#text file of fitted cascade params, one file per subreddit
 														#one line per cascade: cascade numeric id, params(x6), sticky factor (1-quality)
 graph_filepath = "model_files/graphs/%s_graph.txt"		#edgelist of post graph for this subreddit
+users_filepath = "model_files/users/%s_users.txt"	#list of users seen in posts/comments, one file per subreddit
 
 
 #load the subreddit distribution for all cascades (just need a list of subreddits)
@@ -47,6 +48,7 @@ else:
 file_utils.verify_dir("model_files/params")
 file_utils.verify_dir("model_files/posts")
 file_utils.verify_dir("model_files/graphs")
+file_utils.verify_dir("model_files/users")
 
 #loop all subreddits
 for subreddit, domain in subreddit_dict.items():
@@ -78,6 +80,18 @@ for subreddit, domain in subreddit_dict.items():
 		#save this to file
 		file_utils.save_pickle(posts, posts_filepath % subreddit)
 		print("Saved", len(posts), "processed posts to", posts_filepath % subreddit)
+
+	#build list of users active in this subreddit - list, not set, so more active users are more likely to get drawn in the simulation
+	if file_utils.verify_file(users_filepath % subreddit):
+		print("Active users exist in", users_filepath % subreddit)
+	else:
+		active_users = []
+		for post_id, post in cascades.items():
+			active_users.append(post['author_h'])
+		for comment_id, comment in comments.items():
+			active_users.append(comment['author_h'])
+		file_utils.save_pickle(active_users, users_filepath % subreddit)
+		print("Saved", len(active_users), "active users to", users_filepath % subreddit)
 
 	#fit params to all of the cascades, if no file
 	#no need to load if we have them, won't use them again
