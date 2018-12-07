@@ -161,7 +161,7 @@ void InitPosEmb(TIntV& Vocab, const int& Dimensions, TRnd& Rnd, TVVec<TFlt, int6
 				SynPos(i,j) = CurrV[j];		//if have initial embedding, use it
 			}
 			else
-				SynPos(i,j) = (Rnd.GetUniDev()-0.5)/Dimensions; //random values, ranging -.5/dimensions to 0.5/dimensions (all near 0)
+				SynPos(i,j) = (Rnd.GetUniDev())/Dimensions;		//random values, ranging to 0/dimensions to 1/dimensions (all positive)
 			//printf("%f ", SynPos(i, j));
 		}
 		//printf("\n");
@@ -313,7 +313,9 @@ void TrainModel(TVVec<TInt, int64>& WalksVV, const int& Dimensions,
 			//update hidden weight
 			for (int i = 0; i < Dimensions; i++)
 			{
-				SynPos(CurrWord,i) += CurrSticky * Neu1eV[i];		//this is where the embedding gets updated
+				if (SynPos(CurrWord,i) + CurrSticky * Neu1eV[i] > 0)
+					SynPos(CurrWord,i) += CurrSticky * Neu1eV[i];		//this is where the embedding gets updated
+																		//but only update if result is non-negative
 			}
 		}
 		WordCntAll++;		//finished current word in walk, update counter
