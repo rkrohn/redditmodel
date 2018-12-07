@@ -393,7 +393,7 @@ def fit_all_cascades(code, cascades, comments, pickle_save, subreddit = False):
 		cascade_params[post_id] = fit_cascade.fit_cascade_model(post, comments)
 		avg_quality += cascade_params[post_id][6]
 		post_count += 1
-		if post_count % 500 == 0:
+		if post_count % 1000 == 0:
 			print("Fitted", post_count, "cascades")
 			if pickle_save:
 				cascade_manip.save_cascade_params(code, cascade_params, subreddit + str(post_count))
