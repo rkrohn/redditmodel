@@ -6,6 +6,14 @@ import string
 from collections import defaultdict
 import itertools
 
+
+#loads cascades and comments for subreddit, if not already loaded
+def load_cascades(subreddit, domain, cascades, comments):
+	if cascades == None or comments == None:
+		cascades, comments = load_subreddit_cascades(subreddit, domain)
+	return cascades, comments
+#end load_cascades
+
 #given a list of itemsets, and a list of corresponding set labels, 
 #build a dictionary where item->list of corresponding labels
 def build_domain_dict(itemsets, labels):

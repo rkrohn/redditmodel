@@ -56,15 +56,18 @@ for subreddit, domain in subreddit_dict.items():
 	if subreddit != 'Lisk':
 		continue
 	'''
-	'''
+	
 	if domain != "crypto":
 		continue
-	'''
+	
 
 	print("\nProcessing", subreddit, "in", domain, "domain")
 
 	#load filtered cascades for this subreddit
-	cascades, comments = load_subreddit_cascades(subreddit, domain)
+	#cascades, comments = load_subreddit_cascades(subreddit, domain)
+	#delay loading until we actually need them
+	cascades = None
+	comments = None
 
 	#load processed version of posts
 	if file_utils.verify_file(posts_filepath % subreddit):
@@ -72,6 +75,8 @@ for subreddit, domain in subreddit_dict.items():
 		print("Loaded", len(posts), "processed posts from", posts_filepath % subreddit)
 	#doesn't exist, build processed posts file
 	else:	
+		#load cascades if not yet loaded
+		cascades, comments = load_cascades(subreddit, domain, cascades, comments)
 		#assign numeric ids to each post for node2vec input files
 		#get set of tokens
 		#extract and maintain user
@@ -85,6 +90,9 @@ for subreddit, domain in subreddit_dict.items():
 	if file_utils.verify_file(users_filepath % subreddit):
 		print("Active users exist in", users_filepath % subreddit)
 	else:
+		#load cascades if not yet loaded
+		cascades, comments = load_cascades(subreddit, domain, cascades, comments)
+		#build active users list
 		active_users = []
 		for post_id, post in cascades.items():
 			active_users.append(post['author_h'])
@@ -98,6 +106,10 @@ for subreddit, domain in subreddit_dict.items():
 	if file_utils.verify_file(params_filepath % subreddit):
 		print("Params exist in", params_filepath % subreddit)
 	else:
+		#load cascades if not yet loaded
+		cascades, comments = load_cascades(subreddit, domain, cascades, comments)
+
+		#fit params to all cascades
 		all_params = cascade_analysis.fit_all_cascades(domain, cascades, comments, False, subreddit)
 
 		#save to text file now
