@@ -17,10 +17,12 @@
 import numpy as np
 from scipy.optimize import curve_fit, minimize
 import warnings
+import random
 warnings.filterwarnings("ignore")   #hide the warnings that optimize sometimes throws
 
 
 #HARDCODED PARAMS - only used when fit/estimation fails
+#not used literally, small random perturbation applied
 
 DEFAULT_WEIBULL_NONE = [1, 1, 0.15]     #param results if post has NO comments to fit
                                         #force a distribution heavily weighted towards the left, then decreasing
@@ -29,7 +31,9 @@ DEFAULT_WEIBULL_SINGLE = [1, 2, 0.75]   #param result if post has ONE comment an
                                         #force a distribution heavily weighted towards the left, then decreasing
                                         #use this same hardcode for other fit failures, but set a equal to the number of replies
 
-DEFAULT_QUALITY = 0.3                   #default quality if any hardcode param is used
+DEFAULT_QUALITY = 0.45                   #default quality if any hardcode param is used
+
+DEFAULT_DELTA = 0.15            #default maximum delta percentage for random hardcoded param perturbations
 
 
 #given a list of event times, fit a weibull function, returning parameters a, lbd, and k
@@ -52,6 +56,9 @@ def weibull_parameters_estimation(event_times, runs = 20, large_params = [1000, 
             f += (k-1) * np.log(t) - (t/lbd)**(k)
         return (-1) * f     #convert from maximum likelihood to negative likelihood (for minimization)
     #end weib_loglikelihood
+
+    #update large_params limit for <a> parameter based on number of events
+    large_params[0] = 5 * len(event_times)
            
     param_set = np.asarray(start_params)    #convert start params to np array
 
@@ -120,6 +127,16 @@ def weib_func(t, a, lbd, k):
 #end weib_fuct
 
 
+#given a list (of params), and a list of corresponding delta limits,
+#apply a random perturbation to each value with max delta of value * DEFAULT_DELTA
+def perturb(data):
+    for i in range(len(data)):
+        max_delta = data[i] * DEFAULT_DELTA
+        data[i] += random.uniform(-1 * max_delta, max_delta)
+    return data
+#end perturb
+
+
 #given event times, fit the weibull function
 #if both methods fail, returns None for all parameters
 #otherwise, returns a, lambda, and k parameters, and quality measure
@@ -127,12 +144,14 @@ def fit_weibull(event_times, display = False):
 
     #no events to fit, hardcode
     if len(event_times) == 0:
+        params = perturb(list(DEFAULT_WEIBULL_NONE))    #small random perturbation of hardcoded vals
         if display:
-            print("No events to fit, setting Weibull params: (quality", str(DEFAULT_QUALITY) + ")\n   a\t\t", DEFAULT_WEIBULL_NONE[0], "\n   lambda\t", DEFAULT_WEIBULL_NONE[1], "\n   k\t\t", DEFAULT_WEIBULL_NONE[2], "\n")
-        return list(DEFAULT_WEIBULL_NONE) + [DEFAULT_QUALITY]
+            print("No events to fit, setting Weibull params: (quality", str(DEFAULT_QUALITY) + ")\n   a\t\t", params[0], "\n   lambda\t", params[1], "\n   k\t\t", params[2], "\n")
+        return params + [DEFAULT_QUALITY]
 
     params = weibull_parameters_estimation(event_times)     #try loglikelihood estimation first
-    quality = 0.9
+    quality = 0.95
+
     #if that fails, use curve fit if more than one item
     if params == None:
         if len(event_times) != 1:
@@ -145,7 +164,8 @@ def fit_weibull(event_times, display = False):
     if params[0] == None: 
         params = list(DEFAULT_WEIBULL_SINGLE)
         if len(event_times) > 1:
-            params[0] = len(event_times)
+            params[0] = len(event_times)    
+        params = perturb(params)        #small random perturbation
         if display:
             print("Fit failed, setting Weibull params: (quality)", str(DEFAULT_QUALITY) + ")", "\n   a\t\t", params[0], "\n   lambda\t", params[1], "\n   k\t\t", params[2], "\n")
         return params + [DEFAULT_QUALITY]
