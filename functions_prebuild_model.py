@@ -11,7 +11,7 @@ import os
 #loads cascades and comments for subreddit, if not already loaded
 def load_cascades(subreddit, domain, cascades, comments):
 	if cascades == None or comments == None:
-		cascades, comments = load_subreddit_cascades(subreddit, domain)
+		cascades, comments = load_subreddit_cascades(subreddit, domain, cascades, comments)
 	return cascades, comments
 #end load_cascades
 
@@ -31,7 +31,7 @@ def build_domain_dict(itemsets, labels):
 #end build_domain_dict
 
 #load all posts and comments for given subreddit, removing any incomplete cascades
-def load_subreddit_cascades(subreddit, domain):
+def load_subreddit_cascades(subreddit, domain, cascades, comments):
 	#load filtered cascades for this subreddit
 	filtered_cascades, filtered_comments = cascade_manip.load_filtered_cascades(domain, subreddit)
 
@@ -127,8 +127,9 @@ def build_graph(posts, filename):
 			edge_count += 1						#keep count of all edges
 
 			#if added edge, and current edgelist has reached dump level, dump and clear before continuing
-			if len(graph) == 2000000:
+			if len(graph) == 25000000:
 				save_graph(graph, filename)
+				print("   Saved", edge_count, "edges")
 				graph = {}
 
 	#handle isolated/missing nodes - return a list of them, code into edgelist during output
