@@ -118,15 +118,21 @@ for subreddit, seeds in post_seeds.items():
 		actual_root_replies = fit_cascade.get_root_comment_times(test_post, comments)
 		actual_all_replies = sorted(actual_root_replies + fit_cascade.get_other_comment_times(test_post, comments))
 		print("Actual cascade has", len(actual_root_replies), "replies and", len(actual_all_replies), "total comments")
+		actual_levels = fit_cascade.count_nodes_per_level(test_post, comments)
+		for level, count in actual_levels.items():
+			#print("   ", str(level) + ":", count)
+			print(count, end=" ")
+		print("")
 
 		#simulate a comment tree!
 		#actually, simulate a few
 		for i in range(5):
 			sim_root, all_times = sim_tree.simulate_comment_tree(post_params, display=True)
-
-		if post_counter % 50 == 0:
-			print("Finished post", post_counter, "/", len(raw_post_seeds))
-		post_counter += 1
+			sim_levels = sim_tree.sim_count_nodes_per_level(sim_root)
+			for level, count in sim_levels.items():
+				#print("   ", str(level) + ":", count)
+				print(count, end=" ")
+			print("")
 
 #finished all posts across all subreddit
 print("Finished all simulations")
