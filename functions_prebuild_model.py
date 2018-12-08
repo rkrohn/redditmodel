@@ -71,25 +71,6 @@ def extract_tokens(post):
 	return set(tokens)		#convert to set before returning
 #end extract_tokens
 
-#given set of posts and fitted params, build two helpful dictionaries
-#	user->set of posts
-#	tokens->set of posts
-#use original post ids, translate to numeric in build_graph
-def graph_dictionaries(posts):
-	tokens = defaultdict(set) 			#dictionary of tokens -> set of posts
-	users = defaultdict(set)			#user->set of post-ids
-
-	for post_id, post in posts.items():
-		post_words = post['tokens']		#fetch tokens for this post
-
-		users[post['user']].add(post_id)		#add this post to user set
-
-		for word in post_words:
-			tokens[word].add(post_id)		#add post to each token set
-
-	return tokens, users
-#end graph_dictionaries
-
 #given token sets from two posts, compute weight of edge between them
 def compute_edge_weight(tokens1, tokens2):
 	#get count of words shared by these posts
@@ -100,8 +81,8 @@ def compute_edge_weight(tokens1, tokens2):
 		#weight = # tokens in common / # of tokens in shorter post
 		weight = intersect_size / (len(tokens1) if len(tokens1) < len(tokens2) else len(tokens2))
 		return weight
-	#no intersection, return False indicating no edge
-	return False
+	#no intersection, return 0 indicating no edge
+	return 0
 #end compute_edge_weight
 
 #given a set of processed posts, "build" the post parameter graph
@@ -111,62 +92,33 @@ def build_graph(posts):
 
 	print("Building param graph for", len(posts), "posts")
 
-	#build user->posts, and tokens->posts dictionaries (already have post->tokens)
-	tokens, users = graph_dictionaries(posts)
-	print("   Found", len(users), "users")
-	print("   Found", len(tokens), "tokens")
-
 	#build the multi-graph
 	#	one node for each post
 	#	edge of weight=1 connecting posts by the same user
 	#	edge of weight=(# shared)/(# in shortest title) between posts with common words
+	#(but really only one edge, with sum of both weights)
 	#store graph as edge-list dictionary, where (node, node) edge -> weight
 	graph = {}
 	nodes = set()
 
-	#add edges with weight=(# shared)/(# in shortest title) between posts sharing tokens
-	#loop only pairs that we know have tokens in common - FASTER
-	for token, token_posts in tokens.items():
-		post_pairs = list(itertools.combinations(token_posts, 2))		#get all post pairs for this token
-		for post_pair in post_pairs:
-			#fetch numeric ids for these posts
-			node1 = posts[post_pair[0]]['id']
-			node2 = posts[post_pair[1]]['id']
+	#loop all post-pairs and determine weight of edge, if any, between them
+	for post_pair in itertools.combinations(posts, 2):		#pair contains ids of two posts
+		#fetch numeric ids for these posts
+		node1 = posts[post_pair[0]]['id']
+		node2 = posts[post_pair[1]]['id']
 
-			#already an edge (and therefore a token edge) in the graph? skip
-			if (node1, node2) in graph or (node2, node1) in graph:
-				continue
+		#compute edge weight based on post token sets
+		weight = compute_edge_weight(posts[post_pair[0]]['tokens'], posts[post_pair[1]]['tokens'])
 
-			#compute edge weight based on post token sets
-			weight = compute_edge_weight(posts[post_pair[0]]['tokens'], posts[post_pair[1]]['tokens'])
+		#if posts have same author, add 1 to weight
+		if posts[post_pair[0]]['user'] == posts[post_pair[1]]['user']:
+			weight += 1
 
-			#if valid weight, add edge
-			if weight != False:
-				graph[(node1, node2)] = weight		#add edge
-				nodes.add(node1)
-				nodes.add(node2)
-
-	#add edges with weight=1 between posts by the same user
-	for user, user_posts in users.items():
-		post_pairs = list(itertools.combinations(user_posts, 2))		#get all post pairs from this user
-
-		for post_pair in post_pairs:
-			#fetch numeric ids for these posts
-			node1 = posts[post_pair[0]]['id']
-			node2 = posts[post_pair[1]]['id']
-
-			#already an edge (token edge) between these users? just increase the weight
-			#want impact of both common user and common tokens
-			#check both edge orientations to be sure
-			if (node1, node2) in graph:
-				graph[(node1, node2)] += 1.0
-			elif (node2, node1) in graph:
-				graph[(node2, node1)] += 1.0
-			#new edge, just set weight
-			else:
-				graph[(node1, node2)] = 1.0
-				nodes.add(node1)
-				nodes.add(node2)
+		#if edge weight is nonzero, add edge to graph
+		if weight != 0:
+			graph[(node1, node2)] = weight 		#add edge
+			nodes.add(node1)					#track edges in graph so we can find isolated nodes later
+			nodes.add(node2)
 
 	#handle isolated/missing nodes - return a list of them, code into edgelist during output
 	missing_nodes = [value['id'] for key, value in posts.items() if value['id'] not in nodes]
