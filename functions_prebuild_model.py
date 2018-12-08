@@ -5,6 +5,7 @@ import cascade_manip
 import string
 from collections import defaultdict
 import itertools
+import os
 
 
 #loads cascades and comments for subreddit, if not already loaded
@@ -87,8 +88,9 @@ def compute_edge_weight(tokens1, tokens2):
 
 #given a set of processed posts, "build" the post parameter graph
 #but don't actually build it, just get an edgelist
-#return graph as dictionary where edge (node1, node2) -> weight
-def build_graph(posts):
+#save edgelist to specified file
+#no return, because graph is periodically dumped and not all stored in memory at once
+def build_graph(posts, filename):
 
 	print("Building param graph for", len(posts), "posts")
 
@@ -100,6 +102,7 @@ def build_graph(posts):
 	#store graph as edge-list dictionary, where (node, node) edge -> weight
 	graph = {}
 	nodes = set()
+	edge_count = 0
 
 	#loop all post-pairs and determine weight of edge, if any, between them
 	for post_pair in itertools.combinations(posts, 2):		#pair contains ids of two posts
@@ -109,6 +112,8 @@ def build_graph(posts):
 
 		#compute edge weight based on post token sets
 		weight = compute_edge_weight(posts[post_pair[0]]['tokens'], posts[post_pair[1]]['tokens'])
+		if weight <= 0.1:		#minimum token weight threshold, try to keep edge explosion to a minimum
+			weight = 0
 
 		#if posts have same author, add 1 to weight
 		if posts[post_pair[0]]['user'] == posts[post_pair[1]]['user']:
@@ -119,24 +124,37 @@ def build_graph(posts):
 			graph[(node1, node2)] = weight 		#add edge
 			nodes.add(node1)					#track edges in graph so we can find isolated nodes later
 			nodes.add(node2)
+			edge_count += 1						#keep count of all edges
+
+			#if added edge, and current edgelist has reached dump level, dump and clear before continuing
+			if len(graph) == 2000000:
+				save_graph(graph, filename)
+				graph = {}
 
 	#handle isolated/missing nodes - return a list of them, code into edgelist during output
-	missing_nodes = [value['id'] for key, value in posts.items() if value['id'] not in nodes]
+	isolated_nodes = [value['id'] for key, value in posts.items() if value['id'] not in nodes]
 
-	print("Finished graph has", len(nodes) + len(missing_nodes), "nodes (" + str(len(missing_nodes)), "isolated) and", len(graph), "edges")	
+	print("Finished graph has", len(nodes) + len(isolated_nodes), "nodes (" + str(len(isolated_nodes)), "isolated) and", edge_count, "edges")	
 
-	return graph, missing_nodes
+	#dump any remaining edges/isolated nodes to edgelist file (final save)
+	save_graph(graph, filename, isolated_nodes)
+	print("Saved post-graph to", filename)
+
 #end build_graph
 
 
-#dave graph to txt file
-def save_graph(edgelist, isolated_nodes, filename, mode="w"):
+#save graph to txt file
+def save_graph(edgelist, filename, isolated_nodes = []):
+	#determine file write mode: create new if file doesn't exist, otherwise append to graph in progress
+	if os.path.exists(filename):
+		mode = 'a'
+	else:
+		mode = 'w'
+
 	#and save graph to file
 	with open(filename, mode) as f:
 		for edge, weight in edgelist.items():
 			f.write("%d %d %f\n" % (edge[0], edge[1], weight))
 		for node in isolated_nodes:
 			f.write("%d\n" % node)
-	if mode == "w":
-		print("Saved post-graph to", filename)
 #end save_graph

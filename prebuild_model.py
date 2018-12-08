@@ -126,8 +126,5 @@ for subreddit, domain in subreddit_dict.items():
 		print("Post-graph exists in", graph_filepath % subreddit)
 	else:
 		#now we have to build the graph... ugh
-		edgelist, isolated_nodes = build_graph(posts)
-
-		#and save graph to file
-		save_graph(edgelist, isolated_nodes, graph_filepath % subreddit)
+		build_graph(posts, graph_filepath % subreddit)
 
