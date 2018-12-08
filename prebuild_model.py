@@ -7,6 +7,13 @@ import file_utils
 from functions_prebuild_model import *
 
 from itertools import count
+import sys
+
+
+#optional command line argument to limit to a single subreddit
+if len(sys.argv) == 2:
+	subreddit_filter = sys.argv[1]
+
 
 #filepaths of output files
 subreddits_filepath = "model_files/subreddits.pkl"		#dictionary of subreddit -> domain code
@@ -53,7 +60,7 @@ file_utils.verify_dir("model_files/users")
 #loop all subreddits
 for subreddit, domain in subreddit_dict.items():
 	
-	if subreddit != 'Lisk':
+	if subreddit != subreddit_filter:
 		continue
 	
 	'''
