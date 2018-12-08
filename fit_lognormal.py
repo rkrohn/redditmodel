@@ -55,7 +55,7 @@ def lognorm_parameters_estimation(event_times, runs = 10, large_params = [20, 20
         fit_params = list(result.get('x'))
 
         #if bad fit, perturb the initial guess and re-fit
-        if fit_params[0] > large_params[0] or fit_params[1] > large_params[1] or fit_params[1] < 0.1:
+        if fit_params[0] > large_params[0] or fit_params[1] > large_params[1]:
             param_set += np.array([np.random.normal(0, start_params[0]/10), np.random.normal(0, start_params[1]/10)])
 
             #if too many bad results, return fail
