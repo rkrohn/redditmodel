@@ -20,6 +20,7 @@ from networkx.drawing.nx_agraph import graphviz_layout
 import warnings
 warnings.filterwarnings("ignore")   #supress some matplotlib warnings
 import itertools
+from collections import defaultdict
 
 
 #HARDCODED VALUES
@@ -346,3 +347,24 @@ def print_tree(root, level=0):
             #append children in reverse time order so final output is sorted
             stack.extend([(child, level+1) for child in curr['children']][::-1])    
 #end print_tree
+
+
+#given a simulated tree root, count the number of nodes on each level
+def sim_count_nodes_per_level(root):
+
+    depth_counts = defaultdict(int)     #dictionary for depth counts
+    depth_counts[0] = 1
+
+    nodes_to_visit = [] + root['children']    #init queue to direct post replies
+    depth_queue = [1] * len(nodes_to_visit)  #and a parallel depth queue
+    while len(nodes_to_visit) != 0:     #BFS
+        curr = nodes_to_visit.pop(0)    #grab current comment id
+        depth = depth_queue.pop(0)
+
+        depth_counts[depth] += 1
+
+        nodes_to_visit.extend(curr['children'])    #add this comment's replies to queue
+        depth_queue.extend([depth+1] * len(curr['children']))
+
+    return depth_counts
+#end count_nodes_per_level
