@@ -7,6 +7,7 @@
 from fit_weibull import *
 from fit_lognormal import *
 from collections import defaultdict
+import random
 
 
 #HARDCODED PARAMS - only used when fit/estimation fails
@@ -14,8 +15,9 @@ from collections import defaultdict
 
 DEFAULT_BRANCHING = 0.05        #default branching factor n_b if post has no comments, or post comments have no replies
                                 #0.05 should allow for rare comments 
-DEFAULT_BRANCHING_QUALITY_HARDCODE = 0.3     #default quality for hardcoded branching factor
-DEFAULT_BRANCHING_QUALITY_DIVIDE = 0.9       #branching quality for division estimation
+DEFAULT_PERTURB = 0.15      #max delta for random perturbation
+DEFAULT_BRANCHING_QUALITY_HARDCODE = 0.4     #default quality for hardcoded branching factor
+DEFAULT_BRANCHING_QUALITY_DIVIDE = 0.95      #branching quality for division estimation
 
 
 #given a post, get creation time of the post in seconds (tiny helper function)
@@ -108,17 +110,28 @@ def count_nodes_per_level(post, comments):
 
 
 #estimate branching number n_b: 1 - (root degree / total comments)
-#pass in post object and total number of replies
-def estimate_branching_factor(post, num_comments):
+#pass in number of root replies and number of comment replies
+def estimate_branching_factor(root_replies, comment_replies):
     #hardcode or estimate, depending on number of comments
-    if num_comments == 0:
-        n_b = DEFAULT_BRANCHING     #hardcode to maybe allow for rare comment replies
+    if root_replies + comment_replies == 0:
+        #hardcode (+perturb) to maybe allow for rare comment replies
+        n_b = DEFAULT_BRANCHING + random.uniform(-1 * DEFAULT_PERTURB * DEFAULT_BRANCHING, DEFAULT_PERTURB * DEFAULT_BRANCHING)     
+        quality = DEFAULT_BRANCHING_QUALITY_HARDCODE
+    elif comment_replies > root_replies * 1.25:
+        n_b = 1 - (root_replies / (root_replies + comment_replies)) + (comment_replies / root_replies / 3.5)
+        #cap this one at 3
+        if n_b > 3:
+            n_b = 3.0 - random.uniform(0, 0.25)
+        quality = DEFAULT_BRANCHING_QUALITY_DIVIDE
     else:
-        n_b = 1 - (len(post['replies']) / num_comments)
+        n_b = 1 - (root_replies / (root_replies + comment_replies))
+        quality = DEFAULT_BRANCHING_QUALITY_DIVIDE
     #if estimate is 0 (post comments have no replies), hardcode
     if n_b == 0:
-        n_b = DEFAULT_BRANCHING       #hardcode to maybe allow for rare comment replies
-    return n_b, (DEFAULT_BRANCHING_QUALITY_HARDCODE if n_b == DEFAULT_BRANCHING else DEFAULT_BRANCHING_QUALITY_DIVIDE)
+        #hardcode (+perturb) to maybe allow for rare comment replies
+        n_b = DEFAULT_BRANCHING + random.uniform(-1 * DEFAULT_PERTURB * DEFAULT_BRANCHING, DEFAULT_PERTURB * DEFAULT_BRANCHING)
+        quality = DEFAULT_BRANCHING_QUALITY_HARDCODE      
+    return n_b, quality
 #end estimate_branching_factor
 
 
@@ -147,7 +160,7 @@ def fit_cascade_model(post, comments, display = False):
     mu, sigma, lognorm_quality = fit_lognormal(other_comment_times, display)
 
     #estimate branching factor
-    n_b, branching_quality = estimate_branching_factor(post, len(root_comment_times) + len(other_comment_times))
+    n_b, branching_quality = estimate_branching_factor(len(root_comment_times), len(other_comment_times))
     if display:
         print("branching factor :", n_b, "(quality", str(branching_quality) + ")\n")
 

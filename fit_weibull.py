@@ -58,7 +58,7 @@ def weibull_parameters_estimation(event_times, runs = 20, large_params = [1000, 
     #end weib_loglikelihood
 
     #update large_params limit for <a> parameter based on number of events
-    large_params[0] = 5 * len(event_times)
+    large_params[0] = 1.45 * len(event_times)
            
     param_set = np.asarray(start_params)    #convert start params to np array
 

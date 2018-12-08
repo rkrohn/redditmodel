@@ -15,14 +15,17 @@
 import numpy as np
 from scipy.optimize import minimize
 from scipy.special import erf
+import random
 
 
 #HARDCODED PARAMS - only used when fit/estimation fails
 
-DEFAULT_LOGNORMAL = [0, 1.5]    #param results if post has no comment replies to fit
+DEFAULT_LOGNORMAL = [0.15, 1.5]    #param results if post has no comment replies to fit
                                 #mu = 0, sigma = 1.5 should allow for occasional comment replies, but not many
 
-DEFAULT_QUALITY = 0.3           #default quality if any hardcode param is used
+DEFAULT_QUALITY = 0.45           #default quality if any hardcode param is used
+
+DEFAULT_DELTA = 0.15            #default maximum delta percentage for random hardcoded param perturbations
 
 
 #given a list of event times, fit a lognormal function, returning parameters mu and sigma
@@ -52,7 +55,7 @@ def lognorm_parameters_estimation(event_times, runs = 10, large_params = [20, 20
         fit_params = list(result.get('x'))
 
         #if bad fit, perturb the initial guess and re-fit
-        if fit_params[0] > large_params[0] or fit_params[1] > large_params[1]:
+        if fit_params[0] > large_params[0] or fit_params[1] > large_params[1] or fit_params[1] < 0.1:
             param_set += np.array([np.random.normal(0, start_params[0]/10), np.random.normal(0, start_params[1]/10)])
 
             #if too many bad results, return fail
@@ -77,6 +80,16 @@ def lognorm_func(t, mu, sigma):
 #end lognorm_func
 
 
+#given a list (of params), and a list of corresponding delta limits,
+#apply a random perturbation to each value with max delta of value * DEFAULT_DELTA
+def perturb(data):
+    for i in range(len(data)):
+        max_delta = data[i] * DEFAULT_DELTA
+        data[i] += random.uniform(-1 * max_delta, max_delta)
+    return data
+#end perturb
+
+
 #given event times, fit the lognormal distribution
 #if fit fails, return None
 #otherwise, returns mu and lambda paramters
@@ -84,9 +97,10 @@ def fit_lognormal(event_times, display = False):
 
     #no event times (ie, no comment replies), hardcode some values
     if len(event_times) == 0:
+        params = perturb(list(DEFAULT_LOGNORMAL))
         if display:   
-            print("No events to fit, setting Log-normal params: (quality", str(DEFAULT_QUALITY) + "\n   mu\t\t", DEFAULT_LOGNORMAL[0], "\n   sigma\t", DEFAULT_LOGNORMAL[1], "\n")
-        return list(DEFAULT_LOGNORMAL) + [DEFAULT_QUALITY]
+            print("No events to fit, setting Log-normal params: (quality", str(DEFAULT_QUALITY) + "\n   mu\t\t", params[0], "\n   sigma\t", params[1], "\n")
+        return params + [DEFAULT_QUALITY]
 
     params = lognorm_parameters_estimation(event_times)     #try loglikelihood estimation first
 
@@ -98,7 +112,7 @@ def fit_lognormal(event_times, display = False):
         params = [None, None]
         quality = 0
     else:
-        quality = 0.9
+        quality = 0.95
         if display:
             print("Log-normal params: (quality", str(quality) + "), \n   mu\t\t", params[0], "\n   sigma\t", params[1], "\n")        
 
