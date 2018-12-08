@@ -124,7 +124,7 @@ def build_graph(posts):
 	graph = {}
 	nodes = set()
 
-	#add edges with weight=(# shared)/(# in shortest title) betwee posts sharing tokens
+	#add edges with weight=(# shared)/(# in shortest title) between posts sharing tokens
 	#loop only pairs that we know have tokens in common - FASTER
 	for token, token_posts in tokens.items():
 		post_pairs = list(itertools.combinations(token_posts, 2))		#get all post pairs for this token
@@ -151,22 +151,22 @@ def build_graph(posts):
 		post_pairs = list(itertools.combinations(user_posts, 2))		#get all post pairs from this user
 
 		for post_pair in post_pairs:
-				#fetch numeric ids for these posts
-				node1 = posts[post_pair[0]]['id']
-				node2 = posts[post_pair[1]]['id']
+			#fetch numeric ids for these posts
+			node1 = posts[post_pair[0]]['id']
+			node2 = posts[post_pair[1]]['id']
 
-				#already an edge (token edge) between these users? just increase the weight
-				#want impact of both common user and common tokens
-				#check both edge orientations to be sure
-				if (node1, node2) in graph:
-					graph[(node1, node2)] += 1.0
-				elif (node2, node1) in graph:
-					graph[(node2, node1)] += 1.0
-				#new edge, just set weight
-				else:
-					graph[(node1, node2)] = 1.0
-					nodes.add(node1)
-					nodes.add(node2)
+			#already an edge (token edge) between these users? just increase the weight
+			#want impact of both common user and common tokens
+			#check both edge orientations to be sure
+			if (node1, node2) in graph:
+				graph[(node1, node2)] += 1.0
+			elif (node2, node1) in graph:
+				graph[(node2, node1)] += 1.0
+			#new edge, just set weight
+			else:
+				graph[(node1, node2)] = 1.0
+				nodes.add(node1)
+				nodes.add(node2)
 
 	#handle isolated/missing nodes - return a list of them, code into edgelist during output
 	missing_nodes = [value['id'] for key, value in posts.items() if value['id'] not in nodes]
@@ -175,3 +175,16 @@ def build_graph(posts):
 
 	return graph, missing_nodes
 #end build_graph
+
+
+#dave graph to txt file
+def save_graph(edgelist, isolated_nodes, filename, mode="w"):
+	#and save graph to file
+	with open(filename, mode) as f:
+		for edge, weight in edgelist.items():
+			f.write("%d %d %f\n" % (edge[0], edge[1], weight))
+		for node in isolated_nodes:
+			f.write("%d\n" % node)
+	if mode == "w":
+		print("Saved post-graph to", filename)
+#end save_graph

@@ -52,14 +52,14 @@ file_utils.verify_dir("model_files/users")
 
 #loop all subreddits
 for subreddit, domain in subreddit_dict.items():
-	'''
+	
 	if subreddit != 'Lisk':
 		continue
-	'''
 	
+	'''
 	if domain != "crypto":
 		continue
-	
+	'''
 
 	print("\nProcessing", subreddit, "in", domain, "domain")
 
@@ -129,9 +129,5 @@ for subreddit, domain in subreddit_dict.items():
 		edgelist, isolated_nodes = build_graph(posts)
 
 		#and save graph to file
-		with open(graph_filepath % subreddit, "w") as f:
-			for edge, weight in edgelist.items():
-				f.write("%d %d %f\n" % (edge[0], edge[1], weight))
-			for node in isolated_nodes:
-				f.write("%d\n" % node)
-		print("Saved post-graph to", graph_filepath % subreddit)
+		save_graph(edgelist, isolated_nodes, graph_filepath % subreddit)
+
