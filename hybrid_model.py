@@ -121,7 +121,7 @@ for subreddit, seeds in post_seeds.items():
 		for seed_post in seeds:
 			#does this post need to be added to the graph? if yes, compute new edges and assign new id
 			if seed_post['id_h'] not in posts:		
-				graph, isolated_nodes, posts = add_post_edges(graph, isolated_nodes, posts, seed_post, seed_numeric_ids[seed_post['id_h']])
+				graph, isolated_nodes, posts = add_post_edges(graph, isolated_nodes, posts, seed_post, seed_numeric_ids[seed_post['id_h']], subreddit)
 				added_count += 1
 
 		print("   Added", added_count, "nodes (" + str(len(isolated_nodes)), "isolated) and", len(graph), "edges")

@@ -224,13 +224,15 @@ def graph_dictionaries(posts):
 
 TOKENS = None		#global dictionaries for post graph, used in add_post_edges
 USERS = None
+GRAPH_SUBREDDIT = None 		#track subreddit used for current dictionaries (because need to clear when change)
 
-def add_post_edges(graph, isolated_nodes, graph_posts, new_post, new_post_numeric_id):
-	global TOKENS, USERS
+def add_post_edges(graph, isolated_nodes, graph_posts, new_post, new_post_numeric_id, subreddit):
+	global TOKENS, USERS, GRAPH_SUBREDDIT
 
 	#if don't have token/user dictionaries yet, get them now
-	if TOKENS == None or USERS == None:
+	if TOKENS == None or USERS == None or subreddit != GRAPH_SUBREDDIT:
 		TOKENS, USERS = graph_dictionaries(graph_posts)
+		GRAPH_SUBREDDIT = subreddit
 
 	#set isolated flag to make sure this node gets connected - otherwise need to handle as isolated
 	isolated = True
@@ -337,7 +339,7 @@ def user_sample_graph(raw_sub_posts, seeds, max_nodes):
 			keep.add(random.choice([key for key, value in sub_posts.items() if value['user'] == author]))
 		#sample down (as far as we can, while maintaining one post per author)
 		if max_nodes - len(keep) > 0:
-			keep.update(random.sample([key for key in sub_posts.keys() if key not in keep], MAX_GRAPH_POSTS-len(keep)))
+			keep.update(random.sample([key for key in sub_posts.keys() if key not in keep], max_nodes-len(keep)))
 		sub_posts = {key: sub_posts[key] for key in keep}
 	#too few? draw more
 	if len(sub_posts) < max_nodes:
