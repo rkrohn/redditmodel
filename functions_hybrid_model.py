@@ -2,8 +2,11 @@ import json
 from collections import defaultdict
 import string
 import random
+import itertools
+import os
 
-
+MAX_TOKEN_MATCH_POSTS = 5		#maximum number of token-matching posts to add to graph when inferring params for a
+								#post by an unseen user with all new tokens
 
 #filepaths of input files
 subreddits_filepath = "model_files/subreddits.pkl"		#dictionary of subreddit -> domain code
@@ -311,3 +314,151 @@ def load_params(filename, posts, inferred=False, quality=False):
 		return all_params, all_quality
 	return all_params
 #end load_params
+
+
+#given complete set of posts/params for current subreddit, and seed posts,
+#sample down to reach the target graph size (hopefully feasible for inference)
+def user_sample_graph(raw_sub_posts, seeds, max_nodes):
+	#set of authors of seed posts
+	authors = set([post['author_h'] for post in seeds])
+	print("  ", len(authors), "authors in seed posts")
+
+	#filter the posts: only those by users in the author pool
+	sub_posts = {key: value for key, value in raw_sub_posts.items() if value['user'] in authors}
+	graph_authors = set([post['user'] for post_id, post in sub_posts.items()])
+	print("   Filtered to", len(sub_posts), "posts by", len(graph_authors), "authors")
+
+	#no more than MAX_GRAPH_POSTS posts, or this will never finish
+	if len(sub_posts) > max_nodes:
+		print("   Sampling down...")
+		#keep at least one post by each author that we have posts for (pick a random one)
+		keep = set()
+		for author in graph_authors:
+			keep.add(random.choice([key for key, value in sub_posts.items() if value['user'] == author]))
+		#sample down (as far as we can, while maintaining one post per author)
+		if max_nodes - len(keep) > 0:
+			keep.update(random.sample([key for key in sub_posts.keys() if key not in keep], MAX_GRAPH_POSTS-len(keep)))
+		sub_posts = {key: sub_posts[key] for key in keep}
+	#too few? draw more
+	if len(sub_posts) < max_nodes:
+		print("   Drawing more posts...")
+		#add more
+		draw_keys = [key for key in raw_sub_posts.keys() if key not in sub_posts.keys()]
+		num_draw = max_nodes - len(sub_posts)
+		more = random.sample(draw_keys, num_draw)
+		sub_posts.update({key: raw_sub_posts[key] for key in more})
+
+	graph_authors = set([post['user'] for post_id, post in sub_posts.items()])	#update graph authors list
+	print("   Sampled to", len(sub_posts), "posts by", len(set(graph_authors)), "authors for inference (" +  str(len([author for author in authors if author in graph_authors])), "seed authors)")
+
+	#can we connect all the seed posts to this sampled version of the graph? check authors and tokens
+
+	#build list of tokens represented in graph (extra work, yes, repeated in graph build)
+	graph_tokens = set()
+	for post_id, post in sub_posts.items():
+		graph_tokens.update(post['tokens'])
+	print("  ", len(graph_tokens), "tokens in graph")
+
+	#check to see if all seed posts can be connected to this graph
+	for post in seeds:
+		#post author in graph, no need for token match
+		if post['author_h'] in graph_authors:
+			continue
+
+		post_tokens = extract_tokens(post)		#get tokens from this post
+		#if no token connection, try to draw some more posts to allow for connection
+		if len(graph_tokens.intersection(post_tokens)) == 0:
+			#can we find a post in our library with some of these tokens? to get the node connected
+			matching_posts = {key:value for key, value in raw_sub_posts.items() if len(post_tokens.intersection(value['tokens'])) != 0}
+			#if too many matching token posts, sample down
+			if len(matching_posts) > MAX_TOKEN_MATCH_POSTS:
+				keep = random.sample(matching_posts.keys(), MAX_TOKEN_MATCH_POSTS)
+				matching_posts = {key: matching_posts[key] for key in keep}
+
+			#if no matching token/user posts - params will basically be a guess
+			if len(matching_posts) == 0:
+				print("   Cannot connect seed post to graph - parameter inference compromised")
+			#add the matching posts to the graph
+			else:
+				print("   Adding", len(matching_posts), "token-matching posts to graph")
+				sub_posts.update(matching_posts)
+
+	#return sampled posts and params
+	return sub_posts
+#end user_sample_graph
+
+
+#given a set of processed posts, "build" the post parameter graph
+#but don't actually build it, just get an edgelist
+#save edgelist to specified file
+#no return, because graph is periodically dumped and not all stored in memory at once
+#(near-duplicate of functions_prebuild_model.py for convenience)
+def build_graph(posts, filename):
+
+	print("Building param graph for", len(posts), "posts")
+
+	#build the multi-graph
+	#	one node for each post
+	#	edge of weight=1 connecting posts by the same user
+	#	edge of weight=(# shared)/(# in shortest title) between posts with common words
+	#(but really only one edge, with sum of both weights)
+	#store graph as edge-list dictionary, where (node, node) edge -> weight
+	graph = {}
+	nodes = set()
+	edge_count = 0
+
+	#loop all post-pairs and determine weight of edge, if any, between them
+	for post_pair in itertools.combinations(posts, 2):		#pair contains ids of two posts
+		#fetch numeric ids for these posts
+		node1 = posts[post_pair[0]]['id']
+		node2 = posts[post_pair[1]]['id']
+
+		#compute edge weight based on post token sets
+		weight = compute_edge_weight(posts[post_pair[0]]['tokens'], posts[post_pair[1]]['tokens'])
+		if weight <= 0.1:		#minimum token weight threshold, try to keep edge explosion to a minimum
+			weight = 0
+
+		#if posts have same author, add 1 to weight
+		if posts[post_pair[0]]['user'] == posts[post_pair[1]]['user']:
+			weight += 1
+
+		#if edge weight is nonzero, add edge to graph
+		if weight != 0:
+			graph[(node1, node2)] = weight 		#add edge
+			nodes.add(node1)					#track edges in graph so we can find isolated nodes later
+			nodes.add(node2)
+			edge_count += 1						#keep count of all edges
+
+			#if added edge, and current edgelist has reached dump level, dump and clear before continuing
+			if len(graph) == 25000000:
+				save_graph(graph, filename)
+				print("   Saved", edge_count, "edges")
+				graph = {}
+
+	#handle isolated/missing nodes - return a list of them, code into edgelist during output
+	isolated_nodes = [value['id'] for key, value in posts.items() if value['id'] not in nodes]
+
+	print("Finished graph has", len(nodes) + len(isolated_nodes), "nodes (" + str(len(isolated_nodes)), "isolated) and", edge_count, "edges")	
+
+	#dump any remaining edges/isolated nodes to edgelist file (final save)
+	save_graph(graph, filename, isolated_nodes)
+	print("Saved post-graph to", filename)
+
+#end build_graph
+
+
+#save graph to txt file
+def save_graph(edgelist, filename, isolated_nodes = []):
+	#determine file write mode: create new if file doesn't exist, otherwise append to graph in progress
+	if os.path.exists(filename):
+		mode = 'a'
+	else:
+		mode = 'w'
+
+	#and save graph to file
+	with open(filename, mode) as f:
+		for edge, weight in edgelist.items():
+			f.write("%d %d %f\n" % (edge[0], edge[1], weight))
+		for node in isolated_nodes:
+			f.write("%d\n" % node)
+#end save_graph

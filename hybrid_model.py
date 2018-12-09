@@ -27,14 +27,15 @@ output_params_filepath = "sim_files/%s_params.txt"		#output params from node2vec
 DISPLAY = False
 
 #verify command line args
-if len(sys.argv) != 4:
-	print("Incorrect command line arguments\nUsage: python3 hybrid_model.py <seed filename> <output filename> <domain>")
+if len(sys.argv) != 5:
+	print("Incorrect command line arguments\nUsage: python3 hybrid_model.py <seed filename> <output filename> <domain> <max nodes for infer graph>")
 	exit(0)
 
 #extract arguments
 infile = sys.argv[1]
 outfile = sys.argv[2]
 domain = sys.argv[3]
+max_nodes = int(sys.argv[4])
 
 #print some log-ish stuff in case output being piped and saved
 print("Input", infile)
@@ -77,8 +78,8 @@ for subreddit, seeds in post_seeds.items():
 	#find highest assigned post id for this data, so we know where to assign new ids if we need to
 	next_id = max([value['id'] for key, value in posts.items()]) + 1
 
-	#do we need to build a graph at all? loop to find out
-	build_graph = False
+	#do we need to build a graph and infer at all? loop to find out
+	infer = False
 
 	#also fetch/assign numeric ids to seed posts
 	seed_numeric_ids = {}
@@ -90,7 +91,7 @@ for subreddit, seeds in post_seeds.items():
 			seed_post['id_h'] = seed_post['id_h'][3:]
 		#does this post need to be added to the graph? if yes, compute new edges and assign new id
 		if seed_post['id_h'] not in posts:
-			build_graph = True				#flag for graph build
+			infer = True				#flag for graph build
 			seed_numeric_ids[seed_post['id_h']] = next_id			#assign id to this unseen post
 			next_id += 1
 		#seen this post, have params fitted, just fetch id
@@ -99,15 +100,23 @@ for subreddit, seeds in post_seeds.items():
 
 
 	#graph stuff - sample graph if necessary, add new nodes, etc
-	if build_graph:
+	if infer:
 	
 		graph = {}
 		isolated_nodes = []
 		added_count = 0
+		sample_graph = False
+
+		#do we need to sample the graph?
+		if len(posts) + len(seeds) > max_nodes:
+			print("Sampling graph to", max_nodes, "nodes")
+			graph_posts = user_sample_graph(posts, seeds, max_nodes-len(seeds))
+			build_graph(graph_posts, temp_graph_filepath % subreddit)
+			sample_graph = True
 
 		#add all seed posts from this subreddit to graph, if not already there
 		#also convert seed post ids to prefix-less format, if required
-		#and assign each seed post a numeric id for node2vec fun (use existing id if seen post before)
+		#and assign each seed post a numeric id for node2vec fun (use existing id if seen post before)x
 		print("Adding seed posts to graph")
 		for seed_post in seeds:
 			#does this post need to be added to the graph? if yes, compute new edges and assign new id
@@ -117,15 +126,18 @@ for subreddit, seeds in post_seeds.items():
 
 		print("   Added", added_count, "nodes (" + str(len(isolated_nodes)), "isolated) and", len(graph), "edges")
 
-		#copy subreddit graph file, append these new edges to it
-		copyfile(graph_filepath % subreddit, temp_graph_filepath % subreddit)
+		#copy subreddit graph file if using the whole thing
+		if sample_graph == False:
+			print("Copying full graph file")
+			copyfile(graph_filepath % subreddit, temp_graph_filepath % subreddit)
+		#append these new edges to subreddit graph, sampled or complete
+		print("Adding edges for seed posts")
 		with open(temp_graph_filepath % subreddit, "a") as f:
 			for edge, weight in graph.items():
 				f.write("%d %d %f\n" % (edge[0], edge[1], weight))
 			for node in isolated_nodes:
 				f.write("%d\n" % node)
 		print("Saved updated post-graph to", temp_graph_filepath % subreddit)
-
 
 		#run node2vec to get embeddings - if we have to infer parameters
 		#offload to C++, because I feel the need... the need for speed!:
@@ -135,7 +147,7 @@ for subreddit, seeds in post_seeds.items():
 		#load the inferred params
 		inferred_params = load_params(output_params_filepath % subreddit, posts, inferred=True)
 
-	#end if build_graph
+	#end if infer
 	else:
 		print("No infer needed, skipping graph build.")
 
@@ -154,7 +166,7 @@ for subreddit, seeds in post_seeds.items():
 		if posts[seed_post['id_h']]['id'] in fitted_params:
 			post_params = fitted_params[posts[seed_post['id_h']]['id']]
 		#otherwise, use inferred params
-		elif build_graph:
+		elif infer:
 			post_params = inferred_params[posts[seed_post['id_h']]['id']]
 		else:
 			print("Something's gone wrong - no params for this post! Skipping.")
