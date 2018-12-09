@@ -284,7 +284,7 @@ def add_post_edges(graph, isolated_nodes, graph_posts, new_post, new_post_numeri
 
 
 #load fitted/inferred params from file
-def load_params(filename, posts, inferred=False):
+def load_params(filename, posts, inferred=False, quality=False):
 	#read all lines of file
 	with open(filename, 'r') as f:
 		lines = f.readlines()
@@ -294,6 +294,7 @@ def load_params(filename, posts, inferred=False):
 		lines.pop(0)
 
 	all_params = {}
+	all_quality = {}
 
 	#process each line, extract params
 	for line in lines:
@@ -302,7 +303,11 @@ def load_params(filename, posts, inferred=False):
 		params = []
 		for i in range(1, 7):
 			params.append(float(values[i]))
+		if inferred == False:
+			all_quality[post_id] = float(values[7])
 		all_params[post_id] = params
 
+	if quality:
+		return all_params, all_quality
 	return all_params
 #end load_params
