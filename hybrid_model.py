@@ -3,8 +3,6 @@
 #offload node2vec to c++, because speed
 
 import file_utils
-from PostParamGraph import ParamGraph
-import cascade_manip
 import sim_tree
 from functions_hybrid_model import *
 
@@ -14,7 +12,7 @@ import subprocess
 
 
 #filepaths of input files
-posts_filepath = "model_files/posts/%s_posts.pkl"			#processed post data for each post, one file per subreddit
+posts_filepath = "model_files/posts/%s_posts.pkl"		#processed post data for each post, one file per subreddit
 														#each post maps original post id to numeric id, set of tokens, and user id
 params_filepath = "model_files/params/%s_params.txt"	#text file of fitted cascade params, one file per subreddit
 														#one line per cascade: cascade numeric id, params(x6), sticky factor (1-quality)
@@ -79,54 +77,70 @@ for subreddit, seeds in post_seeds.items():
 	#find highest assigned post id for this data, so we know where to assign new ids if we need to
 	next_id = max([value['id'] for key, value in posts.items()]) + 1
 
-	#graph stuff - add new nodes
+	#do we need to build a graph at all? loop to find out
+	build_graph = False
 
+	#also fetch/assign numeric ids to seed posts
 	seed_numeric_ids = {}
-	graph = {}
-	isolated_nodes = []
-	added_count = 0
 
-	#add all seed posts from this subreddit to graph, if not already there
-	#also convert seed post ids to prefix-less format, if required
-	#and assign each seed post a numeric id for node2vec fun (use existing id if seen post before)
-	print("Adding seed posts to graph")
 	for seed_post in seeds:
 		#if post id contains the t3_ prefix, strip it off so we don't have to change everything
 		#(will manually add it back to output later)
 		if seed_post['id_h'].startswith(POST_PREFIX):
 			seed_post['id_h'] = seed_post['id_h'][3:]
-
 		#does this post need to be added to the graph? if yes, compute new edges and assign new id
 		if seed_post['id_h'] not in posts:
-			seed_numeric_ids[seed_post['id_h']] = next_id			
-			graph, isolated_nodes, posts = add_post_edges(graph, isolated_nodes, posts, seed_post, next_id)
+			build_graph = True				#flag for graph build
+			seed_numeric_ids[seed_post['id_h']] = next_id			#assign id to this unseen post
 			next_id += 1
-			added_count += 1
-		#already seen post, just fetch id
+		#seen this post, have params fitted, just fetch id
 		else:
 			seed_numeric_ids[seed_post['id_h']] = posts[seed_post['id_h']]['id']
 
-	print("   Added", added_count, "nodes (" + str(len(isolated_nodes)), "isolated) and", len(graph), "edges")
 
-	#copy subreddit graph file, append these new edges to it
-	copyfile(graph_filepath % subreddit, temp_graph_filepath % subreddit)
-	with open(temp_graph_filepath % subreddit, "a") as f:
-		for edge, weight in graph.items():
-			f.write("%d %d %f\n" % (edge[0], edge[1], weight))
-		for node in isolated_nodes:
-			f.write("%d\n" % node)
-	print("Saved updated post-graph to", temp_graph_filepath % subreddit)
+	#graph stuff - sample graph if necessary, add new nodes, etc
+	if build_graph:
+	
+		graph = {}
+		isolated_nodes = []
+		added_count = 0
+
+		#add all seed posts from this subreddit to graph, if not already there
+		#also convert seed post ids to prefix-less format, if required
+		#and assign each seed post a numeric id for node2vec fun (use existing id if seen post before)
+		print("Adding seed posts to graph")
+		for seed_post in seeds:
+			#does this post need to be added to the graph? if yes, compute new edges and assign new id
+			if seed_post['id_h'] not in posts:		
+				graph, isolated_nodes, posts = add_post_edges(graph, isolated_nodes, posts, seed_post, seed_numeric_ids[seed_post['id_h']])
+				added_count += 1
+
+		print("   Added", added_count, "nodes (" + str(len(isolated_nodes)), "isolated) and", len(graph), "edges")
+
+		#copy subreddit graph file, append these new edges to it
+		copyfile(graph_filepath % subreddit, temp_graph_filepath % subreddit)
+		with open(temp_graph_filepath % subreddit, "a") as f:
+			for edge, weight in graph.items():
+				f.write("%d %d %f\n" % (edge[0], edge[1], weight))
+			for node in isolated_nodes:
+				f.write("%d\n" % node)
+		print("Saved updated post-graph to", temp_graph_filepath % subreddit)
 
 
-	#run node2vec to get embeddings - if we have to infer parameters
-	#offload to C++, because I feel the need... the need for speed!:
-	if added_count != 0:
-		subprocess.check_call(["./c_node2vec/examples/node2vec/node2vec", "-i:"+(temp_graph_filepath % subreddit), "-ie:"+(params_filepath % subreddit), "-o:"+(output_params_filepath % subreddit), "-d:6", "-l:3", "-w", "-s"])
-		#sub_graph.run_node2vec()
+		#run node2vec to get embeddings - if we have to infer parameters
+		#offload to C++, because I feel the need... the need for speed!:
+		if added_count != 0:
+			subprocess.check_call(["./c_node2vec/examples/node2vec/node2vec", "-i:"+(temp_graph_filepath % subreddit), "-ie:"+(params_filepath % subreddit), "-o:"+(output_params_filepath % subreddit), "-d:6", "-l:3", "-w", "-s"])
 
-	#load in simulation params - will use either fitted or inferred, whichever is better
-	fitted_params = load_params(params_filepath % subreddit, posts)
-	inferred_params = load_params(output_params_filepath % subreddit, posts, inferred=True)
+		#load the inferred params
+		inferred_params = load_params(output_params_filepath % subreddit, posts, inferred=True)
+
+	#end if build_graph
+	else:
+		print("No infer needed, skipping graph build.")
+
+	#load in fitted simulation params - will use either fitted or inferred, whichever is better
+	fitted_params = load_params(params_filepath % subreddit, posts)	
 
 	#load active users list to draw from when assigning users to comments
 	user_ids = file_utils.load_pickle(users_filepath % subreddit)
@@ -140,10 +154,13 @@ for subreddit, seeds in post_seeds.items():
 		if posts[seed_post['id_h']]['id'] in fitted_params:
 			post_params = fitted_params[posts[seed_post['id_h']]['id']]
 		#otherwise, use inferred params
-		else:
+		elif build_graph:
 			post_params = inferred_params[posts[seed_post['id_h']]['id']]
+		else:
+			print("Something's gone wrong - no params for this post! Skipping.")
+			continue
 
-		#simulate a comment tree! just the event times first
+		#simulate a comment tree!
 		sim_root, all_times = sim_tree.simulate_comment_tree(post_params)
 
 		#convert that to desired output format
