@@ -9,6 +9,7 @@ from functions_hybrid_model import *
 from shutil import copyfile
 import sys
 import subprocess
+import os
 
 
 #filepaths of input files
@@ -21,6 +22,7 @@ users_filepath = "model_files/users/%s_users.txt"	#list of users seen in posts/c
 
 #filepaths of output/temporary files
 temp_graph_filepath = "sim_files/%s_graph.txt"			#updated graph for this sim run
+temp_params_filepath = "sim_files/%s_in_params.txt"		#temporary, filtered params for sim run (if sampled graph)
 output_params_filepath = "sim_files/%s_params.txt"		#output params from node2vec
 
 
@@ -80,6 +82,7 @@ for subreddit, seeds in post_seeds.items():
 
 	#do we need to build a graph and infer at all? loop to find out
 	infer = False
+	infer_count = 0
 
 	#also fetch/assign numeric ids to seed posts
 	seed_numeric_ids = {}
@@ -91,9 +94,11 @@ for subreddit, seeds in post_seeds.items():
 			seed_post['id_h'] = seed_post['id_h'][3:]
 		#does this post need to be added to the graph? if yes, compute new edges and assign new id
 		if seed_post['id_h'] not in posts:
-			infer = True				#flag for graph build
+			infer = True			#flag for graph build
+			infer_count += 1
 			seed_numeric_ids[seed_post['id_h']] = next_id			#assign id to this unseen post
 			next_id += 1
+			print("New id", next_id-1, "assigned to seed post")
 		#seen this post, have params fitted, just fetch id
 		else:
 			seed_numeric_ids[seed_post['id_h']] = posts[seed_post['id_h']]['id']
@@ -110,8 +115,9 @@ for subreddit, seeds in post_seeds.items():
 		#do we need to sample the graph?
 		if len(posts) + len(seeds) > max_nodes:
 			print("Sampling graph to", max_nodes, "nodes")
-			graph_posts = user_sample_graph(posts, seeds, max_nodes-len(seeds))
+			graph_posts = user_sample_graph(posts, seeds, max_nodes-infer_count)
 			build_graph(graph_posts, temp_graph_filepath % subreddit)
+			get_sampled_params(graph_posts, params_filepath % subreddit, temp_params_filepath % subreddit)
 			sample_graph = True
 
 		#add all seed posts from this subreddit to graph, if not already there
@@ -120,8 +126,11 @@ for subreddit, seeds in post_seeds.items():
 		print("Adding seed posts to graph")
 		for seed_post in seeds:
 			#does this post need to be added to the graph? if yes, compute new edges and assign new id
-			if seed_post['id_h'] not in posts:		
-				graph, isolated_nodes, posts = add_post_edges(graph, isolated_nodes, posts, seed_post, seed_numeric_ids[seed_post['id_h']], subreddit)
+			if seed_post['id_h'] not in posts:
+				if sample_graph:
+					graph, isolated_nodes, posts = add_post_edges(graph, isolated_nodes, graph_posts, seed_post, seed_numeric_ids[seed_post['id_h']], subreddit)
+				else:		
+					graph, isolated_nodes, posts = add_post_edges(graph, isolated_nodes, posts, seed_post, seed_numeric_ids[seed_post['id_h']], subreddit)
 				added_count += 1
 
 		print("   Added", added_count, "nodes (" + str(len(isolated_nodes)), "isolated) and", len(graph), "edges")
@@ -141,7 +150,15 @@ for subreddit, seeds in post_seeds.items():
 
 		#run node2vec to get embeddings - if we have to infer parameters
 		#offload to C++, because I feel the need... the need for speed!:
-		if added_count != 0:
+
+		if file_utils.verify_file(output_params_filepath % subreddit):
+			os.remove(output_params_filepath % subreddit)		#clear output to prevent append
+
+		#sampled graph and params
+		if sample_graph:
+			subprocess.check_call(["./c_node2vec/examples/node2vec/node2vec", "-i:"+(temp_graph_filepath % subreddit), "-ie:"+(temp_params_filepath % subreddit), "-o:"+(output_params_filepath % subreddit), "-d:6", "-l:3", "-w", "-s"])
+		#full graph and params
+		else:		
 			subprocess.check_call(["./c_node2vec/examples/node2vec/node2vec", "-i:"+(temp_graph_filepath % subreddit), "-ie:"+(params_filepath % subreddit), "-o:"+(output_params_filepath % subreddit), "-d:6", "-l:3", "-w", "-s"])
 
 		#load the inferred params
@@ -159,15 +176,19 @@ for subreddit, seeds in post_seeds.items():
 
 	#node2vec finished, on to the simulation!
 	#for each post, infer parameters and simulate
-	print("Simulating comment trees...")
+	print("\nSimulating comment trees...")
+	infer_count = 0
+	fitted_count = 0
 	for seed_post in seeds:
 
 		#if we can, use fitted params
 		if posts[seed_post['id_h']]['id'] in fitted_params:
 			post_params = fitted_params[posts[seed_post['id_h']]['id']]
+			fitted_count += 1
 		#otherwise, use inferred params
 		elif infer:
 			post_params = inferred_params[posts[seed_post['id_h']]['id']]
+			infer_count += 1
 		else:
 			print("Something's gone wrong - no params for this post! Skipping.")
 			continue
@@ -185,7 +206,9 @@ for subreddit, seeds in post_seeds.items():
 			print("Finished post", post_counter, "/", len(raw_post_seeds))
 		post_counter += 1
 
+	print("Used fitted params for", fitted_count, "posts and inferred params for", infer_count, "posts")
+
 #finished all posts across all subreddit, time to dump
-print("Finished all simulations, have", len(all_events), "events to save")
+print("\nFinished all simulations, have", len(all_events), "events to save")
 
 reddit_sim_to_json(domain, all_events, outfile)
