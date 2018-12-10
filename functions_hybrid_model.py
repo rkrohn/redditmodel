@@ -318,6 +318,37 @@ def load_params(filename, posts, inferred=False, quality=False):
 #end load_params
 
 
+#given sampled graph posts, build sampled params file
+def get_sampled_params(posts, in_filename, out_filename):
+
+	#build list of post ids included in graph
+	included_ids = [value['id'] for key, value in posts.items()]
+	print("Filtering params to", len(included_ids), "sampled posts")
+
+	#only save the params we actually need
+	post_params = {}
+
+	#read file, one line at at a time
+	with open(in_filename, "r") as ins:
+		for line in ins:
+			values = line.split()
+			post_id = int(values[0])	#get original id for this post
+			if post_id in included_ids:
+				params = []
+				for i in range(1, 8):
+					params.append(float(values[i]))
+				post_params[post_id] = params
+	#dump filtered params to file
+	with open(out_filename, "w") as f: 
+		for post_id, params in post_params.items():
+			f.write(str(post_id) + " ")		#write numeric post id
+			for i in range(len(params)):
+				f.write((' ' if i > 0 else '') + str(params[i]))
+			f.write("\n")
+	print("Saved sampled params to", out_filename)
+#end get_sampled_params
+
+
 #given complete set of posts/params for current subreddit, and seed posts,
 #sample down to reach the target graph size (hopefully feasible for inference)
 def user_sample_graph(raw_sub_posts, seeds, max_nodes):
@@ -451,14 +482,8 @@ def build_graph(posts, filename):
 
 #save graph to txt file
 def save_graph(edgelist, filename, isolated_nodes = []):
-	#determine file write mode: create new if file doesn't exist, otherwise append to graph in progress
-	if os.path.exists(filename):
-		mode = 'a'
-	else:
-		mode = 'w'
-
 	#and save graph to file
-	with open(filename, mode) as f:
+	with open(filename, "w") as f:
 		for edge, weight in edgelist.items():
 			f.write("%d %d %f\n" % (edge[0], edge[1], weight))
 		for node in isolated_nodes:
