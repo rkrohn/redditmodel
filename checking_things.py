@@ -76,7 +76,7 @@ pcmasterrace 781999
 #try antivirus - 5921 posts -> 5667 posts -> 6133015 edges
 #DIED
 
-#try crypto - 4666 posts -> 3815 posts -> 1554402 edges
+#try crypto - 4666 posts -> 3815 posts -> ~155000 edges
 #success! under 5 minutes
 
 #try antivirus again
