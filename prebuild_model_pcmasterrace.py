@@ -26,6 +26,9 @@ count = int(sys.argv[1])
 params_filepath = "pcmasterrace/params/%s_params.txt"	#text file of fitted cascade params, one file per subreddit
 														#one line per cascade: cascade numeric id, params(x6), sticky factor (1-quality)
 
+posts_filepath = "model_files/posts/%s_posts.pkl"			#processed post data for each post, one file per subreddit
+														#each post maps original post id to numeric id, set of tokens, and user id
+
 
 subreddit = "pcmasterrace"
 domain = "cyber"
@@ -64,8 +67,11 @@ print("Loaded", len(cascades), "posts and", len(comments), "comments")
 #fit params to all cascades
 all_params = cascade_analysis.fit_all_cascades(domain, cascades, comments, False, subreddit)
 
+#load processed posts
+posts = file_utils.load_pickle(posts_filepath % subreddit)
+
 #save to text file now
-with open(params_filepath % subreddit, "w") as f: 
+with open(params_filepath % count, "w") as f: 
 	for post_id, params in all_params.items():
 		f.write(str(posts[post_id]['id']) + " ")		#write numeric post id
 		for i in range(len(params)):
