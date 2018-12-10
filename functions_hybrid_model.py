@@ -365,7 +365,8 @@ def user_sample_graph(raw_sub_posts, seeds, max_nodes):
 	if len(sub_posts) > max_nodes:
 		print("   Sampling down...")
 		#keep at least one post by each author that we have posts for (pick a random one)
-		keep = set()
+		#and keep any seed posts that we have
+		keep = set([seed['id_h'] for seed in seeds if seed['id_h'] in sub_posts])
 		for author in graph_authors:
 			keep.add(random.choice([key for key, value in sub_posts.items() if value['user'] == author]))
 		#sample down (as far as we can, while maintaining one post per author)
