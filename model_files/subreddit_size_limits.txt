@@ -1,4 +1,7 @@
-Bitcoin 2500
+Bitcoin 2750
 Lisk 4000
-ethereum 3500
-Monero 3000
+ethereum 3250
+Monero 3100
+technology 3000
+HowToHack 3000
+pcmasterrace 3000
