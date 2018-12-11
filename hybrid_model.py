@@ -19,6 +19,7 @@ params_filepath = "model_files/params/%s_params.txt"	#text file of fitted cascad
 														#one line per cascade: cascade numeric id, params(x6), sticky factor (1-quality)
 graph_filepath = "model_files/graphs/%s_graph.txt"		#edgelist of post graph for this subreddit
 users_filepath = "model_files/users/%s_users.txt"	#list of users seen in posts/comments, one file per subreddit
+limit_filepath = "model_files/subreddit_size_limits.txt"	#per-subreddit graph size limits
 
 #filepaths of output/temporary files
 temp_graph_filepath = "sim_files/%s_graph.txt"			#updated graph for this sim run
@@ -37,7 +38,16 @@ if len(sys.argv) != 5:
 infile = sys.argv[1]
 outfile = sys.argv[2]
 domain = sys.argv[3]
-max_nodes = int(sys.argv[4])
+default_max_nodes = int(sys.argv[4])
+
+#read subreddit-specific size limits from file
+with open(limit_filepath, 'r') as f:
+	lines = f.readlines()
+sub_limits = {}
+#process each line, extract subreddit and limit
+for line in lines:
+	values = line.split()
+	sub_limits[values[0]] = int(values[1])
 
 #print some log-ish stuff in case output being piped and saved
 print("Input", infile)
@@ -73,6 +83,15 @@ for subreddit, seeds in post_seeds.items():
 
 	print("\nProcessing", subreddit, "with", len(seeds), "posts to simulate")
 
+	#what is the graph limit for this subreddit?
+	if subreddit in sub_limits:
+		max_nodes = sub_limits[subreddit]
+		print("Max graph size for this subreddit:", max_nodes)
+	else:
+		max_nodes = default_max_nodes
+		print("Using default max graph size:", max_nodes)
+	continue
+
 	#load preprocessed posts for this subreddit
 	if file_utils.verify_file(posts_filepath % subreddit):
 		posts = file_utils.load_pickle(posts_filepath % subreddit)
@@ -102,11 +121,11 @@ for subreddit, seeds in post_seeds.items():
 			infer_count += 1
 			seed_numeric_ids[seed_post['id_h']] = next_id			#assign id to this unseen post
 			next_id += 1
-			print("New id", next_id-1, "assigned to seed post")
+			#print("New id", next_id-1, "assigned to seed post")
 		#seen this post, have params fitted, just fetch id
 		else:
 			seed_numeric_ids[seed_post['id_h']] = posts[seed_post['id_h']]['id']
-
+	print(infer_count, "new posts")
 
 	#graph stuff - sample graph if necessary, add new nodes, etc
 	if infer:
