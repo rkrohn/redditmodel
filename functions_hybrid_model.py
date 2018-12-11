@@ -422,7 +422,7 @@ def user_sample_graph(raw_sub_posts, seeds, max_nodes, subreddit):
 	print("   Sampled to", len(sub_posts), "posts by", len(set(graph_authors)), "authors for inference (" +  str(len([author for author in authors if author in graph_authors])), "seed authors)")
 	if cve:
 		graph_subs = set([post['sub'] for post_id, post in sub_posts.items()])
-		print(len(graph_subs), "subreddits in graph (" + str(len([sub for sub in subs if sub in graph_subs])), "seed subs)")
+		print("     ", len(graph_subs), "subreddits in graph (" + str(len([sub for sub in subs if sub in graph_subs])), "seed subs)")
 
 	#can we connect all the seed posts to this sampled version of the graph? check authors and tokens
 
