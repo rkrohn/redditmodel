@@ -81,11 +81,11 @@ post_counter = 1	#counter of posts to simulate, across all subreddits
 
 #process each subreddit
 for subreddit, seeds in post_seeds.items():
-	
+	'''
 	#TESTING ONLY!!!!
 	if subreddit != "Lisk":
 		continue
-	
+	'''
 
 	print("\nProcessing", subreddit, "with", len(seeds), "posts to simulate")
 
