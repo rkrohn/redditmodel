@@ -59,6 +59,9 @@ def reddit_sim_to_json(domain, events, outfile):
     scenario = 2
     platform = 'reddit'
 
+    if domain == 'cve':
+    	domain = "CVE"
+
     #crypto, cyber, or CVE domain
     if domain != 'crypto' and domain != 'cyber' and domain != 'CVE':
         print("Invalid domain")
@@ -274,6 +277,22 @@ def add_post_edges(graph, isolated_nodes, graph_posts, new_post, new_post_numeri
 			graph[(new_post_numeric_id, graph_posts[prev_post]['id'])] = 1.0
 			isolated = False
 
+	#cve only: edge of weight 1 between posts in same subreddit
+	if 'sub' in new_post:
+		for prev_post_id, prev_post in graph_posts:
+			#same subreddit, add edge
+			if prev_post['sub'] == new_post['sub']:
+				#already an edge between these posts? just increase the weight
+				#check both edge orientations to be sure
+				if (new_post_numeric_id, prev_post['id']) in graph:
+					graph[(new_post_numeric_id, prev_post['id'])] += 1.0
+				elif (prev_post['id'], new_post_numeric_id) in graph:
+					graph[(prev_post['id'], new_post_numeric_id)] += 1.0
+				#new edge, just set weight
+				else:
+					graph[(new_post_numeric_id, prev_post['id'])] = 1.0
+					isolated = False
+
 	#if node is isolated (no edges added), include in isolated_nodes list
 	if isolated:
 		isolated_nodes.append(new_post_numeric_id)
@@ -351,13 +370,26 @@ def get_sampled_params(posts, in_filename, out_filename):
 
 #given complete set of posts/params for current subreddit, and seed posts,
 #sample down to reach the target graph size (hopefully feasible for inference)
-def user_sample_graph(raw_sub_posts, seeds, max_nodes):
-	#set of authors of seed posts
+def user_sample_graph(raw_sub_posts, seeds, max_nodes, subreddit):
+	#is this a cve run? if so, set flag
+	cve = False
+	if subreddit == "cve":
+		cve = True
+
+	#set of authors of seed
 	authors = set([post['author_h'] for post in seeds])
 	print("  ", len(authors), "authors in seed posts")
+	#cve: get list of subreddits of seed posts
+	if cve:
+		subs = set([post['subreddit'] for post in seeds])
 
+	#cve: keep posts with same subreddit or user
+	if cve:
+		sub_posts = {key: value for key, value in raw_sub_posts.items() if value['user'] in authors or value['sub'] in subs}
+		graph_subs = set([post['sub'] for post_id, post in sub_posts.items()])
 	#filter the posts: only those by users in the author pool
-	sub_posts = {key: value for key, value in raw_sub_posts.items() if value['user'] in authors}
+	else:
+		sub_posts = {key: value for key, value in raw_sub_posts.items() if value['user'] in authors}
 	graph_authors = set([post['user'] for post_id, post in sub_posts.items()])
 	print("   Filtered to", len(sub_posts), "posts by", len(graph_authors), "authors")
 
@@ -369,7 +401,11 @@ def user_sample_graph(raw_sub_posts, seeds, max_nodes):
 		keep = set([seed['id_h'] for seed in seeds if seed['id_h'] in sub_posts])
 		for author in graph_authors:
 			keep.add(random.choice([key for key, value in sub_posts.items() if value['user'] == author]))
-		#sample down (as far as we can, while maintaining one post per author)
+		#if cve, keep at least one per sub
+		if cve:
+			for sub in graph_subs:
+				keep.add(random.choice([key for key, value in sub_posts.items() if value['sub'] == sub]))
+		#sample down (as far as we can, while maintaining one post per author (and sub if cve))
 		if max_nodes - len(keep) > 0:
 			keep.update(random.sample([key for key in sub_posts.keys() if key not in keep], max_nodes-len(keep)))
 		sub_posts = {key: sub_posts[key] for key in keep}
@@ -384,6 +420,9 @@ def user_sample_graph(raw_sub_posts, seeds, max_nodes):
 
 	graph_authors = set([post['user'] for post_id, post in sub_posts.items()])	#update graph authors list
 	print("   Sampled to", len(sub_posts), "posts by", len(set(graph_authors)), "authors for inference (" +  str(len([author for author in authors if author in graph_authors])), "seed authors)")
+	if cve:
+		graph_subs = set([post['sub'] for post_id, post in sub_posts.items()])
+		print(len(graph_subs), "subreddits in graph (" + str(len([sub for sub in subs if sub in graph_subs])), "seed subs)")
 
 	#can we connect all the seed posts to this sampled version of the graph? check authors and tokens
 
@@ -397,6 +436,9 @@ def user_sample_graph(raw_sub_posts, seeds, max_nodes):
 	for post in seeds:
 		#post author in graph, no need for token match
 		if post['author_h'] in graph_authors:
+			continue
+		#if cve and post sub in graph, no need for token match
+		if cve and post['subreddit'] in graph_subs:
 			continue
 
 		post_tokens = extract_tokens(post)		#get tokens from this post
@@ -451,6 +493,10 @@ def build_graph(posts, filename):
 		weight = compute_edge_weight(posts[post_pair[0]]['tokens'], posts[post_pair[1]]['tokens'])
 		if weight <= 0.1:		#minimum token weight threshold, try to keep edge explosion to a minimum
 			weight = 0
+
+		#cve only: if posts have same subreddit, add 1 to weight
+		if 'sub' in posts[post_pair[0]] and posts[post_pair[0]]['sub'] == posts[post_pair[1]]['sub']:
+			weight += 1
 
 		#if posts have same author, add 1 to weight
 		if posts[post_pair[0]]['user'] == posts[post_pair[1]]['user']:

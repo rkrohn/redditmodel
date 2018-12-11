@@ -53,7 +53,11 @@ raw_post_seeds = load_reddit_seeds(infile)
 #convert to dictionary of subreddit->list of post objects
 post_seeds = defaultdict(list)
 for post in raw_post_seeds:
-	post_seeds[post['subreddit']].append(post)
+	#cve, group all together with subreddit set to cve
+	if domain == "cve":
+		post_seeds["cve"].append(post)
+	else:
+		post_seeds[post['subreddit']].append(post)
 print({key : len(post_seeds[key]) for key in post_seeds})
 
 all_events = []		#list for all sim events, across all seed posts
@@ -115,7 +119,7 @@ for subreddit, seeds in post_seeds.items():
 		#do we need to sample the graph?
 		if len(posts) + len(seeds) > max_nodes:
 			print("Sampling graph to", max_nodes, "nodes")
-			graph_posts = user_sample_graph(posts, seeds, max_nodes-infer_count)
+			graph_posts = user_sample_graph(posts, seeds, max_nodes-infer_count, subreddit)
 			build_graph(graph_posts, temp_graph_filepath % subreddit)
 			get_sampled_params(graph_posts, params_filepath % subreddit, temp_params_filepath % subreddit)
 			sample_graph = True
