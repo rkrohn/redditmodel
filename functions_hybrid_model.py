@@ -370,11 +370,16 @@ def get_sampled_params(posts, in_filename, out_filename):
 
 #given complete set of posts/params for current subreddit, and seed posts,
 #sample down to reach the target graph size (hopefully feasible for inference)
-def user_sample_graph(raw_sub_posts, seeds, max_nodes, subreddit):
+def user_sample_graph(raw_sub_posts, seeds, max_nodes, subreddit, min_node_quality, fitted_quality):
 	#is this a cve run? if so, set flag
 	cve = False
 	if subreddit == "cve":
 		cve = True
+
+	#if have minimum node quality threshold, throw out any posts with too low a quality
+	if min_node_quality != -1:
+		raw_sub_posts = {key: value for key, value in raw_sub_posts.items() if value['id'] in fitted_quality and fitted_quality[value['id']] > min_node_quality}
+		print("   Filtered to", len(raw_sub_posts), "based on minimum node quality of", min_node_quality)
 
 	#set of authors of seed
 	authors = set([post['author_h'] for post in seeds])
@@ -414,7 +419,7 @@ def user_sample_graph(raw_sub_posts, seeds, max_nodes, subreddit):
 		print("   Drawing more posts...")
 		#add more
 		draw_keys = [key for key in raw_sub_posts.keys() if key not in sub_posts.keys()]
-		num_draw = max_nodes - len(sub_posts)
+		num_draw = (max_nodes - len(sub_posts)) if (max_nodes - len(sub_posts)) < len(draw_keys) else len(draw_keys)
 		more = random.sample(draw_keys, num_draw)
 		sub_posts.update({key: raw_sub_posts[key] for key in more})
 

@@ -30,8 +30,8 @@ output_params_filepath = "sim_files/%s_params.txt"		#output params from node2vec
 DISPLAY = False
 
 #verify command line args
-if len(sys.argv) != 5:
-	print("Incorrect command line arguments\nUsage: python3 hybrid_model.py <seed filename> <output filename> <domain> <max nodes for infer graph>")
+if len(sys.argv) < 5:
+	print("Incorrect command line arguments\nUsage: python3 hybrid_model.py <seed filename> <output filename> <domain> <max nodes for infer graph> <min_node_quality>")
 	exit(0)
 
 #extract arguments
@@ -39,6 +39,10 @@ infile = sys.argv[1]
 outfile = sys.argv[2]
 domain = sys.argv[3]
 default_max_nodes = int(sys.argv[4])
+if len(sys.argv) > 5:
+	min_node_quality = float(sys.argv[5])
+else:
+	min_node_quality = -1
 
 #read subreddit-specific size limits from file
 with open(limit_filepath, 'r') as f:
@@ -75,11 +79,11 @@ post_counter = 1	#counter of posts to simulate, across all subreddits
 
 #process each subreddit
 for subreddit, seeds in post_seeds.items():
-	'''
+	
 	#TESTING ONLY!!!!
 	if subreddit != "Lisk":
 		continue
-	'''
+	
 
 	print("\nProcessing", subreddit, "with", len(seeds), "posts to simulate")
 
@@ -126,6 +130,10 @@ for subreddit, seeds in post_seeds.items():
 			seed_numeric_ids[seed_post['id_h']] = posts[seed_post['id_h']]['id']
 	print(infer_count, "new posts")
 
+	#load in fitted simulation params - will use either fitted or inferred, whichever is better
+	#but definitely need these for graph build
+	fitted_params, fitted_quality = load_params(params_filepath % subreddit, posts, False, True)	
+
 	#graph stuff - sample graph if necessary, add new nodes, etc
 	if infer:
 	
@@ -135,9 +143,9 @@ for subreddit, seeds in post_seeds.items():
 		sample_graph = False
 
 		#do we need to sample the graph? sample if whole graph too big, or we don't have a precomputed graph file
-		if len(posts) + len(seeds) > max_nodes or file_utils.verify_file(graph_filepath % subreddit) == False:
+		if len(posts) + len(seeds) > max_nodes or file_utils.verify_file(graph_filepath % subreddit) == False or min_node_quality != -1:
 			print("Sampling graph to", max_nodes, "nodes")
-			graph_posts = user_sample_graph(posts, seeds, max_nodes-infer_count, subreddit)
+			graph_posts = user_sample_graph(posts, seeds, max_nodes-infer_count, subreddit, min_node_quality, fitted_quality)
 			build_graph(graph_posts, temp_graph_filepath % subreddit)
 			get_sampled_params(graph_posts, params_filepath % subreddit, temp_params_filepath % subreddit)
 			sample_graph = True
@@ -189,9 +197,6 @@ for subreddit, seeds in post_seeds.items():
 	#end if infer
 	else:
 		print("No infer needed, skipping graph build.")
-
-	#load in fitted simulation params - will use either fitted or inferred, whichever is better
-	fitted_params = load_params(params_filepath % subreddit, posts)	
 
 	#load active users list to draw from when assigning users to comments
 	user_ids = file_utils.load_pickle(users_filepath % subreddit)
