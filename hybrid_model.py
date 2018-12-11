@@ -116,8 +116,8 @@ for subreddit, seeds in post_seeds.items():
 		added_count = 0
 		sample_graph = False
 
-		#do we need to sample the graph?
-		if len(posts) + len(seeds) > max_nodes:
+		#do we need to sample the graph? sample if whole graph too big, or we don't have a precomputed graph file
+		if len(posts) + len(seeds) > max_nodes or file_utils.verify_file(graph_filepath % subreddit) == False:
 			print("Sampling graph to", max_nodes, "nodes")
 			graph_posts = user_sample_graph(posts, seeds, max_nodes-infer_count, subreddit)
 			build_graph(graph_posts, temp_graph_filepath % subreddit)
