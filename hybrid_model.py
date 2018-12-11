@@ -57,6 +57,8 @@ for line in lines:
 print("Input", infile)
 print("Output", outfile)
 print("Domain", domain)
+if min_node_quality != -1:
+	print("Minimum node quality", min_node_quality)
 print("")
 
 file_utils.verify_dir("sim_files")		#ensure working directory exists
