@@ -201,6 +201,7 @@ for subreddit, seeds in post_seeds.items():
 	print("\nSimulating comment trees...")
 	infer_count = 0
 	fitted_count = 0
+	added_events = 0
 	for seed_post in seeds:
 
 		#if we can, use fitted params
@@ -223,12 +224,14 @@ for subreddit, seeds in post_seeds.items():
 
 		#add these events to running list
 		all_events.extend(post_events)
+		added_events += len(post_events)
 
 		if post_counter % 50 == 0:
 			print("Finished post", post_counter, "/", len(raw_post_seeds))
 		post_counter += 1
 
 	print("Used fitted params for", fitted_count, "posts and inferred params for", infer_count, "posts")
+	print("Generated", added_events, "for subreddit", subreddit)
 
 #finished all posts across all subreddit, time to dump
 print("\nFinished all simulations, have", len(all_events), "events to save")
