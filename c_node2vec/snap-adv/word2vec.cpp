@@ -143,7 +143,7 @@ void InitPosEmb(TIntV& Vocab, const int& Dimensions, TRnd& Rnd, TVVec<TFlt, int6
 	SynPos = TVVec<TFlt, int64>(Vocab.Len(),Dimensions);
 
 	//set up default embedding values
-	TFltV DefaultEmbeddingV;	//[1, 2, 0.75], [0.15, 1.5], 0.05
+	TFltV DefaultEmbeddingV(Dimensions);	//[1, 2, 0.75], [0.15, 1.5], 0.05
 	DefaultEmbeddingV[0] = 1.0;
 	DefaultEmbeddingV[1] = 2.0;
 	DefaultEmbeddingV[2] = 0.75;
