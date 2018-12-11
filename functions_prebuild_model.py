@@ -1,6 +1,7 @@
 #helper functions for prebuild_model (hide the details)
 
 import cascade_manip
+import cascade_analysis
 
 import string
 from collections import defaultdict
@@ -114,6 +115,10 @@ def build_graph(posts, filename):
 		weight = compute_edge_weight(posts[post_pair[0]]['tokens'], posts[post_pair[1]]['tokens'])
 		if weight <= 0.1:		#minimum token weight threshold, try to keep edge explosion to a minimum
 			weight = 0
+
+		#cve only: if posts have same subreddit, add 1 to weight
+		if 'sub' in posts[post_pair[0]] and posts[post_pair[0]]['sub'] == posts[post_pair[1]]['sub']:
+			weight += 1
 
 		#if posts have same author, add 1 to weight
 		if posts[post_pair[0]]['user'] == posts[post_pair[1]]['user']:
