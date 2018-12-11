@@ -215,6 +215,7 @@ for subreddit, seeds in post_seeds.items():
 		else:
 			print("Something's gone wrong - no params for this post! Skipping.")
 			continue
+		print("Post params:", post_params)
 
 		#simulate a comment tree!
 		sim_root, all_times = sim_tree.simulate_comment_tree(post_params)
