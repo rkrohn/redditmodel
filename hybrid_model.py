@@ -90,7 +90,6 @@ for subreddit, seeds in post_seeds.items():
 	else:
 		max_nodes = default_max_nodes
 		print("Using default max graph size:", max_nodes)
-	continue
 
 	#load preprocessed posts for this subreddit
 	if file_utils.verify_file(posts_filepath % subreddit):
