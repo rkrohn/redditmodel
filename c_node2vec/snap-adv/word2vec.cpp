@@ -141,6 +141,16 @@ void InitPosEmb(TIntV& Vocab, const int& Dimensions, TRnd& Rnd, TVVec<TFlt, int6
 {
 	//printf("Initializing embeddings...\n");
 	SynPos = TVVec<TFlt, int64>(Vocab.Len(),Dimensions);
+
+	//set up default embedding values
+	TFltV DefaultEmbeddingV;	//[1, 2, 0.75], [0.15, 1.5], 0.05
+	DefaultEmbeddingV[0] = 1.0;
+	DefaultEmbeddingV[1] = 2.0;
+	DefaultEmbeddingV[2] = 0.75;
+	DefaultEmbeddingV[3] = 0.15;
+	DefaultEmbeddingV[4] = 1.5;
+	DefaultEmbeddingV[5] = 0.05;
+
 	for (int64 i = 0; i < SynPos.GetXDim(); i++)	//loop nodes/words
 	{
 		//fetch initial embeddings vector for this word
@@ -161,7 +171,9 @@ void InitPosEmb(TIntV& Vocab, const int& Dimensions, TRnd& Rnd, TVVec<TFlt, int6
 				SynPos(i,j) = CurrV[j];		//if have initial embedding, use it
 			}
 			else
-				SynPos(i,j) = (Rnd.GetUniDev())/Dimensions;		//random values, ranging to 0/dimensions to 1/dimensions (all positive)
+				SynPos(i,j) = DefaultEmbeddingV[j] + 2*(Rnd.GetUniDev()-0.5)*(0.15*DefaultEmbeddingV[j]);		
+				//random values, ranging to 0/dimensions to 1/dimensions (all positive)
+				//new version: default hardcoded based on param defaults from fitting, +/-15% random delta
 			//printf("%f ", SynPos(i, j));
 		}
 		//printf("\n");
@@ -307,7 +319,7 @@ void TrainModel(TVVec<TInt, int64>& WalksVV, const int& Dimensions,
 			}
 			else
 			{
-				CurrSticky = 1.0;		//no sticky provided, use 1 for full adjustment effect
+				CurrSticky = 3.0;		//no sticky provided, use 1 for full adjustment effect
 				//printf("%d -> %d: no sticky, use 1.0\n", orig_id, CurrWord);
 			}
 			//update hidden weight
