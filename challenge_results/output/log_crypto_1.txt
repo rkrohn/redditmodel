@@ -1,0 +1,176 @@
+
+An algorithmic framework for representational learning on graphs. [Dec 11 2018]
+================================================================================
+Input graph path (-i:)=sim_files/ethereum_graph.txt
+Initial embeddings input file. Default is None. (-ie:)=sim_files/ethereum_in_params.txt
+Output graph path (-o:)=sim_files/ethereum_params.txt
+Number of dimensions. Default is 128 (-d:)=6
+Length of walk per source. Default is 80 (-l:)=3
+Number of walks per source. Default is 10 (-r:)=10
+Context size for optimization. Default is 10 (-k:)=10
+Number of epochs in SGD. Default is 1 (-e:)=1
+Return hyperparameter. Default is 1 (-p:)=1
+Inout hyperparameter. Default is 1 (-q:)=1
+Verbose output. (-v)=NO
+Graph is directed. (-dr)=NO
+Graph is weighted. (-w)=YES
+Using "sticky" factor. (-s)=YES
+Output random walks instead of embeddings. (-ow)=NO
+
+An algorithmic framework for representational learning on graphs. [Dec 11 2018]
+================================================================================
+Input graph path (-i:)=sim_files/Monero_graph.txt
+Initial embeddings input file. Default is None. (-ie:)=sim_files/Monero_in_params.txt
+Output graph path (-o:)=sim_files/Monero_params.txt
+Number of dimensions. Default is 128 (-d:)=6
+Length of walk per source. Default is 80 (-l:)=3
+Number of walks per source. Default is 10 (-r:)=10
+Context size for optimization. Default is 10 (-k:)=10
+Number of epochs in SGD. Default is 1 (-e:)=1
+Return hyperparameter. Default is 1 (-p:)=1
+Inout hyperparameter. Default is 1 (-q:)=1
+Verbose output. (-v)=NO
+Graph is directed. (-dr)=NO
+Graph is weighted. (-w)=YES
+Using "sticky" factor. (-s)=YES
+Output random walks instead of embeddings. (-ow)=NO
+
+An algorithmic framework for representational learning on graphs. [Dec 11 2018]
+================================================================================
+Input graph path (-i:)=sim_files/Bitcoin_graph.txt
+Initial embeddings input file. Default is None. (-ie:)=sim_files/Bitcoin_in_params.txt
+Output graph path (-o:)=sim_files/Bitcoin_params.txt
+Number of dimensions. Default is 128 (-d:)=6
+Length of walk per source. Default is 80 (-l:)=3
+Number of walks per source. Default is 10 (-r:)=10
+Context size for optimization. Default is 10 (-k:)=10
+Number of epochs in SGD. Default is 1 (-e:)=1
+Return hyperparameter. Default is 1 (-p:)=1
+Inout hyperparameter. Default is 1 (-q:)=1
+Verbose output. (-v)=NO
+Graph is directed. (-dr)=NO
+Graph is weighted. (-w)=YES
+Using "sticky" factor. (-s)=YES
+Output random walks instead of embeddings. (-ow)=NO
+
+An algorithmic framework for representational learning on graphs. [Dec 11 2018]
+================================================================================
+Input graph path (-i:)=sim_files/Lisk_graph.txt
+Initial embeddings input file. Default is None. (-ie:)=model_files/params/Lisk_params.txt
+Output graph path (-o:)=sim_files/Lisk_params.txt
+Number of dimensions. Default is 128 (-d:)=6
+Length of walk per source. Default is 80 (-l:)=3
+Number of walks per source. Default is 10 (-r:)=10
+Context size for optimization. Default is 10 (-k:)=10
+Number of epochs in SGD. Default is 1 (-e:)=1
+Return hyperparameter. Default is 1 (-p:)=1
+Inout hyperparameter. Default is 1 (-q:)=1
+Verbose output. (-v)=NO
+Graph is directed. (-dr)=NO
+Graph is weighted. (-w)=YES
+Using "sticky" factor. (-s)=YES
+Output random walks instead of embeddings. (-ow)=NO
+Input ../../data/dec2018-challenge-input/input_for_reddit/crypto/scenario2/reddit_dec18_crypto_scenario2_input.json
+Output output/crypto_1_sim_res.json
+Domain crypto
+
+Read 455 events
+{'ethereum': 144, 'Monero': 113, 'Bitcoin': 194, 'Lisk': 4}
+
+Processing ethereum with 144 posts to simulate
+Max graph size for this subreddit: 3500
+Loaded 50403 processed posts from model_files/posts/ethereum_posts.pkl
+144 new posts
+Sampling graph to 3500 nodes
+   136 authors in seed posts
+   Filtered to 1175 posts by 37 authors
+   Drawing more posts...
+   Sampled to 3356 posts by 1469 authors for inference (37 seed authors)
+   6719 tokens in graph
+   Adding 1 token-matching posts to graph
+Building param graph for 3357 posts
+Finished graph has 3357 nodes (11 isolated) and 1665824 edges
+Saved post-graph to sim_files/ethereum_graph.txt
+Filtering params to 3357 sampled posts
+Saved sampled params to sim_files/ethereum_in_params.txt
+Adding seed posts to graph
+   Added 144 nodes (0 isolated) and 169008 edges
+Adding edges for seed posts
+Saved updated post-graph to sim_files/ethereum_graph.txt
+
+Simulating comment trees...
+Finished post 50 / 455
+Finished post 100 / 455
+Used fitted params for 0 posts and inferred params for 144 posts
+
+Processing Monero with 113 posts to simulate
+Max graph size for this subreddit: 3000
+Loaded 12941 processed posts from model_files/posts/Monero_posts.pkl
+113 new posts
+Sampling graph to 3000 nodes
+   109 authors in seed posts
+   Filtered to 723 posts by 27 authors
+   Drawing more posts...
+   Sampled to 2887 posts by 1124 authors for inference (27 seed authors)
+   5136 tokens in graph
+Building param graph for 2887 posts
+Finished graph has 2887 nodes (7 isolated) and 1356041 edges
+Saved post-graph to sim_files/Monero_graph.txt
+Filtering params to 2887 sampled posts
+Saved sampled params to sim_files/Monero_in_params.txt
+Adding seed posts to graph
+   Added 113 nodes (0 isolated) and 131435 edges
+Adding edges for seed posts
+Saved updated post-graph to sim_files/Monero_graph.txt
+
+Simulating comment trees...
+Finished post 150 / 455
+Finished post 200 / 455
+Finished post 250 / 455
+Used fitted params for 0 posts and inferred params for 113 posts
+
+Processing Bitcoin with 194 posts to simulate
+Max graph size for this subreddit: 2500
+Loaded 232633 processed posts from model_files/posts/Bitcoin_posts.pkl
+194 new posts
+Sampling graph to 2500 nodes
+   186 authors in seed posts
+   Filtered to 3791 posts by 65 authors
+   Sampling down...
+   Sampled to 2306 posts by 65 authors for inference (65 seed authors)
+   5993 tokens in graph
+   Cannot connect seed post to graph - parameter inference compromised
+   Adding 1 token-matching posts to graph
+Building param graph for 2307 posts
+Finished graph has 2307 nodes (0 isolated) and 1058547 edges
+Saved post-graph to sim_files/Bitcoin_graph.txt
+Filtering params to 2307 sampled posts
+Saved sampled params to sim_files/Bitcoin_in_params.txt
+Adding seed posts to graph
+   Added 194 nodes (1 isolated) and 183187 edges
+Adding edges for seed posts
+Saved updated post-graph to sim_files/Bitcoin_graph.txt
+
+Simulating comment trees...
+Finished post 300 / 455
+Finished post 350 / 455
+Finished post 400 / 455
+Finished post 450 / 455
+Used fitted params for 0 posts and inferred params for 194 posts
+
+Processing Lisk with 4 posts to simulate
+Max graph size for this subreddit: 4000
+Loaded 2537 processed posts from model_files/posts/Lisk_posts.pkl
+4 new posts
+Adding seed posts to graph
+   Added 4 nodes (0 isolated) and 4392 edges
+Copying full graph file
+Adding edges for seed posts
+Saved updated post-graph to sim_files/Lisk_graph.txt
+
+Simulating comment trees...
+Used fitted params for 0 posts and inferred params for 4 posts
+
+Finished all simulations, have 546 events to save
+Saving results to output/crypto_1_sim_res.json...
+Done

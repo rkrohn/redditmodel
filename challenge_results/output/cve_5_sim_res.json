@@ -1,0 +1,512 @@
+{
+   "platform": "reddit",
+   "team": "usc",
+   "scenario": 2,
+   "data": [
+      {
+         "parentID": "t3_l86ytIRgPbb48W28g6NGIw",
+         "rootID": "t3_l86ytIRgPbb48W28g6NGIw",
+         "actionType": "post",
+         "communityID": "t5_1rqwi",
+         "nodeID": "t3_l86ytIRgPbb48W28g6NGIw",
+         "nodeTime": "1514048212",
+         "nodeUserID": "aUOA9zcqN9O_SuzdhZUOnw"
+      },
+      {
+         "parentID": "t3_l86ytIRgPbb48W28g6NGIw",
+         "rootID": "t3_l86ytIRgPbb48W28g6NGIw",
+         "actionType": "comment",
+         "communityID": "t5_1rqwi",
+         "nodeID": "t1_comment0",
+         "nodeTime": "1514048467",
+         "nodeUserID": "vLou0JDen2q4CVjsFB5xaA"
+      },
+      {
+         "parentID": "t3_l86ytIRgPbb48W28g6NGIw",
+         "rootID": "t3_l86ytIRgPbb48W28g6NGIw",
+         "actionType": "post",
+         "communityID": "t5_1rqwi",
+         "nodeID": "t3_l86ytIRgPbb48W28g6NGIw",
+         "nodeTime": "1514048212",
+         "nodeUserID": "aUOA9zcqN9O_SuzdhZUOnw"
+      },
+      {
+         "parentID": "t3_l86ytIRgPbb48W28g6NGIw",
+         "rootID": "t3_l86ytIRgPbb48W28g6NGIw",
+         "actionType": "comment",
+         "communityID": "t5_1rqwi",
+         "nodeID": "t1_comment1",
+         "nodeTime": "1514048216",
+         "nodeUserID": "8A0ykOHxQgI7eEa0xLShcA"
+      },
+      {
+         "parentID": "t3_l86ytIRgPbb48W28g6NGIw",
+         "rootID": "t3_l86ytIRgPbb48W28g6NGIw",
+         "actionType": "post",
+         "communityID": "t5_1rqwi",
+         "nodeID": "t3_l86ytIRgPbb48W28g6NGIw",
+         "nodeTime": "1514048212",
+         "nodeUserID": "aUOA9zcqN9O_SuzdhZUOnw"
+      },
+      {
+         "parentID": "t3_l86ytIRgPbb48W28g6NGIw",
+         "rootID": "t3_l86ytIRgPbb48W28g6NGIw",
+         "actionType": "comment",
+         "communityID": "t5_1rqwi",
+         "nodeID": "t1_comment2",
+         "nodeTime": "1514048222",
+         "nodeUserID": "elk76_wKB3ezaSQuekg2lw"
+      },
+      {
+         "parentID": "t3_l86ytIRgPbb48W28g6NGIw",
+         "rootID": "t3_l86ytIRgPbb48W28g6NGIw",
+         "actionType": "post",
+         "communityID": "t5_1rqwi",
+         "nodeID": "t3_l86ytIRgPbb48W28g6NGIw",
+         "nodeTime": "1514048212",
+         "nodeUserID": "aUOA9zcqN9O_SuzdhZUOnw"
+      },
+      {
+         "parentID": "t3_l86ytIRgPbb48W28g6NGIw",
+         "rootID": "t3_l86ytIRgPbb48W28g6NGIw",
+         "actionType": "comment",
+         "communityID": "t5_1rqwi",
+         "nodeID": "t1_comment3",
+         "nodeTime": "1514048218",
+         "nodeUserID": "IW_7CtxINgeCwJChLFenXw"
+      },
+      {
+         "parentID": "t3_l86ytIRgPbb48W28g6NGIw",
+         "rootID": "t3_l86ytIRgPbb48W28g6NGIw",
+         "actionType": "comment",
+         "communityID": "t5_1rqwi",
+         "nodeID": "t1_comment4",
+         "nodeTime": "1514048218",
+         "nodeUserID": "zCP6G1R7k7WyH3MkpQ5zTQ"
+      },
+      {
+         "parentID": "t3_l86ytIRgPbb48W28g6NGIw",
+         "rootID": "t3_l86ytIRgPbb48W28g6NGIw",
+         "actionType": "post",
+         "communityID": "t5_1rqwi",
+         "nodeID": "t3_l86ytIRgPbb48W28g6NGIw",
+         "nodeTime": "1514048212",
+         "nodeUserID": "aUOA9zcqN9O_SuzdhZUOnw"
+      },
+      {
+         "parentID": "t3_l86ytIRgPbb48W28g6NGIw",
+         "rootID": "t3_l86ytIRgPbb48W28g6NGIw",
+         "actionType": "post",
+         "communityID": "t5_1rqwi",
+         "nodeID": "t3_l86ytIRgPbb48W28g6NGIw",
+         "nodeTime": "1514048212",
+         "nodeUserID": "aUOA9zcqN9O_SuzdhZUOnw"
+      },
+      {
+         "parentID": "t3_l86ytIRgPbb48W28g6NGIw",
+         "rootID": "t3_l86ytIRgPbb48W28g6NGIw",
+         "actionType": "post",
+         "communityID": "t5_1rqwi",
+         "nodeID": "t3_l86ytIRgPbb48W28g6NGIw",
+         "nodeTime": "1514048212",
+         "nodeUserID": "aUOA9zcqN9O_SuzdhZUOnw"
+      },
+      {
+         "parentID": "t3_l86ytIRgPbb48W28g6NGIw",
+         "rootID": "t3_l86ytIRgPbb48W28g6NGIw",
+         "actionType": "post",
+         "communityID": "t5_1rqwi",
+         "nodeID": "t3_l86ytIRgPbb48W28g6NGIw",
+         "nodeTime": "1514048212",
+         "nodeUserID": "aUOA9zcqN9O_SuzdhZUOnw"
+      },
+      {
+         "parentID": "t3_l86ytIRgPbb48W28g6NGIw",
+         "rootID": "t3_l86ytIRgPbb48W28g6NGIw",
+         "actionType": "comment",
+         "communityID": "t5_1rqwi",
+         "nodeID": "t1_comment5",
+         "nodeTime": "1514048221",
+         "nodeUserID": "Bv4baRzbb2ih22-mbw83rQ"
+      },
+      {
+         "parentID": "t3_l86ytIRgPbb48W28g6NGIw",
+         "rootID": "t3_l86ytIRgPbb48W28g6NGIw",
+         "actionType": "post",
+         "communityID": "t5_1rqwi",
+         "nodeID": "t3_l86ytIRgPbb48W28g6NGIw",
+         "nodeTime": "1514048212",
+         "nodeUserID": "aUOA9zcqN9O_SuzdhZUOnw"
+      },
+      {
+         "parentID": "t3_l86ytIRgPbb48W28g6NGIw",
+         "rootID": "t3_l86ytIRgPbb48W28g6NGIw",
+         "actionType": "post",
+         "communityID": "t5_1rqwi",
+         "nodeID": "t3_l86ytIRgPbb48W28g6NGIw",
+         "nodeTime": "1514048212",
+         "nodeUserID": "aUOA9zcqN9O_SuzdhZUOnw"
+      },
+      {
+         "parentID": "t3_l86ytIRgPbb48W28g6NGIw",
+         "rootID": "t3_l86ytIRgPbb48W28g6NGIw",
+         "actionType": "post",
+         "communityID": "t5_1rqwi",
+         "nodeID": "t3_l86ytIRgPbb48W28g6NGIw",
+         "nodeTime": "1514048212",
+         "nodeUserID": "aUOA9zcqN9O_SuzdhZUOnw"
+      },
+      {
+         "parentID": "t3_l86ytIRgPbb48W28g6NGIw",
+         "rootID": "t3_l86ytIRgPbb48W28g6NGIw",
+         "actionType": "comment",
+         "communityID": "t5_1rqwi",
+         "nodeID": "t1_comment6",
+         "nodeTime": "1514048225",
+         "nodeUserID": "RKLv8WatsujKXE_0bOiW8A"
+      },
+      {
+         "parentID": "t3_l86ytIRgPbb48W28g6NGIw",
+         "rootID": "t3_l86ytIRgPbb48W28g6NGIw",
+         "actionType": "comment",
+         "communityID": "t5_1rqwi",
+         "nodeID": "t1_comment7",
+         "nodeTime": "1514048242",
+         "nodeUserID": "8u1H-jn7xoSm8i_DtcWQ9g"
+      },
+      {
+         "parentID": "t3_l86ytIRgPbb48W28g6NGIw",
+         "rootID": "t3_l86ytIRgPbb48W28g6NGIw",
+         "actionType": "post",
+         "communityID": "t5_1rqwi",
+         "nodeID": "t3_l86ytIRgPbb48W28g6NGIw",
+         "nodeTime": "1514048212",
+         "nodeUserID": "aUOA9zcqN9O_SuzdhZUOnw"
+      },
+      {
+         "parentID": "t3_l86ytIRgPbb48W28g6NGIw",
+         "rootID": "t3_l86ytIRgPbb48W28g6NGIw",
+         "actionType": "post",
+         "communityID": "t5_1rqwi",
+         "nodeID": "t3_l86ytIRgPbb48W28g6NGIw",
+         "nodeTime": "1514048212",
+         "nodeUserID": "aUOA9zcqN9O_SuzdhZUOnw"
+      },
+      {
+         "parentID": "t3_l86ytIRgPbb48W28g6NGIw",
+         "rootID": "t3_l86ytIRgPbb48W28g6NGIw",
+         "actionType": "comment",
+         "communityID": "t5_1rqwi",
+         "nodeID": "t1_comment8",
+         "nodeTime": "1514048455",
+         "nodeUserID": "GyXa_hVmTcCl0iFNL9MLjg"
+      },
+      {
+         "parentID": "t3_l86ytIRgPbb48W28g6NGIw",
+         "rootID": "t3_l86ytIRgPbb48W28g6NGIw",
+         "actionType": "post",
+         "communityID": "t5_1rqwi",
+         "nodeID": "t3_l86ytIRgPbb48W28g6NGIw",
+         "nodeTime": "1514048212",
+         "nodeUserID": "aUOA9zcqN9O_SuzdhZUOnw"
+      },
+      {
+         "parentID": "t3_l86ytIRgPbb48W28g6NGIw",
+         "rootID": "t3_l86ytIRgPbb48W28g6NGIw",
+         "actionType": "post",
+         "communityID": "t5_1rqwi",
+         "nodeID": "t3_l86ytIRgPbb48W28g6NGIw",
+         "nodeTime": "1514048212",
+         "nodeUserID": "aUOA9zcqN9O_SuzdhZUOnw"
+      },
+      {
+         "parentID": "t3_l86ytIRgPbb48W28g6NGIw",
+         "rootID": "t3_l86ytIRgPbb48W28g6NGIw",
+         "actionType": "post",
+         "communityID": "t5_1rqwi",
+         "nodeID": "t3_l86ytIRgPbb48W28g6NGIw",
+         "nodeTime": "1514048212",
+         "nodeUserID": "aUOA9zcqN9O_SuzdhZUOnw"
+      },
+      {
+         "parentID": "t3_l86ytIRgPbb48W28g6NGIw",
+         "rootID": "t3_l86ytIRgPbb48W28g6NGIw",
+         "actionType": "post",
+         "communityID": "t5_1rqwi",
+         "nodeID": "t3_l86ytIRgPbb48W28g6NGIw",
+         "nodeTime": "1514048212",
+         "nodeUserID": "aUOA9zcqN9O_SuzdhZUOnw"
+      },
+      {
+         "parentID": "t3_l86ytIRgPbb48W28g6NGIw",
+         "rootID": "t3_l86ytIRgPbb48W28g6NGIw",
+         "actionType": "post",
+         "communityID": "t5_1rqwi",
+         "nodeID": "t3_l86ytIRgPbb48W28g6NGIw",
+         "nodeTime": "1514048212",
+         "nodeUserID": "aUOA9zcqN9O_SuzdhZUOnw"
+      },
+      {
+         "parentID": "t3_l86ytIRgPbb48W28g6NGIw",
+         "rootID": "t3_l86ytIRgPbb48W28g6NGIw",
+         "actionType": "post",
+         "communityID": "t5_1rqwi",
+         "nodeID": "t3_l86ytIRgPbb48W28g6NGIw",
+         "nodeTime": "1514048212",
+         "nodeUserID": "aUOA9zcqN9O_SuzdhZUOnw"
+      },
+      {
+         "parentID": "t3_l86ytIRgPbb48W28g6NGIw",
+         "rootID": "t3_l86ytIRgPbb48W28g6NGIw",
+         "actionType": "post",
+         "communityID": "t5_1rqwi",
+         "nodeID": "t3_l86ytIRgPbb48W28g6NGIw",
+         "nodeTime": "1514048212",
+         "nodeUserID": "aUOA9zcqN9O_SuzdhZUOnw"
+      },
+      {
+         "parentID": "t3_l86ytIRgPbb48W28g6NGIw",
+         "rootID": "t3_l86ytIRgPbb48W28g6NGIw",
+         "actionType": "post",
+         "communityID": "t5_1rqwi",
+         "nodeID": "t3_l86ytIRgPbb48W28g6NGIw",
+         "nodeTime": "1514048212",
+         "nodeUserID": "aUOA9zcqN9O_SuzdhZUOnw"
+      },
+      {
+         "parentID": "t3_l86ytIRgPbb48W28g6NGIw",
+         "rootID": "t3_l86ytIRgPbb48W28g6NGIw",
+         "actionType": "post",
+         "communityID": "t5_1rqwi",
+         "nodeID": "t3_l86ytIRgPbb48W28g6NGIw",
+         "nodeTime": "1514048212",
+         "nodeUserID": "aUOA9zcqN9O_SuzdhZUOnw"
+      },
+      {
+         "parentID": "t3_l86ytIRgPbb48W28g6NGIw",
+         "rootID": "t3_l86ytIRgPbb48W28g6NGIw",
+         "actionType": "post",
+         "communityID": "t5_1rqwi",
+         "nodeID": "t3_l86ytIRgPbb48W28g6NGIw",
+         "nodeTime": "1514048212",
+         "nodeUserID": "aUOA9zcqN9O_SuzdhZUOnw"
+      },
+      {
+         "parentID": "t3_l86ytIRgPbb48W28g6NGIw",
+         "rootID": "t3_l86ytIRgPbb48W28g6NGIw",
+         "actionType": "post",
+         "communityID": "t5_1rqwi",
+         "nodeID": "t3_l86ytIRgPbb48W28g6NGIw",
+         "nodeTime": "1514048212",
+         "nodeUserID": "aUOA9zcqN9O_SuzdhZUOnw"
+      },
+      {
+         "parentID": "t3_l86ytIRgPbb48W28g6NGIw",
+         "rootID": "t3_l86ytIRgPbb48W28g6NGIw",
+         "actionType": "post",
+         "communityID": "t5_1rqwi",
+         "nodeID": "t3_l86ytIRgPbb48W28g6NGIw",
+         "nodeTime": "1514048212",
+         "nodeUserID": "aUOA9zcqN9O_SuzdhZUOnw"
+      },
+      {
+         "parentID": "t3_l86ytIRgPbb48W28g6NGIw",
+         "rootID": "t3_l86ytIRgPbb48W28g6NGIw",
+         "actionType": "post",
+         "communityID": "t5_1rqwi",
+         "nodeID": "t3_l86ytIRgPbb48W28g6NGIw",
+         "nodeTime": "1514048212",
+         "nodeUserID": "aUOA9zcqN9O_SuzdhZUOnw"
+      },
+      {
+         "parentID": "t3_l86ytIRgPbb48W28g6NGIw",
+         "rootID": "t3_l86ytIRgPbb48W28g6NGIw",
+         "actionType": "post",
+         "communityID": "t5_1rqwi",
+         "nodeID": "t3_l86ytIRgPbb48W28g6NGIw",
+         "nodeTime": "1514048212",
+         "nodeUserID": "aUOA9zcqN9O_SuzdhZUOnw"
+      },
+      {
+         "parentID": "t3_l86ytIRgPbb48W28g6NGIw",
+         "rootID": "t3_l86ytIRgPbb48W28g6NGIw",
+         "actionType": "post",
+         "communityID": "t5_1rqwi",
+         "nodeID": "t3_l86ytIRgPbb48W28g6NGIw",
+         "nodeTime": "1514048212",
+         "nodeUserID": "aUOA9zcqN9O_SuzdhZUOnw"
+      },
+      {
+         "parentID": "t3_l86ytIRgPbb48W28g6NGIw",
+         "rootID": "t3_l86ytIRgPbb48W28g6NGIw",
+         "actionType": "post",
+         "communityID": "t5_1rqwi",
+         "nodeID": "t3_l86ytIRgPbb48W28g6NGIw",
+         "nodeTime": "1514048212",
+         "nodeUserID": "aUOA9zcqN9O_SuzdhZUOnw"
+      },
+      {
+         "parentID": "t3_l86ytIRgPbb48W28g6NGIw",
+         "rootID": "t3_l86ytIRgPbb48W28g6NGIw",
+         "actionType": "post",
+         "communityID": "t5_1rqwi",
+         "nodeID": "t3_l86ytIRgPbb48W28g6NGIw",
+         "nodeTime": "1514048212",
+         "nodeUserID": "aUOA9zcqN9O_SuzdhZUOnw"
+      },
+      {
+         "parentID": "t3_l86ytIRgPbb48W28g6NGIw",
+         "rootID": "t3_l86ytIRgPbb48W28g6NGIw",
+         "actionType": "post",
+         "communityID": "t5_1rqwi",
+         "nodeID": "t3_l86ytIRgPbb48W28g6NGIw",
+         "nodeTime": "1514048212",
+         "nodeUserID": "aUOA9zcqN9O_SuzdhZUOnw"
+      },
+      {
+         "parentID": "t3_l86ytIRgPbb48W28g6NGIw",
+         "rootID": "t3_l86ytIRgPbb48W28g6NGIw",
+         "actionType": "post",
+         "communityID": "t5_1rqwi",
+         "nodeID": "t3_l86ytIRgPbb48W28g6NGIw",
+         "nodeTime": "1514048212",
+         "nodeUserID": "aUOA9zcqN9O_SuzdhZUOnw"
+      },
+      {
+         "parentID": "t3_l86ytIRgPbb48W28g6NGIw",
+         "rootID": "t3_l86ytIRgPbb48W28g6NGIw",
+         "actionType": "comment",
+         "communityID": "t5_1rqwi",
+         "nodeID": "t1_comment9",
+         "nodeTime": "1514048220",
+         "nodeUserID": "PAvHwwmMZTpuyYhPDSqa1g"
+      },
+      {
+         "parentID": "t1_comment9",
+         "rootID": "t3_l86ytIRgPbb48W28g6NGIw",
+         "actionType": "comment",
+         "communityID": "t5_1rqwi",
+         "nodeID": "t1_comment10",
+         "nodeTime": "1514048800",
+         "nodeUserID": "[Deleted]"
+      },
+      {
+         "parentID": "t1_comment10",
+         "rootID": "t3_l86ytIRgPbb48W28g6NGIw",
+         "actionType": "comment",
+         "communityID": "t5_1rqwi",
+         "nodeID": "t1_comment11",
+         "nodeTime": "1514061641",
+         "nodeUserID": "EpSNb5HMp7Dfsk6Hfk7QhQ"
+      },
+      {
+         "parentID": "t3_l86ytIRgPbb48W28g6NGIw",
+         "rootID": "t3_l86ytIRgPbb48W28g6NGIw",
+         "actionType": "post",
+         "communityID": "t5_1rqwi",
+         "nodeID": "t3_l86ytIRgPbb48W28g6NGIw",
+         "nodeTime": "1514048212",
+         "nodeUserID": "aUOA9zcqN9O_SuzdhZUOnw"
+      },
+      {
+         "parentID": "t3_l86ytIRgPbb48W28g6NGIw",
+         "rootID": "t3_l86ytIRgPbb48W28g6NGIw",
+         "actionType": "comment",
+         "communityID": "t5_1rqwi",
+         "nodeID": "t1_comment12",
+         "nodeTime": "1514048222",
+         "nodeUserID": "r2MJc5RUWzlEZe8gF02Mdw"
+      },
+      {
+         "parentID": "t3_l86ytIRgPbb48W28g6NGIw",
+         "rootID": "t3_l86ytIRgPbb48W28g6NGIw",
+         "actionType": "post",
+         "communityID": "t5_1rqwi",
+         "nodeID": "t3_l86ytIRgPbb48W28g6NGIw",
+         "nodeTime": "1514048212",
+         "nodeUserID": "aUOA9zcqN9O_SuzdhZUOnw"
+      },
+      {
+         "parentID": "t3_l86ytIRgPbb48W28g6NGIw",
+         "rootID": "t3_l86ytIRgPbb48W28g6NGIw",
+         "actionType": "comment",
+         "communityID": "t5_1rqwi",
+         "nodeID": "t1_comment13",
+         "nodeTime": "1514048214",
+         "nodeUserID": "xUIeMIzDljBrZjW-2W5Abg"
+      },
+      {
+         "parentID": "t3_l86ytIRgPbb48W28g6NGIw",
+         "rootID": "t3_l86ytIRgPbb48W28g6NGIw",
+         "actionType": "comment",
+         "communityID": "t5_1rqwi",
+         "nodeID": "t1_comment14",
+         "nodeTime": "1514048222",
+         "nodeUserID": "14Dqa2AHcpl34-GGPC0LBQ"
+      },
+      {
+         "parentID": "t3_l86ytIRgPbb48W28g6NGIw",
+         "rootID": "t3_l86ytIRgPbb48W28g6NGIw",
+         "actionType": "post",
+         "communityID": "t5_1rqwi",
+         "nodeID": "t3_l86ytIRgPbb48W28g6NGIw",
+         "nodeTime": "1514048212",
+         "nodeUserID": "aUOA9zcqN9O_SuzdhZUOnw"
+      },
+      {
+         "parentID": "t3_l86ytIRgPbb48W28g6NGIw",
+         "rootID": "t3_l86ytIRgPbb48W28g6NGIw",
+         "actionType": "comment",
+         "communityID": "t5_1rqwi",
+         "nodeID": "t1_comment15",
+         "nodeTime": "1514048221",
+         "nodeUserID": "P-E77spRAeWp3UV6R6pr5g"
+      },
+      {
+         "parentID": "t1_comment15",
+         "rootID": "t3_l86ytIRgPbb48W28g6NGIw",
+         "actionType": "comment",
+         "communityID": "t5_1rqwi",
+         "nodeID": "t1_comment16",
+         "nodeTime": "1514048224",
+         "nodeUserID": "BQp9vbL2dlwLg8WhfOit1Q"
+      },
+      {
+         "parentID": "t3_l86ytIRgPbb48W28g6NGIw",
+         "rootID": "t3_l86ytIRgPbb48W28g6NGIw",
+         "actionType": "post",
+         "communityID": "t5_1rqwi",
+         "nodeID": "t3_l86ytIRgPbb48W28g6NGIw",
+         "nodeTime": "1514048212",
+         "nodeUserID": "aUOA9zcqN9O_SuzdhZUOnw"
+      },
+      {
+         "parentID": "t3_l86ytIRgPbb48W28g6NGIw",
+         "rootID": "t3_l86ytIRgPbb48W28g6NGIw",
+         "actionType": "post",
+         "communityID": "t5_1rqwi",
+         "nodeID": "t3_l86ytIRgPbb48W28g6NGIw",
+         "nodeTime": "1514048212",
+         "nodeUserID": "aUOA9zcqN9O_SuzdhZUOnw"
+      },
+      {
+         "parentID": "t3_l86ytIRgPbb48W28g6NGIw",
+         "rootID": "t3_l86ytIRgPbb48W28g6NGIw",
+         "actionType": "post",
+         "communityID": "t5_1rqwi",
+         "nodeID": "t3_l86ytIRgPbb48W28g6NGIw",
+         "nodeTime": "1514048212",
+         "nodeUserID": "aUOA9zcqN9O_SuzdhZUOnw"
+      },
+      {
+         "parentID": "t3_l86ytIRgPbb48W28g6NGIw",
+         "rootID": "t3_l86ytIRgPbb48W28g6NGIw",
+         "actionType": "post",
+         "communityID": "t5_1rqwi",
+         "nodeID": "t3_l86ytIRgPbb48W28g6NGIw",
+         "nodeTime": "1514048212",
+         "nodeUserID": "aUOA9zcqN9O_SuzdhZUOnw"
+      }
+   ],
+   "domain": "CVE"
+}

@@ -1,0 +1,2047 @@
+
+An algorithmic framework for representational learning on graphs. [Dec 11 2018]
+================================================================================
+Input graph path (-i:)=sim_files/talesfromtechsupport_graph.txt
+Initial embeddings input file. Default is None. (-ie:)=sim_files/talesfromtechsupport_in_params.txt
+Output graph path (-o:)=sim_files/talesfromtechsupport_params.txt
+Number of dimensions. Default is 128 (-d:)=6
+Length of walk per source. Default is 80 (-l:)=3
+Number of walks per source. Default is 10 (-r:)=10
+Context size for optimization. Default is 10 (-k:)=10
+Number of epochs in SGD. Default is 1 (-e:)=1
+Return hyperparameter. Default is 1 (-p:)=1
+Inout hyperparameter. Default is 1 (-q:)=1
+Verbose output. (-v)=NO
+Graph is directed. (-dr)=NO
+Graph is weighted. (-w)=YES
+Using "sticky" factor. (-s)=YES
+Output random walks instead of embeddings. (-ow)=NO
+
+An algorithmic framework for representational learning on graphs. [Dec 11 2018]
+================================================================================
+Input graph path (-i:)=sim_files/antivirus_graph.txt
+Initial embeddings input file. Default is None. (-ie:)=sim_files/antivirus_in_params.txt
+Output graph path (-o:)=sim_files/antivirus_params.txt
+Number of dimensions. Default is 128 (-d:)=6
+Length of walk per source. Default is 80 (-l:)=3
+Number of walks per source. Default is 10 (-r:)=10
+Context size for optimization. Default is 10 (-k:)=10
+Number of epochs in SGD. Default is 1 (-e:)=1
+Return hyperparameter. Default is 1 (-p:)=1
+Inout hyperparameter. Default is 1 (-q:)=1
+Verbose output. (-v)=NO
+Graph is directed. (-dr)=NO
+Graph is weighted. (-w)=YES
+Using "sticky" factor. (-s)=YES
+Output random walks instead of embeddings. (-ow)=NO
+
+An algorithmic framework for representational learning on graphs. [Dec 11 2018]
+================================================================================
+Input graph path (-i:)=sim_files/linux_graph.txt
+Initial embeddings input file. Default is None. (-ie:)=sim_files/linux_in_params.txt
+Output graph path (-o:)=sim_files/linux_params.txt
+Number of dimensions. Default is 128 (-d:)=6
+Length of walk per source. Default is 80 (-l:)=3
+Number of walks per source. Default is 10 (-r:)=10
+Context size for optimization. Default is 10 (-k:)=10
+Number of epochs in SGD. Default is 1 (-e:)=1
+Return hyperparameter. Default is 1 (-p:)=1
+Inout hyperparameter. Default is 1 (-q:)=1
+Verbose output. (-v)=NO
+Graph is directed. (-dr)=NO
+Graph is weighted. (-w)=YES
+Using "sticky" factor. (-s)=YES
+Output random walks instead of embeddings. (-ow)=NO
+Input ../../data/dec2018-challenge-input/input_for_reddit/cyber/scenario2/reddit_dec18_cyber_scenario2_input.json
+Output output/cyber_1_sim_res.json
+Domain cyber
+Minimum node quality 0.6
+
+Read 853 events
+{'antivirus': 1, 'linux': 100, 'security': 5, 'AskNetsec': 1, 'Windows10': 90, 'crypto': 11, 'pcmasterrace': 110, 'Piracy': 84, 'compsci': 3, 'hacking': 14, 'HowToHack': 7, 'SocialEngineering': 4, 'softwaregore': 42, 'technology': 61, 'Malware': 1, 'netsec': 16, 'netsecstudents': 2, 'Android': 101, 'ReverseEngineering': 4, 'programming': 64, 'techsupport': 33, 'talesfromtechsupport': 8, 'sysadmin': 51, 'blackhat': 1, 'networking': 11, 'msp': 3, 'privacy': 25}
+
+Processing talesfromtechsupport with 8 posts to simulate
+Using default max graph size: 3000
+Loaded 13044 processed posts from model_files/posts/talesfromtechsupport_posts.pkl
+8 new posts
+Sampling graph to 3000 nodes
+   Filtered to 6139 based on minimum node quality of 0.6
+   8 authors in seed posts
+   Filtered to 2 posts by 1 authors
+   Drawing more posts...
+   Sampled to 2992 posts by 2214 authors for inference (1 seed authors)
+   3787 tokens in graph
+Building param graph for 2992 posts
+Finished graph has 2992 nodes (24 isolated) and 968590 edges
+Saved post-graph to sim_files/talesfromtechsupport_graph.txt
+Filtering params to 2992 sampled posts
+Saved sampled params to sim_files/talesfromtechsupport_in_params.txt
+Adding seed posts to graph
+   Added 8 nodes (0 isolated) and 6906 edges
+Adding edges for seed posts
+Saved updated post-graph to sim_files/talesfromtechsupport_graph.txt
+
+Simulating comment trees...
+Post params: [1.69927, 0.402827, 0.794185, 1.00169, 1.20307, 0.340105]
+Post params: [1.18647, 0.109698, 0.836213, 0.849208, 1.58763, 0.245462]
+Post params: [0.538731, 0.16801, 0.485923, 0.5007, 1.05336, 0.191008]
+Post params: [1.47466, 0.203518, 0.714124, 0.524598, 1.06942, 0.193213]
+Post params: [1.43936, 0.241619, 0.986197, 1.16523, 1.49039, 0.255544]
+Post params: [0.329586, 0.153883, 0.66581, 0.15832, 1.25443, 0.105827]
+Post params: [0.751329, 0.324777, 0.787999, 0.0394272, 1.34379, 0.0348678]
+Post params: [1.56516, 0.0344991, 0.765318, 0.785642, 1.1758, 0.380959]
+Used fitted params for 0 posts and inferred params for 8 posts
+Generated 25 for subreddit talesfromtechsupport
+
+Processing antivirus with 1 posts to simulate
+Using default max graph size: 3000
+Loaded 5667 processed posts from model_files/posts/antivirus_posts.pkl
+1 new posts
+Sampling graph to 3000 nodes
+   Filtered to 507 based on minimum node quality of 0.6
+   1 authors in seed posts
+   Filtered to 0 posts by 0 authors
+   Drawing more posts...
+   Sampled to 507 posts by 434 authors for inference (0 seed authors)
+   1212 tokens in graph
+Building param graph for 507 posts
+Finished graph has 507 nodes (9 isolated) and 30921 edges
+Saved post-graph to sim_files/antivirus_graph.txt
+Filtering params to 507 sampled posts
+Saved sampled params to sim_files/antivirus_in_params.txt
+Adding seed posts to graph
+   Added 1 nodes (0 isolated) and 177 edges
+Adding edges for seed posts
+Saved updated post-graph to sim_files/antivirus_graph.txt
+
+Simulating comment trees...
+Post params: [1.73315, 0.877256, 1.09707, 2.32496, 1.093, 0.481186]
+Used fitted params for 0 posts and inferred params for 1 posts
+Generated 1 for subreddit antivirus
+
+Processing linux with 100 posts to simulate
+Using default max graph size: 3000
+Loaded 33184 processed posts from model_files/posts/linux_posts.pkl
+100 new posts
+Sampling graph to 3000 nodes
+   Filtered to 13597 based on minimum node quality of 0.6
+   91 authors in seed posts
+   Filtered to 574 posts by 29 authors
+   Drawing more posts...
+   Sampled to 2900 posts by 1592 authors for inference (29 seed authors)
+   6356 tokens in graph
+   Adding 5 token-matching posts to graph
+Building param graph for 2905 posts
+Finished graph has 2905 nodes (10 isolated) and 1017653 edges
+Saved post-graph to sim_files/linux_graph.txt
+Filtering params to 2905 sampled posts
+Saved sampled params to sim_files/linux_in_params.txt
+Adding seed posts to graph
+   Added 100 nodes (0 isolated) and 80527 edges
+Adding edges for seed posts
+Saved updated post-graph to sim_files/linux_graph.txt
+
+Simulating comment trees...
+Post params: [1.50885, 0.139801, 1.03402, 1.54798, 1.64358, 0.380489]
+Post params: [1.3825, 0.18693, 0.770895, 0.829048, 1.68588, 0.239382]
+Post params: [1.43946, 0.469531, 0.838705, 1.26423, 1.42476, 0.318035]
+Post params: [1.24746, 0.197242, 0.847965, 0.919519, 1.73152, 0.209478]
+Post params: [0.855116, 0.605228, 0.816017, 0.731477, 1.51908, 0.162125]
+Post params: [1.09186, 0.573971, 0.75326, 0.668915, 1.45949, 0.134283]
+Post params: [1.16951, 0.173675, 0.73668, 1.02387, 1.77188, 0.275029]
+Post params: [1.0954, 0.332842, 0.907101, 0.739732, 1.34216, 0.10068]
+Post params: [1.5035, 0.299137, 0.853291, 1.11956, 1.46464, 0.186346]
+Post params: [1.41, 0.331491, 0.928384, 0.922437, 1.48324, 0.185011]
+Post params: [0.590558, 0.120441, 0.817949, 0.899624, 1.52151, 0.198024]
+Post params: [1.1839, 0.400388, 0.928355, 1.09032, 1.72608, 0.186432]
+Post params: [1.46954, 0.269198, 0.907802, 1.10217, 1.47366, 0.213116]
+Post params: [1.11867, 0.176857, 0.872326, 1.29675, 1.42699, 0.195241]
+Post params: [0.787532, 0.649744, 0.866035, 0.345885, 1.5936, 0.0729206]
+Post params: [1.02787, 0.251638, 0.894979, 1.33473, 1.4188, 0.234148]
+Post params: [1.1325, 0.164671, 0.763194, 1.44435, 1.57129, 0.230312]
+Post params: [1.37719, 0.273729, 0.97703, 1.19079, 1.46237, 0.22839]
+Post params: [0.710923, 0.204154, 0.947002, 0.993235, 1.37258, 0.147367]
+Post params: [0.859268, 0.436507, 0.76404, 0.231775, 1.57782, 0.0506757]
+Post params: [1.47786, 0.170735, 0.943138, 1.14757, 1.53118, 0.215269]
+Post params: [0.704457, 0.809211, 0.989838, 0.896899, 1.57562, 0.283212]
+Post params: [0.832757, 0.223109, 0.76585, 0.493655, 1.5462, 0.095855]
+Post params: [0.751011, 0.342094, 0.920329, 1.25027, 1.35621, 0.239924]
+Post params: [1.49811, 0.280097, 0.971203, 1.37427, 1.48849, 0.251797]
+Post params: [1.3803, 0.543307, 0.894966, 1.21376, 1.42381, 0.192885]
+Post params: [1.31577, 0.614554, 0.98109, 1.4861, 1.37254, 0.274008]
+Post params: [2.13124, 0.0462377, 1.06126, 2.0129, 1.90098, 0.367801]
+Post params: [1.70007, 0.135138, 0.875836, 1.11669, 1.46735, 0.253495]
+Post params: [1.15233, 0.123601, 0.841277, 0.959685, 1.51647, 0.202053]
+Post params: [1.17882, 0.36814, 1.00589, 1.40639, 1.51614, 0.293721]
+Post params: [1.04034, 1.06588, 0.784113, 0.175442, 1.55179, 0.0614166]
+Post params: [0.803134, 0.145909, 0.935453, 1.28209, 1.50782, 0.276498]
+Post params: [0.947525, 0.292824, 0.796556, 0.701962, 1.38038, 0.204042]
+Post params: [1.06381, 0.12181, 0.776127, 0.38212, 1.43118, 0.0999837]
+Post params: [0.903286, 0.263085, 0.903021, 1.06452, 1.35664, 0.299952]
+Post params: [2.18109, 0.38571, 1.01522, 2.01148, 1.88999, 0.450581]
+Post params: [1.61409, 0.287457, 0.800335, 0.895025, 1.67836, 0.232232]
+Post params: [1.32715, 0.0167082, 0.9294, 0.884672, 1.60108, 0.223702]
+Post params: [1.25963, 0.35448, 0.885462, 1.15538, 1.49325, 0.109153]
+Post params: [1.12579, 0.352054, 0.787819, 0.440287, 1.28861, 0.106916]
+Finished post 50 / 853
+Post params: [1.50281, 0.259716, 0.932341, 1.5859, 1.70453, 0.281882]
+Post params: [0.806648, 0.201598, 1.05106, 1.60349, 1.80703, 0.367539]
+Post params: [0.890425, 0.624847, 0.74212, 0.475482, 1.3152, 0.0805297]
+Post params: [1.30877, 0.156407, 0.904249, 0.91089, 1.52051, 0.254522]
+Post params: [1.12428, 0.256732, 0.93739, 1.40722, 1.36491, 0.192828]
+Post params: [1.62663, 0.0984658, 0.893764, 1.46294, 1.55414, 0.251307]
+Post params: [1.12495, 0.281084, 0.788007, 0.669031, 1.48441, 0.0987517]
+Post params: [1.3568, 0.113009, 0.979088, 1.34804, 1.43193, 0.284126]
+Post params: [1.39872, 0.401564, 0.963356, 1.10078, 1.67235, 0.25149]
+Post params: [0.85016, 0.269383, 0.840895, 1.17281, 1.52833, 0.350326]
+Post params: [1.25235, 0.23563, 0.834067, 1.62935, 1.6853, 0.382388]
+Post params: [1.38837, 0.709784, 0.841292, 0.93582, 1.52183, 0.238583]
+Post params: [1.31874, 0.253189, 1.08576, 1.50899, 1.77065, 0.21337]
+Post params: [1.35135, 0.244856, 0.93768, 1.33955, 1.74359, 0.196286]
+Post params: [1.14858, 0.228791, 0.867098, 1.16043, 1.70237, 0.328368]
+An algorithmic framework for representational learning on graphs. [Dec 11 2018]
+================================================================================
+Input graph path (-i:)=sim_files/security_graph.txt
+Initial embeddings input file. Default is None. (-ie:)=sim_files/security_in_params.txt
+Output graph path (-o:)=sim_files/security_params.txt
+Number of dimensions. Default is 128 (-d:)=6
+Length of walk per source. Default is 80 (-l:)=3
+Number of walks per source. Default is 10 (-r:)=10
+Context size for optimization. Default is 10 (-k:)=10
+Number of epochs in SGD. Default is 1 (-e:)=1
+Return hyperparameter. Default is 1 (-p:)=1
+Inout hyperparameter. Default is 1 (-q:)=1
+Verbose output. (-v)=NO
+Graph is directed. (-dr)=NO
+Graph is weighted. (-w)=YES
+Using "sticky" factor. (-s)=YES
+Output random walks instead of embeddings. (-ow)=NO
+
+An algorithmic framework for representational learning on graphs. [Dec 11 2018]
+================================================================================
+Input graph path (-i:)=sim_files/AskNetsec_graph.txt
+Initial embeddings input file. Default is None. (-ie:)=sim_files/AskNetsec_in_params.txt
+Output graph path (-o:)=sim_files/AskNetsec_params.txt
+Number of dimensions. Default is 128 (-d:)=6
+Length of walk per source. Default is 80 (-l:)=3
+Number of walks per source. Default is 10 (-r:)=10
+Context size for optimization. Default is 10 (-k:)=10
+Number of epochs in SGD. Default is 1 (-e:)=1
+Return hyperparameter. Default is 1 (-p:)=1
+Inout hyperparameter. Default is 1 (-q:)=1
+Verbose output. (-v)=NO
+Graph is directed. (-dr)=NO
+Graph is weighted. (-w)=YES
+Using "sticky" factor. (-s)=YES
+Output random walks instead of embeddings. (-ow)=NO
+
+An algorithmic framework for representational learning on graphs. [Dec 11 2018]
+================================================================================
+Input graph path (-i:)=sim_files/Windows10_graph.txt
+Initial embeddings input file. Default is None. (-ie:)=sim_files/Windows10_in_params.txt
+Output graph path (-o:)=sim_files/Windows10_params.txt
+Number of dimensions. Default is 128 (-d:)=6
+Length of walk per source. Default is 80 (-l:)=3
+Number of walks per source. Default is 10 (-r:)=10
+Context size for optimization. Default is 10 (-k:)=10
+Number of epochs in SGD. Default is 1 (-e:)=1
+Return hyperparameter. Default is 1 (-p:)=1
+Inout hyperparameter. Default is 1 (-q:)=1
+Verbose output. (-v)=NO
+Graph is directed. (-dr)=NO
+Graph is weighted. (-w)=YES
+Using "sticky" factor. (-s)=YES
+Output random walks instead of embeddings. (-ow)=NO
+
+Post params: [2.02666, 0.409849, 0.982073, 1.36304, 1.43304, 0.229448]
+Post params: [1.77669, 1.50401, 0.927989, 1.44539, 1.63252, 0.320509]
+Post params: [0.621055, 0.0272603, 0.713043, 1.07004, 1.5114, 0.245279]
+Post params: [2.29209, 0.369966, 1.11034, 2.08106, 1.54661, 0.447196]
+Post params: [1.37248, 0.190939, 0.921803, 1.01186, 1.50149, 0.213696]
+Post params: [1.0452, 0.429952, 0.887919, 0.576464, 1.3562, 0.0386957]
+Post params: [1.31758, 0.133287, 0.961637, 1.2806, 1.60704, 0.273046]
+Post params: [1.06766, 0.281867, 0.892722, 1.08236, 1.56356, 0.186711]
+Post params: [1.25191, 0.219545, 0.894392, 0.624509, 1.42415, 0.134011]
+Post params: [1.09431, 0.195058, 0.9067, 1.06544, 1.54435, 0.157805]
+Post params: [2.05054, 0.489148, 1.0315, 1.7498, 1.5241, 0.29585]
+Post params: [1.23975, 0.221426, 0.971949, 0.726994, 1.45789, 0.109297]
+Post params: [1.28396, 0.296297, 0.961476, 1.40239, 1.58271, 0.297369]
+Post params: [0.959505, 0.217693, 0.763364, 0.563981, 1.48078, 0.115782]
+Post params: [1.06767, 3.25544, 0.86916, 0.720623, 1.71965, 0.18275]
+Post params: [1.06262, 0.286469, 0.943837, 0.966509, 1.63107, 0.150971]
+Post params: [1.11741, 0.238098, 0.697633, 0.11457, 1.37083, 0.0417253]
+Post params: [1.05631, 0.185737, 0.824735, 0.670378, 1.3832, 0.0892258]
+Post params: [1.42774, 0.459783, 0.95493, 0.864377, 1.51799, 0.208886]
+Post params: [1.17853, 0.383333, 0.649788, 0.232756, 1.31108, 0.00421844]
+Post params: [0.956559, 0.38619, 0.898443, 1.20981, 1.36703, 0.24151]
+Post params: [1.11635, 0.160547, 0.740882, 0.631639, 1.5418, 0.132725]
+Post params: [0.679981, 0.393589, 0.783084, 0.807472, 1.23377, 0.0958924]
+Post params: [1.10056, 0.222646, 1.01783, 0.89714, 1.8326, 0.197302]
+Post params: [0.633809, 0.159308, 0.775358, 0.683539, 1.58392, 0.0513414]
+Post params: [0.935488, 0.183659, 0.817689, 0.321849, 1.6271, 0.0882589]
+Post params: [0.795586, 0.191334, 0.797521, 0.812481, 1.59695, 0.225253]
+Post params: [1.14664, 0.521656, 0.724743, 0.471299, 1.42254, 0.145365]
+Post params: [0.952134, 0.327549, 0.704819, 0.530222, 1.68208, 0.123162]
+Post params: [0.802671, 0.358234, 0.78098, 0.53516, 1.6418, 0.111616]
+Post params: [1.19245, 0.784877, 0.868423, 0.785225, 1.80652, 0.159755]
+Post params: [0.808499, 0.340678, 0.87702, 0.499273, 1.77088, 0.156035]
+Post params: [1.39216, 0.36039, 0.880284, 1.02034, 1.53391, 0.2154]
+Post params: [1.25927, 0.427425, 0.870724, 1.10284, 1.67379, 0.237011]
+Post params: [0.766061, 0.0980179, 0.750177, 0.634641, 1.59402, 0.103224]
+Finished post 100 / 853
+Post params: [1.15594, 0.275698, 0.848865, 0.786255, 1.38665, 0.0649708]
+Post params: [1.09569, 0.308234, 0.977651, 1.08716, 1.75064, 0.195079]
+Post params: [2.61527, 0.301637, 1.0971, 3.39752, 1.9697, 0.677516]
+Post params: [1.73039, 0.131145, 1.05813, 1.72362, 1.43981, 0.364]
+Post params: [0.908193, 0.293829, 0.75604, 0.690121, 1.68042, 0.146606]
+Post params: [1.51445, 0.286734, 0.94449, 1.06926, 1.54223, 0.289989]
+Post params: [0.788297, 0.495629, 0.76501, 0.444158, 1.42603, 0.0694127]
+Post params: [0.814, 0.309358, 0.846697, 0.418841, 1.73341, 0.0760692]
+Post params: [0.971797, 0.30513, 0.753936, 0.703417, 1.67943, 0.188115]
+Used fitted params for 0 posts and inferred params for 100 posts
+Generated 233 for subreddit linux
+
+Processing security with 5 posts to simulate
+Using default max graph size: 3000
+Loaded 21867 processed posts from model_files/posts/security_posts.pkl
+5 new posts
+Sampling graph to 3000 nodes
+   Filtered to 2548 based on minimum node quality of 0.6
+   4 authors in seed posts
+   Filtered to 0 posts by 0 authors
+   Drawing more posts...
+   Sampled to 2548 posts by 1610 authors for inference (0 seed authors)
+   5721 tokens in graph
+Building param graph for 2548 posts
+Finished graph has 2548 nodes (7 isolated) and 716276 edges
+Saved post-graph to sim_files/security_graph.txt
+Filtering params to 2548 sampled posts
+Saved sampled params to sim_files/security_in_params.txt
+Adding seed posts to graph
+   Added 5 nodes (0 isolated) and 3202 edges
+Adding edges for seed posts
+Saved updated post-graph to sim_files/security_graph.txt
+
+Simulating comment trees...
+Post params: [1.15746, 0.168979, 0.910781, 1.65039, 1.36793, 0.261027]
+Post params: [0.993595, 0.495821, 0.901331, 0.666593, 1.69618, 0.123106]
+Post params: [1.20362, 0.187496, 0.844643, 1.26231, 1.56, 0.182986]
+Post params: [1.39266, 0.229429, 0.909681, 1.2442, 1.75048, 0.221905]
+Post params: [1.41767, 0.239219, 1.01629, 2.12546, 1.59372, 0.449858]
+Used fitted params for 0 posts and inferred params for 5 posts
+Generated 12 for subreddit security
+
+Processing AskNetsec with 1 posts to simulate
+Using default max graph size: 3000
+Loaded 6805 processed posts from model_files/posts/AskNetsec_posts.pkl
+1 new posts
+Sampling graph to 3000 nodes
+   Filtered to 4761 based on minimum node quality of 0.6
+   1 authors in seed posts
+   Filtered to 1 posts by 1 authors
+   Drawing more posts...
+   Sampled to 2999 posts by 1973 authors for inference (1 seed authors)
+   4879 tokens in graph
+Building param graph for 2999 posts
+Finished graph has 2999 nodes (9 isolated) and 929445 edges
+Saved post-graph to sim_files/AskNetsec_graph.txt
+Filtering params to 2999 sampled posts
+Saved sampled params to sim_files/AskNetsec_in_params.txt
+Adding seed posts to graph
+   Added 1 nodes (0 isolated) and 1591 edges
+Adding edges for seed posts
+Saved updated post-graph to sim_files/AskNetsec_graph.txt
+
+Simulating comment trees...
+Post params: [1.46517, 0.439304, 0.893317, 1.75348, 1.8336, 0.270098]
+Used fitted params for 0 posts and inferred params for 1 posts
+Generated 1 for subreddit AskNetsec
+
+Processing Windows10 with 90 posts to simulate
+Using default max graph size: 3000
+Loaded 102475 processed posts from model_files/posts/Windows10_posts.pkl
+90 new posts
+Sampling graph to 3000 nodes
+   Filtered to 40537 based on minimum node quality of 0.6
+   77 authors in seed posts
+   Filtered to 198 posts by 16 authors
+   Drawing more posts...
+   Sampled to 2910 posts by 2391 authors for inference (16 seed authors)
+   3920 tokens in graph
+   Adding 1 token-matching posts to graph
+Building param graph for 2911 posts
+Finished graph has 2911 nodes (7 isolated) and 1414353 edges
+Saved post-graph to sim_files/Windows10_graph.txt
+Filtering params to 2911 sampled posts
+Saved sampled params to sim_files/Windows10_in_params.txt
+Adding seed posts to graph
+   Added 90 nodes (0 isolated) and 112126 edges
+Adding edges for seed posts
+Saved updated post-graph to sim_files/Windows10_graph.txt
+
+Simulating comment trees...
+Post params: [1.87524, 0.0631969, 1.07089, 1.94459, 2.03546, 0.433966]
+Post params: [1.23923, 0.35688, 0.888963, 0.871854, 1.48, 0.222399]
+Post params: [1.25748, 0.264856, 0.953549, 1.59189, 1.43598, 0.358255]
+Post params: [1.87193, 0.372534, 1.12467, 2.74472, 1.77919, 0.571402]
+Post params: [0.979396, 0.462039, 0.784826, 0.712123, 1.52967, 0.208123]
+Post params: [2.03538, 0.364936, 1.23172, 2.90051, 2.09503, 0.660826]
+Post params: [1.46928, 0.433911, 1.04305, 1.41377, 1.79396, 0.287615]
+Post params: [1.59916, 0.141424, 1.02666, 2.91675, 1.50387, 0.599077]
+Post params: [1.33827, 0.346546, 0.94241, 1.44421, 1.55014, 0.246174]
+Post params: [1.31162, 0.259037, 0.833859, 0.738082, 1.61774, 0.168208]
+Post params: [1.95065, 0.248913, 1.10128, 2.5474, 1.78751, 0.497136]
+Post params: [0.98278, 0.334036, 0.817098, 1.6889, 1.48178, 0.254259]
+Post params: [1.61059, 0.187392, 1.1126, 1.90086, 1.79709, 0.432424]
+Post params: [1.60261, 0.35468, 1.00185, 1.68211, 1.66148, 0.275401]
+Post params: [1.63332, 0.179542, 0.844813, 1.41571, 1.43313, 0.324823]
+Post params: [1.44998, 0.851739, 0.96662, 1.47924, 1.58376, 0.256733]
+Post params: [1.98358, 0.353435, 0.995188, 1.38301, 1.78669, 0.313859]
+Post params: [1.75114, 0.427867, 1.19366, 2.82162, 1.85326, 0.643654]
+Post params: [1.6193, 0.213818, 1.11052, 1.64147, 1.7054, 0.400052]
+Post params: [1.68161, 0.281957, 1.05124, 1.72403, 1.75287, 0.401167]
+Post params: [0.833898, 0.206116, 0.838187, 0.730657, 1.57815, 0.143067]
+Post params: [1.3499, 0.46915, 1.04664, 0.932052, 1.68021, 0.164051]
+Post params: [1.63087, 0.224879, 1.16316, 1.80725, 1.62307, 0.402252]
+Post params: [1.74294, 0.120272, 0.884716, 1.66017, 1.59008, 0.341516]
+An algorithmic framework for representational learning on graphs. [Dec 11 2018]
+================================================================================
+Input graph path (-i:)=sim_files/crypto_graph.txt
+Initial embeddings input file. Default is None. (-ie:)=sim_files/crypto_in_params.txt
+Output graph path (-o:)=sim_files/crypto_params.txt
+Number of dimensions. Default is 128 (-d:)=6
+Length of walk per source. Default is 80 (-l:)=3
+Number of walks per source. Default is 10 (-r:)=10
+Context size for optimization. Default is 10 (-k:)=10
+Number of epochs in SGD. Default is 1 (-e:)=1
+Return hyperparameter. Default is 1 (-p:)=1
+Inout hyperparameter. Default is 1 (-q:)=1
+Verbose output. (-v)=NO
+Graph is directed. (-dr)=NO
+Graph is weighted. (-w)=YES
+Using "sticky" factor. (-s)=YES
+Output random walks instead of embeddings. (-ow)=NO
+
+An algorithmic framework for representational learning on graphs. [Dec 11 2018]
+================================================================================
+Input graph path (-i:)=sim_files/pcmasterrace_graph.txt
+Initial embeddings input file. Default is None. (-ie:)=sim_files/pcmasterrace_in_params.txt
+Output graph path (-o:)=sim_files/pcmasterrace_params.txt
+Number of dimensions. Default is 128 (-d:)=6
+Length of walk per source. Default is 80 (-l:)=3
+Number of walks per source. Default is 10 (-r:)=10
+Context size for optimization. Default is 10 (-k:)=10
+Number of epochs in SGD. Default is 1 (-e:)=1
+Return hyperparameter. Default is 1 (-p:)=1
+Inout hyperparameter. Default is 1 (-q:)=1
+Verbose output. (-v)=NO
+Graph is directed. (-dr)=NO
+Graph is weighted. (-w)=YES
+Using "sticky" factor. (-s)=YES
+Output random walks instead of embeddings. (-ow)=NO
+
+Post params: [1.66478, 0.578823, 1.03827, 2.88601, 1.54988, 0.610483]
+Post params: [0.946069, 0.280195, 0.87438, 0.924135, 1.55156, 0.158356]
+Post params: [1.90774, 0.26966, 1.19553, 2.66819, 1.60411, 0.572189]
+Post params: [2.24673, 0.239925, 1.18005, 2.82794, 1.84958, 0.61806]
+Post params: [1.06353, 1.04081, 0.749326, 0.500006, 1.36404, 0.12225]
+Post params: [1.44415, 0.188945, 1.12159, 1.54959, 1.52443, 0.418538]
+Post params: [1.27375, 0.217557, 0.864444, 1.255, 1.57522, 0.278848]
+Post params: [1.77533, 0.147315, 1.00764, 1.63726, 1.74739, 0.375001]
+Post params: [1.65166, 0.540028, 1.03046, 1.7183, 1.4484, 0.271079]
+Post params: [1.78178, 0.157161, 1.16623, 2.3189, 1.83098, 0.470292]
+Post params: [1.35249, 0.22005, 1.08371, 2.18221, 1.75386, 0.421971]
+Finished post 150 / 853
+Post params: [1.21565, 0.215998, 0.796858, 1.05124, 1.50208, 0.280661]
+Post params: [1.01733, 0.164109, 0.816339, 0.748051, 1.49466, 0.122453]
+Post params: [1.12559, 0.409768, 0.823845, 1.49128, 1.68861, 0.37685]
+Post params: [1.20582, 0.472882, 0.758301, 0.840931, 1.73351, 0.0937261]
+Post params: [1.08112, 0.887456, 0.908716, 0.479743, 1.67682, 0.0803006]
+Post params: [1.81411, 0.285021, 0.883158, 1.63821, 1.45853, 0.242569]
+Post params: [2.33551, 0.241555, 1.02848, 2.47978, 1.93024, 0.486985]
+Post params: [0.833611, 0.339949, 0.886438, 0.855445, 1.80399, 0.229117]
+Post params: [1.25291, 0.195182, 1.13361, 1.89051, 1.61271, 0.488524]
+Post params: [1.34801, 0.11338, 0.857856, 1.53069, 1.54723, 0.293468]
+Post params: [1.689, 0.209204, 1.07561, 2.43235, 1.51848, 0.518122]
+Post params: [1.71432, 0.235982, 1.18017, 2.03002, 1.60986, 0.415627]
+Post params: [1.25716, 0.353331, 0.952059, 1.20607, 1.59561, 0.35639]
+Post params: [2.40213, 0.158031, 1.19165, 2.62677, 1.57819, 0.543617]
+Post params: [1.21281, 0.406115, 0.818795, 0.941314, 1.36108, 0.157515]
+Post params: [1.98142, 0.229471, 1.14947, 3.05982, 1.67523, 0.631812]
+Post params: [1.93859, 0.251608, 1.14714, 2.02897, 1.85075, 0.407258]
+Post params: [1.17145, 0.209892, 0.937038, 0.976115, 1.27298, 0.22117]
+Post params: [1.62484, 0.17891, 1.19633, 2.47232, 1.8721, 0.480027]
+Post params: [1.43256, 0.190337, 0.995289, 1.9197, 1.78917, 0.401917]
+Post params: [2.48005, 0.160485, 1.27193, 3.30043, 1.68562, 0.754432]
+Post params: [1.41254, 5.16445, 0.862867, 1.40888, 1.8654, 0.318306]
+Post params: [1.22418, 2.72657, 0.861967, 1.05802, 1.71086, 0.314129]
+Post params: [1.23196, 0.673469, 0.941419, 1.64176, 1.5514, 0.284533]
+Post params: [1.93598, 0.202674, 1.04468, 2.23481, 1.39966, 0.290894]
+Post params: [1.13484, 0.477406, 0.717934, 0.398029, 1.79011, 0.0878763]
+Post params: [1.28152, 0.0729544, 0.866022, 1.75833, 1.51555, 0.348483]
+Post params: [0.925275, 0.364701, 0.840174, 0.95038, 1.59436, 0.265622]
+Post params: [1.43302, 0.414527, 1.06435, 1.42795, 1.88851, 0.321014]
+Post params: [1.83162, 0.334186, 0.967359, 2.10268, 1.60181, 0.529132]
+Post params: [0.476521, 0.260379, 0.963897, 0.999202, 1.62062, 0.35931]
+Post params: [0.97911, 0.231955, 0.897494, 0.726651, 1.46722, 0.128528]
+Post params: [1.52106, 0.856788, 1.06906, 2.09126, 1.6043, 0.429492]
+Post params: [1.85149, 0.729474, 1.10143, 1.83249, 1.85685, 0.304845]
+Post params: [1.64538, 0.112486, 0.993102, 1.72482, 1.52349, 0.326008]
+Post params: [1.65376, 0.187709, 1.08849, 2.09303, 1.68255, 0.344262]
+Post params: [1.81963, 0.207724, 1.2635, 2.59642, 1.67876, 0.554299]
+Post params: [1.23828, 0.174875, 0.925011, 1.26002, 1.44197, 0.265008]
+Post params: [1.20017, 0.155833, 0.875456, 1.43386, 1.63169, 0.346945]
+Post params: [1.26494, 0.211238, 0.803275, 1.03892, 1.58256, 0.221028]
+Post params: [1.93093, 0.0877349, 1.11912, 2.30336, 1.51031, 0.470475]
+Post params: [1.62392, 1.32435, 1.17109, 1.91239, 1.57395, 0.4101]
+Post params: [1.6718, 0.65673, 0.985904, 1.95714, 1.51844, 0.406876]
+Post params: [1.62765, 0.20103, 0.979765, 1.49237, 1.65878, 0.385593]
+Post params: [0.518982, 0.37896, 0.758035, 0.318502, 1.58711, 0.0208451]
+Post params: [2.54005, 0.0120506, 1.14121, 2.99584, 1.80944, 0.624129]
+Post params: [1.04722, 0.213275, 1.02697, 1.28499, 1.82412, 0.30739]
+Post params: [1.46067, 3.21266, 1.08829, 2.15689, 1.52838, 0.478675]
+Post params: [1.50211, 0.193441, 1.08474, 1.96641, 1.58353, 0.586391]
+Post params: [1.20911, 0.517205, 0.988495, 1.11109, 1.55427, 0.258272]
+Finished post 200 / 853
+Post params: [1.39309, 0.206168, 0.979947, 1.01283, 1.8544, 0.221546]
+Post params: [0.641499, 0.216559, 0.980235, 0.517813, 1.35852, 0.144838]
+Post params: [1.7701, 4.58037, 0.924958, 1.66124, 1.87453, 0.391466]
+Post params: [0.966709, 0.274527, 0.897512, 1.30821, 1.36446, 0.3262]
+Post params: [0.981436, 0.732249, 0.84539, 0.839732, 1.78343, 0.2621]
+Used fitted params for 0 posts and inferred params for 90 posts
+Generated 272 for subreddit Windows10
+
+Processing crypto with 11 posts to simulate
+Using default max graph size: 3000
+Loaded 3815 processed posts from model_files/posts/crypto_posts.pkl
+11 new posts
+Sampling graph to 3000 nodes
+   Filtered to 1949 based on minimum node quality of 0.6
+   11 authors in seed posts
+   Filtered to 182 posts by 1 authors
+   Drawing more posts...
+   Sampled to 1949 posts by 1067 authors for inference (1 seed authors)
+   4687 tokens in graph
+Building param graph for 1949 posts
+Finished graph has 1949 nodes (12 isolated) and 411290 edges
+Saved post-graph to sim_files/crypto_graph.txt
+Filtering params to 1949 sampled posts
+Saved sampled params to sim_files/crypto_in_params.txt
+Adding seed posts to graph
+   Added 11 nodes (0 isolated) and 4521 edges
+Adding edges for seed posts
+Saved updated post-graph to sim_files/crypto_graph.txt
+
+Simulating comment trees...
+Post params: [1.54806, 0.201777, 0.679516, 1.34926, 1.13715, 0.434476]
+Post params: [1.45693, 0.415292, 0.564737, 0.843921, 1.55669, 0.16851]
+Post params: [0.945997, 0.210175, 0.790421, 0.886135, 1.65528, 0.173]
+Post params: [1.7049, 0.470238, 1.05546, 1.62515, 1.80444, 0.341516]
+Post params: [1.4883, 0.237227, 0.870281, 1.05308, 1.76141, 0.183226]
+Post params: [1.10193, 0.415337, 0.754697, 0.728543, 1.37597, 0.147045]
+Post params: [0.86262, 0.341215, 0.795733, 0.617424, 1.43893, 0.19532]
+Post params: [1.25092, 0.344049, 0.813708, 1.21993, 1.71537, 0.243797]
+Post params: [1.77726, 0.313015, 0.88795, 2.1812, 1.63171, 0.408637]
+Post params: [1.38317, 0.303175, 1.00416, 1.27167, 1.64411, 0.279954]
+Post params: [1.21485, 0.313734, 0.832919, 0.898044, 1.82508, 0.257041]
+Used fitted params for 0 posts and inferred params for 11 posts
+Generated 26 for subreddit crypto
+
+Processing pcmasterrace with 110 posts to simulate
+Max graph size for this subreddit: 3000
+Loaded 599731 processed posts from model_files/posts/pcmasterrace_posts.pkl
+110 new posts
+Sampling graph to 3000 nodes
+   Filtered to 372490 based on minimum node quality of 0.6
+   106 authors in seed posts
+   Filtered to 768 posts by 49 authors
+   Drawing more posts...
+   Sampled to 2890 posts by 1876 authors for inference (49 seed authors)
+   4773 tokens in graph
+Building param graph for 2890 posts
+Finished graph has 2890 nodes (15 isolated) and 1054200 edges
+Saved post-graph to sim_files/pcmasterrace_graph.txt
+Filtering params to 2890 sampled posts
+Saved sampled params to sim_files/pcmasterrace_in_params.txt
+Adding seed posts to graph
+   Added 110 nodes (0 isolated) and 99881 edges
+Adding edges for seed posts
+Saved updated post-graph to sim_files/pcmasterrace_graph.txt
+
+Simulating comment trees...
+Post params: [0.447836, 0.584252, 0.903751, 0.177384, 1.41164, 0.0857398]
+Post params: [1.92505, 0.642747, 1.01213, 1.03721, 1.72167, 0.311849]
+Post params: [0.893456, 0.392074, 0.748303, 0.594329, 1.41737, 0.230531]
+Post params: [0.977417, 0.318478, 0.808968, 0.508719, 1.19843, 0.0788084]
+Post params: [1.65032, 0.308076, 0.965251, 1.04845, 1.91903, 0.302472]
+Post params: [1.20989, 0.625943, 0.817148, 0.875736, 1.24033, 0.212293]
+Post params: [0.736573, 0.462435, 0.708898, 0.104721, 1.66389, 0.0499434]
+Post params: [0.840041, 0.181997, 1.07925, 1.17488, 1.69007, 0.4575]
+Post params: [1.2445, 0.162426, 0.998497, 1.70586, 1.48969, 0.467977]
+Post params: [1.04443, 0.423474, 0.964341, 1.10172, 1.53199, 0.444982]
+Post params: [0.715926, 0.317084, 0.960723, 0.957931, 1.65172, 0.339325]
+Post params: [0.785095, 0.724909, 0.912726, 0.611659, 1.6048, 0.213388]
+Post params: [0.608698, 0.292006, 1.04732, 1.14096, 1.45669, 0.372087]
+Post params: [0.706406, 0.320369, 0.931, 0.582591, 1.70601, 0.170875]
+Post params: [1.06497, 0.431717, 0.768209, 0.528696, 1.38109, 0.221976]
+Post params: [1.6905, 0.206975, 0.989141, 1.4494, 1.55485, 0.394049]
+Post params: [1.0791, 0.416749, 0.745948, 0.758773, 1.49096, 0.172805]
+Post params: [1.12334, 0.269454, 0.769213, 1.00272, 1.67303, 0.343869]
+Post params: [1.01971, 0.392536, 0.794688, 0.736257, 1.52471, 0.221859]
+Post params: [1.92167, 0.483703, 0.828453, 1.11123, 1.45351, 0.321414]
+Post params: [0.662196, 0.345988, 0.917907, 0.335701, 1.78827, 0.151624]
+Post params: [1.29881, 0.496122, 1.0443, 0.840898, 1.45457, 0.190645]
+Post params: [0.946046, 0.332618, 0.925831, 1.00806, 1.82685, 0.338017]
+Post params: [1.40633, 0.300949, 1.06153, 1.22323, 1.55606, 0.400142]
+Post params: [1.35281, 0.857603, 0.833883, 0.996759, 1.49382, 0.25825]
+Post params: [1.078, 0.388502, 0.823897, 0.791024, 1.51451, 0.240211]
+Post params: [1.73631, 0.437388, 0.940529, 0.952993, 1.57594, 0.311643]
+Post params: [1.47962, 0.407837, 0.790721, 0.720018, 1.68322, 0.199498]
+Post params: [1.31735, 0.372901, 0.898317, 0.491419, 1.50682, 0.195527]
+Post params: [0.89864, 0.123323, 0.969612, 0.377332, 1.61179, 0.195373]
+Post params: [0.385109, 0.445735, 0.774094, 0.671486, 1.68876, 0.320479]
+Post params: [1.11221, 0.330344, 0.843315, 0.510248, 1.66803, 0.166941]
+Post params: [0.910281, 0.392034, 0.839063, 0.533885, 1.47785, 0.170791]
+Post params: [0.891189, 0.190383, 0.83733, 0.475374, 1.57415, 0.172709]
+Finished post 250 / 853
+Post params: [1.12526, 0.43103, 0.845005, 0.824913, 1.85993, 0.257248]
+Post params: [1.2537, 0.772359, 0.832478, 0.838056, 1.59758, 0.229699]
+Post params: [1.16583, 0.326332, 0.770704, 0.677842, 1.46857, 0.205447]
+Post params: [0.393426, 0.375858, 0.91557, 0.605255, 1.55661, 0.171534]
+Post params: [1.18372, 0.535932, 0.875697, 0.425494, 1.60092, 0.119876]
+Post params: [0.491043, 0.288789, 0.890475, 0.65512, 1.37254, 0.224607]
+Post params: [1.13847, 0.262099, 0.90623, 1.00603, 1.66388, 0.345629]
+Post params: [1.04961, 0.562382, 0.827585, 0.36958, 1.2443, 0.134274]
+Post params: [0.544243, 0.134264, 0.669499, 0.332643, 1.43529, 0.122495]
+Post params: [1.56256, 0.0434964, 1.04159, 0.864424, 1.48574, 0.215424]
+Post params: [1.27008, 0.446442, 1.05708, 0.888531, 1.44573, 0.312811]
+Post params: [0.963897, 0.254946, 0.872247, 0.97062, 1.64172, 0.326758]
+Post params: [0.815534, 0.477829, 0.758022, 0.530409, 1.79458, 0.237631]
+Post params: [0.876504, 0.222873, 1.02539, 0.978746, 1.563, 0.372824]
+Post params: [0.653145, 0.637624, 0.8582, 0.516006, 1.56278, 0.247616]
+Post params: [0.887504, 0.230805, 1.03385, 0.935058, 1.62218, 0.250457]
+Post params: [0.930961, 0.766178, 0.978382, 0.581589, 1.38688, 0.236205]
+Post params: [0.627113, 0.068938, 1.05419, 0.960849, 1.39111, 0.366509]
+Post params: [1.37539, 0.601363, 0.816924, 0.793545, 1.7563, 0.214506]
+Post params: [1.10198, 0.522642, 1.04243, 0.867958, 1.49837, 0.261485]
+Post params: [0.855736, 0.10731, 1.05619, 0.651917, 1.38083, 0.340305]
+Post params: [1.49964, 0.229391, 0.795932, 0.704886, 1.60944, 0.248896]
+Post params: [0.870497, 0.274868, 0.88413, 0.901708, 1.53758, 0.370584]
+Post params: [0.993102, 0.391763, 0.915062, 1.13184, 1.82604, 0.365636]
+Post params: [1.40152, 0.421753, 0.967674, 0.849512, 1.49142, 0.304075]
+Post params: [1.01031, 0.117375, 0.931955, 1.08971, 1.5219, 0.373981]
+Post params: [1.44232, 0.470206, 0.890226, 0.832803, 1.36158, 0.225197]
+Post params: [1.23329, 0.152707, 0.860371, 0.472075, 1.39088, 0.169468]
+Post params: [0.592327, 0.117963, 0.886978, 0.410081, 1.64755, 0.0798944]
+Post params: [1.28606, 0.422783, 0.943502, 0.534255, 1.72353, 0.172353]
+Post params: [1.32107, 0.580894, 0.823545, 0.676924, 1.68679, 0.223574]
+Post params: [0.807942, 0.384052, 0.882512, 0.338272, 1.73494, 0.122642]
+Post params: [1.22662, 0.433344, 0.951323, 0.533842, 1.74658, 0.165128]
+Post params: [0.857081, 0.415802, 0.945681, 0.59101, 1.70679, 0.150832]
+Post params: [0.928474, 0.374077, 0.894689, 0.542982, 1.64617, 0.177486]
+Post params: [0.975995, 0.49692, 0.852525, 0.701797, 1.4036, 0.262348]
+Post params: [0.29587, 0.423455, 0.789022, 0.304518, 1.37435, 0.177936]
+Post params: [1.31009, 0.495551, 1.00066, 0.974379, 1.49843, 0.323209]
+Post params: [1.15754, 0.443653, 0.972983, 0.534175, 1.3762, 0.191419]
+Post params: [1.33449, 0.129036, 1.05049, 1.10906, 1.48164, 0.387987]
+Post params: [1.02583, 0.322032, 0.854324, 0.398221, 1.30964, 0.11631]
+Post params: [1.41982, 0.332735, 1.00205, 0.950133, 1.82152, 0.251137]
+Post params: [1.18336, 0.617838, 1.03703, 1.2511, 1.9162, 0.453765]
+Post params: [1.45854, 0.52794, 0.926801, 1.02821, 1.82711, 0.236476]
+Post params: [1.3827, 0.644417, 0.984543, 0.871214, 1.3895, 0.352652]
+Post params: [1.50371, 0.572914, 1.04599, 1.12007, 1.7133, 0.353653]
+Post params: [1.39381, 0.411941, 0.84072, 0.769899, 1.76844, 0.251332]
+Post params: [1.21463, 0.544018, 0.972334, 0.894893, 1.60884, 0.294433]
+Post params: [1.18587, 0.464673, 0.90456, 0.534467, 1.60418, 0.113779]
+Post params: [1.50559, 0.454144, 0.860068, 0.828312, 1.57513, 0.226134]
+Finished post 300 / 853
+Post params: [1.5991, 0.324266, 0.940067, 0.751143, 1.65143, 0.35131]
+Post params: [0.74622, 0.185694, 0.959693, 1.05948, 1.39972, 0.400955]
+Post params: [0.822872, 0.49172, 0.789575, 0.47476, 1.31942, 0.143173]
+Post params: [1.46205, 0.824223, 0.852602, 0.913205, 1.67543, 0.269441]
+Post params: [0.548025, 0.341171, 0.643533, 0.180537, 1.46424, 0.0531822]
+Post params: [1.30518, 0.476981, 1.13442, 1.10558, 1.53407, 0.425966]
+Post params: [1.07418, 0.243009, 1.00351, 0.53343, 1.8182, 0.133819]
+Post params: [0.836985, 0.244572, 0.801019, 0.447035, 1.58476, 0.161584]
+Post params: [0.507125, 0.485908, 0.923965, 0.52244, 1.77828, 0.244741]
+Post params: [1.45137, 0.491224, 0.817974, 0.748787, 1.76971, 0.278665]
+Post params: [1.18491, 0.198544, 0.840315, 0.763235, 1.43969, 0.24769]
+Post params: [1.42343, 0.286096, 1.03287, 1.42156, 1.59297, 0.400695]
+Post params: [0.824195, 0.593349, 0.856086, 0.464885, 1.59829, 0.160324]
+Post params: [0.689537, 0.347137, 0.807465, 0.630386, 1.72604, 0.247874]
+Post params: [1.22971, 0.352769, 0.876213, 1.1782, 1.42165, 0.411082]
+Post params: [0.927004, 0.216789, 0.79651, 0.334463, 1.36567, 0.228519]
+Post params: [1.01646, 0.26325, 0.996579, 1.00774, 1.60425, 0.328337]
+Post params: [1.32829, 0.455436, 0.865363, 0.694433, 1.56662, 0.259338]
+Post params: [0.746531, 0.29853, 0.865314, 0.651723, 1.79874, 0.125934]
+Post params: [1.31298, 0.310805, 0.987614, 0.938548, 1.81611, 0.278549]
+Post params: [2.3637, 0.623226, 1.10932, 1.54158, 1.70626, 0.426672]
+Post params: [0.907241, 0.456939, 0.843052, 0.485595, 1.46459, 0.149743]
+Post params: [0.745708, 0.322991, 0.832995, 0.775787, 1.26454, 0.221443]
+Post params: [0.34429, 0.391213, 0.732903, 0.395976, 1.37598, 0.150697]
+Post params: [1.5085, 0.284252, 0.823326, 0.647455, 1.81247, 0.246433]
+Post params: [0.985051, 0.42563, 0.847103, 0.52508, 1.46992, 0.174515]
+Used fitted params for 0 posts and inferred params for 110 posts
+Generated 242 for subreddit pcmasterrace
+
+Processing Piracy with 84 posts to simulate
+Using default max graph size: 3000
+Loaded 34790 processed posts from model_files/posts/Piracy_posts.pkl
+84 new posts
+Sampling graph to 3000 nodes
+   Filtered to 17085 based on minimum node quality of 0.6
+   77 authors in seed posts
+   Filtered to 51 posts by 13 authors
+   Drawing more posts...
+   Sampled to 2916 posts by 2271 authors for inference (13 seed authors)
+   4491 tokens in graph
+   Cannot connect seed post to graph - parameter inference compromised
+   Cannot connect seed post to graph - parameter inference compromised
+Building param graph for 2916 posts
+Finished graph has 2916 nodes (12 isolated) and 944004 edges
+Saved post-graph to sim_files/Piracy_graph.txt
+Filtering params to 2916 sampled posts
+Saved sampled params to sim_files/Piracy_in_params.txt
+Adding seed posts to graph
+   Added 84 nodes (2 isolated) and 46582 edges
+Adding edges for seed posts
+Saved updated post-graph to sim_files/Piracy_graph.txt
+An algorithmic framework for representational learning on graphs. [Dec 11 2018]
+================================================================================
+Input graph path (-i:)=sim_files/Piracy_graph.txt
+Initial embeddings input file. Default is None. (-ie:)=sim_files/Piracy_in_params.txt
+Output graph path (-o:)=sim_files/Piracy_params.txt
+Number of dimensions. Default is 128 (-d:)=6
+Length of walk per source. Default is 80 (-l:)=3
+Number of walks per source. Default is 10 (-r:)=10
+Context size for optimization. Default is 10 (-k:)=10
+Number of epochs in SGD. Default is 1 (-e:)=1
+Return hyperparameter. Default is 1 (-p:)=1
+Inout hyperparameter. Default is 1 (-q:)=1
+Verbose output. (-v)=NO
+Graph is directed. (-dr)=NO
+Graph is weighted. (-w)=YES
+Using "sticky" factor. (-s)=YES
+Output random walks instead of embeddings. (-ow)=NO
+
+An algorithmic framework for representational learning on graphs. [Dec 11 2018]
+================================================================================
+Input graph path (-i:)=sim_files/compsci_graph.txt
+Initial embeddings input file. Default is None. (-ie:)=sim_files/compsci_in_params.txt
+Output graph path (-o:)=sim_files/compsci_params.txt
+Number of dimensions. Default is 128 (-d:)=6
+Length of walk per source. Default is 80 (-l:)=3
+Number of walks per source. Default is 10 (-r:)=10
+Context size for optimization. Default is 10 (-k:)=10
+Number of epochs in SGD. Default is 1 (-e:)=1
+Return hyperparameter. Default is 1 (-p:)=1
+Inout hyperparameter. Default is 1 (-q:)=1
+Verbose output. (-v)=NO
+Graph is directed. (-dr)=NO
+Graph is weighted. (-w)=YES
+Using "sticky" factor. (-s)=YES
+Output random walks instead of embeddings. (-ow)=NO
+
+An algorithmic framework for representational learning on graphs. [Dec 11 2018]
+================================================================================
+Input graph path (-i:)=sim_files/hacking_graph.txt
+Initial embeddings input file. Default is None. (-ie:)=sim_files/hacking_in_params.txt
+Output graph path (-o:)=sim_files/hacking_params.txt
+Number of dimensions. Default is 128 (-d:)=6
+Length of walk per source. Default is 80 (-l:)=3
+Number of walks per source. Default is 10 (-r:)=10
+Context size for optimization. Default is 10 (-k:)=10
+Number of epochs in SGD. Default is 1 (-e:)=1
+Return hyperparameter. Default is 1 (-p:)=1
+Inout hyperparameter. Default is 1 (-q:)=1
+Verbose output. (-v)=NO
+Graph is directed. (-dr)=NO
+Graph is weighted. (-w)=YES
+Using "sticky" factor. (-s)=YES
+Output random walks instead of embeddings. (-ow)=NO
+
+
+Simulating comment trees...
+Post params: [1.49555, 0.112846, 0.845039, 1.47091, 1.52015, 0.256756]
+Post params: [1.35377, 0.368863, 0.843061, 0.649294, 1.50012, 0.110586]
+Post params: [1.32813, 0.13088, 0.837573, 0.776411, 1.61653, 0.213025]
+Post params: [1.19412, 0.274115, 0.911647, 1.08034, 1.69914, 0.227892]
+Post params: [1.31433, 0.400433, 0.9071, 0.923394, 1.44852, 0.1411]
+Post params: [2.19628, 0.236766, 1.17691, 2.64998, 1.86097, 0.421042]
+Post params: [1.72926, 0.342795, 0.831269, 1.67812, 1.20086, 0.427938]
+Post params: [1.47882, 0.199465, 0.922718, 1.09763, 1.50978, 0.269063]
+Post params: [0.993724, 0.383613, 0.689341, 0.503649, 1.50312, 0.129107]
+Post params: [2.07496, 0.533774, 0.89191, 1.9216, 1.71014, 0.342439]
+Post params: [1.55015, 0.755515, 0.837798, 0.802479, 1.65307, 0.164821]
+Post params: [0.861653, 0.422454, 0.760077, 0.607904, 1.66853, 0.118752]
+Post params: [1.83761, 0.976753, 0.97663, 1.30714, 1.69189, 0.217355]
+Post params: [0.877009, 0.301208, 0.807544, 0.339663, 1.63876, 0.101465]
+Post params: [1.25729, 0.133849, 0.94031, 1.16426, 1.53231, 0.25346]
+Post params: [1.77886, 0.470143, 0.90863, 0.947405, 1.72273, 0.160289]
+Post params: [1.60101, 0.187868, 1.00827, 1.55475, 1.8011, 0.316421]
+Post params: [1.4364, 0.282977, 0.819519, 2.10989, 1.10354, 0.363901]
+Post params: [1.07505, 0.198931, 0.566948, 0.888156, 0.979331, 0.207545]
+Post params: [1.89176, 0.237364, 0.976744, 1.43568, 1.49684, 0.256867]
+Post params: [0.715348, 0.41871, 0.778816, 0.254936, 1.32746, 0.14663]
+Post params: [1.58265, 0.520768, 1.00743, 1.91557, 1.67179, 0.391866]
+Post params: [1.61065, 0.179493, 0.828329, 1.43629, 1.8685, 0.191594]
+Post params: [1.52948, 0.12846, 0.821959, 1.12676, 1.45021, 0.221295]
+Finished post 350 / 853
+Post params: [1.49548, 0.307619, 1.0355, 1.32873, 1.73827, 0.282025]
+Post params: [1.82585, 0.0255104, 0.580706, 1.53197, 1.39504, 0.320747]
+Post params: [1.39263, 0.513987, 0.92742, 1.06923, 1.59303, 0.224638]
+Post params: [1.49167, 0.49178, 1.02302, 1.05825, 1.62526, 0.277545]
+Post params: [0.883883, 0.23944, 0.57538, 1.07799, 1.54764, 0.22933]
+Post params: [1.31906, 0.533059, 0.865563, 0.594818, 1.2971, 0.158905]
+Post params: [2.33816, 0.600614, 3.41039, 0.368237, 5.38305, 0.011074]
+Post params: [1.3869, 0.443265, 0.978709, 1.36417, 1.53735, 0.245306]
+Post params: [1.89327, 0.314627, 0.933813, 2.1665, 1.56961, 0.399393]
+Post params: [1.48697, 0.280693, 0.756875, 0.900643, 1.50509, 0.190672]
+Post params: [1.33284, 0.245337, 1.01004, 0.919207, 1.70058, 0.243264]
+Post params: [1.28662, 0.248121, 0.934192, 0.882417, 1.71775, 0.183868]
+Post params: [1.42149, 0.24609, 0.763805, 1.23671, 1.43312, 0.252045]
+Post params: [2.18281, 0.1145, 1.09896, 2.18797, 1.62591, 0.355675]
+Post params: [1.07666, 0.385147, 0.919902, 0.671656, 1.39738, 0.144959]
+Post params: [1.3618, 0.365872, 0.977814, 0.856348, 1.66462, 0.205897]
+Post params: [0.955436, 0.673828, 0.810063, 1.38045, 1.6164, 0.361829]
+Post params: [1.95574, 0.298405, 1.10894, 1.48129, 1.69156, 0.259985]
+Post params: [2.00509, 0.278039, 1.01915, 1.99718, 1.55357, 0.347108]
+Post params: [0.949365, 0.151407, 0.895759, 0.69769, 1.64997, 0.121467]
+Post params: [1.25417, 0.27667, 0.797346, 1.17725, 1.45495, 0.325609]
+Post params: [1.83068, 0.329471, 1.07899, 2.40023, 1.75118, 0.399997]
+Post params: [0.893101, 0.427481, 0.851828, 1.18378, 1.67311, 0.194967]
+Post params: [0.732868, 0.360658, 0.828815, 0.17905, 1.43088, 0.072661]
+Post params: [2.15218, 0.456771, 1.16362, 2.17455, 1.69397, 0.411232]
+Post params: [1.35679, 0.401455, 0.859165, 0.855409, 1.67454, 0.213421]
+Post params: [1.53564, 0.262494, 0.651611, 1.82203, 1.09424, 0.28284]
+Post params: [1.22714, 0.412042, 0.804835, 0.728619, 1.38629, 0.227185]
+Post params: [1.74932, 0.19343, 0.976487, 1.64228, 1.81754, 0.278547]
+Post params: [0.721961, 0.250259, 0.925385, 0.777008, 1.50482, 0.150728]
+Post params: [1.80032, 0.409156, 0.911621, 1.49835, 1.73784, 0.281905]
+Post params: [2.00639, 1.95242, 0.832331, 1.61321, 1.73994, 0.292919]
+Post params: [1.56164, 0.17688, 1.06272, 1.76219, 1.66813, 0.349731]
+Post params: [2.30783, 0.246425, 1.08929, 2.76515, 1.84756, 0.442784]
+Post params: [1.57152, 1.04598, 0.813597, 1.60181, 1.48588, 0.303811]
+Post params: [0.852244, 0.300535, 0.738985, 0.385003, 1.29903, 0.134962]
+Post params: [1.2275, 0.0914969, 0.800059, 0.884386, 1.51327, 0.215219]
+Post params: [0.556451, 0.405664, 0.747586, 0.376342, 1.23285, 0.124376]
+Post params: [1.57951, 0.298279, 1.13727, 2.24461, 1.87902, 0.443423]
+Post params: [1.45725, 0.369886, 0.947652, 1.05336, 1.50859, 0.158306]
+Post params: [1.33721, 0.21773, 0.784561, 0.52626, 1.70415, 0.143058]
+Post params: [1.65708, 0.199912, 0.835856, 1.96567, 1.46577, 0.245135]
+Post params: [1.43659, 0.280748, 0.854533, 0.862348, 1.58145, 0.192509]
+Post params: [1.11154, 0.237934, 0.931783, 1.82511, 1.68555, 0.384361]
+Post params: [1.44353, 0.333884, 0.780244, 0.932854, 1.40783, 0.122581]
+Post params: [0.744342, 0.195401, 0.947563, 0.999113, 1.4558, 0.162384]
+Post params: [1.49453, 0.611153, 0.834628, 1.49586, 1.64843, 0.219903]
+Post params: [1.42673, 0.411674, 0.939024, 1.60082, 1.67209, 0.435877]
+Post params: [1.37738, 0.187048, 0.929157, 1.3911, 1.44194, 0.274165]
+Post params: [1.02067, 0.228288, 0.822146, 0.458629, 1.25849, 0.107591]
+Finished post 400 / 853
+Post params: [1.16749, 0.325304, 1.00426, 0.948524, 1.37547, 0.217158]
+Post params: [0.910995, 0.261568, 0.852734, 1.21421, 1.591, 0.192142]
+Post params: [1.12505, 0.184468, 0.911279, 1.33424, 1.48673, 0.142239]
+Post params: [1.30074, 0.126281, 0.896744, 1.17146, 1.56896, 0.136045]
+Post params: [2.07827, 0.682132, 3.50841, 0.0372909, 5.36936, 0.0131864]
+Post params: [0.889085, 0.0178111, 0.892014, 1.18495, 1.45357, 0.308052]
+Post params: [1.63098, 0.265755, 0.848703, 1.25418, 1.47465, 0.255888]
+Post params: [0.286128, 0.628812, 0.747054, 0.376538, 1.2615, 0.0496328]
+Post params: [1.25505, 1.5759, 0.588487, 0.397448, 1.03734, 0.17799]
+Post params: [1.2376, 0.624781, 1.10368, 1.62336, 1.62621, 0.339711]
+Used fitted params for 0 posts and inferred params for 84 posts
+Generated 204 for subreddit Piracy
+
+Processing compsci with 3 posts to simulate
+Using default max graph size: 3000
+Loaded 8171 processed posts from model_files/posts/compsci_posts.pkl
+3 new posts
+Sampling graph to 3000 nodes
+   Filtered to 3284 based on minimum node quality of 0.6
+   3 authors in seed posts
+   Filtered to 1 posts by 1 authors
+   Drawing more posts...
+   Sampled to 2997 posts by 2030 authors for inference (1 seed authors)
+   5612 tokens in graph
+Building param graph for 2997 posts
+Finished graph has 2997 nodes (9 isolated) and 1160903 edges
+Saved post-graph to sim_files/compsci_graph.txt
+Filtering params to 2997 sampled posts
+Saved sampled params to sim_files/compsci_in_params.txt
+Adding seed posts to graph
+   Added 3 nodes (0 isolated) and 3647 edges
+Adding edges for seed posts
+Saved updated post-graph to sim_files/compsci_graph.txt
+
+Simulating comment trees...
+Post params: [1.3402, 0.364019, 0.915952, 0.860128, 1.37297, 0.127839]
+Post params: [1.13296, 0.322851, 0.924803, 1.01131, 1.52062, 0.039763]
+Post params: [0.376256, 0.288836, 0.755838, 1.3799, 1.6438, 0.229224]
+Used fitted params for 0 posts and inferred params for 3 posts
+Generated 5 for subreddit compsci
+
+Processing hacking with 14 posts to simulate
+Using default max graph size: 3000
+Loaded 26178 processed posts from model_files/posts/hacking_posts.pkl
+14 new posts
+Sampling graph to 3000 nodes
+   Filtered to 6914 based on minimum node quality of 0.6
+   14 authors in seed posts
+   Filtered to 2 posts by 2 authors
+   Drawing more posts...
+   Sampled to 2986 posts by 2089 authors for inference (2 seed authors)
+   5298 tokens in graph
+Building param graph for 2986 posts
+Finished graph has 2986 nodes (29 isolated) and 1021466 edges
+Saved post-graph to sim_files/hacking_graph.txt
+Filtering params to 2986 sampled posts
+Saved sampled params to sim_files/hacking_in_params.txt
+Adding seed posts to graph
+   Added 14 nodes (0 isolated) and 10989 edges
+Adding edges for seed posts
+Saved updated post-graph to sim_files/hacking_graph.txt
+
+Simulating comment trees...
+Post params: [1.23893, 0.861784, 0.392746, 1.00023, 0.806884, 0.46311]
+An algorithmic framework for representational learning on graphs. [Dec 11 2018]
+================================================================================
+Input graph path (-i:)=sim_files/HowToHack_graph.txt
+Initial embeddings input file. Default is None. (-ie:)=sim_files/HowToHack_in_params.txt
+Output graph path (-o:)=sim_files/HowToHack_params.txt
+Number of dimensions. Default is 128 (-d:)=6
+Length of walk per source. Default is 80 (-l:)=3
+Number of walks per source. Default is 10 (-r:)=10
+Context size for optimization. Default is 10 (-k:)=10
+Number of epochs in SGD. Default is 1 (-e:)=1
+Return hyperparameter. Default is 1 (-p:)=1
+Inout hyperparameter. Default is 1 (-q:)=1
+Verbose output. (-v)=NO
+Graph is directed. (-dr)=NO
+Graph is weighted. (-w)=YES
+Using "sticky" factor. (-s)=YES
+Output random walks instead of embeddings. (-ow)=NO
+
+An algorithmic framework for representational learning on graphs. [Dec 11 2018]
+================================================================================
+Input graph path (-i:)=sim_files/SocialEngineering_graph.txt
+Initial embeddings input file. Default is None. (-ie:)=sim_files/SocialEngineering_in_params.txt
+Output graph path (-o:)=sim_files/SocialEngineering_params.txt
+Number of dimensions. Default is 128 (-d:)=6
+Length of walk per source. Default is 80 (-l:)=3
+Number of walks per source. Default is 10 (-r:)=10
+Context size for optimization. Default is 10 (-k:)=10
+Number of epochs in SGD. Default is 1 (-e:)=1
+Return hyperparameter. Default is 1 (-p:)=1
+Inout hyperparameter. Default is 1 (-q:)=1
+Verbose output. (-v)=NO
+Graph is directed. (-dr)=NO
+Graph is weighted. (-w)=YES
+Using "sticky" factor. (-s)=YES
+Output random walks instead of embeddings. (-ow)=NO
+
+An algorithmic framework for representational learning on graphs. [Dec 11 2018]
+================================================================================
+Input graph path (-i:)=sim_files/softwaregore_graph.txt
+Initial embeddings input file. Default is None. (-ie:)=sim_files/softwaregore_in_params.txt
+Output graph path (-o:)=sim_files/softwaregore_params.txt
+Number of dimensions. Default is 128 (-d:)=6
+Length of walk per source. Default is 80 (-l:)=3
+Number of walks per source. Default is 10 (-r:)=10
+Context size for optimization. Default is 10 (-k:)=10
+Number of epochs in SGD. Default is 1 (-e:)=1
+Return hyperparameter. Default is 1 (-p:)=1
+Inout hyperparameter. Default is 1 (-q:)=1
+Verbose output. (-v)=NO
+Graph is directed. (-dr)=NO
+Graph is weighted. (-w)=YES
+Using "sticky" factor. (-s)=YES
+Output random walks instead of embeddings. (-ow)=NO
+
+Post params: [2.27823, 0.209852, 0.509592, 2.53088, 0.587394, 0.620169]
+Post params: [1.70635, 0.164451, 0.468474, 2.01803, 0.726072, 0.485306]
+Post params: [0.982789, 0.286793, 0.864107, 1.47792, 1.38672, 0.424224]
+Post params: [2.05765, 0.0656223, 0.976046, 1.81434, 1.55689, 0.305355]
+Post params: [1.4683, 0.339807, 0.726503, 1.86815, 1.16506, 0.428611]
+Post params: [1.81051, 0.169396, 0.684224, 2.03861, 1.14858, 0.353047]
+Post params: [1.32337, 0.340383, 0.7289, 1.15032, 1.28676, 0.255547]
+Post params: [0.671714, 0.556197, 0.708105, 0.926573, 1.31891, 0.275725]
+Post params: [1.26277, 0.49547, 0.793624, 1.10654, 1.38439, 0.175858]
+Post params: [1.04268, 0.011488, 0.551254, 1.25699, 1.01037, 0.462485]
+Post params: [1.61887, 0.238115, 0.506572, 1.54278, 1.18837, 0.51316]
+Post params: [1.18865, 0.0598511, 0.381326, 0.612567, 0.710262, 0.432105]
+Post params: [1.14335, 0.162425, 0.511441, 0.99689, 0.703841, 0.368808]
+Used fitted params for 0 posts and inferred params for 14 posts
+Generated 32 for subreddit hacking
+
+Processing HowToHack with 7 posts to simulate
+Max graph size for this subreddit: 3000
+Loaded 10486 processed posts from model_files/posts/HowToHack_posts.pkl
+7 new posts
+Sampling graph to 3000 nodes
+   Filtered to 5189 based on minimum node quality of 0.6
+   7 authors in seed posts
+   Filtered to 3 posts by 1 authors
+   Drawing more posts...
+   Sampled to 2993 posts by 1960 authors for inference (1 seed authors)
+   4007 tokens in graph
+Building param graph for 2993 posts
+Finished graph has 2993 nodes (20 isolated) and 1165639 edges
+Saved post-graph to sim_files/HowToHack_graph.txt
+Filtering params to 2993 sampled posts
+Saved sampled params to sim_files/HowToHack_in_params.txt
+Adding seed posts to graph
+   Added 7 nodes (0 isolated) and 3723 edges
+Adding edges for seed posts
+Saved updated post-graph to sim_files/HowToHack_graph.txt
+
+Simulating comment trees...
+Post params: [1.19907, 0.142559, 0.847678, 0.878257, 1.78091, 0.243168]
+Post params: [1.19755, 0.17317, 0.981945, 1.09509, 1.71984, 0.208005]
+Post params: [1.11068, 0.314998, 0.966247, 1.02825, 1.42451, 0.202788]
+Post params: [1.38064, 0.202304, 0.964417, 1.24554, 1.4148, 0.184147]
+Post params: [1.40814, 0.21987, 0.922901, 1.17638, 1.43752, 0.326102]
+Post params: [1.47439, 0.279449, 0.873849, 1.02875, 1.65471, 0.249166]
+Post params: [1.07644, 0.75566, 0.767122, 0.902803, 1.54269, 0.202937]
+Used fitted params for 0 posts and inferred params for 7 posts
+Generated 15 for subreddit HowToHack
+
+Processing SocialEngineering with 4 posts to simulate
+Using default max graph size: 3000
+Loaded 3437 processed posts from model_files/posts/SocialEngineering_posts.pkl
+4 new posts
+Sampling graph to 3000 nodes
+   Filtered to 1578 based on minimum node quality of 0.6
+   4 authors in seed posts
+   Filtered to 0 posts by 0 authors
+   Drawing more posts...
+   Sampled to 1578 posts by 1001 authors for inference (0 seed authors)
+   4255 tokens in graph
+Building param graph for 1578 posts
+Finished graph has 1578 nodes (8 isolated) and 456697 edges
+Saved post-graph to sim_files/SocialEngineering_graph.txt
+Filtering params to 1578 sampled posts
+Saved sampled params to sim_files/SocialEngineering_in_params.txt
+Adding seed posts to graph
+   Added 4 nodes (0 isolated) and 2200 edges
+Adding edges for seed posts
+Saved updated post-graph to sim_files/SocialEngineering_graph.txt
+
+Simulating comment trees...
+Post params: [1.75278, 0.655031, 0.838376, 1.26, 1.88596, 0.210636]
+Post params: [0.734723, 0.407061, 0.967628, 1.43718, 1.55169, 0.226123]
+Post params: [1.10477, 0.220021, 0.854621, 0.65017, 1.56841, 0.144626]
+Post params: [0.793976, 0.259945, 0.805989, 0.591685, 1.34021, 0.0363946]
+Used fitted params for 0 posts and inferred params for 4 posts
+Generated 7 for subreddit SocialEngineering
+
+Processing softwaregore with 42 posts to simulate
+Using default max graph size: 3000
+Loaded 32520 processed posts from model_files/posts/softwaregore_posts.pkl
+42 new posts
+Sampling graph to 3000 nodes
+   Filtered to 10092 based on minimum node quality of 0.6
+   42 authors in seed posts
+   Filtered to 14 posts by 9 authors
+   Drawing more posts...
+   Sampled to 2958 posts by 2408 authors for inference (9 seed authors)
+   4670 tokens in graph
+   Cannot connect seed post to graph - parameter inference compromised
+Building param graph for 2958 posts
+Finished graph has 2958 nodes (51 isolated) and 761440 edges
+Saved post-graph to sim_files/softwaregore_graph.txt
+Filtering params to 2958 sampled posts
+Saved sampled params to sim_files/softwaregore_in_params.txt
+Adding seed posts to graph
+   Added 42 nodes (1 isolated) and 18609 edges
+Adding edges for seed posts
+Saved updated post-graph to sim_files/softwaregore_graph.txt
+
+Simulating comment trees...
+Post params: [1.33305, 0.524582, 0.27762, 2.50536, 0.771498, 0.495302]
+Post params: [1.50511, 1.45977, 0.194918, 1.21081, 1.02466, 0.207293]
+Post params: [1.83482, 0.482664, 0.25518, 2.88105, 1.02625, 0.504977]
+Post params: [0.961456, 0.213059, 0.21894, 1.22201, 0.933435, 0.188375]
+Post params: [0.815711, 0.340213, 0.042742, 0.19901, 1.22154, 0.204806]
+Post params: [1.57783, 0.302593, 0.202013, 2.2429, 0.155354, 0.562119]
+Post params: [1.23525, 0.172723, 0.496387, 0.822811, 0.632275, 0.222471]
+Post params: [1.74965, 0.415014, 0.490109, 1.25453, 1.22588, 0.301088]
+Post params: [1.0625, 0.140219, 0.85502, 0.844331, 1.80185, 0.169602]
+Post params: [1.53046, 0.23802, 0.721098, 1.76373, 0.613972, 0.238379]
+Post params: [1.22648, 0.273442, 0.119527, 1.59589, 0.569734, 0.289282]
+Post params: [1.63638, 0.120429, 0.785564, 1.21643, 1.58415, 0.369985]
+Finished post 450 / 853
+Post params: [1.52234, 0.235628, 0.0690409, 1.56487, 0.870256, 0.412582]
+Post params: [1.27423, 0.125932, 0.1818, 1.54412, 0.951955, 0.22799]
+Post params: [1.4347, 0.23343, 0.702713, 1.78112, 1.33585, 0.326614]
+Post params: [1.26523, 0.436385, 0.122593, 1.42247, 0.767145, 0.489354]
+Post params: [1.25467, 0.330274, 0.244591, 0.538024, 1.04568, 0.17787]
+Post params: [1.54986, 0.175595, 0.192719, 2.04523, 0.392624, 0.36216]
+Post params: [1.51076, 0.516666, 0.323415, 1.39597, 1.06386, 0.346248]
+Post params: [1.43098, 0.432208, 0.536067, 1.0824, 1.11799, 0.209227]
+Post params: [1.33106, 0.431704, 0.40259, 1.45208, 1.15386, 0.352519]
+Post params: [0.820696, 0.360707, 0.226029, 0.830952, 1.51372, 0.303782]
+Post params: [1.34337, 0.270092, 0.641722, 1.50028, 1.45464, 0.493596]
+Post params: [0.999107, 0.202659, 0.94244, 0.883398, 1.46038, 0.181502]
+Post params: [1.25799, 0.301823, 0.117765, 1.0663, 1.23183, 0.36314]
+Post params: [1.70751, 0.12991, 0.448527, 1.80103, 1.12709, 0.417285]
+Post params: [1.45619, 0.37658, 0.147928, 1.87345, 0.52847, 0.348761]
+Post params: [1.17947, 0.198676, 0.392901, 0.374954, 1.48545, 0.193194]
+Post params: [2.09745, 0.355716, 0.530491, 2.38044, 1.23551, 0.681784]
+Post params: [1.87805, 0.491827, 0.636657, 1.83185, 1.4907, 0.524652]
+Post params: [1.01865, 0.817952, 0.817667, 0.392387, 1.33214, 0.07033]
+Post params: [1.56753, 0.14515, 0.150889, 2.59148, 0.578785, 0.308317]
+Post params: [1.83814, 0.179028, 0.29761, 2.16212, 0.838045, 0.256569]
+Post params: [0.812818, 0.596611, 2.5919, 0.50001, 2.71273, 0.0337876]
+Post params: [1.34502, 0.168498, 0.130191, 1.598, 0.618426, 0.436146]
+Post params: [1.38769, 0.210086, 0.222447, 1.45208, 1.30805, 0.419443]
+Post params: [1.43717, 0.169843, 0.478202, 1.21767, 1.18565, 0.306436]
+Post params: [1.22036, 0.263524, 0.551662, 0.554493, 1.6237, 0.141236]
+Post params: [0.800082, 0.515037, 0.874293, 0.436778, 1.47075, 0.0819263]
+Post params: [1.40419, 0.256714, 0.404649, 1.29531, 1.44712, 0.428925]
+Post params: [1.1155, 0.29112, 0.130924, 1.08298, 0.674496, 0.262597]
+Post params: [1.08813, 0.143392, 0.727363, 1.24004, 0.368092, 0.329309]
+Used fitted params for 0 posts and inferred params for 42 posts
+Generated 105 for subreddit softwaregore
+
+Processing technology with 61 posts to simulate
+Max graph size for this subreddit: 3000
+Loaded 384159 processed posts from model_files/posts/technology_posts.pkl
+61 new posts
+Sampling graph to 3000 nodes
+   Filtered to 32488 based on minimum node quality of 0.6
+   56 authors in seed posts
+   Filtered to 691 posts by 13 authors
+An algorithmic framework for representational learning on graphs. [Dec 11 2018]
+================================================================================
+Input graph path (-i:)=sim_files/technology_graph.txt
+Initial embeddings input file. Default is None. (-ie:)=sim_files/technology_in_params.txt
+Output graph path (-o:)=sim_files/technology_params.txt
+Number of dimensions. Default is 128 (-d:)=6
+Length of walk per source. Default is 80 (-l:)=3
+Number of walks per source. Default is 10 (-r:)=10
+Context size for optimization. Default is 10 (-k:)=10
+Number of epochs in SGD. Default is 1 (-e:)=1
+Return hyperparameter. Default is 1 (-p:)=1
+Inout hyperparameter. Default is 1 (-q:)=1
+Verbose output. (-v)=NO
+Graph is directed. (-dr)=NO
+Graph is weighted. (-w)=YES
+Using "sticky" factor. (-s)=YES
+Output random walks instead of embeddings. (-ow)=NO
+
+An algorithmic framework for representational learning on graphs. [Dec 11 2018]
+================================================================================
+Input graph path (-i:)=sim_files/Malware_graph.txt
+Initial embeddings input file. Default is None. (-ie:)=sim_files/Malware_in_params.txt
+Output graph path (-o:)=sim_files/Malware_params.txt
+Number of dimensions. Default is 128 (-d:)=6
+Length of walk per source. Default is 80 (-l:)=3
+Number of walks per source. Default is 10 (-r:)=10
+Context size for optimization. Default is 10 (-k:)=10
+Number of epochs in SGD. Default is 1 (-e:)=1
+Return hyperparameter. Default is 1 (-p:)=1
+Inout hyperparameter. Default is 1 (-q:)=1
+Verbose output. (-v)=NO
+Graph is directed. (-dr)=NO
+Graph is weighted. (-w)=YES
+Using "sticky" factor. (-s)=YES
+Output random walks instead of embeddings. (-ow)=NO
+
+An algorithmic framework for representational learning on graphs. [Dec 11 2018]
+================================================================================
+Input graph path (-i:)=sim_files/netsec_graph.txt
+Initial embeddings input file. Default is None. (-ie:)=sim_files/netsec_in_params.txt
+Output graph path (-o:)=sim_files/netsec_params.txt
+Number of dimensions. Default is 128 (-d:)=6
+Length of walk per source. Default is 80 (-l:)=3
+Number of walks per source. Default is 10 (-r:)=10
+Context size for optimization. Default is 10 (-k:)=10
+Number of epochs in SGD. Default is 1 (-e:)=1
+Return hyperparameter. Default is 1 (-p:)=1
+Inout hyperparameter. Default is 1 (-q:)=1
+Verbose output. (-v)=NO
+Graph is directed. (-dr)=NO
+Graph is weighted. (-w)=YES
+Using "sticky" factor. (-s)=YES
+Output random walks instead of embeddings. (-ow)=NO
+
+   Drawing more posts...
+   Sampled to 2939 posts by 1493 authors for inference (13 seed authors)
+   8945 tokens in graph
+Building param graph for 2939 posts
+Finished graph has 2939 nodes (3 isolated) and 1122838 edges
+Saved post-graph to sim_files/technology_graph.txt
+Filtering params to 2939 sampled posts
+Saved sampled params to sim_files/technology_in_params.txt
+Adding seed posts to graph
+   Added 61 nodes (0 isolated) and 70765 edges
+Adding edges for seed posts
+Saved updated post-graph to sim_files/technology_graph.txt
+
+Simulating comment trees...
+Post params: [1.11837, 0.480092, 0.916048, 0.650227, 1.54562, 0.102266]
+Post params: [1.13804, 0.516182, 0.993142, 1.38727, 1.71046, 0.217132]
+Post params: [1.54387, 0.321103, 0.914867, 1.75642, 1.58189, 0.339779]
+Post params: [0.9751, 0.338015, 0.980975, 1.72728, 1.51841, 0.208655]
+Post params: [1.01554, 0.44803, 0.900764, 1.04568, 1.70467, 0.194855]
+Post params: [1.47059, 0.285124, 0.928074, 1.8575, 1.61337, 0.251472]
+Post params: [1.55398, 0.307663, 0.738257, 0.803877, 1.69146, 0.102955]
+Post params: [1.35488, 0.0944173, 0.985249, 1.18701, 1.51559, 0.220983]
+Post params: [1.0896, 0.28004, 0.864149, 1.18729, 1.38131, 0.228555]
+Post params: [1.17021, 0.374416, 0.988719, 1.01482, 1.67425, 0.259905]
+Post params: [1.32181, 0.203081, 0.960002, 0.926538, 1.57023, 0.205018]
+Post params: [1.48818, 0.369826, 1.1304, 1.70827, 1.70681, 0.350929]
+Post params: [1.53796, 0.275134, 1.07687, 1.50285, 1.63709, 0.328728]
+Post params: [1.35324, 0.476566, 0.938179, 1.10423, 1.69971, 0.262983]
+Post params: [1.17509, 0.283601, 0.952955, 0.810973, 1.42771, 0.173587]
+Post params: [1.29337, 0.426479, 0.97103, 1.36067, 1.77957, 0.233396]
+Post params: [1.31092, 0.275561, 0.905976, 0.670834, 1.64158, 0.173003]
+Post params: [1.24981, 0.49793, 1.02878, 0.762464, 1.33883, 0.156847]
+Post params: [1.32118, 0.0971731, 0.993594, 1.18441, 1.4489, 0.203164]
+Post params: [1.03634, 2.68925, 0.773144, 0.721362, 1.62331, 0.168245]
+Finished post 500 / 853
+Post params: [0.961972, 0.282842, 0.911106, 1.28971, 1.5379, 0.168365]
+Post params: [1.3683, 0.368379, 0.963443, 1.51607, 1.67499, 0.251941]
+Post params: [0.824851, 0.403198, 0.719734, 0.224566, 1.44414, 0.0560785]
+Post params: [0.645853, 0.855433, 0.892974, 1.09871, 1.35299, 0.107804]
+Post params: [1.23565, 0.18536, 0.944179, 0.787657, 1.53323, 0.128111]
+Post params: [1.13769, 0.401033, 0.948508, 0.94855, 1.34927, 0.198557]
+Post params: [1.11111, 0.417969, 0.825551, 0.645467, 1.68441, 0.128909]
+Post params: [1.1313, 0.26322, 0.788576, 0.747903, 1.30176, 0.147762]
+Post params: [1.88874, 0.575639, 0.962035, 1.51787, 1.86409, 0.256012]
+Post params: [1.42974, 3.58134, 0.939529, 1.22284, 1.59122, 0.214345]
+Post params: [1.59219, 0.674163, 0.94601, 1.11403, 1.58863, 0.233585]
+Post params: [0.882937, 0.401542, 0.838433, 0.784676, 1.33028, 0.149381]
+Post params: [1.21839, 0.53793, 0.729742, 0.804058, 1.43925, 0.110597]
+Post params: [0.960786, 0.355537, 0.845155, 0.89874, 1.31676, 0.108194]
+Post params: [1.36795, 0.0965851, 0.983452, 1.1935, 1.35748, 0.221945]
+Post params: [1.6537, 0.349222, 1.14523, 2.39709, 1.74049, 0.31548]
+Post params: [1.26939, 0.40521, 0.857358, 1.54817, 1.57527, 0.288248]
+Post params: [0.953972, 0.140754, 1.04797, 0.940147, 1.62619, 0.151584]
+Post params: [1.57516, 0.251204, 0.86154, 1.45077, 1.636, 0.229911]
+Post params: [1.16306, 0.501994, 0.780001, 0.636711, 1.59673, 0.186237]
+Post params: [1.57796, 0.577628, 0.934121, 1.48262, 1.39139, 0.20374]
+Post params: [1.27974, 0.268388, 1.04505, 1.59214, 1.58804, 0.249401]
+Post params: [1.54232, 0.341638, 0.987778, 1.3265, 1.50617, 0.209462]
+Post params: [1.35102, 0.38876, 0.969996, 1.51256, 1.70788, 0.193371]
+Post params: [1.09364, 0.431877, 0.919209, 1.38281, 1.72655, 0.241871]
+Post params: [1.20253, 0.462983, 0.794208, 0.79486, 1.50371, 0.162658]
+Post params: [0.908738, 0.419921, 0.864098, 0.154666, 1.53898, 0.0274433]
+Post params: [1.06997, 0.21855, 0.843922, 0.486131, 1.72277, 0.0561679]
+Post params: [1.85143, 0.125548, 1.01266, 1.70658, 1.68312, 0.274889]
+Post params: [1.25313, 0.297933, 0.92552, 0.797061, 1.41506, 0.099144]
+Post params: [1.21849, 0.456226, 0.944904, 0.949911, 1.76584, 0.0715891]
+Post params: [1.08747, 0.478046, 0.742684, 0.413673, 1.5183, 0.0564746]
+Post params: [1.92386, 0.336217, 1.11951, 2.2298, 1.82974, 0.323854]
+Post params: [1.29569, 0.37215, 0.955806, 2.04241, 1.94329, 0.263998]
+Post params: [1.01236, 0.358894, 0.789167, 1.67484, 1.38495, 0.265021]
+Post params: [1.35842, 0.23793, 0.807518, 1.0163, 1.54336, 0.214368]
+Post params: [0.98845, 0.293122, 0.813369, 0.949639, 1.61625, 0.193948]
+Post params: [1.69647, 0.354397, 0.925379, 1.31408, 1.61972, 0.30793]
+Post params: [1.63965, 0.367465, 0.880881, 2.1947, 1.48029, 0.229817]
+Post params: [1.29721, 0.381228, 0.80852, 0.655748, 1.4983, 0.119466]
+Post params: [0.93777, 0.356619, 0.954648, 0.921295, 1.33227, 0.167975]
+Used fitted params for 0 posts and inferred params for 61 posts
+Generated 140 for subreddit technology
+
+Processing Malware with 1 posts to simulate
+Using default max graph size: 3000
+Loaded 6548 processed posts from model_files/posts/Malware_posts.pkl
+1 new posts
+Sampling graph to 3000 nodes
+   Filtered to 1007 based on minimum node quality of 0.6
+   1 authors in seed posts
+   Filtered to 0 posts by 0 authors
+   Drawing more posts...
+   Sampled to 1007 posts by 708 authors for inference (0 seed authors)
+   2589 tokens in graph
+Building param graph for 1007 posts
+Finished graph has 1007 nodes (10 isolated) and 135469 edges
+Saved post-graph to sim_files/Malware_graph.txt
+Filtering params to 1007 sampled posts
+Saved sampled params to sim_files/Malware_in_params.txt
+Adding seed posts to graph
+   Added 1 nodes (0 isolated) and 250 edges
+Adding edges for seed posts
+Saved updated post-graph to sim_files/Malware_graph.txt
+
+Simulating comment trees...
+Post params: [0.966884, 0.423293, 0.920405, 1.30332, 1.57306, 0.270142]
+Used fitted params for 0 posts and inferred params for 1 posts
+Generated 1 for subreddit Malware
+
+Processing netsec with 16 posts to simulate
+Using default max graph size: 3000
+Loaded 16111 processed posts from model_files/posts/netsec_posts.pkl
+16 new posts
+Sampling graph to 3000 nodes
+   Filtered to 3025 based on minimum node quality of 0.6
+   16 authors in seed posts
+   Filtered to 18 posts by 5 authors
+   Drawing more posts...
+   Sampled to 2984 posts by 1599 authors for inference (5 seed authors)
+   6995 tokens in graph
+Building param graph for 2984 posts
+Finished graph has 2984 nodes (4 isolated) and 659970 edges
+Saved post-graph to sim_files/netsec_graph.txt
+Filtering params to 2984 sampled posts
+Saved sampled params to sim_files/netsec_in_params.txt
+Adding seed posts to graph
+   Added 16 nodes (0 isolated) and 11031 edges
+Adding edges for seed posts
+Saved updated post-graph to sim_files/netsec_graph.txt
+
+Simulating comment trees...
+Post params: [1.64904, 0.221357, 1.04568, 1.7195, 1.70317, 0.423317]
+Post params: [2.04636, 0.165435, 1.24521, 3.29215, 1.7436, 0.698103]
+Post params: [1.70321, 0.0497865, 0.963934, 1.79335, 1.49072, 0.33997]
+Post params: [1.36666, 0.274141, 0.746389, 0.832052, 1.73566, 0.17731]
+Post params: [1.24308, 0.161574, 0.936628, 0.898133, 1.75009, 0.203102]
+Post params: [1.24892, 0.332331, 0.92959, 1.53169, 1.49726, 0.346353]
+Post params: [1.43351, 0.266757, 0.927176, 1.95543, 1.55202, 0.262736]
+Post params: [2.22109, 0.175711, 1.18906, 3.07318, 1.9133, 0.605097]
+Finished post 550 / 853
+Post params: [1.27685, 0.0437351, 0.818608, 1.04895, 1.42638, 0.23826]
+Post params: [1.28899, 0.057058, 0.994592, 1.77459, 1.45974, 0.240428]
+Post params: [0.705153, 0.233919, 0.782226, 0.38319, 1.41319, 0.00724606]
+Post params: [1.21798, 0.727384, 0.909347, 1.69042, 1.63195, 0.368029]
+Post params: [1.84142, 1.05763, 1.0831, 2.47781, 1.64877, 0.462701]
+Post params: [0.950307, 0.147519, 0.931374, 0.802669, 1.44345, 0.145386]
+Post params: [1.26844, 0.31425, 0.870562, 0.526663, 1.39289, 0.223125]
+Post params: [1.55488, 0.201364, 0.947308, 2.00535, 1.73912, 0.493225]
+Used fitted params for 0 posts and inferred params for 16 posts
+Generated 45 for subreddit netsec
+
+Processing netsecstudents with 2 posts to simulate
+An algorithmic framework for representational learning on graphs. [Dec 11 2018]
+================================================================================
+Input graph path (-i:)=sim_files/netsecstudents_graph.txt
+Initial embeddings input file. Default is None. (-ie:)=sim_files/netsecstudents_in_params.txt
+Output graph path (-o:)=sim_files/netsecstudents_params.txt
+Number of dimensions. Default is 128 (-d:)=6
+Length of walk per source. Default is 80 (-l:)=3
+Number of walks per source. Default is 10 (-r:)=10
+Context size for optimization. Default is 10 (-k:)=10
+Number of epochs in SGD. Default is 1 (-e:)=1
+Return hyperparameter. Default is 1 (-p:)=1
+Inout hyperparameter. Default is 1 (-q:)=1
+Verbose output. (-v)=NO
+Graph is directed. (-dr)=NO
+Graph is weighted. (-w)=YES
+Using "sticky" factor. (-s)=YES
+Output random walks instead of embeddings. (-ow)=NO
+
+An algorithmic framework for representational learning on graphs. [Dec 11 2018]
+================================================================================
+Input graph path (-i:)=sim_files/Android_graph.txt
+Initial embeddings input file. Default is None. (-ie:)=sim_files/Android_in_params.txt
+Output graph path (-o:)=sim_files/Android_params.txt
+Number of dimensions. Default is 128 (-d:)=6
+Length of walk per source. Default is 80 (-l:)=3
+Number of walks per source. Default is 10 (-r:)=10
+Context size for optimization. Default is 10 (-k:)=10
+Number of epochs in SGD. Default is 1 (-e:)=1
+Return hyperparameter. Default is 1 (-p:)=1
+Inout hyperparameter. Default is 1 (-q:)=1
+Verbose output. (-v)=NO
+Graph is directed. (-dr)=NO
+Graph is weighted. (-w)=YES
+Using "sticky" factor. (-s)=YES
+Output random walks instead of embeddings. (-ow)=NO
+
+Using default max graph size: 3000
+Loaded 2738 processed posts from model_files/posts/netsecstudents_posts.pkl
+2 new posts
+Sampling graph to 3000 nodes
+   Filtered to 1241 based on minimum node quality of 0.6
+   2 authors in seed posts
+   Filtered to 0 posts by 0 authors
+   Drawing more posts...
+   Sampled to 1241 posts by 906 authors for inference (0 seed authors)
+   2824 tokens in graph
+Building param graph for 1241 posts
+Finished graph has 1241 nodes (3 isolated) and 155708 edges
+Saved post-graph to sim_files/netsecstudents_graph.txt
+Filtering params to 1241 sampled posts
+Saved sampled params to sim_files/netsecstudents_in_params.txt
+Adding seed posts to graph
+   Added 2 nodes (0 isolated) and 329 edges
+Adding edges for seed posts
+Saved updated post-graph to sim_files/netsecstudents_graph.txt
+
+Simulating comment trees...
+Post params: [1.16164, 0.302797, 0.882425, 0.61409, 1.33304, 0.174631]
+Post params: [2.88868, 1.00326, 1.31636, 4.29431, 1.90863, 0.550061]
+Used fitted params for 0 posts and inferred params for 2 posts
+Generated 5 for subreddit netsecstudents
+
+Processing Android with 101 posts to simulate
+Using default max graph size: 3000
+Loaded 181515 processed posts from model_files/posts/Android_posts.pkl
+101 new posts
+Sampling graph to 3000 nodes
+   Filtered to 24617 based on minimum node quality of 0.6
+   86 authors in seed posts
+   Filtered to 775 posts by 26 authors
+   Drawing more posts...
+   Sampled to 2899 posts by 1470 authors for inference (26 seed authors)
+   5865 tokens in graph
+Building param graph for 2899 posts
+Finished graph has 2899 nodes (5 isolated) and 991937 edges
+Saved post-graph to sim_files/Android_graph.txt
+Filtering params to 2899 sampled posts
+Saved sampled params to sim_files/Android_in_params.txt
+Adding seed posts to graph
+   Added 101 nodes (0 isolated) and 97525 edges
+Adding edges for seed posts
+Saved updated post-graph to sim_files/Android_graph.txt
+
+Simulating comment trees...
+Post params: [1.48542, 0.363101, 0.873835, 0.898303, 1.77664, 0.170236]
+Post params: [1.982, 0.258242, 0.952818, 1.20286, 1.85553, 0.277614]
+Post params: [1.52427, 0.300749, 1.05823, 1.25218, 1.82396, 0.220324]
+Post params: [1.06477, 0.261746, 1.0031, 1.01293, 1.69388, 0.229099]
+Post params: [1.24181, 0.285537, 0.95255, 1.42541, 1.37681, 0.284585]
+Post params: [1.15919, 0.396587, 0.930036, 1.03602, 1.72321, 0.28079]
+Post params: [0.726339, 0.302121, 0.711197, 0.700729, 1.46722, 0.183104]
+Post params: [1.80388, 0.173477, 0.921455, 1.48862, 1.67892, 0.321225]
+Post params: [1.20482, 0.218101, 0.841173, 1.01986, 1.80767, 0.207377]
+Post params: [0.99645, 0.0639375, 0.997911, 1.49966, 1.66625, 0.312822]
+Post params: [1.27391, 0.212183, 0.991622, 1.7729, 1.50424, 0.284957]
+Post params: [0.556015, 0.283052, 0.86023, 0.719985, 1.66498, 0.102825]
+Post params: [1.39361, 0.380612, 0.912203, 0.860152, 1.82162, 0.273773]
+Post params: [0.995019, 0.188211, 0.657703, 0.685313, 1.361, 0.11721]
+Post params: [1.13407, 0.306378, 0.984925, 0.878458, 1.63533, 0.198357]
+Post params: [0.83761, 0.303214, 0.832549, 1.05473, 1.51005, 0.18394]
+Post params: [1.0815, 0.11452, 0.673803, 0.391209, 1.70363, 0.134816]
+Post params: [1.09258, 0.241581, 0.880541, 0.97404, 1.47278, 0.112587]
+Post params: [1.79498, 0.201225, 1.01476, 1.42763, 1.47582, 0.261189]
+Post params: [1.67706, 0.583553, 0.973872, 1.38314, 1.59717, 0.301635]
+Post params: [0.941985, 0.420369, 0.761437, 0.193377, 1.53679, 0.0631028]
+Post params: [1.59231, 0.290391, 0.942434, 0.95729, 1.76342, 0.285376]
+Post params: [1.51151, 0.238689, 1.14355, 1.75823, 1.55732, 0.393854]
+Post params: [1.21064, 0.277928, 0.834451, 1.07407, 1.43837, 0.187789]
+Post params: [1.31128, 0.156458, 0.996924, 1.52189, 1.48088, 0.303303]
+Post params: [0.985059, 0.1174, 0.655156, 0.370416, 1.5264, 0.115563]
+Post params: [2.32834, 0.0846685, 1.13321, 1.71587, 1.53366, 0.34702]
+Post params: [1.04962, 0.230968, 0.897517, 0.918936, 1.34605, 0.209557]
+Post params: [0.596734, 0.286496, 0.632682, 0.500975, 1.48308, 0.149993]
+Post params: [1.33165, 0.391053, 0.767912, 0.703088, 1.39988, 0.174236]
+Post params: [1.47787, 0.0284031, 0.974067, 1.60597, 1.68355, 0.371748]
+Post params: [0.368094, 0.313903, 0.828938, 0.646239, 1.64569, 0.085484]
+Post params: [1.27936, 0.38305, 0.844412, 1.13975, 1.42887, 0.291718]
+Post params: [0.887192, 0.317575, 0.983797, 0.7511, 1.59813, 0.105211]
+Post params: [0.742187, 0.396971, 0.716378, 0.191248, 1.71189, 0.0448411]
+Post params: [1.1464, 0.3828, 1.01847, 1.02164, 1.69506, 0.221531]
+Post params: [2.04787, 0.238133, 0.951125, 1.50467, 1.65241, 0.310048]
+Post params: [1.47169, 0.385124, 0.900168, 1.17477, 1.76667, 0.290652]
+Post params: [0.970376, 0.319098, 0.675539, 0.836065, 1.29845, 0.196517]
+Post params: [1.45967, 0.305709, 1.04051, 1.4245, 1.69974, 0.315634]
+Finished post 600 / 853
+Post params: [0.680889, 0.418196, 0.685335, 0.6245, 1.29129, 0.144076]
+Post params: [1.16588, 0.249284, 0.886565, 1.24297, 1.63797, 0.24997]
+Post params: [1.24604, 0.66446, 1.09052, 1.13587, 1.75728, 0.254724]
+Post params: [1.18167, 0.219002, 0.906013, 0.926836, 1.68486, 0.222389]
+Post params: [1.2384, 0.195688, 0.836801, 1.04916, 1.42741, 0.273253]
+Post params: [1.22936, 0.0252728, 0.938949, 0.758096, 1.48622, 0.140933]
+Post params: [1.64431, 0.150145, 0.949647, 1.30674, 1.73783, 0.304795]
+Post params: [1.62191, 0.268421, 1.003, 1.63118, 1.96098, 0.366883]
+Post params: [0.652445, 0.182243, 0.809456, 0.510684, 1.35019, 0.118088]
+Post params: [0.479321, 0.15197, 0.846903, 0.628557, 1.60847, 0.117181]
+Post params: [1.21411, 0.256858, 1.04925, 1.61251, 1.77847, 0.26134]
+Post params: [1.06478, 0.250108, 0.788795, 0.363251, 1.40292, 0.0837087]
+Post params: [0.636741, 0.373615, 0.799868, 0.753037, 1.62074, 0.0832094]
+Post params: [1.54358, 0.275625, 0.801132, 1.6049, 1.68983, 0.258973]
+Post params: [1.49665, 0.824782, 0.968069, 1.08626, 1.67325, 0.181701]
+Post params: [1.42333, 0.335206, 0.660473, 0.926443, 1.387, 0.211165]
+Post params: [0.850676, 0.176986, 0.82279, 0.838695, 1.33693, 0.111344]
+Post params: [1.72013, 0.279431, 0.864298, 1.36373, 1.40442, 0.210231]
+Post params: [1.5402, 0.284298, 0.759842, 1.36638, 1.63012, 0.321738]
+Post params: [2.01752, 0.105435, 1.03886, 1.83542, 1.68453, 0.345796]
+Post params: [1.39182, 0.371367, 0.981032, 0.778931, 1.68992, 0.122852]
+Post params: [1.21022, 0.426368, 0.76619, 0.796531, 1.60246, 0.210944]
+Post params: [1.26639, 0.411725, 0.840915, 0.73943, 1.77647, 0.189343]
+Post params: [1.69919, 0.25211, 0.867593, 1.33137, 1.39935, 0.259126]
+Post params: [0.998963, 0.216278, 0.67172, 0.5867, 1.69948, 0.184604]
+Post params: [0.412606, 0.395759, 0.706911, 0.396132, 1.55061, 0.063927]
+Post params: [1.66736, 0.470613, 0.858126, 1.29145, 1.80566, 0.278697]
+Post params: [0.81911, 0.444636, 0.786614, 0.864877, 1.7478, 0.263965]
+Post params: [1.68302, 0.320832, 0.993115, 1.40444, 1.45102, 0.287472]
+Post params: [0.820599, 0.356836, 0.984191, 0.87598, 1.50031, 0.151571]
+Post params: [1.89342, 0.139809, 1.22533, 2.28574, 1.6861, 0.340349]
+Post params: [1.08418, 0.275011, 0.932525, 1.40158, 1.4852, 0.285742]
+Post params: [1.11262, 0.577656, 1.07849, 1.02962, 1.45111, 0.197834]
+Post params: [1.00512, 0.212849, 0.837695, 1.36808, 1.66067, 0.337028]
+Post params: [2.27653, 0.342965, 0.911, 2.04106, 2.00948, 0.442801]
+Post params: [1.24638, 0.391913, 0.74441, 0.369707, 1.58761, 0.0623969]
+Post params: [1.1271, 0.106872, 0.936788, 0.867595, 1.43006, 0.159023]
+Post params: [0.525485, 0.233808, 0.386364, 0.749, 1.35099, 0.149444]
+Post params: [0.972283, 0.274661, 0.712035, 1.05096, 1.42066, 0.26679]
+Post params: [1.2772, 0.421678, 0.956848, 1.18673, 1.52182, 0.273899]
+Post params: [1.4589, 0.258765, 0.891916, 1.01427, 1.61243, 0.180211]
+Post params: [1.34682, 0.286396, 0.808501, 0.901627, 1.71889, 0.214349]
+Post params: [1.2282, 0.292608, 0.83932, 0.956432, 1.75308, 0.193566]
+Post params: [1.35866, 0.470857, 0.896612, 1.55276, 1.86981, 0.356955]
+Post params: [0.988696, 0.273383, 0.802752, 1.18172, 1.53329, 0.206467]
+Post params: [1.86896, 0.336386, 0.813806, 1.46325, 1.4812, 0.250189]
+Post params: [1.03155, 0.270844, 0.964121, 1.33021, 1.44729, 0.264867]
+Post params: [0.909251, 0.0884641, 0.766453, 0.887617, 1.44516, 0.169656]
+An algorithmic framework for representational learning on graphs. [Dec 11 2018]
+================================================================================
+Input graph path (-i:)=sim_files/ReverseEngineering_graph.txt
+Initial embeddings input file. Default is None. (-ie:)=sim_files/ReverseEngineering_in_params.txt
+Output graph path (-o:)=sim_files/ReverseEngineering_params.txt
+Number of dimensions. Default is 128 (-d:)=6
+Length of walk per source. Default is 80 (-l:)=3
+Number of walks per source. Default is 10 (-r:)=10
+Context size for optimization. Default is 10 (-k:)=10
+Number of epochs in SGD. Default is 1 (-e:)=1
+Return hyperparameter. Default is 1 (-p:)=1
+Inout hyperparameter. Default is 1 (-q:)=1
+Verbose output. (-v)=NO
+Graph is directed. (-dr)=NO
+Graph is weighted. (-w)=YES
+Using "sticky" factor. (-s)=YES
+Output random walks instead of embeddings. (-ow)=NO
+
+An algorithmic framework for representational learning on graphs. [Dec 11 2018]
+================================================================================
+Input graph path (-i:)=sim_files/programming_graph.txt
+Initial embeddings input file. Default is None. (-ie:)=sim_files/programming_in_params.txt
+Output graph path (-o:)=sim_files/programming_params.txt
+Number of dimensions. Default is 128 (-d:)=6
+Length of walk per source. Default is 80 (-l:)=3
+Number of walks per source. Default is 10 (-r:)=10
+Context size for optimization. Default is 10 (-k:)=10
+Number of epochs in SGD. Default is 1 (-e:)=1
+Return hyperparameter. Default is 1 (-p:)=1
+Inout hyperparameter. Default is 1 (-q:)=1
+Verbose output. (-v)=NO
+Graph is directed. (-dr)=NO
+Graph is weighted. (-w)=YES
+Using "sticky" factor. (-s)=YES
+Output random walks instead of embeddings. (-ow)=NO
+
+Post params: [1.56424, 0.586773, 0.849351, 1.29425, 1.45586, 0.270445]
+Post params: [1.00645, 0.441253, 0.613761, 1.03406, 1.4164, 0.262429]
+Finished post 650 / 853
+Post params: [1.91192, 0.84724, 1.02872, 1.27947, 1.52892, 0.29241]
+Post params: [1.37781, 0.319996, 0.944162, 1.56889, 1.83308, 0.37015]
+Post params: [1.07413, 0.114515, 0.784749, 0.505115, 1.63319, 0.188902]
+Post params: [1.14842, 0.162819, 0.993535, 0.919385, 1.52635, 0.183794]
+Post params: [1.71727, 0.164374, 1.13757, 1.54039, 1.84737, 0.330082]
+Post params: [1.4525, 0.31593, 0.922473, 0.997903, 1.67453, 0.226371]
+Post params: [1.104, 0.40745, 0.796982, 0.926552, 1.73246, 0.222038]
+Post params: [0.418062, 0.268371, 0.583894, 0.31898, 1.63051, 0.0467339]
+Post params: [1.53503, 0.281447, 0.932605, 1.37992, 1.60549, 0.309073]
+Post params: [1.60474, 0.502573, 0.915073, 1.2502, 1.56386, 0.251592]
+Post params: [1.0876, 0.22804, 0.856875, 0.802512, 1.39341, 0.176675]
+Used fitted params for 0 posts and inferred params for 101 posts
+Generated 224 for subreddit Android
+
+Processing ReverseEngineering with 4 posts to simulate
+Using default max graph size: 3000
+Loaded 2345 processed posts from model_files/posts/ReverseEngineering_posts.pkl
+4 new posts
+Sampling graph to 3000 nodes
+   Filtered to 919 based on minimum node quality of 0.6
+   4 authors in seed posts
+   Filtered to 21 posts by 2 authors
+   Drawing more posts...
+   Sampled to 919 posts by 465 authors for inference (2 seed authors)
+   2828 tokens in graph
+Building param graph for 919 posts
+Finished graph has 919 nodes (2 isolated) and 74747 edges
+Saved post-graph to sim_files/ReverseEngineering_graph.txt
+Filtering params to 919 sampled posts
+Saved sampled params to sim_files/ReverseEngineering_in_params.txt
+Adding seed posts to graph
+   Added 4 nodes (0 isolated) and 813 edges
+Adding edges for seed posts
+Saved updated post-graph to sim_files/ReverseEngineering_graph.txt
+
+Simulating comment trees...
+Post params: [1.01433, 0.352698, 0.91679, 2.25551, 1.73106, 0.238278]
+Post params: [1.47788, 0.496484, 1.20475, 2.95576, 1.95062, 0.431386]
+Post params: [1.59062, 1.46131, 0.90212, 1.90159, 1.74555, 0.311098]
+Post params: [0.747096, 0.584928, 0.846058, 1.42755, 1.40831, 0.260863]
+Used fitted params for 0 posts and inferred params for 4 posts
+Generated 8 for subreddit ReverseEngineering
+
+Processing programming with 64 posts to simulate
+Using default max graph size: 3000
+Loaded 76461 processed posts from model_files/posts/programming_posts.pkl
+64 new posts
+Sampling graph to 3000 nodes
+   Filtered to 18997 based on minimum node quality of 0.6
+   62 authors in seed posts
+   Filtered to 721 posts by 29 authors
+   Drawing more posts...
+   Sampled to 2936 posts by 1671 authors for inference (29 seed authors)
+   6350 tokens in graph
+Building param graph for 2936 posts
+Finished graph has 2936 nodes (4 isolated) and 886481 edges
+Saved post-graph to sim_files/programming_graph.txt
+Filtering params to 2936 sampled posts
+Saved sampled params to sim_files/programming_in_params.txt
+Adding seed posts to graph
+   Added 64 nodes (0 isolated) and 53579 edges
+Adding edges for seed posts
+Saved updated post-graph to sim_files/programming_graph.txt
+
+Simulating comment trees...
+Post params: [1.17133, 0.237009, 0.871532, 1.54726, 1.4608, 0.250076]
+Post params: [0.687456, 0.150659, 0.951062, 0.949267, 1.41624, 0.190218]
+Post params: [0.945162, 0.183393, 0.982777, 1.00152, 1.68997, 0.232415]
+Post params: [1.84251, 0.265526, 1.15935, 2.62082, 1.83966, 0.507546]
+Post params: [0.94729, 0.358385, 0.935808, 0.550718, 1.62416, 0.118492]
+Post params: [1.34, 0.211799, 0.998219, 1.55301, 1.46733, 0.305343]
+Post params: [1.02539, 0.321327, 0.754957, 0.515009, 1.60182, 0.155204]
+Post params: [1.40225, 0.658658, 0.90456, 1.52609, 1.41297, 0.317522]
+Post params: [1.46756, 0.257608, 0.896822, 1.74813, 1.46405, 0.262351]
+Post params: [1.36472, 0.626347, 0.898901, 1.07309, 1.64434, 0.20517]
+Post params: [1.53984, 0.160354, 0.867777, 0.930464, 1.76514, 0.125576]
+Post params: [1.57297, 0.425147, 0.939189, 0.953544, 1.5725, 0.219639]
+Post params: [1.33858, 0.69897, 0.885544, 1.89761, 1.6479, 0.346927]
+Post params: [1.17218, 0.0904766, 0.941228, 1.42905, 1.64665, 0.26301]
+Post params: [1.30201, 0.824069, 0.894623, 1.16755, 1.59737, 0.235425]
+Post params: [1.2243, 0.349336, 0.802252, 1.25801, 1.76273, 0.205028]
+Post params: [1.18869, 0.507334, 0.828677, 1.57293, 1.66364, 0.375052]
+Post params: [1.10212, 0.433195, 0.889064, 1.71295, 1.68638, 0.235454]
+Post params: [1.3285, 0.194288, 0.926134, 1.3406, 1.81002, 0.260144]
+Post params: [1.42282, 0.123865, 0.833034, 1.03808, 1.4133, 0.211485]
+Post params: [0.887047, 0.208578, 0.879028, 0.62597, 1.40796, 0.208099]
+Post params: [1.26161, 0.22176, 0.838528, 1.50352, 1.58632, 0.311303]
+Post params: [1.19339, 0.220496, 1.01697, 1.51259, 1.59886, 0.336712]
+Post params: [1.23228, 0.199719, 1.05144, 2.04575, 1.83649, 0.407075]
+Post params: [1.33699, 0.205896, 0.972852, 1.86983, 1.63323, 0.511444]
+Post params: [1.62098, 0.206163, 0.82793, 1.41075, 1.60623, 0.237262]
+Post params: [1.60234, 0.262719, 0.936527, 1.97463, 1.80928, 0.334433]
+Post params: [1.42552, 0.0689273, 1.11815, 2.14738, 1.48863, 0.478223]
+Post params: [0.852841, 0.35407, 0.831161, 0.661934, 1.69263, 0.103116]
+Post params: [1.23808, 0.399794, 1.04304, 1.70851, 1.72518, 0.376879]
+Post params: [1.2395, 0.341795, 1.02269, 1.56651, 1.80001, 0.286661]
+Post params: [0.910568, 0.199955, 0.783276, 0.936211, 1.46936, 0.114297]
+Post params: [1.13193, 0.423436, 0.859272, 1.62625, 1.58495, 0.34162]
+Post params: [0.639326, 0.351652, 0.754746, 0.691686, 1.67803, 0.0769873]
+Post params: [1.3285, 0.157904, 0.714989, 0.208564, 1.72786, 0.0695017]
+Finished post 700 / 853
+Post params: [0.763561, 1.36794, 0.923899, 0.653813, 1.57536, 0.11634]
+Post params: [1.05946, 0.393912, 0.926458, 1.19012, 1.52, 0.243586]
+Post params: [0.977148, 0.409862, 0.748566, 0.581891, 1.58563, 0.0962321]
+Post params: [1.87611, 0.614483, 1.07637, 2.50158, 1.66192, 0.505726]
+Post params: [1.85626, 0.267472, 1.11277, 2.86033, 1.58991, 0.451886]
+Post params: [0.900703, 0.486239, 0.832806, 1.88446, 1.54908, 0.404877]
+Post params: [1.31656, 0.458714, 0.787174, 1.14784, 1.65886, 0.233697]
+Post params: [1.30117, 0.343692, 0.828908, 1.18469, 1.50256, 0.231766]
+Post params: [1.43131, 0.305957, 1.18375, 2.8568, 1.77948, 0.400697]
+Post params: [1.56302, 0.618376, 1.10466, 2.68493, 1.50538, 0.536023]
+Post params: [1.02382, 6.33934, 0.747515, 1.00894, 1.4013, 0.0310502]
+Post params: [0.813525, 0.0982556, 0.807422, 0.728135, 1.33413, 0.082976]
+Post params: [1.37227, 0.206878, 0.959343, 1.38385, 1.55805, 0.288403]
+Post params: [1.35864, 0.142522, 0.929903, 1.18021, 1.75778, 0.314754]
+Post params: [1.86647, 0.474438, 1.00774, 2.38457, 1.83325, 0.385055]
+Post params: [1.46795, 0.374794, 0.974437, 1.6072, 1.58849, 0.338477]
+Post params: [0.709249, 0.0144449, 0.786196, 0.617787, 1.29161, 0.0764658]
+Post params: [1.23648, 0.0424181, 0.804876, 1.08465, 1.4777, 0.247369]
+Post params: [0.717125, 0.333881, 0.916256, 0.67462, 1.41853, 0.191017]
+Post params: [1.2228, 0.162846, 1.03046, 2.09937, 1.57845, 0.454545]
+Post params: [1.68609, 0.835393, 1.05917, 2.10014, 1.69851, 0.422872]
+Post params: [0.908831, 0.156922, 0.904479, 1.02259, 1.72711, 0.266025]
+Post params: [2.00275, 0.172592, 1.09745, 2.22081, 1.60625, 0.432528]
+Post params: [1.49594, 0.149574, 0.853445, 0.671671, 1.72201, 0.138494]
+Post params: [1.34608, 0.361674, 0.806632, 0.62355, 1.69172, 0.136098]
+Post params: [1.2341, 0.158157, 0.899099, 1.33108, 1.5912, 0.244383]
+Post params: [0.95239, 0.287368, 0.845265, 0.865687, 1.77346, 0.0672592]
+Post params: [1.67549, 0.29876, 0.864407, 1.65057, 1.638, 0.369832]
+Post params: [1.02236, 0.217075, 0.834587, 0.672628, 1.69607, 0.124707]
+Used fitted params for 0 posts and inferred params for 64 posts
+Generated 152 for subreddit programming
+
+Processing techsupport with 33 posts to simulate
+Using default max graph size: 3000
+Loaded 332424 processed posts from model_files/posts/techsupport_posts.pkl
+33 new posts
+Sampling graph to 3000 nodes
+   Filtered to 156439 based on minimum node quality of 0.6
+   33 authors in seed posts
+   Filtered to 6 posts by
+An algorithmic framework for representational learning on graphs. [Dec 11 2018]
+================================================================================
+Input graph path (-i:)=sim_files/techsupport_graph.txt
+Initial embeddings input file. Default is None. (-ie:)=sim_files/techsupport_in_params.txt
+Output graph path (-o:)=sim_files/techsupport_params.txt
+Number of dimensions. Default is 128 (-d:)=6
+Length of walk per source. Default is 80 (-l:)=3
+Number of walks per source. Default is 10 (-r:)=10
+Context size for optimization. Default is 10 (-k:)=10
+Number of epochs in SGD. Default is 1 (-e:)=1
+Return hyperparameter. Default is 1 (-p:)=1
+Inout hyperparameter. Default is 1 (-q:)=1
+Verbose output. (-v)=NO
+Graph is directed. (-dr)=NO
+Graph is weighted. (-w)=YES
+Using "sticky" factor. (-s)=YES
+Output random walks instead of embeddings. (-ow)=NO
+
+An algorithmic framework for representational learning on graphs. [Dec 11 2018]
+================================================================================
+Input graph path (-i:)=sim_files/privacy_graph.txt
+Initial embeddings input file. Default is None. (-ie:)=sim_files/privacy_in_params.txt
+Output graph path (-o:)=sim_files/privacy_params.txt
+Number of dimensions. Default is 128 (-d:)=6
+Length of walk per source. Default is 80 (-l:)=3
+Number of walks per source. Default is 10 (-r:)=10
+Context size for optimization. Default is 10 (-k:)=10
+Number of epochs in SGD. Default is 1 (-e:)=1
+Return hyperparameter. Default is 1 (-p:)=1
+Inout hyperparameter. Default is 1 (-q:)=1
+Verbose output. (-v)=NO
+Graph is directed. (-dr)=NO
+Graph is weighted. (-w)=YES
+Using "sticky" factor. (-s)=YES
+Output random walks instead of embeddings. (-ow)=NO
+
+An algorithmic framework for representational learning on graphs. [Dec 11 2018]
+================================================================================
+Input graph path (-i:)=sim_files/sysadmin_graph.txt
+Initial embeddings input file. Default is None. (-ie:)=sim_files/sysadmin_in_params.txt
+Output graph path (-o:)=sim_files/sysadmin_params.txt
+Number of dimensions. Default is 128 (-d:)=6
+Length of walk per source. Default is 80 (-l:)=3
+Number of walks per source. Default is 10 (-r:)=10
+Context size for optimization. Default is 10 (-k:)=10
+Number of epochs in SGD. Default is 1 (-e:)=1
+Return hyperparameter. Default is 1 (-p:)=1
+Inout hyperparameter. Default is 1 (-q:)=1
+Verbose output. (-v)=NO
+Graph is directed. (-dr)=NO
+Graph is weighted. (-w)=YES
+Using "sticky" factor. (-s)=YES
+Output random walks instead of embeddings. (-ow)=NO
+ 5 authors
+   Drawing more posts...
+   Sampled to 2967 posts by 2620 authors for inference (5 seed authors)
+   4343 tokens in graph
+Building param graph for 2967 posts
+Finished graph has 2967 nodes (11 isolated) and 1054064 edges
+Saved post-graph to sim_files/techsupport_graph.txt
+Filtering params to 2967 sampled posts
+Saved sampled params to sim_files/techsupport_in_params.txt
+Adding seed posts to graph
+   Added 33 nodes (0 isolated) and 30751 edges
+Adding edges for seed posts
+Saved updated post-graph to sim_files/techsupport_graph.txt
+
+Simulating comment trees...
+Post params: [2.17887, 0.0063293, 1.27359, 3.444, 1.55313, 0.895528]
+Post params: [2.34505, 0.241134, 1.32888, 3.22389, 1.71652, 0.743406]
+Post params: [1.70582, 0.280758, 1.03723, 2.52805, 0.918519, 0.661058]
+Post params: [1.40792, 0.296853, 1.08091, 1.84109, 1.70828, 0.413946]
+Post params: [2.06538, 1.93409, 1.23373, 2.21987, 1.75513, 0.62901]
+Post params: [1.40403, 0.346435, 0.928253, 1.37155, 1.47776, 0.440431]
+Post params: [2.80017, 0.116833, 1.57674, 4.8545, 1.77115, 1.27677]
+Post params: [2.50224, 0.192877, 1.22538, 3.72153, 1.71012, 0.948096]
+Post params: [1.42519, 0.408082, 0.83155, 1.10071, 1.20713, 0.433263]
+Post params: [1.6678, 0.0535617, 1.21432, 2.14516, 1.54952, 0.546081]
+Post params: [1.28873, 0.650272, 0.783713, 0.597807, 1.39265, 0.266513]
+Post params: [2.51362, 0.519958, 1.45355, 4.0336, 1.97116, 1.11515]
+Post params: [1.75822, 0.520835, 1.30969, 2.52971, 1.70763, 0.719025]
+Post params: [1.5533, 0.307263, 1.17703, 1.77061, 1.36537, 0.522928]
+Post params: [1.95265, 1.69109, 1.10119, 2.43041, 1.78532, 0.775868]
+Post params: [2.63476, 0.174775, 1.35459, 4.74049, 1.70979, 1.22257]
+Post params: [2.24499, 0.255679, 1.44455, 3.8514, 2.04997, 0.948474]
+Post params: [1.32992, 0.516639, 0.973009, 1.7032, 1.20488, 0.423814]
+Post params: [1.57726, 0.416651, 1.06663, 1.79097, 1.50026, 0.493706]
+Post params: [1.75813, 0.299434, 1.02631, 2.12077, 1.56453, 0.667925]
+Post params: [1.68817, 0.242978, 1.12252, 1.76132, 1.83048, 0.475943]
+Finished post 750 / 853
+Post params: [1.89542, 0.243137, 1.13021, 2.11765, 1.53065, 0.582288]
+Post params: [2.74401, 0.984003, 1.46427, 4.51315, 1.83212, 1.1759]
+Post params: [2.59428, 1.0008, 1.56407, 4.22001, 2.12939, 1.04464]
+Post params: [1.91546, 0.135672, 1.18615, 2.22981, 1.7418, 0.568292]
+Post params: [1.98673, 0.170551, 1.10533, 2.36756, 1.52975, 0.599687]
+Post params: [2.0853, 0.0853404, 1.28638, 3.04152, 1.88569, 0.7392]
+Post params: [1.7663, 0.0826489, 1.3059, 2.54055, 1.84954, 0.699234]
+Post params: [1.38775, 0.462703, 1.05752, 1.65618, 1.82604, 0.493397]
+Post params: [1.74996, 0.139282, 1.10554, 3.12072, 1.40971, 0.950654]
+Post params: [2.03383, 0.296115, 1.17947, 3.16418, 1.46619, 0.856483]
+Post params: [1.70959, 0.145754, 1.23512, 2.42442, 1.72012, 0.597973]
+Post params: [1.34948, 0.212408, 1.09095, 1.56015, 1.53927, 0.53592]
+Used fitted params for 0 posts and inferred params for 33 posts
+Generated 156 for subreddit techsupport
+
+Processing privacy with 25 posts to simulate
+Using default max graph size: 3000
+Loaded 26658 processed posts from model_files/posts/privacy_posts.pkl
+25 new posts
+Sampling graph to 3000 nodes
+   Filtered to 9296 based on minimum node quality of 0.6
+   25 authors in seed posts
+   Filtered to 156 posts by 7 authors
+   Drawing more posts...
+   Sampled to 2975 posts by 1766 authors for inference (7 seed authors)
+   6282 tokens in graph
+Building param graph for 2975 posts
+Finished graph has 2975 nodes (7 isolated) and 1158761 edges
+Saved post-graph to sim_files/privacy_graph.txt
+Filtering params to 2975 sampled posts
+Saved sampled params to sim_files/privacy_in_params.txt
+Adding seed posts to graph
+   Added 25 nodes (0 isolated) and 26312 edges
+Adding edges for seed posts
+Saved updated post-graph to sim_files/privacy_graph.txt
+
+Simulating comment trees...
+Post params: [1.42217, 0.0940549, 0.815478, 1.35375, 1.67161, 0.199924]
+Post params: [0.995873, 0.552376, 0.897231, 1.14803, 1.6793, 0.115881]
+Post params: [1.50291, 0.229452, 0.929741, 2.07897, 1.69301, 0.360756]
+Post params: [1.52821, 0.299531, 1.05481, 1.53578, 1.59693, 0.318751]
+Post params: [1.47696, 0.228265, 1.05326, 1.61004, 1.57611, 0.181911]
+Post params: [1.43541, 0.320073, 1.03808, 1.19312, 1.48483, 0.207642]
+Post params: [1.47369, 0.436927, 1.05454, 1.76435, 1.61112, 0.353395]
+Post params: [0.938058, 0.234007, 0.816323, 1.15742, 1.56466, 0.247902]
+Post params: [1.23228, 0.300145, 0.96817, 1.55411, 1.66799, 0.241135]
+Post params: [1.25718, 0.216406, 0.933823, 0.756819, 1.33388, 0.0734855]
+Post params: [1.07531, 0.467115, 0.987075, 0.645705, 1.6743, 0.119771]
+Post params: [0.911804, 0.290723, 0.826655, 0.895477, 1.49679, 0.130211]
+Post params: [1.54273, 0.291471, 1.00248, 1.59724, 1.60056, 0.296376]
+Post params: [0.685473, 0.334061, 0.785828, 0.657308, 1.51095, 0.1428]
+Post params: [1.79453, 0.0999289, 0.895634, 1.59895, 1.43574, 0.294592]
+Post params: [0.855456, 0.196669, 0.757988, 1.05568, 1.54885, 0.200823]
+Post params: [1.30956, 0.647113, 0.772806, 1.16147, 1.70321, 0.182874]
+Post params: [2.10448, 0.389528, 1.0679, 2.54745, 1.89161, 0.441527]
+Post params: [0.975288, 0.304246, 1.03338, 0.985527, 1.4129, 0.151243]
+Post params: [1.60611, 0.191289, 0.991099, 1.57315, 1.69818, 0.243748]
+Post params: [1.37206, 0.175361, 0.940847, 1.36944, 1.7102, 0.259011]
+Post params: [1.06457, 0.239319, 0.937265, 1.27909, 1.32866, 0.187035]
+Post params: [1.3324, 0.492973, 0.863082, 0.90326, 1.47562, 0.103416]
+Post params: [1.20999, 0.328831, 0.783956, 1.0058, 1.59737, 0.185911]
+Post params: [1.43584, 0.374597, 0.858032, 1.08322, 1.62347, 0.288614]
+Used fitted params for 0 posts and inferred params for 25 posts
+Generated 52 for subreddit privacy
+
+Processing sysadmin with 51 posts to simulate
+Using default max graph size: 3000
+Loaded 70127 processed posts from model_files/posts/sysadmin_posts.pkl
+51 new posts
+Sampling graph to 3000 nodes
+   Filtered to 44859 based on minimum node quality of 0.6
+   51 authors in seed posts
+   Filtered to 160 posts by 22 authors
+   Drawing more posts...
+   Sampled to 2949 posts by 2228 authors for inference (22 seed authors)
+   5160 tokens in graph
+Building param graph for 2949 posts
+Finished graph has 2949 nodes (12 isolated) and 721267 edges
+Saved post-graph to sim_files/sysadmin_graph.txt
+Filtering params to 2949 sampled posts
+Saved sampled params to sim_files/sysadmin_in_params.txt
+Adding seed posts to graph
+   Added 51 nodes (0 isolated) and 26388 edges
+Adding edges for seed posts
+Saved updated post-graph to sim_files/sysadmin_graph.txt
+
+Simulating comment trees...
+Post params: [1.29247, 0.247226, 0.97694, 1.98006, 1.37011, 0.381889]
+Post params: [1.67197, 0.811887, 1.03071, 1.50718, 1.49542, 0.181418]
+Post params: [1.2864, 0.203282, 0.887075, 1.30818, 1.54018, 0.247998]
+Post params: [1.36953, 0.169583, 0.957485, 1.21215, 1.49701, 0.20167]
+Post params: [1.48947, 0.443759, 0.899843, 0.815071, 1.3407, 0.153884]
+Post params: [1.82055, 0.420647, 0.768893, 0.780912, 1.50038, 0.220374]
+Post params: [1.51005, 0.39166, 0.834314, 1.11758, 1.47803, 0.259125]
+Post params: [0.845708, 0.397798, 0.807668, 1.10492, 1.52416, 0.209073]
+Post params: [1.14171, 0.676048, 1.00029, 0.863568, 1.70529, 0.257835]
+Post params: [1.41729, 0.231373, 0.847006, 1.13973, 1.52425, 0.233706]
+Post params: [1.16776, 0.229506, 0.754349, 1.19996, 1.53908, 0.147153]
+Post params: [0.570487, 0.31853, 0.84841, 0.225379, 1.44907, 0.0846438]
+Post params: [0.840525, 0.251626, 0.816456, 1.03886, 1.31633, 0.169814]
+Finished post 800 / 853
+Post params: [1.37687, 0.229727, 0.863208, 1.27014, 1.6586, 0.219176]
+Post params: [2.15686, 0.416641, 1.10795, 2.38378, 1.65842, 0.483485]
+Post params: [0.589489, 0.294924, 0.676182, 0.746573, 1.30914, 0.12067]
+Post params: [1.36016, 0.877597, 0.870198, 1.38568, 1.50837, 0.267623]
+Post params: [1.20754, 0.080717, 0.649205, 0.484681, 1.41246, 0.0625425]
+Post params: [1.07418, 0.309455, 0.676533, 0.487359, 1.61315, 0.0675796]
+Post params: [2.39425, 0.649203, 1.09698, 2.48501, 1.55214, 0.463973]
+Post params: [0.971096, 0.179605, 0.833357, 0.921748, 1.3476, 0.0790451]
+Post params: [1.49952, 0.456281, 0.795403, 0.756721, 1.69285, 0.1235]
+Post params:
+An algorithmic framework for representational learning on graphs. [Dec 11 2018]
+================================================================================
+Input graph path (-i:)=sim_files/blackhat_graph.txt
+Initial embeddings input file. Default is None. (-ie:)=sim_files/blackhat_in_params.txt
+Output graph path (-o:)=sim_files/blackhat_params.txt
+Number of dimensions. Default is 128 (-d:)=6
+Length of walk per source. Default is 80 (-l:)=3
+Number of walks per source. Default is 10 (-r:)=10
+Context size for optimization. Default is 10 (-k:)=10
+Number of epochs in SGD. Default is 1 (-e:)=1
+Return hyperparameter. Default is 1 (-p:)=1
+Inout hyperparameter. Default is 1 (-q:)=1
+Verbose output. (-v)=NO
+Graph is directed. (-dr)=NO
+Graph is weighted. (-w)=YES
+Using "sticky" factor. (-s)=YES
+Output random walks instead of embeddings. (-ow)=NO
+
+An algorithmic framework for representational learning on graphs. [Dec 11 2018]
+================================================================================
+Input graph path (-i:)=sim_files/msp_graph.txt
+Initial embeddings input file. Default is None. (-ie:)=sim_files/msp_in_params.txt
+Output graph path (-o:)=sim_files/msp_params.txt
+Number of dimensions. Default is 128 (-d:)=6
+Length of walk per source. Default is 80 (-l:)=3
+Number of walks per source. Default is 10 (-r:)=10
+Context size for optimization. Default is 10 (-k:)=10
+Number of epochs in SGD. Default is 1 (-e:)=1
+Return hyperparameter. Default is 1 (-p:)=1
+Inout hyperparameter. Default is 1 (-q:)=1
+Verbose output. (-v)=NO
+Graph is directed. (-dr)=NO
+Graph is weighted. (-w)=YES
+Using "sticky" factor. (-s)=YES
+Output random walks instead of embeddings. (-ow)=NO
+
+An algorithmic framework for representational learning on graphs. [Dec 11 2018]
+================================================================================
+Input graph path (-i:)=sim_files/networking_graph.txt
+Initial embeddings input file. Default is None. (-ie:)=sim_files/networking_in_params.txt
+Output graph path (-o:)=sim_files/networking_params.txt
+Number of dimensions. Default is 128 (-d:)=6
+Length of walk per source. Default is 80 (-l:)=3
+Number of walks per source. Default is 10 (-r:)=10
+Context size for optimization. Default is 10 (-k:)=10
+Number of epochs in SGD. Default is 1 (-e:)=1
+Return hyperparameter. Default is 1 (-p:)=1
+Inout hyperparameter. Default is 1 (-q:)=1
+Verbose output. (-v)=NO
+Graph is directed. (-dr)=NO
+Graph is weighted. (-w)=YES
+Using "sticky" factor. (-s)=YES
+Output random walks instead of embeddings. (-ow)=NO
+ [1.31474, 0.245618, 0.666762, 0.768006, 1.15234, 0.134798]
+Post params: [1.14245, 0.0791061, 0.826748, 0.970855, 1.42156, 0.220549]
+Post params: [1.16626, 0.246345, 0.941585, 1.11499, 1.50256, 0.216705]
+Post params: [0.731345, 0.237703, 0.817963, 1.25381, 1.49647, 0.247808]
+Post params: [0.925402, 0.599631, 0.881552, 1.08727, 1.62966, 0.293843]
+Post params: [1.11518, 0.487988, 0.780344, 1.70388, 1.29331, 0.233205]
+Post params: [0.689421, 0.416273, 0.844508, 0.424645, 1.35314, 0.044003]
+Post params: [1.1678, 0.266506, 0.771901, 0.449682, 1.38153, 0.0971539]
+Post params: [1.34762, 0.585823, 0.839821, 1.27732, 1.54, 0.234255]
+Post params: [0.453436, 0.216365, 0.910132, 1.12394, 1.40394, 0.246581]
+Post params: [1.55803, 0.159118, 0.883191, 0.90495, 1.52386, 0.191669]
+Post params: [0.859944, 0.266856, 0.7628, 0.170203, 1.331, 0.0224481]
+Post params: [0.874703, 0.488944, 0.841342, 0.949484, 1.17456, 0.088522]
+Post params: [1.30249, 0.538692, 0.769214, 0.928137, 1.7812, 0.181706]
+Post params: [1.11635, 0.16348, 0.864138, 1.34835, 1.65513, 0.283658]
+Post params: [0.916868, 0.324522, 0.657255, 0.826019, 1.39669, 0.139641]
+Post params: [1.10423, 0.104554, 0.857917, 0.381943, 1.40784, 0.0582197]
+Post params: [1.04671, 0.538197, 0.891242, 0.580549, 1.30725, 0.128313]
+Post params: [1.47674, 0.0145678, 0.904516, 0.893319, 1.22919, 0.203381]
+Post params: [1.0979, 0.442349, 0.867627, 1.2548, 1.83454, 0.313499]
+Post params: [1.35345, 0.134847, 0.699629, 1.3877, 1.44486, 0.190805]
+Post params: [1.27213, 0.665152, 0.807748, 0.748331, 1.61867, 0.177435]
+Post params: [1.08387, 0.160019, 0.776646, 0.430138, 1.63472, 0.139041]
+Post params: [1.4921, 1.27418, 0.820241, 1.23037, 1.7918, 0.191013]
+Post params: [0.92704, 0.223158, 0.814908, 0.726668, 1.48837, 0.15089]
+Post params: [0.716873, 0.445283, 0.804228, 0.694754, 1.51173, 0.147]
+Post params: [1.01292, 0.305931, 0.903631, 0.504931, 1.79717, 0.12794]
+Post params: [1.18775, 0.382052, 0.754465, 0.593276, 1.47554, 0.182805]
+Post params: [1.12594, 0.34578, 1.00406, 1.50357, 1.56219, 0.284419]
+Used fitted params for 0 posts and inferred params for 51 posts
+Generated 96 for subreddit sysadmin
+
+Processing blackhat with 1 posts to simulate
+Using default max graph size: 3000
+Loaded 1962 processed posts from model_files/posts/blackhat_posts.pkl
+1 new posts
+Sampling graph to 3000 nodes
+   Filtered to 238 based on minimum node quality of 0.6
+   1 authors in seed posts
+   Filtered to 0 posts by 0 authors
+   Drawing more posts...
+   Sampled to 238 posts by 165 authors for inference (0 seed authors)
+   1245 tokens in graph
+Building param graph for 238 posts
+Finished graph has 238 nodes (2 isolated) and 5293 edges
+Saved post-graph to sim_files/blackhat_graph.txt
+Filtering params to 238 sampled posts
+Saved sampled params to sim_files/blackhat_in_params.txt
+Adding seed posts to graph
+   Added 1 nodes (0 isolated) and 66 edges
+Adding edges for seed posts
+Saved updated post-graph to sim_files/blackhat_graph.txt
+
+Simulating comment trees...
+Post params: [1.95458, 0.327821, 1.14942, 4.2153, 1.76736, 0.626396]
+Used fitted params for 0 posts and inferred params for 1 posts
+Generated 6 for subreddit blackhat
+
+Processing msp with 3 posts to simulate
+Using default max graph size: 3000
+Loaded 5394 processed posts from model_files/posts/msp_posts.pkl
+3 new posts
+Sampling graph to 3000 nodes
+   Filtered to 4351 based on minimum node quality of 0.6
+   3 authors in seed posts
+   Filtered to 0 posts by 0 authors
+   Drawing more posts...
+   Sampled to 2997 posts by 1286 authors for inference (0 seed authors)
+   3968 tokens in graph
+Building param graph for 2997 posts
+Finished graph has 2997 nodes (10 isolated) and 527612 edges
+Saved post-graph to sim_files/msp_graph.txt
+Filtering params to 2997 sampled posts
+Saved sampled params to sim_files/msp_in_params.txt
+Adding seed posts to graph
+   Added 3 nodes (0 isolated) and 818 edges
+Adding edges for seed posts
+Saved updated post-graph to sim_files/msp_graph.txt
+
+Simulating comment trees...
+Post params: [1.82625, 0.15934, 0.899381, 0.648146, 1.61413, 0.192586]
+Post params: [0.917937, 0.209398, 0.786971, 0.277426, 1.43359, 0.0568718]
+Post params: [1.86822, 0.301085, 0.776001, 1.02851, 1.89405, 0.205766]
+Used fitted params for 0 posts and inferred params for 3 posts
+Generated 12 for subreddit msp
+
+Processing networking with 11 posts to simulate
+Using default max graph size: 3000
+Loaded 21538 processed posts from model_files/posts/networking_posts.pkl
+11 new posts
+Sampling graph to 3000 nodes
+   Filtered to 15344 based on minimum node quality of 0.6
+   11 authors in seed posts
+   Filtered to 87 posts by 4 authors
+   Drawing more posts...
+   Sampled to 2989 posts by 2185 authors for inference (4 seed authors)
+   4836 tokens in graph
+Building param graph for 2989 posts
+Finished graph has 2989 nodes (12 isolated) and 697668 edges
+Saved post-graph to sim_files/networking_graph.txt
+Filtering params to 2989 sampled posts
+Saved sampled params to sim_files/networking_in_params.txt
+Adding seed posts to graph
+   Added 11 nodes (0 isolated) and 6214 edges
+Adding edges for seed posts
+Saved updated post-graph to sim_files/networking_graph.txt
+
+Simulating comment trees...
+Post params: [0.916788, 0.331079, 0.876768, 0.608619, 1.70115, 0.144175]
+Post params: [1.72167, 0.252607, 0.954704, 1.83232, 1.79478, 0.472556]
+Post params: [1.52991, 0.0536695, 0.76686, 0.63582, 1.6671, 0.0341834]
+Post params: [1.20667, 0.379422, 0.840521, 0.650239, 1.5657, 0.0975974]
+Post params: [0.985291, 0.172303, 0.808867, 1.05815, 1.41323, 0.311244]
+Post params: [1.50134, 0.254387, 0.908289, 1.1657, 1.43803, 0.208019]
+Post params: [1.03043, 0.158101, 0.785361, 0.425373, 1.47539, 0.04933]
+Post params: [0.0231456, 0.319037, 0.652905, 0.323336, 1.37568, 0.0824018]
+Finished post 850 / 853
+Post params: [0.753554, 1.53084, 0.923506, 0.712745, 1.59822, 0.116032]
+Post params: [0.477996, 0.546482, 0.693631, 0.373145, 1.26352, 0.0344747]
+Post params: [0.671878, 0.370069, 0.848267, 0.755972, 1.47966, 0.0538177]
+Used fitted params for 0 posts and inferred params for 11 posts
+Generated 17 for subreddit networking
+
+Finished all simulations, have 2094 events to save
+Saving results to output/cyber_1_sim_res.json...
+Done

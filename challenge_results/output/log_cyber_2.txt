@@ -1,0 +1,74 @@
+
+An algorithmic framework for representational learning on graphs. [Dec 11 2018]
+================================================================================
+Input graph path (-i:)=sim_files/compsci_graph.txt
+Initial embeddings input file. Default is None. (-ie:)=sim_files/compsci_in_params.txt
+Output graph path (-o:)=sim_files/compsci_params.txt
+Number of dimensions. Default is 128 (-d:)=6
+Length of walk per source. Default is 80 (-l:)=3
+Number of walks per source. Default is 10 (-r:)=10
+Context size for optimization. Default is 10 (-k:)=10
+Number of epochs in SGD. Default is 1 (-e:)=1
+Return hyperparameter. Default is 1 (-p:)=1
+Inout hyperparameter. Default is 1 (-q:)=1
+Verbose output. (-v)=NO
+Graph is directed. (-dr)=NO
+Graph is weighted. (-w)=YES
+Using "sticky" factor. (-s)=YES
+Output random walks instead of embeddings. (-ow)=NO
+Input ../../data/dec2018-challenge-input/input_for_reddit/cyber/scenario2/reddit_dec18_cyber_scenario2_input.json
+Output output/cyber_2_sim_res.json
+Domain cyber
+Minimum node quality 0.0
+Estimating initial params for seed posts based on inverse quality weighted average of neighbors
+
+Read 853 events
+{'compsci': 3, 'linux': 100, 'Android': 101, 'ReverseEngineering': 4, 'antivirus': 1, 'security': 5, 'netsecstudents': 2, 'pcmasterrace': 110, 'programming': 64, 'talesfromtechsupport': 8, 'SocialEngineering': 4, 'networking': 11, 'AskNetsec': 1, 'blackhat': 1, 'Piracy': 84, 'Malware': 1, 'netsec': 16, 'msp': 3, 'HowToHack': 7, 'techsupport': 33, 'Windows10': 90, 'hacking': 14, 'technology': 61, 'sysadmin': 51, 'crypto': 11, 'softwaregore': 42, 'privacy': 25}
+
+Processing compsci with 3 posts to simulate
+Using default max graph size: 2800
+Loaded 8171 processed posts from model_files/posts/compsci_posts.pkl
+3 new posts
+Sampling graph to 2800 nodes
+   Filtered to 8171 based on minimum node quality of 0.0
+   3 authors in seed posts
+   Filtered to 9 posts by 1 authors
+   Drawing more posts...
+   Sampled to 2797 posts by 1762 authors for inference (1 seed authors)
+   5942 tokens in graph
+Building param graph for 2797 posts
+Finished graph has 2797 nodes (15 isolated) and 939095 edges
+Saved post-graph to sim_files/compsci_graph.txt
+Filtering params to 2797 sampled posts
+Saved sampled params to sim_files/compsci_in_params.txt
+Adding seed posts to graph
+   Added 3 nodes (0 isolated) and 3172 edges
+Adding edges for seed posts
+Saved updated post-graph to sim_files/compsci_graph.txt
+Added 3 seed param initializations to param file.
+
+Simulating comment trees...
+Used fitted params for 0 posts and inferred params for 3 posts
+Generated 11 for subreddit compsci
+
+Processing linux with 100 posts to simulate
+Max graph size for this subreddit: 3500
+Loaded 33184 processed posts from model_files/posts/linux_posts.pkl
+100 new posts
+Sampling graph to 3500 nodes
+   Filtered to 33184 based on minimum node quality of 0.0
+   91 authors in seed posts
+   Filtered to 1056 posts by 34 authors
+   Drawing more posts...
+   Sampled to 3400 posts by 1425 authors for inference (34 seed authors)
+   7205 tokens in graph
+Building param graph for 3400 posts
+Finished graph has 3400 nodes (11 isolated) and 1576639 edges
+Saved post-graph to sim_files/linux_graph.txt
+Filtering params to 3400 sampled posts
+Saved sampled params to sim_files/linux_in_params.txt
+Adding seed posts to graph
+   Added 100 nodes (0 isolated) and 99860 edges
+Adding edges for seed posts
+Saved updated post-graph to sim_files/linux_graph.txt
+Added 100 seed param initializations to param file.

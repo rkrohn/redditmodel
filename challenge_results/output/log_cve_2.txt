@@ -1,0 +1,96 @@
+
+An algorithmic framework for representational learning on graphs. [Dec 11 2018]
+================================================================================
+Input graph path (-i:)=sim_files/cve_graph.txt
+Initial embeddings input file. Default is None. (-ie:)=sim_files/cve_in_params.txt
+Output graph path (-o:)=sim_files/cve_params.txt
+Number of dimensions. Default is 128 (-d:)=6
+Length of walk per source. Default is 80 (-l:)=3
+Number of walks per source. Default is 10 (-r:)=10
+Context size for optimization. Default is 10 (-k:)=10
+Number of epochs in SGD. Default is 1 (-e:)=1
+Return hyperparameter. Default is 1 (-p:)=1
+Inout hyperparameter. Default is 1 (-q:)=1
+Verbose output. (-v)=NO
+Graph is directed. (-dr)=NO
+Graph is weighted. (-w)=YES
+Using "sticky" factor. (-s)=YES
+Output random walks instead of embeddings. (-ow)=NO
+Input ../../data/dec2018-challenge-input/input_for_reddit/cve/scenario2/reddit_dec18_cve_scenario2_input.json
+Output output/cve_2_sim_res.json
+Domain cve
+Minimum node quality 0.6
+
+Read 39 events
+{'cve': 39}
+
+Processing cve with 39 posts to simulate
+Using default max graph size: 4000
+Loaded 3411 processed posts from model_files/posts/cve_posts.pkl
+39 new posts
+Sampling graph to 4000 nodes
+   Filtered to 1764 based on minimum node quality of 0.6
+   38 authors in seed posts
+   Filtered to 755 posts by 607 authors
+   Drawing more posts...
+   Sampled to 1764 posts by 1466 authors for inference (5 seed authors)
+      333 subreddits in graph (18 seed subs)
+   5015 tokens in graph
+   Cannot connect seed post to graph - parameter inference compromised
+   Cannot connect seed post to graph - parameter inference compromised
+Building param graph for 1764 posts
+Finished graph has 1764 nodes (5 isolated) and 295921 edges
+Saved post-graph to sim_files/cve_graph.txt
+Filtering params to 1764 sampled posts
+Saved sampled params to sim_files/cve_in_params.txt
+Adding seed posts to graph
+   Added 39 nodes (2 isolated) and 12772 edges
+Adding edges for seed posts
+Saved updated post-graph to sim_files/cve_graph.txt
+
+Simulating comment trees...
+Post params: [0.413931, 0.592325, 0.694555, 0.645131, 1.59109, 0.123933]
+Post params: [0.928256, 0.274578, 1.06456, 2.06305, 1.54406, 0.550116]
+Post params: [2.0146, 2.70736, 1.20436, 4.05226, 2.22217, 1.04951]
+Post params: [0.190135, 0.463248, 0.990621, 2.07708, 1.95023, 0.493064]
+Post params: [0.410156, 0.00710839, 1.18248, 3.23114, 1.77511, 0.689004]
+Post params: [0.802026, 0.288136, 0.789589, 1.67624, 1.58137, 0.314244]
+Post params: [0.384118, 0.411561, 0.681337, 0.633001, 1.46837, 0.14413]
+Post params: [0.778179, 0.184808, 0.774998, 1.05625, 1.5976, 0.300022]
+Post params: [0.384234, 2.98707, 0.410452, 0.0135106, 0.644172, 0.00436292]
+Post params: [0.364934, 0.12855, 0.913883, 2.50289, 1.73019, 0.5939]
+Post params: [1.34262, 0.268167, 0.844951, 1.02622, 1.63857, 0.235882]
+Post params: [0.327314, 0.320387, 0.961307, 1.88136, 1.77152, 0.464162]
+Post params: [1.31424, 1.20745, 0.945026, 1.347, 1.34659, 0.283276]
+Post params: [0.529118, 0.390106, 0.903671, 0.726583, 1.57349, 0.18336]
+Post params: [0.260822, 2.44904, 0.892376, 1.16227, 1.62016, 0.202836]
+Post params: [0.192778, 0.59533, 0.968632, 1.54831, 1.62569, 0.289702]
+Post params: [0.252361, 0.266473, 0.85522, 0.450533, 1.55736, 0.143152]
+Post params: [0.250849, 0.527611, 0.93206, 0.640916, 1.37121, 0.148395]
+Post params: [0.086206, 0.462155, 0.778144, 0.505534, 1.42615, 0.149437]
+Post params: [0.137996, 0.637388, 0.774033, 0.381481, 1.63962, 0.106451]
+Post params: [0.577909, 0.341872, 1.07323, 2.79054, 2.06979, 0.600212]
+Post params: [0.335386, 1.19582, 0.90511, 1.98547, 1.87258, 0.450733]
+Post params: [0.132398, 0.382819, 0.977384, 2.17217, 1.6676, 0.486719]
+Post params: [0.483821, 1.1727, 0.747219, 0.745102, 1.46586, 0.0467219]
+Post params: [0.0896157, 0.50635, 0.771716, 0.728623, 1.64839, 0.147541]
+Post params: [0.187366, 0.455814, 0.726474, 0.612481, 1.52989, 0.101245]
+Post params: [0.0233004, 0.171103, 0.791297, 1.19885, 1.77206, 0.226211]
+Post params: [0.424268, 0.0791949, 1.14895, 3.17548, 2.14091, 0.796239]
+Post params: [0.00852119, 0.0865269, 0.844409, 0.492999, 1.65953, 0.0506558]
+Post params: [0.450715, 0.0434023, 1.08216, 1.87678, 1.83147, 0.519103]
+Post params: [0.235619, 0.100344, 0.707612, 0.317033, 1.38131, 0.0798015]
+Post params: [0.179363, 0.460058, 0.677366, 0.783362, 1.62368, 0.0873137]
+Post params: [0.642015, 0.590186, 0.898299, 1.01907, 1.72447, 0.160848]
+Post params: [0.352105, 0.344854, 1.61906, 1.44785, 3.44624, 0.337119]
+Post params: [0.385809, 0.239741, 1.6851, 1.24173, 2.85562, 0.261328]
+Post params: [1.79878, 1.50764, 0.841338, 1.59822, 1.60992, 0.403128]
+Post params: [0.107942, 1.55316, 0.858161, 1.94957, 1.87485, 0.334501]
+Post params: [0.517528, 0.403828, 0.699226, 0.901948, 1.64007, 0.1995]
+Post params: [0.85695, 0.849801, 0.821029, 0.493752, 1.48441, 0.269556]
+Used fitted params for 0 posts and inferred params for 39 posts
+Generated 76 for subreddit cve
+
+Finished all simulations, have 76 events to save
+Saving results to output/cve_2_sim_res.json...
+Done

@@ -1,0 +1,220 @@
+Input ../../data/dec2018-challenge-input/input_for_reddit/crypto/scenario2/reddit_dec18_crypto_scenario2_input.json
+Output output/crypto_3000_sim_res.json
+Domain crypto
+
+Read 455 events
+{'Bitcoin': 194, 'Monero': 113, 'Lisk': 4, 'ethereum': 144}
+
+Processing Bitcoin with 194 posts to simulate
+Loaded 232633 processed posts from model_files/posts/Bitcoin_posts.pkl
+New id 232633 assigned to seed post
+New id 232634 assigned to seed post
+New id 232635 assigned to seed post
+New id 232636 assigned to seed post
+New id 232637 assigned to seed post
+New id 232638 assigned to seed post
+New id 232639 assigned to seed post
+New id 232640 assigned to seed post
+New id 232641 assigned to seed post
+New id 232642 assigned to seed post
+New id 232643 assigned to seed post
+New id 232644 assigned to seed post
+New id 232645 assigned to seed post
+New id 232646 assigned to seed post
+New id 232647 assigned to seed post
+New id 232648 assigned to seed post
+New id 232649 assigned to seed post
+New id 232650 assigned to seed post
+New id 232651 assigned to seed post
+New id 232652 assigned to seed post
+New id 232653 assigned to seed post
+New id 232654 assigned to seed post
+New id 232655 assigned to seed post
+New id 232656 assigned to seed post
+New id 232657 assigned to seed post
+New id 232658 assigned to seed post
+New id 232659 assigned to seed post
+New id 232660 assigned to seed post
+New id 232661 assigned to seed post
+New id 232662 assigned to seed post
+New id 232663 assigned to seed post
+New id 232664 assigned to seed post
+New id 232665 assigned to seed post
+New id 232666 assigned to seed post
+New id 232667 assigned to seed post
+New id 232668 assigned to seed post
+New id 232669 assigned to seed post
+New id 232670 assigned to seed post
+New id 232671 assigned to seed post
+New id 232672 assigned to seed post
+New id 232673 assigned to seed post
+New id 232674 assigned to seed post
+New id 232675 assigned to seed post
+New id 232676 assigned to seed post
+New id 232677 assigned to seed post
+New id 232678 assigned to seed post
+New id 232679 assigned to seed post
+New id 232680 assigned to seed post
+New id 232681 assigned to seed post
+New id 232682 assigned to seed post
+New id 232683 assigned to seed post
+New id 232684 assigned to seed post
+New id 232685 assigned to seed post
+New id 232686 assigned to seed post
+New id 232687 assigned to seed post
+New id 232688 assigned to seed post
+New id 232689 assigned to seed post
+New id 232690 assigned to seed post
+New id 232691 assigned to seed post
+New id 232692 assigned to seed post
+New id 232693 assigned to seed post
+New id 232694 assigned to seed post
+New id 232695 assigned to seed post
+New id 232696 assigned to seed post
+New id 232697 assigned to seed post
+New id 232698 assigned to seed post
+New id 232699 assigned to seed post
+New id 232700 assigned to seed post
+New id 232701 assigned to seed post
+New id 232702 assigned to seed post
+New id 232703 assigned to seed post
+New id 232704 assigned to seed post
+New id 232705 assigned to seed post
+New id 232706 assigned to seed post
+New id 232707 assigned to seed post
+New id 232708 assigned to seed post
+New id 232709 assigned to seed post
+New id 232710 assigned to seed post
+New id 232711 assigned to seed post
+New id 232712 assigned to seed post
+New id 232713 assigned to seed post
+New id 232714 assigned to seed post
+New id 232715 assigned to seed post
+New id 232716 assigned to seed post
+New id 232717 assigned to seed post
+New id 232718 assigned to seed post
+New id 232719 assigned to seed post
+New id 232720 assigned to seed post
+New id 232721 assigned to seed post
+New id 232722 assigned to seed post
+New id 232723 assigned to seed post
+New id 232724 assigned to seed post
+New id 232725 assigned to seed post
+New id 232726 assigned to seed post
+New id 232727 assigned to seed post
+New id 232728 assigned to seed post
+New id 232729 assigned to seed post
+New id 232730 assigned to seed post
+New id 232731 assigned to seed post
+New id 232732 assigned to seed post
+New id 232733 assigned to seed post
+New id 232734 assigned to seed post
+New id 232735 assigned to seed post
+New id 232736 assigned to seed post
+New id 232737 assigned to seed post
+New id 232738 assigned to seed post
+New id 232739 assigned to seed post
+New id 232740 assigned to seed post
+New id 232741 assigned to seed post
+New id 232742 assigned to seed post
+New id 232743 assigned to seed post
+New id 232744 assigned to seed post
+New id 232745 assigned to seed post
+New id 232746 assigned to seed post
+New id 232747 assigned to seed post
+New id 232748 assigned to seed post
+New id 232749 assigned to seed post
+New id 232750 assigned to seed post
+New id 232751 assigned to seed post
+New id 232752 assigned to seed post
+New id 232753 assigned to seed post
+New id 232754 assigned to seed post
+New id 232755 assigned to seed post
+New id 232756 assigned to seed post
+New id 232757 assigned to seed post
+New id 232758 assigned to seed post
+New id 232759 assigned to seed post
+New id 232760 assigned to seed post
+New id 232761 assigned to seed post
+New id 232762 assigned to seed post
+New id 232763 assigned to seed post
+New id 232764 assigned to seed post
+New id 232765 assigned to seed post
+New id 232766 assigned to seed post
+New id 232767 assigned to seed post
+New id 232768 assigned to seed post
+New id 232769 assigned to seed post
+New id 232770 assigned to seed post
+New id 232771 assigned to seed post
+New id 232772 assigned to seed post
+New id 232773 assigned to seed post
+New id 232774 assigned to seed post
+New id 232775 assigned to seed post
+New id 232776 assigned to seed post
+New id 232777 assigned to seed post
+New id 232778 assigned to seed post
+New id 232779 assigned to seed post
+New id 232780 assigned to seed post
+New id 232781 assigned to seed post
+New id 232782 assigned to seed post
+New id 232783 assigned to seed post
+New id 232784 assigned to seed post
+New id 232785 assigned to seed post
+New id 232786 assigned to seed post
+New id 232787 assigned to seed post
+New id 232788 assigned to seed post
+New id 232789 assigned to seed post
+New id 232790 assigned to seed post
+New id 232791 assigned to seed post
+New id 232792 assigned to seed post
+New id 232793 assigned to seed post
+New id 232794 assigned to seed post
+New id 232795 assigned to seed post
+New id 232796 assigned to seed post
+New id 232797 assigned to seed post
+New id 232798 assigned to seed post
+New id 232799 assigned to seed post
+New id 232800 assigned to seed post
+New id 232801 assigned to seed post
+New id 232802 assigned to seed post
+New id 232803 assigned to seed post
+New id 232804 assigned to seed post
+New id 232805 assigned to seed post
+New id 232806 assigned to seed post
+New id 232807 assigned to seed post
+New id 232808 assigned to seed post
+New id 232809 assigned to seed post
+New id 232810 assigned to seed post
+New id 232811 assigned to seed post
+New id 232812 assigned to seed post
+New id 232813 assigned to seed post
+New id 232814 assigned to seed post
+New id 232815 assigned to seed post
+New id 232816 assigned to seed post
+New id 232817 assigned to seed post
+New id 232818 assigned to seed post
+New id 232819 assigned to seed post
+New id 232820 assigned to seed post
+New id 232821 assigned to seed post
+New id 232822 assigned to seed post
+New id 232823 assigned to seed post
+New id 232824 assigned to seed post
+New id 232825 assigned to seed post
+New id 232826 assigned to seed post
+Sampling graph to 3000 nodes
+   186 authors in seed posts
+   Filtered to 3791 posts by 65 authors
+   Sampling down...
+   Sampled to 2806 posts by 65 authors for inference (65 seed authors)
+   6815 tokens in graph
+   Cannot connect seed post to graph - parameter inference compromised
+   Adding 1 token-matching posts to graph
+Building param graph for 2807 posts
+Finished graph has 2807 nodes (0 isolated) and 1572098 edges
+Saved post-graph to sim_files/Bitcoin_graph.txt
+Filtering params to 2807 sampled posts
+Saved sampled params to sim_files/Bitcoin_in_params.txt
+Adding seed posts to graph
+   Added 194 nodes (1 isolated) and 220685 edges
+Adding edges for seed posts
+Saved updated post-graph to sim_files/Bitcoin_graph.txt
