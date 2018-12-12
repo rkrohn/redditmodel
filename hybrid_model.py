@@ -87,11 +87,11 @@ post_counter = 1	#counter of posts to simulate, across all subreddits
 
 #process each subreddit
 for subreddit, seeds in post_seeds.items():
-	'''
+	
 	#TESTING ONLY!!!!
 	if subreddit != "pivx":
 		continue
-	'''
+	
 
 	print("\nProcessing", subreddit, "with", len(seeds), "posts to simulate")
 
@@ -251,7 +251,7 @@ for subreddit, seeds in post_seeds.items():
 		sim_root, all_times = sim_tree.simulate_comment_tree(post_params)
 
 		#convert that to desired output format
-		post_events = build_cascade_events(sim_root, post, user_ids)
+		post_events = build_cascade_events(sim_root, post, user_ids, subreddit)
 
 		#add these events to running list
 		all_events.extend(post_events)

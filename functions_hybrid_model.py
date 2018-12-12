@@ -111,9 +111,9 @@ def load_reddit_seeds(filename):
 	"nodeID": id of post/comment
 	"communityID": id of subreddit			???
 '''
-def build_cascade_events(root, post, user_ids):
+def build_cascade_events(root, post, user_ids, subreddit):
 	#get start of event structure by converting sim tree to events list
-	events = tree_to_events(root, post['id_h'], post['created_utc']) 
+	events = tree_to_events(root, post['id_h'], post['created_utc'], subreddit) 
 
 	#set the rest of the fields, the same for all events in this cascade
 	for event in events:
@@ -136,7 +136,7 @@ def build_cascade_events(root, post, user_ids):
 NEXT_ID = 0		#global counter of next id to assign to simulated comments
 
 #given root of sim tree, return as list of dictionary events, with correct parent pointers
-def tree_to_events(root, seedID, seedTime):
+def tree_to_events(root, seedID, seedTime, subreddit):
 	global NEXT_ID
 
 	visited = set()    #set of visited nodes
@@ -151,7 +151,7 @@ def tree_to_events(root, seedID, seedTime):
 		new_event = {'nodeTime': str(int(curr['time'] * 60) + seedTime)}		#convert offset to seconds, add to seed time, convert entire time to string
 		#set nodeid if comment
 		if parent != None:
-			new_event['nodeID'] = COMMENT_PREFIX + "comment" + str(NEXT_ID)		#include comment prefix
+			new_event['nodeID'] = COMMENT_PREFIX + subreddit + "_comment" + str(NEXT_ID)		#include comment prefix
 			NEXT_ID += 1
 		#nodeID = seed post ID if at root
 		else:
