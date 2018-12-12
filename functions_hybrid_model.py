@@ -229,7 +229,7 @@ TOKENS = None		#global dictionaries for post graph, used in add_post_edges
 USERS = None
 GRAPH_SUBREDDIT = None 		#track subreddit used for current dictionaries (because need to clear when change)
 
-def add_post_edges(graph, isolated_nodes, graph_posts, new_post, new_post_numeric_id, subreddit):
+def add_post_edges(graph, isolated_nodes, graph_posts, new_post, new_post_numeric_id, subreddit, all_posts, estimate_initial_params=False, fitted_params=False):
 	global TOKENS, USERS, GRAPH_SUBREDDIT
 
 	#if don't have token/user dictionaries yet, get them now
@@ -243,6 +243,11 @@ def add_post_edges(graph, isolated_nodes, graph_posts, new_post, new_post_numeri
 	#tokenize this post, grab post user
 	new_tokens = extract_tokens(new_post)
 	new_user = new_post['author_h']
+
+	#compute average of neighbor params if estimating initial parameters option specified
+	if estimate_initial_params:
+		neighbor_count = 0
+		neighbor_sum = [0,0,0,0,0,0]
 
 	#add connecting edges for this post to the graph, token edges first
 
@@ -261,6 +266,11 @@ def add_post_edges(graph, isolated_nodes, graph_posts, new_post, new_post_numeri
 			if weight != False:
 				graph[(new_post_numeric_id, graph_posts[other_post]['id'])] = weight		#add edge
 				isolated = False
+				if estimate_initial_params and all_posts[other_post]['id'] in fitted_params:
+					for i in range(6):
+						neighbor_sum[i] += fitted_params[all_posts[other_post]['id']][i]
+					neighbor_count += 1
+
 
 	#add edges of weight=1 between posts also by this user
 	for prev_post in USERS[new_user]:
@@ -276,6 +286,10 @@ def add_post_edges(graph, isolated_nodes, graph_posts, new_post, new_post_numeri
 		else:
 			graph[(new_post_numeric_id, graph_posts[prev_post]['id'])] = 1.0
 			isolated = False
+			if estimate_initial_params and all_posts[other_post]['id'] in fitted_params:
+				for i in range(6):
+					neighbor_sum[i] += fitted_params[all_posts[other_post]['id']][i]
+				neighbor_count += 1
 
 	#cve only: edge of weight 1 between posts in same subreddit
 	if 'sub' in new_post:
@@ -292,10 +306,15 @@ def add_post_edges(graph, isolated_nodes, graph_posts, new_post, new_post_numeri
 				else:
 					graph[(new_post_numeric_id, prev_post['id'])] = 1.0
 					isolated = False
+					if estimate_initial_params and all_posts[other_post]['id'] in fitted_params:
+						for i in range(6):
+							neighbor_sum[i] += fitted_params[all_posts[other_post]['id']][i]
+						neighbor_count += 1
 
 	#if node is isolated (no edges added), include in isolated_nodes list
 	if isolated:
 		isolated_nodes.append(new_post_numeric_id)
+		print("Isolated node")
 
 	#add this post to graph tracking, so we can connect it to other seed posts
 	graph_posts[new_post['id_h']] = {'tokens': new_tokens, 'id': new_post_numeric_id}
@@ -303,7 +322,14 @@ def add_post_edges(graph, isolated_nodes, graph_posts, new_post, new_post_numeri
 	for token in new_tokens:
 		TOKENS[token].add(new_post['id_h'])
 
-	return graph, isolated_nodes, graph_posts
+	#for initial param estimate, finish average and return result
+	if estimate_initial_params and neighbor_count != 0:
+		for i in range(6):
+			neighbor_sum[i] /= neighbor_count
+		return graph, isolated_nodes, graph_posts, neighbor_sum
+
+	#no initial param estimate, return None
+	return graph, isolated_nodes, graph_posts, None
 #end add_post_edges
 
 
@@ -378,8 +404,10 @@ def user_sample_graph(raw_sub_posts, seeds, max_nodes, subreddit, min_node_quali
 
 	#if have minimum node quality threshold, throw out any posts with too low a quality
 	if min_node_quality != -1:
-		raw_sub_posts = {key: value for key, value in raw_sub_posts.items() if value['id'] in fitted_quality and fitted_quality[value['id']] > min_node_quality}
-		print("   Filtered to", len(raw_sub_posts), "based on minimum node quality of", min_node_quality)
+		filtered_sub_posts = {key: value for key, value in raw_sub_posts.items() if value['id'] in fitted_quality and fitted_quality[value['id']] > min_node_quality}
+		print("   Filtered to", len(filtered_sub_posts), "based on minimum node quality of", min_node_quality)
+	else:
+		filtered_sub_posts = raw_sub_posts
 
 	#set of authors of seed
 	authors = set([post['author_h'] for post in seeds])

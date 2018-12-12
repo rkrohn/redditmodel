@@ -31,7 +31,7 @@ DISPLAY = False
 
 #verify command line args
 if len(sys.argv) < 5:
-	print("Incorrect command line arguments\nUsage: python3 hybrid_model.py <seed filename> <output filename> <domain> <max nodes for infer graph> <min_node_quality>")
+	print("Incorrect command line arguments\nUsage: python3 hybrid_model.py <seed filename> <output filename> <domain> <max nodes for infer graph> <min_node_quality (set to -1 for no filter)> esp(optional, for estimating initial params)")
 	exit(0)
 
 #extract arguments
@@ -43,6 +43,10 @@ if len(sys.argv) > 5:
 	min_node_quality = float(sys.argv[5])
 else:
 	min_node_quality = -1
+if len(sys.argv) > 6 and sys.argv[6] == "esp":
+	estimate_initial_params = True
+else:
+	estimate_initial_params = False
 
 #read subreddit-specific size limits from file
 with open(limit_filepath, 'r') as f:
@@ -59,6 +63,8 @@ print("Output", outfile)
 print("Domain", domain)
 if min_node_quality != -1:
 	print("Minimum node quality", min_node_quality)
+if estimate_initial_params:
+	print("Estimating initial params for seed posts based on neighbors")
 print("")
 
 file_utils.verify_dir("sim_files")		#ensure working directory exists
@@ -83,7 +89,7 @@ post_counter = 1	#counter of posts to simulate, across all subreddits
 for subreddit, seeds in post_seeds.items():
 	'''
 	#TESTING ONLY!!!!
-	if subreddit != "Lisk":
+	if subreddit != "pivx":
 		continue
 	'''
 
@@ -126,7 +132,7 @@ for subreddit, seeds in post_seeds.items():
 			infer_count += 1
 			seed_numeric_ids[seed_post['id_h']] = next_id			#assign id to this unseen post
 			next_id += 1
-			#print("New id", next_id-1, "assigned to seed post")
+			#print("New id", next_id-1, "assigned to seed post", seed_post['id_h'])
 		#seen this post, have params fitted, just fetch id
 		else:
 			seed_numeric_ids[seed_post['id_h']] = posts[seed_post['id_h']]['id']
@@ -152,6 +158,9 @@ for subreddit, seeds in post_seeds.items():
 			get_sampled_params(graph_posts, params_filepath % subreddit, temp_params_filepath % subreddit)
 			sample_graph = True
 
+		#for initial param estimate, store dict of numeric id -> param initialization estimates
+		param_estimate = {}
+
 		#add all seed posts from this subreddit to graph, if not already there
 		#also convert seed post ids to prefix-less format, if required
 		#and assign each seed post a numeric id for node2vec fun (use existing id if seen post before)x
@@ -160,9 +169,12 @@ for subreddit, seeds in post_seeds.items():
 			#does this post need to be added to the graph? if yes, compute new edges and assign new id
 			if seed_post['id_h'] not in posts:
 				if sample_graph:
-					graph, isolated_nodes, posts = add_post_edges(graph, isolated_nodes, graph_posts, seed_post, seed_numeric_ids[seed_post['id_h']], subreddit)
+					graph, isolated_nodes, posts, new_initial_params = add_post_edges(graph, isolated_nodes, graph_posts, seed_post, seed_numeric_ids[seed_post['id_h']], subreddit, posts, estimate_initial_params, fitted_params)
 				else:		
-					graph, isolated_nodes, posts = add_post_edges(graph, isolated_nodes, posts, seed_post, seed_numeric_ids[seed_post['id_h']], subreddit)
+					graph, isolated_nodes, posts, new_initial_params = add_post_edges(graph, isolated_nodes, posts, seed_post, seed_numeric_ids[seed_post['id_h']], subreddit, posts, estimate_initial_params, fitted_params)
+				if estimate_initial_params and new_initial_params != None:
+					param_estimate[seed_numeric_ids[seed_post['id_h']]] = new_initial_params
+					print("estimated initial params", new_initial_params)
 				added_count += 1
 
 		print("   Added", added_count, "nodes (" + str(len(isolated_nodes)), "isolated) and", len(graph), "edges")
@@ -180,18 +192,29 @@ for subreddit, seeds in post_seeds.items():
 				f.write("%d\n" % node)
 		print("Saved updated post-graph to", temp_graph_filepath % subreddit)
 
+		#initial param estimate: use temp param file, filtered or not
+		if estimate_initial_params:
+			#no temp params file, copy full graph params first
+			if file_utils.verify_file(temp_params_filepath % subreddit) == False:
+				print("Copying full param file")
+				copyfile(params_filepath % subreddit, temp_params_filepath % subreddit)
+			#append new param estimates (initializations) to file
+			with open(temp_params_filepath % subreddit, "a") as f:
+				for post_id, init_params in param_estimate.items():
+					f.write("%d %f %f %f %f %f %f\n" % (post_id, init_params[0], init_params[1], init_params[2], init_params[3], init_params[4], init_params[5]))
+			print("Added", len(param_estimate), "seed param initializations to param file.")
+
 		#run node2vec to get embeddings - if we have to infer parameters
 		#offload to C++, because I feel the need... the need for speed!:
 
 		if file_utils.verify_file(output_params_filepath % subreddit):
 			os.remove(output_params_filepath % subreddit)		#clear output to prevent append
 
+		#get correct params filepath for node2vec call: use full file only if graph not sampled and not estimating initial params
+		run_params_path = (temp_params_filepath % subreddit) if sample_graph or estimate_initial_params else (output_params_filepath % subreddit)
+
 		#sampled graph and params
-		if sample_graph:
-			subprocess.check_call(["./c_node2vec/examples/node2vec/node2vec", "-i:"+(temp_graph_filepath % subreddit), "-ie:"+(temp_params_filepath % subreddit), "-o:"+(output_params_filepath % subreddit), "-d:6", "-l:3", "-w", "-s"])
-		#full graph and params
-		else:		
-			subprocess.check_call(["./c_node2vec/examples/node2vec/node2vec", "-i:"+(temp_graph_filepath % subreddit), "-ie:"+(params_filepath % subreddit), "-o:"+(output_params_filepath % subreddit), "-d:6", "-l:3", "-w", "-s"])
+		subprocess.check_call(["./c_node2vec/examples/node2vec/node2vec", "-i:"+(temp_graph_filepath % subreddit), "-ie:"+run_params_path, "-o:"+(output_params_filepath % subreddit), "-d:6", "-l:3", "-w", "-s"])
 
 		#load the inferred params
 		inferred_params = load_params(output_params_filepath % subreddit, posts, inferred=True)
@@ -219,10 +242,10 @@ for subreddit, seeds in post_seeds.items():
 		elif infer:
 			post_params = inferred_params[posts[seed_post['id_h']]['id']]
 			infer_count += 1
+			print("Inferred post params:", post_params)
 		else:
 			print("Something's gone wrong - no params for this post! Skipping.")
 			continue
-		print("Post params:", post_params)
 
 		#simulate a comment tree!
 		sim_root, all_times = sim_tree.simulate_comment_tree(post_params)
