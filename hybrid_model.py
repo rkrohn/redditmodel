@@ -64,7 +64,7 @@ print("Domain", domain)
 if min_node_quality != -1:
 	print("Minimum node quality", min_node_quality)
 if estimate_initial_params:
-	print("Estimating initial params for seed posts based on neighbors")
+	print("Estimating initial params for seed posts based on inverse quality weighted average of neighbors")
 print("")
 
 file_utils.verify_dir("sim_files")		#ensure working directory exists
@@ -169,9 +169,9 @@ for subreddit, seeds in post_seeds.items():
 			#does this post need to be added to the graph? if yes, compute new edges and assign new id
 			if seed_post['id_h'] not in posts:
 				if sample_graph:
-					graph, isolated_nodes, posts, new_initial_params = add_post_edges(graph, isolated_nodes, graph_posts, seed_post, seed_numeric_ids[seed_post['id_h']], subreddit, posts, estimate_initial_params, fitted_params)
+					graph, isolated_nodes, posts, new_initial_params = add_post_edges(graph, isolated_nodes, graph_posts, seed_post, seed_numeric_ids[seed_post['id_h']], subreddit, posts, estimate_initial_params, fitted_params, fitted_quality)
 				else:		
-					graph, isolated_nodes, posts, new_initial_params = add_post_edges(graph, isolated_nodes, posts, seed_post, seed_numeric_ids[seed_post['id_h']], subreddit, posts, estimate_initial_params, fitted_params)
+					graph, isolated_nodes, posts, new_initial_params = add_post_edges(graph, isolated_nodes, posts, seed_post, seed_numeric_ids[seed_post['id_h']], subreddit, posts, estimate_initial_params, fitted_params, fitted_quality)
 				if estimate_initial_params and new_initial_params != None:
 					param_estimate[seed_numeric_ids[seed_post['id_h']]] = new_initial_params
 					print("estimated initial params", new_initial_params)

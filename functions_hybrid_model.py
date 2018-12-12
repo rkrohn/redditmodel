@@ -229,7 +229,7 @@ TOKENS = None		#global dictionaries for post graph, used in add_post_edges
 USERS = None
 GRAPH_SUBREDDIT = None 		#track subreddit used for current dictionaries (because need to clear when change)
 
-def add_post_edges(graph, isolated_nodes, graph_posts, new_post, new_post_numeric_id, subreddit, all_posts, estimate_initial_params=False, fitted_params=False):
+def add_post_edges(graph, isolated_nodes, graph_posts, new_post, new_post_numeric_id, subreddit, all_posts, estimate_initial_params=False, fitted_params=False, fitted_quality=False):
 	global TOKENS, USERS, GRAPH_SUBREDDIT
 
 	#if don't have token/user dictionaries yet, get them now
@@ -268,8 +268,8 @@ def add_post_edges(graph, isolated_nodes, graph_posts, new_post, new_post_numeri
 				isolated = False
 				if estimate_initial_params and all_posts[other_post]['id'] in fitted_params:
 					for i in range(6):
-						neighbor_sum[i] += fitted_params[all_posts[other_post]['id']][i]
-					neighbor_count += 1
+						neighbor_sum[i] += (1-fitted_quality[all_posts[other_post]['id']]) * fitted_params[all_posts[other_post]['id']][i]
+					neighbor_count += (1-fitted_quality[all_posts[other_post]['id']])
 
 
 	#add edges of weight=1 between posts also by this user
@@ -288,8 +288,8 @@ def add_post_edges(graph, isolated_nodes, graph_posts, new_post, new_post_numeri
 			isolated = False
 			if estimate_initial_params and all_posts[prev_post]['id'] in fitted_params:
 				for i in range(6):
-					neighbor_sum[i] += fitted_params[all_posts[prev_post]['id']][i]
-				neighbor_count += 1
+					neighbor_sum[i] += (1-fitted_quality[all_posts[prev_post]['id']]) * fitted_params[all_posts[prev_post]['id']][i]
+				neighbor_count += (1-fitted_quality[all_posts[prev_post]['id']])
 
 	#cve only: edge of weight 1 between posts in same subreddit
 	if 'sub' in new_post:
@@ -308,8 +308,8 @@ def add_post_edges(graph, isolated_nodes, graph_posts, new_post, new_post_numeri
 					isolated = False
 					if estimate_initial_params and all_posts[prev_post]['id'] in fitted_params:
 						for i in range(6):
-							neighbor_sum[i] += fitted_params[all_posts[prev_post]['id']][i]
-						neighbor_count += 1
+							neighbor_sum[i] += (1-fitted_quality[all_posts[prev_post]['id']]) * fitted_params[all_posts[prev_post]['id']][i]
+						neighbor_count += (1-fitted_quality[all_posts[prev_post]['id']])
 
 	#if node is isolated (no edges added), include in isolated_nodes list
 	if isolated:
