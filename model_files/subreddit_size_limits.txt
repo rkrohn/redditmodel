@@ -4,4 +4,7 @@ ethereum 3250
 Monero 3100
 technology 3000
 HowToHack 3000
+linux 3500
+antivirus 3500
+Windows10 3000
 pcmasterrace 3000
