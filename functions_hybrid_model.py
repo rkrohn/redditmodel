@@ -286,9 +286,9 @@ def add_post_edges(graph, isolated_nodes, graph_posts, new_post, new_post_numeri
 		else:
 			graph[(new_post_numeric_id, graph_posts[prev_post]['id'])] = 1.0
 			isolated = False
-			if estimate_initial_params and all_posts[other_post]['id'] in fitted_params:
+			if estimate_initial_params and all_posts[prev_post]['id'] in fitted_params:
 				for i in range(6):
-					neighbor_sum[i] += fitted_params[all_posts[other_post]['id']][i]
+					neighbor_sum[i] += fitted_params[all_posts[prev_post]['id']][i]
 				neighbor_count += 1
 
 	#cve only: edge of weight 1 between posts in same subreddit
@@ -306,9 +306,9 @@ def add_post_edges(graph, isolated_nodes, graph_posts, new_post, new_post_numeri
 				else:
 					graph[(new_post_numeric_id, prev_post['id'])] = 1.0
 					isolated = False
-					if estimate_initial_params and all_posts[other_post]['id'] in fitted_params:
+					if estimate_initial_params and all_posts[prev_post]['id'] in fitted_params:
 						for i in range(6):
-							neighbor_sum[i] += fitted_params[all_posts[other_post]['id']][i]
+							neighbor_sum[i] += fitted_params[all_posts[prev_post]['id']][i]
 						neighbor_count += 1
 
 	#if node is isolated (no edges added), include in isolated_nodes list
