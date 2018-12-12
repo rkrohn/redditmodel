@@ -268,8 +268,8 @@ def add_post_edges(graph, isolated_nodes, graph_posts, new_post, new_post_numeri
 				isolated = False
 				if estimate_initial_params and all_posts[other_post]['id'] in fitted_params:
 					for i in range(6):
-						neighbor_sum[i] += fitted_params[all_posts[other_post]['id']][i]
-					neighbor_count += 1
+						neighbor_sum[i] += weight * fitted_params[all_posts[other_post]['id']][i]
+					neighbor_count += weight
 
 
 	#add edges of weight=1 between posts also by this user
@@ -280,8 +280,16 @@ def add_post_edges(graph, isolated_nodes, graph_posts, new_post, new_post_numeri
 		#check both edge orientations to be sure
 		if (new_post_numeric_id, graph_posts[prev_post]['id']) in graph:
 			graph[(new_post_numeric_id, graph_posts[prev_post]['id'])] += 1.0
+			if estimate_initial_params and all_posts[prev_post]['id'] in fitted_params:
+				for i in range(6):
+					neighbor_sum[i] += fitted_params[all_posts[prev_post]['id']][i]
+				neighbor_count += 1.0
 		elif (graph_posts[prev_post]['id'], new_post_numeric_id) in graph:
 			graph[(graph_posts[prev_post]['id'], new_post_numeric_id)] += 1.0
+			if estimate_initial_params and all_posts[prev_post]['id'] in fitted_params:
+				for i in range(6):
+					neighbor_sum[i] += fitted_params[all_posts[prev_post]['id']][i]
+				neighbor_count += 1.0
 		#new edge, just set weight
 		else:
 			graph[(new_post_numeric_id, graph_posts[prev_post]['id'])] = 1.0
@@ -289,7 +297,7 @@ def add_post_edges(graph, isolated_nodes, graph_posts, new_post, new_post_numeri
 			if estimate_initial_params and all_posts[prev_post]['id'] in fitted_params:
 				for i in range(6):
 					neighbor_sum[i] += fitted_params[all_posts[prev_post]['id']][i]
-				neighbor_count += 1
+				neighbor_count += 1.0
 
 	#cve only: edge of weight 1 between posts in same subreddit
 	if 'sub' in new_post:
@@ -300,8 +308,16 @@ def add_post_edges(graph, isolated_nodes, graph_posts, new_post, new_post_numeri
 				#check both edge orientations to be sure
 				if (new_post_numeric_id, prev_post['id']) in graph:
 					graph[(new_post_numeric_id, prev_post['id'])] += 1.0
+					if estimate_initial_params and all_posts[prev_post]['id'] in fitted_params:
+						for i in range(6):
+							neighbor_sum[i] += fitted_params[all_posts[prev_post]['id']][i]
+						neighbor_count += 1.0
 				elif (prev_post['id'], new_post_numeric_id) in graph:
 					graph[(prev_post['id'], new_post_numeric_id)] += 1.0
+					if estimate_initial_params and all_posts[prev_post]['id'] in fitted_params:
+						for i in range(6):
+							neighbor_sum[i] += fitted_params[all_posts[prev_post]['id']][i]
+						neighbor_count += 1.0
 				#new edge, just set weight
 				else:
 					graph[(new_post_numeric_id, prev_post['id'])] = 1.0
@@ -309,12 +325,11 @@ def add_post_edges(graph, isolated_nodes, graph_posts, new_post, new_post_numeri
 					if estimate_initial_params and all_posts[prev_post]['id'] in fitted_params:
 						for i in range(6):
 							neighbor_sum[i] += fitted_params[all_posts[prev_post]['id']][i]
-						neighbor_count += 1
+						neighbor_count += 1.0
 
 	#if node is isolated (no edges added), include in isolated_nodes list
 	if isolated:
 		isolated_nodes.append(new_post_numeric_id)
-		print("Isolated node")
 
 	#add this post to graph tracking, so we can connect it to other seed posts
 	graph_posts[new_post['id_h']] = {'tokens': new_tokens, 'id': new_post_numeric_id}

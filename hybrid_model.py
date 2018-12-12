@@ -64,7 +64,7 @@ print("Domain", domain)
 if min_node_quality != -1:
 	print("Minimum node quality", min_node_quality)
 if estimate_initial_params:
-	print("Estimating initial params for seed posts based on neighbors")
+	print("Estimating initial params for seed posts based on weighted average of neighbors")
 print("")
 
 file_utils.verify_dir("sim_files")		#ensure working directory exists
