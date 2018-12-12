@@ -174,7 +174,7 @@ for subreddit, seeds in post_seeds.items():
 					graph, isolated_nodes, posts, new_initial_params = add_post_edges(graph, isolated_nodes, posts, seed_post, seed_numeric_ids[seed_post['id_h']], subreddit, posts, estimate_initial_params, fitted_params, fitted_quality)
 				if estimate_initial_params and new_initial_params != None:
 					param_estimate[seed_numeric_ids[seed_post['id_h']]] = new_initial_params
-					print("estimated initial params", new_initial_params)
+					#print("estimated initial params", new_initial_params)
 				added_count += 1
 
 		print("   Added", added_count, "nodes (" + str(len(isolated_nodes)), "isolated) and", len(graph), "edges")
@@ -242,7 +242,7 @@ for subreddit, seeds in post_seeds.items():
 		elif infer:
 			post_params = inferred_params[posts[seed_post['id_h']]['id']]
 			infer_count += 1
-			print("Inferred post params:", post_params)
+			#print("Inferred post params:", post_params)
 		else:
 			print("Something's gone wrong - no params for this post! Skipping.")
 			continue

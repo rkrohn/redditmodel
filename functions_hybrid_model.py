@@ -314,7 +314,7 @@ def add_post_edges(graph, isolated_nodes, graph_posts, new_post, new_post_numeri
 	#if node is isolated (no edges added), include in isolated_nodes list
 	if isolated:
 		isolated_nodes.append(new_post_numeric_id)
-		print("Isolated node")
+		#print("Isolated node")
 
 	#add this post to graph tracking, so we can connect it to other seed posts
 	graph_posts[new_post['id_h']] = {'tokens': new_tokens, 'id': new_post_numeric_id}
