@@ -6,3 +6,9 @@ tensor_testing/tf-decompose/
 *.emb
 c_node2vec/examples/node2vec/node2vec
 model_files
+build_logs
+dryrun
+model_files_BACKUP
+output
+sim_files
+socsim_ssh_usc
