@@ -30,8 +30,8 @@ output_params_filepath = "sim_files/%s_params.txt"		#output params from node2vec
 DISPLAY = False
 
 #verify command line args
-if len(sys.argv) < 5:
-	print("Incorrect command line arguments\nUsage: python3 hybrid_model.py <seed filename> <output filename> <domain> <max nodes for infer graph> <min_node_quality (set to -1 for no filter)> esp(optional, for estimating initial params)")
+if len(sys.argv) < 6:
+	print("Incorrect command line arguments\nUsage: python3 hybrid_model.py <seed filename> <output filename> <domain> <max nodes for infer graph> <min_node_quality (set to -1 for no filter)> esp(optional, for estimating initial params) <subreddit filter>(optional)")
 	exit(0)
 
 #extract arguments
@@ -39,14 +39,17 @@ infile = sys.argv[1]
 outfile = sys.argv[2]
 domain = sys.argv[3]
 default_max_nodes = int(sys.argv[4])
-if len(sys.argv) > 5:
-	min_node_quality = float(sys.argv[5])
-else:
-	min_node_quality = -1
-if len(sys.argv) > 6 and sys.argv[6] == "esp":
+min_node_quality = float(sys.argv[5])
+if (len(sys.argv) > 6 and sys.argv[6] == "esp") or (len(sys.argv) > 7 and sys.argv[7] == "esp"):
 	estimate_initial_params = True
 else:
 	estimate_initial_params = False
+if len(sys.argv) > 6 and sys.argv[6] != "esp":
+	sub_filter = sys.argv[6]
+elif len(sys.argv) > 7 and sys.argv[7] != "esp":
+	sub_filter = sys.argv[7]
+else:
+	sub_filter = ""
 
 #read subreddit-specific size limits from file
 with open(limit_filepath, 'r') as f:
@@ -65,6 +68,8 @@ if min_node_quality != -1:
 	print("Minimum node quality", min_node_quality)
 if estimate_initial_params:
 	print("Estimating initial params for seed posts based on inverse quality weighted average of neighbors")
+if sub_filter != "":
+	print("Processing only", sub_filter, "subreddit")
 print("")
 
 file_utils.verify_dir("sim_files")		#ensure working directory exists
@@ -87,11 +92,11 @@ post_counter = 1	#counter of posts to simulate, across all subreddits
 
 #process each subreddit
 for subreddit, seeds in post_seeds.items():
-	'''
+	
 	#TESTING ONLY!!!!
-	if subreddit != "pivx":
+	if subreddit != sub_filter:
 		continue
-	'''
+	
 
 	print("\nProcessing", subreddit, "with", len(seeds), "posts to simulate")
 
