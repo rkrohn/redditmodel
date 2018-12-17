@@ -5,7 +5,7 @@ import glob
 import csv
 
 #glob filestring to get all results files
-filestring = "dryrun/results/*-metrics.json"
+filestring = "dryrun/results/*metrics.json"
 
 #get list of all matching files
 files = glob.glob(filestring)
