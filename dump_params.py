@@ -1,3 +1,4 @@
+#convert fitted params from pkl to node2vec format by printing
 #too lazy to do file ops now, just pipe it
 import cascade_manip
 
