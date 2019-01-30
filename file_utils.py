@@ -6,6 +6,7 @@ import tarfile
 import pickle
 import csv
 import os
+import tarfile
 
 DISPLAY = True
 
@@ -112,3 +113,11 @@ def verify_dir(path):
 def verify_file(path):
 	return os.path.exists(path)
 #end verify_file
+
+#list all files in tar file
+def list_tar(filename):
+	tar = tarfile.open(filename)	#"../2018DecCP/Reddit/Cyber/Tng_an_RC_Cyber_sent.tar"
+	files = tar.getmembers()
+	for file in files:
+		print(file)
+#end list_tar
