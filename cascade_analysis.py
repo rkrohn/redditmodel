@@ -45,7 +45,8 @@ def build_cascades(code, posts = False, comments = False):
 	#if no cached cascades, build them from scratch
 
 	#if no loaded posts/comments, load those up first
-	posts, comments = load_model_data.load_reddit_data(code)
+	if posts == False or comments == False:
+		posts, comments = load_model_data.load_reddit_data(code)
 
 	print("Extracting post/comment structure for", len(posts), "posts and", len(comments), "comments")
 
