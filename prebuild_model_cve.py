@@ -1,5 +1,7 @@
-#create and save all the necessary files for the new c++/python hybrid model
+#create and save all the necessary files for the new c++/python hybrid model for cve domain
 #save everything to model_files for easy server loading later
+
+#handle cve specially since it doesn't get broken up by subreddit
 
 import cascade_analysis
 import fit_cascade
