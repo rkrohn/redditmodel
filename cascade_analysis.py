@@ -347,6 +347,12 @@ def save_cascade_comments(code, comments):
 
 #fit model parameters for all cascades given, loading any saved ones to get a headstart
 def fit_all_cascades(code, cascades, comments, pickle_save, subreddit = False):
+	#if all saved, load from that
+	if file_utils.verify_file("data_cache/fitted_params/%s_cascade_params.pkl" % code):
+		cascade_params = file_utils.load_pickle("data_cache/fitted_params/%s_cascade_params.pkl" % code)
+		fit_fail = [post_id for post_id, post in cascades.items() if post_id not in cascade_params]
+		return cascade_params, fit_fail
+
 	#anything to load? if so, load the latest checkpoint
 	if pickle_save:
 		#build glob filestring - to get all matching checkpoints
@@ -371,7 +377,10 @@ def fit_all_cascades(code, cascades, comments, pickle_save, subreddit = False):
 
 		#load checkpoint, if we have one
 		if best_int != -1:
-			cascade_params = cascade_manip.load_cascade_params(code, subreddit + str(best_int))
+			if subreddit == False:
+				cascade_params = cascade_manip.load_cascade_params(code, str(best_int))
+			else:
+				cascade_params = cascade_manip.load_cascade_params(code, subreddit + str(best_int))
 			print("Loaded", len(cascade_params), "fitted cascade parameters")
 		#otherwise, empty dictionary
 		else:
@@ -383,6 +392,7 @@ def fit_all_cascades(code, cascades, comments, pickle_save, subreddit = False):
 
 	#fit any cascades that have not been fitted before, add to params dictionary: post_id -> params
 	post_count = len(cascade_params)
+	fit_fail = []
 	print("Fitting all cascade models")
 	for post_id, post in cascades.items():
 		#if this cascade already fitted, and params are valid, skip
@@ -391,13 +401,21 @@ def fit_all_cascades(code, cascades, comments, pickle_save, subreddit = False):
 
 		#fit the current cascade (filtering comments to just this post is not required)
 		#print("Fitting cascade", post_id)
-		cascade_params[post_id] = fit_cascade.fit_cascade_model(post, comments)
+		param_res = fit_cascade.fit_cascade_model(post, comments)
+		#if negative comment times, skip this cascade and move to next
+		if param_res == False:
+			fit_fail.append(post_id)
+			continue
+		cascade_params[post_id] = param_res
 		avg_quality += cascade_params[post_id][6]
 		post_count += 1
 		if post_count % 1000 == 0:
 			print("Fitted", post_count, "cascades")
-			if pickle_save:
-				cascade_manip.save_cascade_params(code, cascade_params, subreddit + str(post_count))
+			if pickle_save and post_count % 10000 == 0:
+				if subreddit == False:
+					cascade_manip.save_cascade_params(code, cascade_params, str(post_count))
+				else:
+					cascade_manip.save_cascade_params(code, cascade_params, subreddit + str(post_count))
 
 	avg_quality /= len(cascade_params)
 
@@ -407,5 +425,5 @@ def fit_all_cascades(code, cascades, comments, pickle_save, subreddit = False):
 		cascade_manip.save_cascade_params(code, cascade_params, subreddit)
 
 	#return all params, loaded and newly fitted
-	return cascade_params
+	return cascade_params, fit_fail
 #end fit_all_cascades
