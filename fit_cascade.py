@@ -47,7 +47,7 @@ def get_root_comment_times(post, comments):
             for ident in post['replies']:
                 reply_times.append(comments[ident]['created_utc'])
             print("reply times", sorted(reply_times))
-            exit(0)
+            return False
             
         root_comment_times.append((comments[comment_id]['created_utc'] - root_time) / 60)       #get time between post and comment in minutes
 
@@ -149,6 +149,9 @@ def fit_cascade_model(post, comments, display = False):
 
     #fit weibull to root comment times
     root_comment_times = get_root_comment_times(post, comments)
+    if root_comment_times == False:
+        print("Invalid comment times, skipping this cascade.")
+        return False
     if display: 
         print("root comments", root_comment_times)
     a, lbd, k, weibull_quality = fit_weibull(root_comment_times, display)
