@@ -157,9 +157,9 @@ def save_comments(code, comments, filtered = False):
 #if filtered is a string, indicates subreddit cascade params are filtered by
 def save_cascade_params(code, cascade_params, filtered = False):
 	if filtered == False:
-		file_utils.verify_dir("data_cache/fitted_params/" % code)
-		print("Saving cascade params to data_cache/fitted_params/%s_cascade_params.pkl" % (code, code))
-		file_utils.save_pickle(cascade_params, "data_cache/fitted_params/%s_cascade_params.pkl" % (code, code))
+		file_utils.verify_dir("data_cache/fitted_params/")
+		print("Saving cascade params to data_cache/fitted_params/%s_cascade_params.pkl" % code)
+		file_utils.save_pickle(cascade_params, "data_cache/fitted_params/%s_cascade_params.pkl" % code)
 	else:
 		file_utils.verify_dir("data_cache/fitted_params")
 		print("Saving filtered cascades to data_cache/fitted_params/%s_%s_cascade_params.pkl" % (code, filtered))
