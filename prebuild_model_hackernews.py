@@ -45,24 +45,23 @@ cascades, comments = cascade_manip.remove_missing(code, cascades, comments)
 
 print("\nHave total of", len(cascades), "cascades and", len(comments), "comments for hackernews")
 
-exit(0)
-
-subreddit = "cve"		#set subreddit to cve for filename purposes
-
 #build processed post file
 #assign numeric ids to each post for node2vec input files
 #get set of tokens
 #extract and maintain user
-#extra cve-only field - subreddit
-c = count()
-posts = {key: {'user': value['author_h'], 'tokens': extract_tokens(value), 'id': next(c), 'sub': value['subreddit']} for key, value in cascades.items()}
-#save this to file
-file_utils.save_pickle(posts, posts_filepath % subreddit)
-print("Saved", len(posts), "processed posts to", posts_filepath % subreddit)
+if file_utils.verify_file(posts_filepath % code):
+	print("Processed post file already exists.")
+	posts = file_utils.load_pickle(posts_filepath % code)
+else:
+	c = count()
+	posts = {key: {'user': value['author_h'], 'tokens': extract_tokens(value), 'id': next(c)} for key, value in cascades.items()}
+	#save this to file
+	file_utils.save_pickle(posts, posts_filepath % code)
+	print("Saved", len(posts), "processed posts to", posts_filepath % code)
 
 #build list of users active in this subreddit - list, not set, so more active users are more likely to get drawn in the simulation
-if file_utils.verify_file(users_filepath % subreddit):
-	print("Active users exist in", users_filepath % subreddit)
+if file_utils.verify_file(users_filepath % code):
+	print("Active users exist in", users_filepath % code)
 else:
 	#build active users list
 	active_users = []
@@ -70,30 +69,38 @@ else:
 		active_users.append(post['author_h'])
 	for comment_id, comment in comments.items():
 		active_users.append(comment['author_h'])
-	file_utils.save_pickle(active_users, users_filepath % subreddit)
-	print("Saved", len(active_users), "active users to", users_filepath % subreddit)
+	file_utils.save_pickle(active_users, users_filepath % code)
+	print("Saved", len(active_users), "active users to", users_filepath % code)
 
 #fit params to all of the cascades, if no file
 #no need to load if we have them, won't use them again
-if file_utils.verify_file(params_filepath % subreddit):
-	print("Params exist in", params_filepath % subreddit)
+if file_utils.verify_file(params_filepath % code):
+	print("Params exist in", params_filepath % code)
 else:
 	#fit params to all cascades
-	all_params = cascade_analysis.fit_all_cascades(domain, cascades, comments, False, subreddit)
+	all_params, fit_fail_list = cascade_analysis.fit_all_cascades(code, cascades, comments, True)
+
+	#save list of failed fits (if exists)
+	if len(fit_fail_list) != 0 and file_utils.verify_file("model_files/params/%s_failed_param_fit.txt" % code) == False:
+		file_utils.save_json(fit_fail_list, "model_files/params/%s_failed_param_fit.txt" % code)
+		print("Saved list of fit-fail stories to model_files/params/%s_failed_param_fit.txt" % code)
 
 	#save to text file now
-	with open(params_filepath % subreddit, "w") as f: 
+	with open(params_filepath % code, "w") as f: 
 		for post_id, params in all_params.items():
 			f.write(str(posts[post_id]['id']) + " ")		#write numeric post id
 			for i in range(len(params)):
 				f.write((' ' if i > 0 else '') + str(params[i]))
 			f.write("\n")
-	print("Saved text-readable params to", params_filepath % subreddit)
+	print("Saved text-readable params to", params_filepath % code)
 
+#don't build graph, would be way too big
+'''
 #check for graph
-if file_utils.verify_file(graph_filepath % subreddit):
-	print("Post-graph exists in", graph_filepath % subreddit)
+if file_utils.verify_file(graph_filepath % code):
+	print("Post-graph exists in", graph_filepath % code)
 else:
 	#now we have to build the graph... ugh
-	build_graph(posts, graph_filepath % subreddit)
+	build_graph(posts, graph_filepath % code)
+'''		
 
