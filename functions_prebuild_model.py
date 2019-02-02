@@ -65,10 +65,13 @@ def extract_tokens(post):
 	punctuations = list(string.punctuation)		#get list of punctuation characters
 	punctuations.append('—')	#kill these too
 	
-	title = post['title_m']		#grab post title as new string		
-	tokens = [word.lower() for word in title.split()]	#tokenize and normalize (to lower)		
-	tokens = [word.strip("".join(punctuations)) for word in tokens]		#strip trailing and leading punctuation
-	tokens = [word for word in tokens if word != '' and word not in punctuations and word != '']		#remove punctuation-only tokens and empty strings
+	title = post['title_m']		#grab post title as new string
+	if title != None:
+		tokens = [word.lower() for word in title.split()]	#tokenize and normalize (to lower)		
+		tokens = [word.strip("".join(punctuations)) for word in tokens]		#strip trailing and leading punctuation
+		tokens = [word for word in tokens if word != '' and word not in punctuations and word != '']		#remove punctuation-only tokens and empty strings
+	else:
+		tokens = []
 
 	return set(tokens)		#convert to set before returning
 #end extract_tokens
