@@ -60,11 +60,12 @@ def filter_cascades_by_subreddit(cascades, subreddit):
 
 
 #given a list of post objects, filter the comments to only those in those cascades
-def filter_comments_by_posts(cascades, comments):
+def filter_comments_by_posts(cascades, comments, display=True):
 	comment_ids = set()		#build set of comment ids to include in filtered dictionary
 	posts_to_remove = set()	#set of posts to remove, because they had missing comments
 
-	print("Filtering comments to match posts")
+	if display:
+		print("Filtering comments to match posts")
 
 	#loop all posts, built list of comment ids
 	for post_id, post in cascades.items():
@@ -76,14 +77,16 @@ def filter_comments_by_posts(cascades, comments):
 
 	#remove some posts if necessary
 	if len(posts_to_remove) != 0:
-		print("Removed", len(posts_to_remove), "posts with missing comments")
+		if display:
+			print("Removed", len(posts_to_remove), "posts with missing comments")
 		for post_id in posts_to_remove:
 			cascades.pop(post_id)
 
 	#filter comments to only those in the list
 	filtered_comments = { comment_id : comments[comment_id] for comment_id in comment_ids }
 
-	print("Filtered to", len(filtered_comments), "comments (from", len(comments), "comments)")
+	if display:
+		print("Filtered to", len(filtered_comments), "comments (from", len(comments), "comments)")
 
 	return cascades, filtered_comments
 #end filter_comments_by_post
