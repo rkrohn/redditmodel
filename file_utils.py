@@ -65,6 +65,8 @@ def load_multi_json(filename):
 
 #given a filepath, load pickled data
 def load_pickle(filename):
+	if DISPLAY:
+		print("Loading", filename)
 	with open(filename, "rb") as f:
 		data = pickle.load(f)
 	return data
