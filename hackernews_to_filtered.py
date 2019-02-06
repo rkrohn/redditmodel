@@ -29,6 +29,7 @@ file_utils.save_pickle(comments, comments_filepath % (code, code))
 
 #add hackernews to subreddit -> domain mapping
 subs = file_utils.load_pickle("model_files/subreddits.pkl")
-if code not in subs:
-	subs[code] = code
-	file_utils.save_pickle("model_files/domain_mapping.pkl")
+subs['hackernews_sub'] = 'cve'		#redirect existing cve sub for this file - shouldn't be a problem
+subs[code] = code
+file_utils.save_pickle(subs, "model_files/domain_mapping.pkl")
+
