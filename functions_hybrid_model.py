@@ -8,6 +8,8 @@ import os
 MAX_TOKEN_MATCH_POSTS = 5		#maximum number of token-matching posts to add to graph when inferring params for a
 								#post by an unseen user with all new tokens
 
+MIN_EDGE_WEIGHT = 0.1			#minimum token weight threshold, try to keep edge explosion to a minimum
+
 #filepaths of input files
 subreddits_filepath = "model_files/subreddits.pkl"		#dictionary of subreddit -> domain code
 posts_filepath = "model_files/posts/%s_posts.pkl"			#processed post data for each post, one file per subreddit
@@ -357,6 +359,8 @@ def load_params(filename, posts, inferred=False, quality=False):
 			all_quality[post_id] = float(values[7])
 		all_params[post_id] = params
 
+	print("Loaded", len(all_params), "fitted params from", filename)
+
 	if quality:
 		return all_params, all_quality
 	return all_params
@@ -524,7 +528,7 @@ def build_graph(posts, filename):
 
 		#compute edge weight based on post token sets
 		weight = compute_edge_weight(posts[post_pair[0]]['tokens'], posts[post_pair[1]]['tokens'])
-		if weight <= 0.1:		#minimum token weight threshold, try to keep edge explosion to a minimum
+		if weight <= MIN_EDGE_WEIGHT:		#minimum token weight threshold, try to keep edge explosion to a minimum
 			weight = 0
 
 		#cve only: if posts have same subreddit, add 1 to weight
