@@ -201,58 +201,35 @@ all_inferred_params = load_params(output_params_filepath % group, posts, inferre
 inferred_params = all_inferred_params[numeric_sim_post_id]
 
 print("Inferred params:", inferred_params, "\n")
-exit(0)
 
 #END GRAPH INFER
+
+#REFINE PARAMS - for partial observed trees
+
+#TODO
+sim_params = inferred_params
+
+#END REFINE PARAMS
+
+#COMMENT TREE SIM
 
 #load active users list to draw from when assigning users to comments
 user_ids = file_utils.load_pickle(users_filepath % group)
 
 #node2vec finished, on to the simulation!
-#for each post, infer parameters and simulate
-print("\nSimulating comment trees...")
-infer_count = 0
-fitted_count = 0
-added_events = 0
-for sim_post in seeds:
+print("\nSimulating comment tree")
+sim_root, all_times = sim_tree.simulate_comment_tree(sim_params)
 
-	#if we can, use fitted params
-	if posts[sim_post['id_h']]['id'] in fitted_params:
-		post_params = fitted_params[posts[sim_post['id_h']]['id']]
-		fitted_count += 1
-	#otherwise, use inferred params
-	elif infer:
-		post_params = inferred_params[posts[sim_post['id_h']]['id']]
-		infer_count += 1
-		#print("Inferred post params:", post_params)
-	else:
-		print("Something's gone wrong - no params for this post! Skipping.")
-		continue
+#convert that to desired output format
+sim_events = build_cascade_events(sim_root, sim_post, user_ids, group)
 
-	#simulate a comment tree!
-	sim_root, all_times = sim_tree.simulate_comment_tree(post_params)
+print("Generated", len(sim_events), "comments for post", sim_post_id)
+print("   ", len(all_comments), "actual")
 
-	#convert that to desired output format
-	post_events = build_cascade_events(sim_root, post, user_ids, group)
-
-	#add these events to running list
-	all_events.extend(post_events)
-	added_events += len(post_events)
-
-	if post_counter % 50 == 0:
-		print("Finished post", post_counter, "/", len(raw_post_seeds))
-	post_counter += 1
-
-print("Used fitted params for", fitted_count, "posts and inferred params for", infer_count, "posts")
-print("Generated", added_events, "for group", group)
-
-END
-
-#finished all posts across all group, time to dump
-print("\nFinished all simulations, have", len(all_events), "events to save")
+#END COMMENT TREE SIM
 
 #save sim results to output file
-print("Saving results to", outfile + "...")      
+print("\nSaving results to", outfile + "...")      
     
 #write to json, include some run info
 output = {'group'    				: group,
@@ -261,7 +238,7 @@ output = {'group'    				: group,
           'min_node_quality' 		: min_node_quality,
           'max_graph_size' 			: max_nodes,
           'estimate_initial_params' : estimate_initial_params,
-          'data'     				: events}
+          'data'     				: sim_events}
 file_utils.save_json(output, outfile)
 
-print("Done\n")
+print("All done\n")
