@@ -144,12 +144,15 @@ if sim_post['id_h'] not in posts:
 	print("Simulation post not in dataset - exiting\n")
 	exit(0)
 
+#grab numeric/graph id of sim post
+numeric_sim_post_id = posts[sim_post_id]['id']
+
 #load in fitted simulation params - need these for graph build
 fitted_params, fitted_quality = load_params(params_filepath % group, posts, False, True)	
 
 #remove sim post from graph params - no cheating! (pop based on numeric id)
-res = fitted_params.pop(posts[sim_post_id]['id'])
-res = fitted_quality.pop(posts[sim_post_id]['id'])
+res = fitted_params.pop(numeric_sim_post_id)
+res = fitted_quality.pop(numeric_sim_post_id)
 
 #graph stuff - sample graph if necessary, add new nodes, etc
 graph = {}
@@ -164,35 +167,24 @@ if len(posts) > max_nodes or file_utils.verify_file(graph_filepath % group) == F
 	graph_posts = user_sample_graph(posts, [sim_post], max_nodes, group, min_node_quality, fitted_quality)
 	#build graph, getting initial param estimate if required
 	if estimate_initial_params:
-		param_estimate = build_graph_estimate_node_params(graph_posts, fitted_params, fitted_quality, posts[sim_post_id]['id'], temp_graph_filepath % group)
+		estimated_params = build_graph_estimate_node_params(graph_posts, fitted_params, fitted_quality, numeric_sim_post_id, temp_graph_filepath % group)
 	else:
 		build_graph(graph_posts, temp_graph_filepath % group)
 	
 	sample_graph = True
-#no graph sample, use the full set
+#no graph sample, use the full set and copy graph file to temp location
 else:
 	graph_posts = posts
+	copyfile(graph_filepath % group, temp_graph_filepath % group)
+	print("Copied complete post-graph to", temp_graph_filepath % group)
 
 #ALWAYS sample down params to match whatever graph we have - because we can't use the previously fitted params!
 if estimate_initial_params:
-	get_graph_params(graph_posts, posts[sim_post_id]['id'], fitted_params, fitted_quality, temp_params_filepath % group, param_estimate)
+	get_graph_params(graph_posts, numeric_sim_post_id, fitted_params, fitted_quality, temp_params_filepath % group, estimated_params)
 else:
-	get_graph_params(graph_posts, posts[sim_post_id]['id'], fitted_params, fitted_quality, temp_params_filepath % group)
+	get_graph_params(graph_posts, numeric_sim_post_id, fitted_params, fitted_quality, temp_params_filepath % group)
 
-exit(0)
-
-#now have a graph that contains the sim post, and a param set for all graph posts except for the sim  post
-
-#initial param estimate: use temp param file, filtered or not, and add estimate to end
-if estimate_initial_params:
-	#append new param estimates (initializations) to file
-	with open(temp_params_filepath % group, "a") as f:
-		f.write("%d %f %f %f %f %f %f\n" % (posts[sim_post_id]['id'], param_estimate[0], param_estimate[1], param_estimate[2], param_estimate[3], param_estimate[4], param_estimate[5]))
-	print("Added seed param initializations to param file:", param_estimate)
-
-print("")
-
-exit(0)
+#graph is built and ready - graph file and input params file
 
 #run node2vec to get embeddings - if we have to infer parameters
 #offload to C++, because I feel the need... the need for speed!:
@@ -200,14 +192,16 @@ exit(0)
 if file_utils.verify_file(output_params_filepath % group):
 	os.remove(output_params_filepath % group)		#clear output to prevent append
 
-#get correct params filepath for node2vec call: use full file only if graph not sampled and not estimating initial params
-run_params_path = (temp_params_filepath % group) if sample_graph or estimate_initial_params else (output_params_filepath % group)
+#run node2vec on graph and params
+subprocess.check_call(["./c_node2vec/examples/node2vec/node2vec", "-i:"+(temp_graph_filepath % group), "-ie:"+(temp_params_filepath % group), "-o:"+(output_params_filepath % group), "-d:6", "-l:3", "-w", "-s"])
+print("")
 
-#sampled graph and params
-subprocess.check_call(["./c_node2vec/examples/node2vec/node2vec", "-i:"+(temp_graph_filepath % group), "-ie:"+run_params_path, "-o:"+(output_params_filepath % group), "-d:6", "-l:3", "-w", "-s"])
+#load the inferred params (dictionary of numeric id -> params)
+all_inferred_params = load_params(output_params_filepath % group, posts, inferred=True)
+inferred_params = all_inferred_params[numeric_sim_post_id]
 
-#load the inferred params
-inferred_params = load_params(output_params_filepath % group, posts, inferred=True)
+print("Inferred params:", inferred_params, "\n")
+exit(0)
 
 #END GRAPH INFER
 
