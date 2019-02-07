@@ -398,6 +398,31 @@ def get_sampled_params(posts, in_filename, out_filename):
 #end get_sampled_params
 
 
+#given graph posts, and set of fitted params, build sampled params file
+#leave out params for exclude_post
+#varies from get_sampled_params above because it assumes fitted params and qualities are already loaded (instead of reading from file)
+#if estimate_initial_params argument is not False, include those in output file as well
+def get_graph_params(posts, exclude_post, post_params, quality, out_filename, param_estimate=False):
+
+	#build list of post ids included in graph
+	included_ids = [value['id'] for key, value in posts.items()]
+	included_ids.remove(exclude_post)		#don't include params for exclude_post
+	print("Filtering params to", len(included_ids), "graph posts")
+
+	#dump filtered params to file
+	with open(out_filename, "w") as f: 
+		for post_id, params in post_params.items():
+			if post_id in included_ids:
+				f.write(str(post_id) + " ")		#write numeric post id
+				for i in range(len(params)):
+					f.write(str(params[i]) + ' ')
+				f.write(str(quality[post_id]) + "\n")
+		if param_estimate != False:
+			f.write("%d %f %f %f %f %f %f\n" % (exclude_post, param_estimate[0], param_estimate[1], param_estimate[2], param_estimate[3], param_estimate[4], param_estimate[5]))
+	print("Saved graph params to", out_filename)
+#end get_graph_params
+
+
 #given complete set of posts/params for current subreddit, and seed posts,
 #sample down to reach the target graph size (hopefully feasible for inference)
 def user_sample_graph(raw_sub_posts, seeds, max_nodes, subreddit, min_node_quality, fitted_quality):
@@ -562,6 +587,88 @@ def build_graph(posts, filename):
 	print("Saved post-graph to", filename)
 
 #end build_graph
+
+
+#given a set of processed posts, "build" the post parameter graph
+#but don't actually build it, just get an edgelist
+#save edgelist to specified file
+#no return, because graph is periodically dumped and not all stored in memory at once
+#performs same function as build_graph above, but also estimates initial params for specified node as average of neighbors
+#post_id must be the NUMERIC id of the post, not the original id
+def build_graph_estimate_node_params(posts, fitted_params, fitted_quality, post_id, filename):
+
+	print("Building param graph for", len(posts), "posts and estimating params for post", post_id)
+
+	#build the multi-graph
+	#	one node for each post
+	#	edge of weight=1 connecting posts by the same user
+	#	edge of weight=(# shared)/(# in shortest title) between posts with common words
+	#(but really only one edge, with sum of both weights)
+	#store graph as edge-list dictionary, where (node, node) edge -> weight
+	graph = {}
+	nodes = set()
+	edge_count = 0
+
+	#for estimating params of post with post_id
+	neighbor_count = 0
+	neighbor_sum = [0,0,0,0,0,0]
+
+	#loop all post-pairs and determine weight of edge, if any, between them
+	for post_pair in itertools.combinations(posts, 2):		#pair contains ids of two posts
+		#fetch numeric ids for these posts
+		node1 = posts[post_pair[0]]['id']
+		node2 = posts[post_pair[1]]['id']
+
+		#compute edge weight based on post token sets
+		weight = compute_edge_weight(posts[post_pair[0]]['tokens'], posts[post_pair[1]]['tokens'])
+		if weight <= MIN_EDGE_WEIGHT:		#minimum token weight threshold, try to keep edge explosion to a minimum
+			weight = 0
+
+		#cve only: if posts have same subreddit, add 1 to weight
+		if 'sub' in posts[post_pair[0]] and posts[post_pair[0]]['sub'] == posts[post_pair[1]]['sub']:
+			weight += 1
+
+		#if posts have same author, add 1 to weight
+		if posts[post_pair[0]]['user'] == posts[post_pair[1]]['user']:
+			weight += 1
+
+		#if edge weight is nonzero, add edge to graph
+		if weight != 0:
+			graph[(node1, node2)] = weight 		#add edge
+			nodes.add(node1)					#track edges in graph so we can find isolated nodes later
+			nodes.add(node2)
+			edge_count += 1						#keep count of all edges
+
+			#if added edge, and current edgelist has reached dump level, dump and clear before continuing
+			if len(graph) == 25000000:
+				save_graph(graph, filename)
+				print("   Saved", edge_count, "edges")
+				graph = {}
+
+			#if this edge involves specified post, update param estimate
+			if node1 == post_id or node2 == post_id:
+				other_id = node1 if node1 != post_id else node2		#numeric id of other post
+				for i in range(6):
+					neighbor_sum[i] += (1-fitted_quality[other_id]) * fitted_params[other_id][i]
+				neighbor_count += (1-fitted_quality[other_id])
+
+
+	#for initial param estimate, finish average and return result
+	if neighbor_count != 0:
+		for i in range(6):
+			neighbor_sum[i] /= neighbor_count
+
+	#handle isolated/missing nodes - return a list of them, code into edgelist during output
+	isolated_nodes = [value['id'] for key, value in posts.items() if value['id'] not in nodes]
+
+	print("Finished graph has", len(nodes) + len(isolated_nodes), "nodes (" + str(len(isolated_nodes)), "isolated) and", edge_count, "edges")	
+
+	#dump any remaining edges/isolated nodes to edgelist file (final save)
+	save_graph(graph, filename, isolated_nodes)
+	print("Saved post-graph to", filename)
+
+	return neighbor_sum		#return estimated params
+#end build_graph_estimate_node_params
 
 
 #save graph to txt file
