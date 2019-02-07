@@ -7,6 +7,7 @@
 
 #for example:
 #	python3 paper_model.py pivx random 4 sim_tree.json 2000 -1
+#	python3 paper_model.py pivx 26RPcnyIuA0JyQpTqEui7A 1 sim_tree.json 500 -1
 
 
 
@@ -14,7 +15,7 @@ import file_utils
 import sim_tree
 from functions_hybrid_model import *
 import cascade_manip
-import fit_cascade
+import fit_partial_cascade
 
 from shutil import copyfile
 import sys
@@ -204,12 +205,15 @@ print("Inferred params:", inferred_params, "\n")
 
 #END GRAPH INFER
 
+
 #REFINE PARAMS - for partial observed trees
 
-#TODO
+fit_partial_cascade.fit_partial_cascade(sim_post, all_comments, time_observed, True)
+
 sim_params = inferred_params
 
 #END REFINE PARAMS
+
 
 #COMMENT TREE SIM
 
@@ -227,6 +231,7 @@ print("Generated", len(sim_events), "comments for post", sim_post_id)
 print("   ", len(all_comments), "actual")
 
 #END COMMENT TREE SIM
+
 
 #save sim results to output file
 print("\nSaving results to", outfile + "...")      
