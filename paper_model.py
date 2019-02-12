@@ -7,7 +7,9 @@
 
 #for example:
 #	python3 paper_model.py pivx random 4 sim_tree.json 2000 -1
-#	python3 paper_model.py pivx 26RPcnyIuA0JyQpTqEui7A 1 sim_tree.json 500 -1
+#	python3 paper_model.py pivx 26RPcnyIuA0JyQpTqEui7A 1 sim_tree.json 500 -1			(4 comments)
+#	paper_model.py pivx ZeuF7ZTDw3McZUOaosvXdA 5 sim_tree.json 250 -1					(11 comments)
+#	 python3 paper_model.py compsci qOjspbLmJbLMVFxYbjB1mQ 200 sim_tree.json 250 -1		(58 comments)
 
 
 
