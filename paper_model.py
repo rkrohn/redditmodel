@@ -208,9 +208,14 @@ print("Inferred params:", inferred_params, "\n")
 
 #REFINE PARAMS - for partial observed trees
 
-fit_partial_cascade.fit_partial_cascade(sim_post, all_comments, time_observed, True)
+partial_fit_params = fit_partial_cascade.fit_partial_cascade(sim_post, all_comments, time_observed, inferred_params, True)
+print("Refined params:", partial_fit_params, "\n")
 
-sim_params = inferred_params
+exit(0)
+
+#which params are we using for simulation?
+#sim_params = inferred_params
+sim_params = partial_fit_params
 
 #END REFINE PARAMS
 

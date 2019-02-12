@@ -90,6 +90,31 @@ def perturb(data):
 #end perturb
 
 
+#given event times for a partial cascade, fit the lognormal distribution
+#if fit fails, return False as signal to use inferred params
+#if fit succeeds, returns mu and lambda paramters
+def fit_partial_lognormal(event_times, param_guess = False, display = False):
+
+    #no event times (ie, no comment replies), hardcode some values
+    if len(event_times) == 0:
+        params = perturb(list(DEFAULT_LOGNORMAL))
+        if display:   
+            print("No events to fit lognormal, returning")
+        return False
+
+    params = lognorm_parameters_estimation(event_times)     #try loglikelihood estimation first
+
+    if params == None:
+        if display:
+            print("Failed lognormal fit, returning\n")
+        return False
+    else:
+        if display:
+            print("Log-normal params: \n   mu\t\t", params[0], "\n   sigma\t", params[1], "\n")        
+    return params   #(mu, sigma)
+#end fit_partial_lognormal
+
+
 #given event times, fit the lognormal distribution
 #if fit fails, return None
 #otherwise, returns mu and lambda paramters
@@ -114,7 +139,7 @@ def fit_lognormal(event_times, display = False):
     else:
         quality = 0.95
         if display:
-            print("Log-normal params: (quality", str(quality) + "), \n   mu\t\t", params[0], "\n   sigma\t", params[1], "\n")        
+            print("Log-normal params: (quality", str(quality) + ") \n   mu\t\t", params[0], "\n   sigma\t", params[1], "\n")        
 
     return params + [quality]   #(mu, sigma)
 #end fit_lognormal

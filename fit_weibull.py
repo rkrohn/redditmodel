@@ -137,6 +137,41 @@ def perturb(data):
 #end perturb
 
 
+#given event times for a partial cascade, fit the weibull function
+#slightly different in functionality than standard fit_weibull
+#if both fit methods fail, or there are not enough events, return False as signal to use inferred params
+#if fit succeeds, returns a, lambda, and k parameters (no quality)
+def fit_partial_weibull(event_times, param_guess = False, display = False):
+
+    #no events to fit, return False
+    if len(event_times) == 0:
+        params = perturb(list(DEFAULT_WEIBULL_NONE))    #small random perturbation of hardcoded vals
+        if display:
+            print("No events to fit Weibull, returning")
+        return False
+
+    params = weibull_parameters_estimation(event_times)     #try loglikelihood estimation first
+
+    #if that fails, use curve fit if more than one item
+    if params == None:
+        if len(event_times) != 1:
+            params = func_fit_weibull(event_times)
+        else:
+            params = [None, None, None]     #next if will catch this
+
+    #if both fail, return - will use inferred params
+    if params[0] == None: 
+        if display:
+            print("Weibull fit failed, returning")
+        return False
+
+    if display:
+        print("Weibull params: \n   a\t\t", params[0], "\n   lambda\t", params[1], "\n   k\t\t", params[2], "\n")
+
+    return params   #(a, lambda, k)
+#end fit_partial_weibull
+
+
 #given event times, fit the weibull function
 #if both methods fail, returns None for all parameters
 #otherwise, returns a, lambda, and k parameters, and quality measure
@@ -167,7 +202,7 @@ def fit_weibull(event_times, display = False):
             params[0] = len(event_times)    
         params = perturb(params)        #small random perturbation
         if display:
-            print("Fit failed, setting Weibull params: (quality)", str(DEFAULT_QUALITY) + ")", "\n   a\t\t", params[0], "\n   lambda\t", params[1], "\n   k\t\t", params[2], "\n")
+            print("Fit failed, setting Weibull params: (quality", str(DEFAULT_QUALITY) + ")", "\n   a\t\t", params[0], "\n   lambda\t", params[1], "\n   k\t\t", params[2], "\n")
         return params + [DEFAULT_QUALITY]
 
     if display:
