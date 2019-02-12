@@ -102,7 +102,8 @@ def fit_partial_lognormal(event_times, param_guess = False, display = False):
             print("No events to fit lognormal, returning")
         return False
 
-    params = lognorm_parameters_estimation(event_times)     #try loglikelihood estimation first
+    print(param_guess)
+    params = lognorm_parameters_estimation(event_times, start_params=param_guess)     #try loglikelihood estimation first
 
     if params == None:
         if display:

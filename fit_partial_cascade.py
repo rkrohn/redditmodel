@@ -26,7 +26,7 @@ def fit_partial_cascade(post, comments, observed_time, param_guess=False, displa
         return False
     if display: 
         print("root comments", root_comment_times)
-    weibull_res = fit_partial_weibull(root_comment_times, param_guess, display)       #get back [a, lbd, k], or False if fit fail
+    weibull_res = fit_partial_weibull(root_comment_times, param_guess[0:3], display)       #get back [a, lbd, k], or False if fit fail
 
     #fit log-normal to all other comment times
     other_comment_times = get_other_comment_times(post, comments)
@@ -34,7 +34,7 @@ def fit_partial_cascade(post, comments, observed_time, param_guess=False, displa
     other_comment_times = [time for time in other_comment_times if time <= observed_time * 60.0]
     if display:
         print("other comments", other_comment_times)
-    lognorm_res = fit_partial_lognormal(other_comment_times, param_guess, display)    #get back [mu, sigma], or False if fit fail
+    lognorm_res = fit_partial_lognormal(other_comment_times, param_guess[3:5], display)    #get back [mu, sigma], or False if fit fail
 
     #estimate branching factor
     n_b = partial_estimate_branching_factor(len(root_comment_times), len(other_comment_times), display)

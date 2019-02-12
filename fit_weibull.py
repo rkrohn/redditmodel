@@ -150,12 +150,12 @@ def fit_partial_weibull(event_times, param_guess = False, display = False):
             print("No events to fit Weibull, returning")
         return False
 
-    params = weibull_parameters_estimation(event_times)     #try loglikelihood estimation first
+    params = weibull_parameters_estimation(event_times, start_params=param_guess)     #try loglikelihood estimation first
 
     #if that fails, use curve fit if more than one item
     if params == None:
         if len(event_times) != 1:
-            params = func_fit_weibull(event_times)
+            params = func_fit_weibull(event_times, start_params=param_guess)
         else:
             params = [None, None, None]     #next if will catch this
 
