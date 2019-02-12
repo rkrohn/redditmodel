@@ -39,7 +39,7 @@ DEFAULT_DELTA = 0.15            #default maximum delta percentage for random har
 #given a list of event times, fit a weibull function, returning parameters a, lbd, and k
 #use random perturbation to correct for poor initial guesses a maximum of <runs> times
 #if no good fit found, return None indicating failure
-def weibull_parameters_estimation(event_times, runs = 20, large_params = [1000, 10000, 20], start_params = [20, 500, 2.3]):
+def weibull_parameters_estimation(event_times, runs = 20, large_params = [1000, 10000, 20], start_params = [20, 500, 2.3], max_iter = False, display = False):
 
     #given weibull parameters a, k, and lambda (lbd), return the value of the negative 
     #loglikelihood function across all time values 
@@ -63,7 +63,11 @@ def weibull_parameters_estimation(event_times, runs = 20, large_params = [1000, 
     param_set = np.asarray(start_params)    #convert start params to np array
 
     for i in range(runs):
-        result = minimize(weib_loglikelihood, param_set, method = 'L-BFGS-B', bounds = ((0.0001, None), (0.0001, None),(0.0001, None)))
+        #run the minimize call, limiting iterations if given
+        if max_iter == False:
+            result = minimize(weib_loglikelihood, param_set, method = 'L-BFGS-B', bounds = ((0.0001, None), (0.0001, None),(0.0001, None)))
+        else:
+            result = minimize(weib_loglikelihood, param_set, method = 'L-BFGS-B', bounds = ((0.0001, None), (0.0001, None),(0.0001, None)), options = {'maxiter': max_iter})
         fit_params = list(result.get('x'))
 
         #if bad fit (or failed fit, that returned initial params), perturb the initial guess and re-fit
@@ -77,6 +81,8 @@ def weibull_parameters_estimation(event_times, runs = 20, large_params = [1000, 
                 fit_params = None
         #good fit, quit
         else:
+            if display:
+                print("Converged in", result.get('nit'), "iterations")
             break
 
     return fit_params     #[a, lbd, k]
@@ -141,7 +147,7 @@ def perturb(data):
 #slightly different in functionality than standard fit_weibull
 #if both fit methods fail, or there are not enough events, return False as signal to use inferred params
 #if fit succeeds, returns a, lambda, and k parameters (no quality)
-def fit_partial_weibull(event_times, param_guess = False, display = False):
+def fit_partial_weibull(event_times, param_guess = False, max_iter = False, display = False):
 
     #no events to fit, return False
     if len(event_times) == 0:
@@ -150,7 +156,7 @@ def fit_partial_weibull(event_times, param_guess = False, display = False):
             print("No events to fit Weibull, returning")
         return False
 
-    params = weibull_parameters_estimation(event_times, start_params=param_guess)     #try loglikelihood estimation first
+    params = weibull_parameters_estimation(event_times, start_params=param_guess, max_iter=max_iter, display=display)     #try loglikelihood estimation first
 
     #if that fails, use curve fit if more than one item
     if params == None:

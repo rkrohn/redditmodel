@@ -31,7 +31,7 @@ DEFAULT_DELTA = 0.15            #default maximum delta percentage for random har
 #given a list of event times, fit a lognormal function, returning parameters mu and sigma
 #use random perturbation to correct for poor initial guesses a maximum of <runs> times
 #if no good fit found, return None indicating failure
-def lognorm_parameters_estimation(event_times, runs = 10, large_params = [20, 20], start_params = [4.,2.]):
+def lognorm_parameters_estimation(event_times, runs = 10, large_params = [20, 20], start_params = [4.,2.], max_iter = False, display = False):
 
     #given lognormal parameters mu and sigma, return the value of the negative 
     #loglikelihood function across all time values 
@@ -51,7 +51,11 @@ def lognorm_parameters_estimation(event_times, runs = 10, large_params = [20, 20
     param_set = np.asarray(start_params)        #convert start params to np array
 
     for i in range(runs):
-        result = minimize(lognorm_loglikelihood, param_set, method = 'L-BFGS-B', bounds = ((0.0001,None), (0.0001,None)))
+        #run the minimize call, limiting iterations if given
+        if max_iter == False:
+            result = minimize(lognorm_loglikelihood, param_set, method = 'L-BFGS-B', bounds = ((0.0001,None), (0.0001,None)))
+        else:
+            result = minimize(lognorm_loglikelihood, param_set, method = 'L-BFGS-B', bounds = ((0.0001,None), (0.0001,None)), options = {'maxiter': max_iter})
         fit_params = list(result.get('x'))
 
         #if bad fit, perturb the initial guess and re-fit
@@ -63,6 +67,8 @@ def lognorm_parameters_estimation(event_times, runs = 10, large_params = [20, 20
                 fit_params = None
         #good fit, quit
         else:
+            if display:
+                print("Converged in", result.get('nit'), "iterations")
             break
 
     return fit_params    #[mu, sigma]
@@ -93,7 +99,7 @@ def perturb(data):
 #given event times for a partial cascade, fit the lognormal distribution
 #if fit fails, return False as signal to use inferred params
 #if fit succeeds, returns mu and lambda paramters
-def fit_partial_lognormal(event_times, param_guess = False, display = False):
+def fit_partial_lognormal(event_times, param_guess = False, max_iter = False, display = False):
 
     #no event times (ie, no comment replies), hardcode some values
     if len(event_times) == 0:
@@ -102,8 +108,7 @@ def fit_partial_lognormal(event_times, param_guess = False, display = False):
             print("No events to fit lognormal, returning")
         return False
 
-    print(param_guess)
-    params = lognorm_parameters_estimation(event_times, start_params=param_guess)     #try loglikelihood estimation first
+    params = lognorm_parameters_estimation(event_times, start_params=param_guess, max_iter=max_iter, display=display)     #try loglikelihood estimation first
 
     if params == None:
         if display:

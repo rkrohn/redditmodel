@@ -12,10 +12,9 @@ def fit_partial_cascade(post, comments, observed_time, param_guess=False, displa
     #print by-level breakdown of this cascade
     if display:
         depth_counts = count_nodes_per_level(post, comments)
-        print("input cascade nodes per level:")
+        print("input cascade nodes per level (full cascade):")
         for depth, count in depth_counts.items():
             print(depth, ":", count)
-        print("")
 
     #fit weibull to root comment times
     root_comment_times = get_root_comment_times(post, comments)
@@ -24,17 +23,27 @@ def fit_partial_cascade(post, comments, observed_time, param_guess=False, displa
     if root_comment_times == False:
         print("Invalid comment times, skipping this cascade.")
         return False
-    if display: 
-        print("root comments", root_comment_times)
-    weibull_res = fit_partial_weibull(root_comment_times, param_guess[0:3], display)       #get back [a, lbd, k], or False if fit fail
 
     #fit log-normal to all other comment times
     other_comment_times = get_other_comment_times(post, comments)
     #filter to only comments we've seen
     other_comment_times = [time for time in other_comment_times if time <= observed_time * 60.0]
+
+    #how many comments have we observed?
+    observed_count = len(root_comment_times) + len(other_comment_times)
+    print("Fitting partial cascade, observed", observed_count, "comments of", len(comments), "\n")
+
+    #weibull fit
+    if display: 
+        print("root comments", root_comment_times)
+    #refine the weibull params by calling fit with guess as starting point and #comments (total) as max iterations
+    weibull_res = fit_partial_weibull(root_comment_times, param_guess[0:3], observed_count, display)       #get back [a, lbd, k], or False if fit fail
+
+    #lognorm fit
     if display:
         print("other comments", other_comment_times)
-    lognorm_res = fit_partial_lognormal(other_comment_times, param_guess[3:5], display)    #get back [mu, sigma], or False if fit fail
+    #refine the lognormal params by calling fit with guess as starting point and #comments (total) as max iterations
+    lognorm_res = fit_partial_lognormal(other_comment_times, param_guess[3:5], observed_count, display)    #get back [mu, sigma], or False if fit fail
 
     #estimate branching factor
     n_b = partial_estimate_branching_factor(len(root_comment_times), len(other_comment_times), display)

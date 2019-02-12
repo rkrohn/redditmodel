@@ -208,16 +208,20 @@ print("Inferred params:", inferred_params, "\n")
 #END GRAPH INFER
 
 
+'''
+inferred_params = [1.73166, 0.651482, 1.08986, 0.762604, 2.49934, 0.19828]		#placeholder if skipping the infer
+print("Inferred params:", inferred_params, "\n")
+'''
+
+
 #REFINE PARAMS - for partial observed trees
 
-partial_fit_params = fit_partial_cascade.fit_partial_cascade(sim_post, all_comments, time_observed, inferred_params, True)
+partial_fit_params = fit_partial_cascade.fit_partial_cascade(sim_post, all_comments, time_observed, inferred_params, display=False)
 print("Refined params:", partial_fit_params, "\n")
-
-exit(0)
 
 #which params are we using for simulation?
 #sim_params = inferred_params
-sim_params = partial_fit_params
+sim_params = partial_fit_params			#for now, always the refined params from partial fit
 
 #END REFINE PARAMS
 
