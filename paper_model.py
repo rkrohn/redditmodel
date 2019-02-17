@@ -12,111 +12,31 @@
 #	paper_model.py compsci qOjspbLmJbLMVFxYbjB1mQ 200 sim_tree 250 -1				(58 comments)
 
 
-
 import file_utils
-import sim_tree
-from functions_hybrid_model import *
 import functions_paper_model
 import cascade_manip
 import fit_partial_cascade
 
-import sys
-import random
-
-
-#filepaths of pre-computed model files
-users_filepath = "model_files/users/%s_users.txt"		#list of users seen in posts/comments, one file per group
-limit_filepath = "model_files/group_size_limits.txt"	#per-group graph size limits
-domain_mapping_filepath = "model_files/domain_mapping.pkl"		#maps group -> domain for file loads
-
-#filenames of filtered cascades and comments
-cascades_filepath = "data_cache/filtered_cascades/%s_%s_cascades.pkl"	#domain and group cascades
-comments_filepath = "data_cache/filtered_cascades/%s_%s_comments.pkl"	#domain and group comments
-
-
-DISPLAY = True
-
 
 print("")
 
-#verify command line args
-if len(sys.argv) < 7:
-	print("Incorrect command line arguments\nUsage: python3 paper_model.py <source group> <seed post id or \"random\"> <time post observed (hours)> <output filename> <max nodes for infer graph (if none given in group_size_limits.txt> <min_node_quality (set to -1 for no filter)> esp(optional, for estimating initial params)")
-	exit(0)
+#parse all command-line arguments
+group, sim_post_id, time_observed, outfile, max_nodes, min_node_quality, estimate_initial_params = functions_paper_model.parse_command_args()
 
-#extract arguments
-group = sys.argv[1]
-sim_post_id = sys.argv[2]
-time_observed = float(sys.argv[3])
-outfile = sys.argv[4]
-max_nodes = int(sys.argv[5])
-min_node_quality = float(sys.argv[6])
-if len(sys.argv) > 7 and sys.argv[7] == "esp":
-	estimate_initial_params = True
-else:
-	estimate_initial_params = False
+#ensure working directory exists
+file_utils.verify_dir("sim_files")		
 
-#read group-specific size limits from file
-with open(limit_filepath, 'r') as f:
-	lines = f.readlines()
-sub_limits = {}
-#process each line, extract group and limit
-for line in lines:
-	values = line.split()
-	sub_limits[values[0]] = int(values[1])
-#use limit from file, if it exists
-limit_from_file = False
-if group in sub_limits:
-	max_nodes = sub_limits[group]
-	limit_from_file = True
+#load posts and comments for this group
+raw_posts, raw_comments = functions_paper_model.load_group_data(group)
 
-#print some log-ish stuff in case output being piped and saved
-print("Post ID:", sim_post_id)
-print("Time Observed:", time_observed)
-print("Output:", outfile)
-print("Source group:", group)
-if min_node_quality != -1:
-	print("Minimum node quality:", min_node_quality)
-else:
-	print("No minimum node quality")
-print("Max graph size:", max_nodes, "from file" if limit_from_file else "from argument")
-if estimate_initial_params:
-	print("Estimating initial params for seed posts based on inverse quality weighted average of neighbors")
-print("")
+#ensure post id is in dataset
+sim_post_id, random_post = functions_paper_model.verify_post_id(sim_post_id, list(raw_posts.keys()))
 
-file_utils.verify_dir("sim_files")		#ensure working directory exists
-
-#read group -> domain mapping for later file loads
-domain_mapping = file_utils.load_pickle(domain_mapping_filepath)
-if group not in domain_mapping:
-	print(group, "not in domain mapping - exiting.\n")
-	exit(0)
-domain = domain_mapping[group]
-
-#load cascades and comments for this group
-print("")
-raw_posts = file_utils.load_pickle(cascades_filepath % (domain, group))
-raw_comments = file_utils.load_pickle(comments_filepath % (domain, group))
-print("Loaded", len(raw_posts), "posts and", len(raw_comments), "comments\n")
-
-#if random post id, pick an id from loaded posts
-if sim_post_id == "random":
-	sim_post_id = random.choice(list(raw_posts.keys()))
-	print("Choosing random simulation post:", sim_post_id)
-
-#if given post id not in set, exit
-if sim_post_id not in raw_posts:
-	print("Given post id not in group set - exiting.\n")
-	exit(0)
-
-#pull out just the post we care about
+#pull out just the post (and associated comments) we care about
 sim_post = raw_posts[sim_post_id]
 #and filter to comments
-junk, all_comments = cascade_manip.filter_comments_by_posts({sim_post_id: sim_post}, raw_comments, False)
-print("Simulation post has", len(all_comments), "comments\n")
-
-
-
+junk, post_comments = cascade_manip.filter_comments_by_posts({sim_post_id: sim_post}, raw_comments, False)
+print("Simulation post has", len(post_comments), "comments\n")
 
 
 #GRAPH INFER
@@ -126,11 +46,8 @@ print("Inferred params:", inferred_params, "\n")
 
 
 #REFINE PARAMS - for partial observed trees
-
-partial_fit_params = fit_partial_cascade.fit_partial_cascade(sim_post, all_comments, time_observed, inferred_params, display=False)
-print("Refined params:", partial_fit_params, "\n")
-
-#END REFINE PARAMS
+partial_fit_params = fit_partial_cascade.fit_partial_cascade(sim_post, post_comments, time_observed, inferred_params, display=False)
+print("Refined params:", partial_fit_params)
 
 
 #which params are we using for simulation?
@@ -138,41 +55,17 @@ print("Refined params:", partial_fit_params, "\n")
 sim_params = partial_fit_params			#for now, always the refined params from partial fit
 
 
-#COMMENT TREE SIM
+#SIMULATE COMMENT TREE
+sim_events = functions_paper_model.simulate_comment_tree(sim_post, sim_post_id, sim_params, group, len(post_comments))
 
-#load active users list to draw from when assigning users to comments
-user_ids = file_utils.load_pickle(users_filepath % group)
 
-#node2vec finished, on to the simulation!
-print("\nSimulating comment tree")
-sim_root, all_times = sim_tree.simulate_comment_tree(sim_params)
-
-#convert that to desired output format
-sim_events = build_cascade_events(sim_root, sim_post, user_ids, group)
-sim_events = sorted(sim_events, key=lambda k: k['nodeTime']) 
-
-print("Generated", len(sim_events)-1, "comments for post", sim_post_id)
-print("   ", len(all_comments), "actual")
-
-#END COMMENT TREE SIM
-
+#OUTPUT
 
 #save groundtruth cascade to csv
-functions_paper_model.save_groundtruth(sim_post, all_comments, outfile)
+functions_paper_model.save_groundtruth(sim_post, post_comments, outfile)
 
-#save sim results to output file - json with events and run settings
-print("\nSaving results to", outfile + ".json...")      
-    
-#write to json, include some run info
-output = {'group'    				: group,
-          'post_id'  				: sim_post_id,
-          'time_observed'   		: time_observed,
-          'min_node_quality' 		: min_node_quality,
-          'max_graph_size' 			: max_nodes,
-          'estimate_initial_params' : estimate_initial_params,
-          'data'     				: sim_events}
-file_utils.save_json(output, outfile+".json")
-
+#save sim results to json - all simulated events plus some simulation parameters
+functions_paper_model.save_sim_json(group, sim_post_id, random_post, time_observed, min_node_quality, max_nodes, estimate_initial_params, sim_events, outfile)
 
 #save sim results to second output file - csv, one event per row, columns 'rootID', 'nodeID', and 'parentID' for now
 print("\nSaving results to", outfile + ".csv...")  
