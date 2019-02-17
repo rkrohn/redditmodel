@@ -96,3 +96,16 @@ def graph_infer(sim_post, sim_post_id, group, max_nodes, min_node_quality, estim
 
 	return inferred_params
 #end graph_infer
+
+#given a list of events, check event times to make sure they are in sorted order
+def verify_sorted(events):
+	prev_time = -1
+	for event in events:
+		curr_time = event['nodeTime']
+		if prev_time != -1 and curr_time < prev_time:
+			print("out of order!", prev_time, curr_time)
+			return False
+		prev_time = curr_time
+	print("Events are sorted")
+	return True
+#end verify_sorted

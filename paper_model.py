@@ -185,13 +185,3 @@ print("\nSaving results to", outfile + ".csv...")
 file_utils.save_csv(sim_events, outfile+".csv", fields=['rootID', 'nodeID', 'parentID'])
 
 print("All done\n")
-
-'''
-#are these events always sorted by time?
-prev_time = -1
-for event in sim_events:
-	curr_time = event['nodeTime']
-	if prev_time != -1 and curr_time < prev_time:
-		print("out of order!", prev_time, curr_time)
-	prev_time = curr_time
-'''
