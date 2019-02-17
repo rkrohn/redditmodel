@@ -26,8 +26,8 @@ import random
 
 #filepaths of pre-computed model files
 users_filepath = "model_files/users/%s_users.txt"		#list of users seen in posts/comments, one file per group
-
 limit_filepath = "model_files/group_size_limits.txt"	#per-group graph size limits
+domain_mapping_filepath = "model_files/domain_mapping.pkl"		#maps group -> domain for file loads
 
 #filenames of filtered cascades and comments
 cascades_filepath = "data_cache/filtered_cascades/%s_%s_cascades.pkl"	#domain and group cascades
@@ -86,8 +86,8 @@ print("")
 
 file_utils.verify_dir("sim_files")		#ensure working directory exists
 
-#read group (group) -> domain mapping for later file loads
-domain_mapping = file_utils.load_pickle("model_files/domain_mapping.pkl")
+#read group -> domain mapping for later file loads
+domain_mapping = file_utils.load_pickle(domain_mapping_filepath)
 if group not in domain_mapping:
 	print(group, "not in domain mapping - exiting.\n")
 	exit(0)
@@ -115,17 +115,8 @@ sim_post = raw_posts[sim_post_id]
 junk, all_comments = cascade_manip.filter_comments_by_posts({sim_post_id: sim_post}, raw_comments, False)
 print("Simulation post has", len(all_comments), "comments\n")
 
-#convert ground_truth from given format to eval format
-truth_events = []
-#include post
-truth_events.append({'rootID': "t3_"+sim_post['id_h'], 'nodeID': "t3_"+sim_post['id_h'], 'parentID': "t3_"+sim_post['id_h']})
-#and all comments, sorted by time
-for comment in sorted(all_comments.values(), key=lambda k: k['created_utc']): 
-	truth_events.append({'rootID': comment['link_id_h'], 'nodeID': "t1_"+comment['id_h'], 'parentID': comment['parent_id_h']})
 
-#save ground-truth of this cascade
-print("Saving groundtruth as", outfile+"_groundtruth.csv")
-file_utils.save_csv(truth_events, outfile+"_groundtruth.csv", fields=['rootID', 'nodeID', 'parentID'])
+
 
 
 #GRAPH INFER
@@ -165,6 +156,9 @@ print("   ", len(all_comments), "actual")
 
 #END COMMENT TREE SIM
 
+
+#save groundtruth cascade to csv
+functions_paper_model.save_groundtruth(sim_post, all_comments, outfile)
 
 #save sim results to output file - json with events and run settings
 print("\nSaving results to", outfile + ".json...")      

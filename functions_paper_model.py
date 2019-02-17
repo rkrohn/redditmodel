@@ -97,6 +97,21 @@ def graph_infer(sim_post, sim_post_id, group, max_nodes, min_node_quality, estim
 	return inferred_params
 #end graph_infer
 
+#convert ground-truth cascade to output format and save for later evaluation
+def save_groundtruth(post, comments, outfile):
+	#convert ground_truth from given format to eval format
+	truth_events = []
+	#include post
+	truth_events.append({'rootID': "t3_"+post['id_h'], 'nodeID': "t3_"+post['id_h'], 'parentID': "t3_"+post['id_h']})
+	#and all comments, sorted by time
+	for comment in sorted(comments.values(), key=lambda k: k['created_utc']): 
+		truth_events.append({'rootID': comment['link_id_h'], 'nodeID': "t1_"+comment['id_h'], 'parentID': comment['parent_id_h']})
+
+	#save ground-truth of this cascade
+	print("Saving groundtruth as", outfile+"_groundtruth.csv")
+	file_utils.save_csv(truth_events, outfile+"_groundtruth.csv", fields=['rootID', 'nodeID', 'parentID'])
+#end save_groundtruth
+
 #given a list of events, check event times to make sure they are in sorted order
 def verify_sorted(events):
 	prev_time = -1
