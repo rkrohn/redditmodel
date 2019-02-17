@@ -3,13 +3,13 @@
 #given a single cascade (top-level post and any observed comments), simulate the remainder of the cascade
 #offload node2vec to c++, because speed
 
-#requires the following command-line args: group (or hackernews or cve), id of cascade post to predict (or "random"), output filename for simulation json results, max number of nodes for infer graph, minimum node quality for graph inference (set to -1 for no filter), esp (optional, for estimating initial params based on surrouding)
+#requires the following command-line args: group (or hackernews or cve), id of cascade post to predict (or "random"), output filename for simulation results (no extension), max number of nodes for infer graph, minimum node quality for graph inference (set to -1 for no filter), esp (optional, for estimating initial params based on surrouding)
 
 #for example:
-#	python3 paper_model.py pivx random 4 sim_tree.json 2000 -1
-#	python3 paper_model.py pivx 26RPcnyIuA0JyQpTqEui7A 1 sim_tree.json 500 -1			(4 comments)
-#	paper_model.py pivx ZeuF7ZTDw3McZUOaosvXdA 5 sim_tree.json 250 -1					(11 comments)
-#	 python3 paper_model.py compsci qOjspbLmJbLMVFxYbjB1mQ 200 sim_tree.json 250 -1		(58 comments)
+#	python3 paper_model.py pivx random 4 sim_tree 2000 -1
+#	python3 paper_model.py pivx 26RPcnyIuA0JyQpTqEui7A 1 sim_tree 500 -1			(4 comments)
+#	paper_model.py pivx ZeuF7ZTDw3McZUOaosvXdA 5 sim_tree 250 -1					(11 comments)
+#	paper_model.py compsci qOjspbLmJbLMVFxYbjB1mQ 200 sim_tree 250 -1				(58 comments)
 
 
 
@@ -131,6 +131,17 @@ sim_post = raw_posts[sim_post_id]
 junk, all_comments = cascade_manip.filter_comments_by_posts({sim_post_id: sim_post}, raw_comments, False)
 print("Simulation post has", len(all_comments), "comments\n")
 
+#convert ground_truth from given format to eval format
+truth_events = []
+#include post
+truth_events.append({'rootID': "t3_"+sim_post['id_h'], 'nodeID': "t3_"+sim_post['id_h'], 'parentID': "t3_"+sim_post['id_h']})
+#and all comments, sorted by time
+for comment in sorted(all_comments.values(), key=lambda k: k['created_utc']): 
+	truth_events.append({'rootID': comment['link_id_h'], 'nodeID': "t1_"+comment['id_h'], 'parentID': comment['parent_id_h']})
+
+#save ground-truth of this cascade
+print("Saving groundtruth as", outfile+"_groundtruth.csv")
+file_utils.save_csv(truth_events, outfile+"_groundtruth.csv", fields=['rootID', 'nodeID', 'parentID'])
 
 #GRAPH INFER
 
@@ -237,15 +248,16 @@ sim_root, all_times = sim_tree.simulate_comment_tree(sim_params)
 
 #convert that to desired output format
 sim_events = build_cascade_events(sim_root, sim_post, user_ids, group)
+sim_events = sorted(sim_events, key=lambda k: k['nodeTime']) 
 
-print("Generated", len(sim_events), "comments for post", sim_post_id)
+print("Generated", len(sim_events)-1, "comments for post", sim_post_id)
 print("   ", len(all_comments), "actual")
 
 #END COMMENT TREE SIM
 
 
-#save sim results to output file
-print("\nSaving results to", outfile + "...")      
+#save sim results to output file - json with events and run settings
+print("\nSaving results to", outfile + ".json...")      
     
 #write to json, include some run info
 output = {'group'    				: group,
@@ -255,6 +267,21 @@ output = {'group'    				: group,
           'max_graph_size' 			: max_nodes,
           'estimate_initial_params' : estimate_initial_params,
           'data'     				: sim_events}
-file_utils.save_json(output, outfile)
+file_utils.save_json(output, outfile+".json")
+
+
+#save sim results to second output file - csv, one event per row, columns 'rootID', 'nodeID', and 'parentID' for now
+print("\nSaving results to", outfile + ".csv...")  
+file_utils.save_csv(sim_events, outfile+".csv", fields=['rootID', 'nodeID', 'parentID'])
 
 print("All done\n")
+
+'''
+#are these events always sorted by time?
+prev_time = -1
+for event in sim_events:
+	curr_time = event['nodeTime']
+	if prev_time != -1 and curr_time < prev_time:
+		print("out of order!", prev_time, curr_time)
+	prev_time = curr_time
+'''
