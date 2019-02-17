@@ -93,6 +93,20 @@ def load_csv(filename):
 		return d
 #end load_csv
 
+#save list of dictionary objects to csv, filtering to given fields if list is given
+def save_csv(data, filename, fields=False):
+	#define list of fieldnames, if not given
+	if fields == False:
+		fields = list(data[0].keys())
+
+	with open(filename, mode='w') as csv_file:
+		writer = csv.DictWriter(csv_file, fieldnames=fields)
+
+		writer.writeheader()
+		for row in data:
+			writer.writerow({key: row[key] for key in fields})
+#end save_csv
+
 #unpacks gzip file to desired destination
 def unzip_gz(source, dest):
 	inF = gzip.GzipFile(source, 'rb')
