@@ -114,14 +114,34 @@ def graph_infer(sim_post, sim_post_id, group, max_nodes, min_node_quality, estim
 
 
 #given params, simulate a comment tree
-def simulate_comment_tree(sim_post, sim_post_id, sim_params, group, actual_comment_count):
+def simulate_comment_tree(sim_post, sim_post_id, sim_params, group, sim_comments, time_observed):
 	print("\nSimulating comment tree")
 
 	#load active users list to draw from when assigning users to comments
 	user_ids = file_utils.load_pickle(users_filepath % group)
 
 	#simulate tree structure + comment times!	
-	sim_root, all_times = sim_tree.simulate_comment_tree(sim_params)
+	print("Post created at", sim_post['created_utc'] / 60.0)
+	#simulate from partially observed tree
+	if time_observed != 0:
+		#build new list/structure of observed comments to pass to sim function - offset times by post time
+		observed_tree = {}		#build as dictionary of id->object, then just pass in root
+		#add post first
+		observed_tree[sim_post_id] = {'id': sim_post_id, 'time': 0, 'children': list()}		#post at time 0
+		#add all comments that we observed, loop by comment time
+		for comment in sorted(list(sim_comments.values()), key=lambda k: k['created_utc']):
+			#if comment within observed window, add to our object
+			if comment['created_utc'] - sim_post['created_utc'] <= time_observed * 3600:
+				#new object in dictionary for this comment
+				observed_tree[comment['id_h']] = {'id': comment['id_h'], 'time': (comment['created_utc'] - sim_post['created_utc']) / 60.0, 'children': list()}		#time is offset from post in minutes
+				#add this comment to parent's children list
+				parent = comment['parent_id_h'][3:] if (comment['parent_id_h'].startswith("t1_") or comment['parent_id_h'].startswith("t3_")) else comment['parent_id_h']
+				observed_tree[parent]['children'].append(observed_tree[comment['id_h']])
+		#simulate from this observed tree
+		sim_root, all_times = sim_tree.simulate_comment_tree(sim_params, time_observed*60, observed_tree[sim_post_id])
+	#simulate entirely new tree from root only
+	else:
+		sim_root, all_times = sim_tree.simulate_comment_tree(sim_params)
 
 	#convert that to desired output format
 	sim_events = functions_hybrid_model.build_cascade_events(sim_root, sim_post, user_ids, group)
@@ -129,7 +149,7 @@ def simulate_comment_tree(sim_post, sim_post_id, sim_params, group, actual_comme
 	sim_events = sorted(sim_events, key=lambda k: k['nodeTime']) 
 
 	print("Generated", len(sim_events)-1, "comments for post", sim_post_id)
-	print("   ", actual_comment_count, "actual")
+	print("   ", len(sim_comments), "actual\n")
 
 	return sim_events
 #end simulate_comment_tree

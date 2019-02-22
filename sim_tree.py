@@ -203,32 +203,49 @@ def simulate_comment_tree_times_only(model_params, display = True):
 #end simulate_comment_tree
 
 #overall simulation function, work from root down, generating as we go
+#
+#if time_observed and observed_comments are false, simulate a new tree from just the root
+#otherwise, simulate from the partially observed tree
+#
 #returns a tree stored using a dictionary structure (for easy field additions later) and a sorted list of all comment times - note comment times are in MINUTES from original post, not seconds
 #current fields: time, id (arbitrarily assigned), children (list)
 #generate root comments based on fitted weibull, comment replies based on fitted log-normal
 #requires fitted weibull and log-normal distribution to define hawkes process
 #model params = [a, lbd, k, mu, sigma, n_b] (first 3 weibull, next 2 lognorm, last branching factor)
-def simulate_comment_tree(model_params, display = False):
+def simulate_comment_tree(model_params, time_observed = False, observed_tree = False, display = False):
     weibull_params, lognorm_params, n_b = unpack_params(model_params)   #unfold parameters
 
-    #simulate from empty starting tree (just the root, no observed comments
-    #get root comment times
-    root_comment_times = generate_weibull_times(weibull_params)
+    #simulate from partial tree, including any observed comments - and create root object
+    if time_observed != False:
+    	#simulate new root comment times starting at time_observed
+        root_comment_times = generate_weibull_times(weibull_params, start_time = time_observed)
+        #root of tree = observed tree root
+        root = observed_tree
+    #simulate from empty starting tree (just the root, no observed comments)
+    else:
+        root_comment_times = generate_weibull_times(weibull_params)
+        root = {'time' : 0, 'id' : 0, 'children' : list()}       #root at time 0, id is 0
 
-    #construct root object - each node is a dictionary with 'time' and 'children' fields
-    root = {'time' : 0, 'id' : 0}       #root at time 0, id is 0
-    node_id = itertools.count(start = 1)      #iterator counter for node ids, start at 1 for root replies
-    root['children'] = [{'time' : child_time, 'children' : list(), 'id' : next(node_id)} for child_time in root_comment_times]
+    #update tree object based on generated root comments - each node is a dictionary with 'time' and 'children' fields    
+    node_id = itertools.count(start = 1)      #iterator counter for new node ids, start at 1 for root replies
+    root['children'].extend([{'time' : child_time, 'children' : list(), 'id' : next(node_id)} for child_time in root_comment_times])
 
     #generate deeper comments for each root comment (and each of their comments, etc)
     needs_replies = [] + root['children']
     all_replies = [] + root_comment_times
     while len(needs_replies) != 0:
         comment = needs_replies.pop(0)	#get current object
-        reply_times = generate_lognorm_times(lognorm_params, n_b, start_time = comment['time'])		#get reply times
-        comment['children'] = [{'time' : reply_time, 'children' : list(), 'id' : next(node_id)} for reply_time in reply_times]	#add child objects
-        needs_replies.extend(comment['children'])		#add children to list to be processed
-        all_replies.extend(reply_times)
+        #get new reply times for the comment, whether it has observed comments already or not
+        if comment['time'] <= time_observed:
+        	#existing comment, simulate replies starting from observed time
+        	reply_times = generate_lognorm_times(lognorm_params, n_b, start_time = time_observed)
+        else:
+        	#generated comment, simulate replies from comment time
+        	reply_times = generate_lognorm_times(lognorm_params, n_b, start_time = comment['time'])		#get reply times
+        #add child objects for all generated replies
+        comment['children'].extend([{'time' : reply_time, 'children' : list(), 'id' : next(node_id)} for reply_time in reply_times])	
+        needs_replies.extend(comment['children'])		#add all children to list to be processed
+        all_replies.extend([reply['time'] for reply in comment['children']])
 
     if display:
         print_tree(root)
