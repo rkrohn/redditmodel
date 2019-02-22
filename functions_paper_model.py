@@ -38,6 +38,8 @@ comments_filepath = "data_cache/filtered_cascades/%s_%s_comments.pkl"	#domain an
 
 #for a given post, infer parameters using post graph
 def graph_infer(sim_post, sim_post_id, group, max_nodes, min_node_quality, estimate_initial_params):
+	print("Inferring post parameters from post graph")
+
 	#load preprocessed posts for this group
 	if file_utils.verify_file(posts_filepath % group):
 		posts = file_utils.load_pickle(posts_filepath % group)
@@ -242,7 +244,7 @@ def save_groundtruth(post, comments, outfile):
 #save simulated cascade to json
 def save_sim_json(group, sim_post_id, random_post, time_observed, min_node_quality, max_nodes, estimate_initial_params, sim_events, outfile):
 	#save sim results to output file - json with events and run settings
-	print("\nSaving results to", outfile + ".json...")    
+	print("Saving results to", outfile + ".json...")    
 	#write to json, include some run info
 	output = {'group'    				: group,
 	          'post_id'  				: sim_post_id,

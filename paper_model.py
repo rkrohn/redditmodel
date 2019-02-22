@@ -68,7 +68,7 @@ functions_paper_model.save_groundtruth(sim_post, post_comments, outfile)
 functions_paper_model.save_sim_json(group, sim_post_id, random_post, time_observed, min_node_quality, max_nodes, estimate_initial_params, sim_events, outfile)
 
 #save sim results to second output file - csv, one event per row, columns 'rootID', 'nodeID', and 'parentID' for now
-print("\nSaving results to", outfile + ".csv...")  
+print("Saving results to", outfile + ".csv...")  
 file_utils.save_csv(sim_events, outfile+".csv", fields=['rootID', 'nodeID', 'parentID'])
 
 print("All done\n")

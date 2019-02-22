@@ -31,7 +31,7 @@ def fit_partial_cascade(post, comments, observed_time, param_guess=False, displa
 
     #how many comments have we observed?
     observed_count = len(root_comment_times) + len(other_comment_times)
-    print("Fitting partial cascade, observed", observed_count, "comments of", len(comments), "\n")
+    print("Fitting partial cascade, observed", observed_count, "comments of", len(comments))
 
     #weibull fit
     if display: 
