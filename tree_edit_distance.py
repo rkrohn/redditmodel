@@ -1,89 +1,98 @@
 import zss
 from zss import Node
 
-#basic example first - define two trees using library's default Node structure, compute distance
-A = (
-    Node("f")
-        .addkid(Node("a")
-            .addkid(Node("h"))
-            .addkid(Node("c")
-                .addkid(Node("l"))))
-        .addkid(Node("e"))
-    )
-B = (
-    Node("f")
-        .addkid(Node("a")
-            .addkid(Node("d"))
-            .addkid(Node("c")
-                .addkid(Node("b"))))
-        .addkid(Node("e"))
-    )
 
-#answer should be 2 - rename A's h -> d and A's l -> b
-dist = zss.simple_distance(A, B)
-print("tree edit distance for A,B =", dist)	
+#distance function for structural-only edit distance - assume all node labels are equal
+def struct_only_dist(a, b):
+    return 0   
+#end struct_only_dist
+
+#distance function taking node labels into account - distance is 0 if labels are exactly equal, 1 otherwise
+def label_equality_dist(a, b):
+    if CommentNode.get_label(a) == CommentNode.get_label(b):
+        return 0
+    else:
+        return 1
+#end label_equality_dist
+
+#distance function that ignores node labels, but takes node time into account
+#if node times are within 10 minutes of each other, distance is 0
+#otherwise, distance is abs(a.time - b.time) // 10 (integer division)
+def time_dist(a, b):
+    return abs(CommentNode.get_time(a) - CommentNode.get_time(b)) // 10
+#end time_dist
 
 
-#custom tree format example - can define a node class for building trees, and functions for node distance
+#basic insert and removal cost functions - either operation is a cost of 1
+def remove_cost(a):
+    return 1
+def insert_cost(a):
+    return 1
 
-#first, define a string distance function - string edit distance if it exists, otherwise 0/1 on node names/labels
-try:
-    from editdist import distance as strdist
-except ImportError:
-    def strdist(a, b):
-        if a == b:
-            return 0
-        else:
-            return 1
 
-#alternative string distance function, if we want node name edits to have greater weight
-def weird_dist(A, B):
-    return 10*strdist(A, B)
-
-#custom node class, with required methods to get list of children and get node label
-class WeirdNode(object):
-    def __init__(self, label):
-        self.my_label = label
-        self.my_children = list()
+#custom node class for comment trees, with required method to get list of children
+class CommentNode(object):
+    def __init__(self, label, time):
+        self.label = label
+        self.children = list()
+        self.time = time
 
     @staticmethod
     def get_children(node):
-        return node.my_children
+        return node.children
 
     @staticmethod
     def get_label(node):
-        return node.my_label
+        return node.label
 
-    def addkid(self, node, before=False):
-        if before:  self.my_children.insert(0, node)
-        else:   self.my_children.append(node)
-        return self
-#end WeirdNode
+    @staticmethod
+    def get_time(node):
+        return node.time
+
+    #append child to end of list of children
+    def append_child(self, node):
+        self.children.append(node)
+        return self     #return self so we can chain add operations
+
+    #insert a child to the front of the list of children
+    def prepend_child(self, node):
+        self.children.insert(0, node)
+        return self     #return self so we can chain add operations
+#end CommentNode
 
 #define two test trees - same as in example above
 A = (
-WeirdNode("f")
-    .addkid(WeirdNode("d")
-    .addkid(WeirdNode("a"))
-    .addkid(WeirdNode("c")
-        .addkid(WeirdNode("b"))
+    CommentNode("f", 0)
+        .append_child(CommentNode("a", 32)
+            .append_child(CommentNode("h", 37))
+            .append_child(CommentNode("c", 65)
+                .append_child(CommentNode("l", 112))))
+        .append_child(CommentNode("e", 50))
     )
-    )
-    .addkid(WeirdNode("e"))
-)
 B = (
-WeirdNode("f")
-    .addkid(WeirdNode("c")
-    .addkid(WeirdNode("d")
-        .addkid(WeirdNode("a"))
-        .addkid(WeirdNode("b"))
+    CommentNode("f", 0)
+        .append_child(CommentNode("a", 30)
+            .append_child(CommentNode("d", 42))
+            .append_child(CommentNode("c", 60)
+                .append_child(CommentNode("b", 80))))
+        .append_child(CommentNode("e", 47))
+        .append_child(CommentNode("g", 126))
     )
-    )
-    .addkid(WeirdNode("e"))
-)
 
-#compute distance between A and B, with custom node methods and weird distance method
-#this time result should be 20, since the custom node distance is 10 * string edit distance
-dist = zss.simple_distance(A, B, WeirdNode.get_children, WeirdNode.get_label, weird_dist)
 
-print("tree edit distance for A,B weird_dist =", dist)
+
+#compute distance between A and B, with custom node methods and structure-only method
+struct_dist = zss.distance(A, B, CommentNode.get_children, insert_cost, remove_cost, struct_only_dist)
+print("tree edit distance for A,B struct_only_dist =", struct_dist)
+#result should be 1, since B has one additional comment than A
+
+#get distance taking node label equality into account
+label_dist = zss.distance(A, B, CommentNode.get_children, insert_cost, remove_cost, label_equality_dist)
+print("tree edit distance for A,B label_equality_dist =", label_dist)
+#result should be 3, 1 for B's additional node and 2 from rename operations h->d and l->b
+
+#get distance taking node times into account, but ignoring labels
+time_dist = zss.distance(A, B, CommentNode.get_children, insert_cost, remove_cost, time_dist)
+print("tree edit distance for A,B time_dist =", time_dist)
+#intuitively, result should be 4, 1 for B's additional node and 3 from the time difference between l and b
+#but in actuality, result is 3, because it's cheaper to remove b and add a new node for l, with a cost of 2 instead of 3 for the time shift
