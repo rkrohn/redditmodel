@@ -55,10 +55,10 @@ print("Refined params:", partial_fit_params)
 sim_params = partial_fit_params			#for now, always the refined params from partial fit
 
 #SIMULATE COMMENT TREE
-sim_events = functions_paper_model.simulate_comment_tree(sim_post, sim_post_id, sim_params, group, post_comments, time_observed)
+sim_events = functions_paper_model.simulate_comment_tree(sim_post, sim_params, group, post_comments, time_observed)
 
 
-#OUTPUT
+#OUTPUT TREES
 
 #save groundtruth cascade to csv
 functions_paper_model.save_groundtruth(sim_post, post_comments, outfile)

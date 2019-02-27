@@ -113,8 +113,34 @@ def graph_infer(sim_post, sim_post_id, group, max_nodes, min_node_quality, estim
 #end graph_infer
 
 
+#given a ground-truth cascade, and an optional observed time, convert from list of comments to nested dictionary tree
+#output is the form expected by sim_tree.simulate_comment_tree and tree_edit_distance.build_tree
+#time_observed should be given in seconds
+def convert_comment_tree(post, comments, time_observed=False):
+	#build new list/structure of post comments - offset times by post time
+	observed_tree = {}		#build as dictionary of id->object, then just pass in root
+
+	#add post first - will serve as root of tree
+	observed_tree[post['id_h']] = {'id': post['id_h'], 'time': 0, 'children': list()}		#post at time 0
+
+	#add all comments, loop by comment time - filter by observed time, if given
+	for comment in sorted(list(comments.values()), key=lambda k: k['created_utc']):
+		#if filtering and comment within observed window, add to our object
+		#if not filtering, add all comments
+		if (time_observed == False) or (time_observed != False and comment['created_utc'] - post['created_utc'] <= time_observed * 3600):
+			#new object in dictionary for this comment
+			observed_tree[comment['id_h']] = {'id': comment['id_h'], 'time': (comment['created_utc'] - post['created_utc']) / 60.0, 'children': list()}		#time is offset from post in minutes
+			#add this comment to parent's children list
+			parent = comment['parent_id_h'][3:] if (comment['parent_id_h'].startswith("t1_") or comment['parent_id_h'].startswith("t3_")) else comment['parent_id_h']
+			observed_tree[parent]['children'].append(observed_tree[comment['id_h']])
+
+	#return post/root
+	return observed_tree[post['id_h']]
+#end convert_comment_tree
+
+
 #given params, simulate a comment tree
-def simulate_comment_tree(sim_post, sim_post_id, sim_params, group, sim_comments, time_observed):
+def simulate_comment_tree(sim_post, sim_params, group, sim_comments, time_observed):
 	print("\nSimulating comment tree")
 
 	#load active users list to draw from when assigning users to comments
@@ -124,21 +150,10 @@ def simulate_comment_tree(sim_post, sim_post_id, sim_params, group, sim_comments
 	print("Post created at", sim_post['created_utc'] / 60.0)
 	#simulate from partially observed tree
 	if time_observed != 0:
-		#build new list/structure of observed comments to pass to sim function - offset times by post time
-		observed_tree = {}		#build as dictionary of id->object, then just pass in root
-		#add post first
-		observed_tree[sim_post_id] = {'id': sim_post_id, 'time': 0, 'children': list()}		#post at time 0
-		#add all comments that we observed, loop by comment time
-		for comment in sorted(list(sim_comments.values()), key=lambda k: k['created_utc']):
-			#if comment within observed window, add to our object
-			if comment['created_utc'] - sim_post['created_utc'] <= time_observed * 3600:
-				#new object in dictionary for this comment
-				observed_tree[comment['id_h']] = {'id': comment['id_h'], 'time': (comment['created_utc'] - sim_post['created_utc']) / 60.0, 'children': list()}		#time is offset from post in minutes
-				#add this comment to parent's children list
-				parent = comment['parent_id_h'][3:] if (comment['parent_id_h'].startswith("t1_") or comment['parent_id_h'].startswith("t3_")) else comment['parent_id_h']
-				observed_tree[parent]['children'].append(observed_tree[comment['id_h']])
+		#get alternate structure of observed tree
+		observed_tree = convert_comment_tree(sim_post, sim_comments, time_observed)
 		#simulate from this observed tree
-		sim_root, all_times = sim_tree.simulate_comment_tree(sim_params, time_observed*60, observed_tree[sim_post_id])
+		sim_root, all_times = sim_tree.simulate_comment_tree(sim_params, time_observed*60, observed_tree)
 	#simulate entirely new tree from root only
 	else:
 		sim_root, all_times = sim_tree.simulate_comment_tree(sim_params)
@@ -148,7 +163,7 @@ def simulate_comment_tree(sim_post, sim_post_id, sim_params, group, sim_comments
 	#sort list of events by time
 	sim_events = sorted(sim_events, key=lambda k: k['nodeTime']) 
 
-	print("Generated", len(sim_events)-1, "comments for post", sim_post_id)
+	print("Generated", len(sim_events)-1, "total comments for post", sim_post['id_h'], "(including observed)")
 	print("   ", len(sim_comments), "actual\n")
 
 	return sim_events
