@@ -9,7 +9,7 @@ def struct_only_dist(a, b):
 
 #distance function taking node labels into account - distance is 0 if labels are exactly equal, 1 otherwise
 def label_equality_dist(a, b):
-	if CommentNode.get_label(a) == CommentNode.get_label(b):
+	if a.get_label() == b.get_label():
 		return 0
 	else:
 		return 1
@@ -19,7 +19,7 @@ def label_equality_dist(a, b):
 #if node times are within 30 minutes of each other, distance is 0
 #otherwise, distance is 1
 def time_dist(a, b):
-	if abs(CommentNode.get_time(a) - CommentNode.get_time(b)) <= 30:
+	if abs(a.get_time() - b.get_time()) <= 30:
 		return 0
 	else:
 		return 1
@@ -40,17 +40,14 @@ class CommentNode(object):
 		self.children = list()
 		self.time = time
 
-	@staticmethod
-	def get_children(node):
-		return node.children
+	def get_children(self):
+		return self.children
 
-	@staticmethod
-	def get_label(node):
-		return node.label
+	def get_label(self):
+		return self.label
 
-	@staticmethod
-	def get_time(node):
-		return node.time
+	def get_time(self):
+		return self.time
 
     #append child to end of list of children
 	def append_child(self, node):
@@ -97,4 +94,4 @@ print("tree edit distance for A,B label_equality_dist =", label_dist)
 #get distance taking node times into account, but ignoring labels
 time_dist = zss.distance(A, B, CommentNode.get_children, insert_cost, remove_cost, time_dist)
 print("tree edit distance for A,B time_dist =", time_dist)
-#intuitively, result should be 2, 1 for B's additional node and 2 from the time difference between l and b
+#result should be 2, 1 for B's additional node and 2 from the time difference between l and b
