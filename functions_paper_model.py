@@ -166,7 +166,7 @@ def simulate_comment_tree(sim_post, sim_params, group, sim_comments, time_observ
 	print("Generated", len(sim_events)-1, "total comments for post", sim_post['id_h'], "(including observed)")
 	print("   ", len(sim_comments), "actual\n")
 
-	return sim_events
+	return sim_events, sim_root		#return events list, and dictionary format of simulated tree
 #end simulate_comment_tree
 
 
