@@ -101,39 +101,42 @@ def print_tree(root):
 #end print_tree
 
 
-#define two test trees - same as in example above
-A = (
-	CommentNode("f", 0)
-		.append_child(CommentNode("a", 32)
-			.append_child(CommentNode("h", 37))
-			.append_child(CommentNode("c", 65)
-				.append_child(CommentNode("l", 123))))
-		.append_child(CommentNode("e", 50))
-	)
-B = (
-	CommentNode("f", 0)
-		.append_child(CommentNode("a", 30)
-			.append_child(CommentNode("d", 42))
-			.append_child(CommentNode("c", 60)
-				.append_child(CommentNode("b", 80))))
-		.append_child(CommentNode("e", 47))
-		.append_child(CommentNode("g", 126))
-	)
+#legacy code - a few example usages, saving for posterity
+def example():
+	#define two test trees - same as in example above
+	A = (
+		CommentNode("f", 0)
+			.append_child(CommentNode("a", 32)
+				.append_child(CommentNode("h", 37))
+				.append_child(CommentNode("c", 65)
+					.append_child(CommentNode("l", 123))))
+			.append_child(CommentNode("e", 50))
+		)
+	B = (
+		CommentNode("f", 0)
+			.append_child(CommentNode("a", 30)
+				.append_child(CommentNode("d", 42))
+				.append_child(CommentNode("c", 60)
+					.append_child(CommentNode("b", 80))))
+			.append_child(CommentNode("e", 47))
+			.append_child(CommentNode("g", 126))
+		)
 
-print_tree(A)
-print_tree(B)
+	print_tree(A)
+	print_tree(B)
 
-#compute distance between A and B, with custom node methods and structure-only method
-struct_dist = zss.distance(A, B, CommentNode.get_children, insert_cost, remove_cost, struct_only_dist)
-print("tree edit distance for A,B struct_only_dist =", struct_dist)
-#result should be 1, since B has one additional comment than A
+	#compute distance between A and B, with custom node methods and structure-only method
+	struct_dist = zss.distance(A, B, CommentNode.get_children, insert_cost, remove_cost, struct_only_dist)
+	print("tree edit distance for A,B struct_only_dist =", struct_dist)
+	#result should be 1, since B has one additional comment than A
 
-#get distance taking node label equality into account
-label_dist = zss.distance(A, B, CommentNode.get_children, insert_cost, remove_cost, label_equality_dist)
-print("tree edit distance for A,B label_equality_dist =", label_dist)
-#result should be 3, 1 for B's additional node and 2 from rename operations h->d and l->b
+	#get distance taking node label equality into account
+	label_dist = zss.distance(A, B, CommentNode.get_children, insert_cost, remove_cost, label_equality_dist)
+	print("tree edit distance for A,B label_equality_dist =", label_dist)
+	#result should be 3, 1 for B's additional node and 2 from rename operations h->d and l->b
 
-#get distance taking node times into account, but ignoring labels
-time_dist = zss.distance(A, B, CommentNode.get_children, insert_cost, remove_cost, time_dist)
-print("tree edit distance for A,B time_dist =", time_dist)
-#result should be 2, 1 for B's additional node and 2 from the time difference between l and b
+	#get distance taking node times into account, but ignoring labels
+	time_dist = zss.distance(A, B, CommentNode.get_children, insert_cost, remove_cost, time_dist)
+	print("tree edit distance for A,B time_dist =", time_dist)
+	#result should be 2, 1 for B's additional node and 2 from the time difference between l and b
+#end example
