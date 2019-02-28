@@ -64,17 +64,14 @@ class CommentNode(object):
 #given a CommentNode tree root, print the tree comment times
 #uses DFS to print the tree structure
 def print_tree(root):
-	visited = set()    #set of visited nodes
 	stack = [(root, 0)]     #node processing stack, node and level
 
 	while len(stack) != 0:
 		curr, level = stack.pop()  #get last node added to stack
-		curr_label = curr.get_label()
 		print("    " * level + "%.3f" % curr.get_time())   #print this comment time
-		if curr_label not in visited:
-			visited.add(curr_label)
-			#append children in reverse time order so final output is sorted
-			stack.extend([(child, level+1) for child in curr.get_children()][::-1])   
+
+		#append children in reverse time order so final output is sorted
+		stack.extend([(child, level+1) for child in curr.get_children()][::-1])   
 	print("") 
 #end print_tree
 
