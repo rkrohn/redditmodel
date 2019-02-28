@@ -69,5 +69,13 @@ functions_paper_model.save_sim_json(group, sim_post_id, random_post, time_observ
 #save sim results to second output file - csv, one event per row, columns 'rootID', 'nodeID', and 'parentID' for now
 print("Saving results to", outfile + ".csv...")  
 file_utils.save_csv(sim_events, outfile+".csv", fields=['rootID', 'nodeID', 'parentID'])
+print("")
 
-print("All done\n")
+
+#EVAL
+
+#compute tree edit distance between ground-truth and simulated cascades
+distance = functions_paper_model.eval_trees(sim_tree, sim_post, post_comments)
+print("Tree edit distance (time-based dist):", distance)
+
+print("\nAll done\n")

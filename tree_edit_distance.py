@@ -101,6 +101,20 @@ def print_tree(root):
 #end print_tree
 
 
+#given two trees in dictionary format, compute the tree edit distance between them
+def compare_trees(sim_dict_tree, truth_dict_tree):
+	#get CommentNode format of the trees
+	sim = build_tree(sim_dict_tree)
+	truth = build_tree(truth_dict_tree)
+
+	#compute edit distance - for now the time-version
+	dist = zss.distance(sim, truth, CommentNode.get_children, insert_cost, remove_cost, time_dist)
+
+	#return result
+	return dist
+#end compare_trees
+
+
 #legacy code - a few example usages, saving for posterity
 def example():
 	#define two test trees - same as in example above

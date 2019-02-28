@@ -3,6 +3,7 @@
 import file_utils
 import functions_hybrid_model
 import sim_tree
+import tree_edit_distance
 
 from shutil import copyfile
 import subprocess
@@ -257,6 +258,17 @@ def verify_post_id(sim_post_id, all_post_ids):
 			exit(0)
 	return sim_post_id, random_post
 #end verify_post_id
+
+
+#given simulated and ground-truth cascades, compute the tree edit distance between them
+#both trees given as dictionary-nested structure (returned from simulate_comment_tree and convert_comment_tree)
+def eval_trees(sim_dict_tree, sim_post, sim_comments):
+	#get ground-truth cascade in same tree format
+	truth_dict_tree = convert_comment_tree(sim_post, sim_comments)
+
+	#return distance
+	return tree_edit_distance.compare_trees(sim_dict_tree, truth_dict_tree)
+#end eval_trees
 
 
 #convert ground-truth cascade to output format and save for later evaluation
