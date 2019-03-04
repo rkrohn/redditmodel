@@ -1,5 +1,12 @@
 import zss
-from zss import Node
+from zss import Node, Operation
+
+
+#op types, taken from library code
+REMOVE = Operation.remove
+INSERT = Operation.insert
+UPDATE = Operation.update
+MATCH = Operation.match
 
 
 #distance function for structural-only edit distance - assume all node labels are equal
@@ -102,18 +109,68 @@ def print_tree(root):
 
 
 #given two trees in dictionary format, compute the tree edit distance between them
+#return a few different measures:
+#	total tree edit distance, count of inserted/removed/updated comments
+#	update count, number of comments updated
+#	update time error, total time delta of all updated comments
+#	insert count, number of comments inserted (added to sim tree)
+#	insert time error, total time delta of all inserted comments
+#	remove count, number of comments removed (deleted from sim tree)
+#	remove time error, total time delta of all removed comments
+#	match count, total number of node matches (for easy % correct calcs)
 def compare_trees(sim_dict_tree, truth_dict_tree):
 	#get CommentNode format of the trees
 	sim = build_tree(sim_dict_tree)
 	truth = build_tree(truth_dict_tree)
 
 	#compute edit distance - for now the time-version
-	dist = zss.distance(sim, truth, CommentNode.get_children, insert_cost, remove_cost, time_dist)
+	dist, ops = zss.distance(sim, truth, CommentNode.get_children, insert_cost, remove_cost, time_dist, return_operations=True)
+
+	#break down the ops to get different operation counts and time errors
+	update_count = 0
+	insert_count = 0
+	remove_count = 0
+	update_time = 0
+	insert_time = 0
+	remove_time = 0
+	match_count = 0
+	for op in ops:
+		op_type, op_time_error, op_str = parse_op(op)
+		#handle different types
+		if op.type == REMOVE:
+			remove_count += 1
+			remove_time += op_time_error
+		elif op.type == INSERT:
+			insert_count += 1
+			insert_time += op_time_error
+		elif op.type == UPDATE:
+			update_count += 1
+			update_time += op_time_error
+		else:
+			match_count += 1
 
 	#return result
-	return dist
+	return dist, update_count, update_time, insert_count, insert_time, remove_count, remove_time, match_count
 #end compare_trees
 
+
+#given an Operation object, return it's type, time error, and a string representation (contains type and affected comment times)
+#time error computed as follows:
+#	for remove operations (simulated an extra comment), return timestamp of that comment
+#	for insert operations (simulation short a comment), return timestamp of inserted comment
+#	for update operations (simulated comment timestamp is off), return absolute difference between simulated and actual timestamps
+#	for match operations (comment times match exactly), return 0
+#if op is an update, string includes include time shift
+def parse_op(op):
+	if op.type == REMOVE:
+		return op.type, op.arg1.time, '<Operation Remove: ' + "%.3f" % op.arg1.time + '>'
+	elif op.type == INSERT:
+		return op.type, op.arg2.time, '<Operation Insert: ' + "%.3f" % op.arg2.time + '>'
+	elif op.type == UPDATE:
+		return op.type, abs(op.arg1.time-op.arg2.time), '<Operation Update: ' + "%.3f" % op.arg1.time + ' to ' + "%.3f" % op.arg2.time + ', shift ' + "%.3f" % (op.arg1.time-op.arg2.time) +  '>'
+	else:
+		return op.type, 0.0, '<Operation Match: ' + "%.3f" % op.arg1.time + '>'
+#end parse_op
 
 #legacy code - a few example usages, saving for posterity
 def example():

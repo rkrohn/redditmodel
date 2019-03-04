@@ -75,7 +75,11 @@ print("")
 #EVAL
 
 #compute tree edit distance between ground-truth and simulated cascades
-distance = functions_paper_model.eval_trees(sim_tree, sim_post, post_comments)
-print("Tree edit distance (time-based dist):", distance)
+total_dist, update_count, update_time, insert_count, insert_time, remove_count, remove_time, match_count = functions_paper_model.eval_trees(sim_tree, sim_post, post_comments)
+print("Tree edit distance:", total_dist)
+print("   update:", update_count, update_time)
+print("   insert:", insert_count, insert_time)
+print("   remove:", remove_count, remove_time)
+print("   match:", match_count)
 
 print("\nAll done\n")
