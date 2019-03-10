@@ -73,13 +73,13 @@ void ReadGraph(TStr& InFile, bool& Directed, bool& Weighted, bool& Verbose, PWNe
 			if (!Directed){ InNet->AddEdge(DstNId,SrcNId,Weight); }
 			LineCnt++;
 		}
-		if (Verbose) { printf("Read %lld lines from %s\n", (long long)LineCnt, InFile.CStr()); }
+		if (Verbose) { printf("Read %lld graph lines from %s\n", (long long)LineCnt, InFile.CStr()); }
 	} 
 	catch (PExcept Except) 
 	{
 		if (Verbose) 
 		{
-			printf("Read %lld lines from %s, then %s\n", (long long)LineCnt, InFile.CStr(),
+			printf("Read %lld graph lines from %s, then %s\n", (long long)LineCnt, InFile.CStr(),
 			Except->GetStr().CStr());
 		}
 	}
@@ -136,13 +136,13 @@ void ReadInitialEmbeddings(TStr& InitInFile, TIntFltVH& InitEmbeddingsHV, bool& 
 			//printf("\n");
 			LineCnt++;
 		}
-		if (Verbose) { printf("Read %lld lines from %s\n", (long long)LineCnt, InitInFile.CStr()); }
+		if (Verbose) { printf("Read %lld param lines from %s\n", (long long)LineCnt, InitInFile.CStr()); }
 	} 
 	catch (PExcept Except) 
 	{
 		if (Verbose) 
 		{
-			printf("Read %lld lines from %s, then %s\n", (long long)LineCnt, InitInFile.CStr(),
+			printf("Read %lld param lines from %s, then %s\n", (long long)LineCnt, InitInFile.CStr(),
 			Except->GetStr().CStr());
 		}
 	}
