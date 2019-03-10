@@ -2,7 +2,7 @@
 #include "Snap.h"
 #include "biasedrandomwalk.h"
 
-//Preprocess alias sampling method
+//Preprocess alias sampling method by building U and K tables
 //https://en.wikipedia.org/wiki/Alias_method
 //params are normalized transition prob table and CurrI's NI data of type TPair<TVec<TInt, int>, TVec<TFlt, int>>
 void GetNodeAlias(TFltV& PTblV, TIntVFltVPr& NTTable)
@@ -78,7 +78,6 @@ void GetNodeAlias(TFltV& PTblV, TIntVFltVPr& NTTable)
 //NTTable is TPair<TVec<TInt, int>, TVec<TFlt, int>>, aka K and U tables
 int64 AliasDrawInt(TIntVFltVPr& NTTable, TRnd& Rnd)
 {
-	printf(NTTable);
 	int64 N = NTTable.GetVal1().Len();		//size of tables
 	TInt X = static_cast<int64>(Rnd.GetUniDev()*N);	//uniform random {1, 2,...n}
 	double Y = Rnd.GetUniDev();	//random  on [0,1)]
@@ -142,15 +141,67 @@ void PreprocessNode (PWNet& InNet, const double& ParamP, const double& ParamQ,
 		}
 		//Normalizing table - divide all alpha values by the sum
 		for (int64 j = 0; j < CurrI.GetOutDeg(); j++)
-		{
 			PTable[j] /= Psum;
-		}
 
 		//pass in normalized probability table, and CurrI's allocated data space for node NI
 		//second argument is TPair<TVec<TInt, int>, TVec<TFlt, int>>
 		GetNodeAlias(PTable, CurrI.GetDat().GetDat(NI.GetId()));		//generate U and K tables for NI stored in CurrI data
 	}
 	NCnt++;		//increment shared node counter
+}
+
+//process the node pair given as NI and CurrI, where CurrI is the neighbor of NI
+//parameters: network, p, q, node, display toggle flag
+TPair<TIntV,TFltV> ProcessNodePair (PWNet& InNet, const double& ParamP, const double& ParamQ, TWNet::TNodeI NI, TWNet::TNodeI CurrI, const bool& Verbose)
+ {
+	//for node t, build hash of neighbor id -> bool
+	THash <TInt, TBool> NbrH;                                    //Neighbors of t
+	for (int64 i = 0; i < NI.GetOutDeg(); i++)		//loop neighbors
+		NbrH.AddKey(NI.GetNbrNId(i));
+
+	double Psum = 0;
+	TFltV PTable;                              //Probability distribution table
+	//loop neighbors of the neighbor (2-hop neighbors of processing node)
+	for (int64 j = 0; j < CurrI.GetOutDeg(); j++) 
+	{           //for each node x
+		int64 FId = CurrI.GetNbrNId(j);		//id of neighbor-neighbor
+		TFlt Weight;
+		//get weight of edge between current neighbor and neighbor-neighbor
+		//if edge doesn't exist, skip to next neighbor (but this should never happen?)
+		if (!(InNet->GetEDat(CurrI.GetId(), FId, Weight))){ continue; }
+
+		//compute walk bias alpha for this edge
+		//append alpha to end of PTable vector and add to Psum
+
+		//if neighbor-neighbor is processing node (ie, traveled back along same edge), alpha = weight / p
+		if (FId==NI.GetId())
+		{
+			PTable.Add(Weight / ParamP);
+			Psum += Weight / ParamP;
+		} 
+		//if neighbor-neighbor is connected to processing node, alpha = weight
+		else if (NbrH.IsKey(FId))
+		{
+			PTable.Add(Weight);
+			Psum += Weight;
+		} 
+		//otherwise (not processing node or direct neighbor of processing node), alpha = weight / q
+		else
+		{
+			PTable.Add(Weight / ParamQ);
+			Psum += Weight / ParamQ;
+		}
+	}
+	//Normalizing table - divide all alpha values by the sum
+	for (int64 j = 0; j < CurrI.GetOutDeg(); j++)
+		PTable[j] /= Psum;
+
+	//pass in normalized probability table, and allocated space for U and K tables
+	//second argument is TPair<TVec<TInt, int>, TVec<TFlt, int>>
+	TPair<TIntV,TFltV> tables = TPair<TIntV,TFltV>(TIntV(CurrI.GetOutDeg()),TFltV(CurrI.GetOutDeg()));
+	GetNodeAlias(PTable, tables);		//generate U and K tables for NI stored in CurrI data
+
+	return tables;
 }
 
 //Preprocess transition probabilities for each path t->v->x
@@ -223,7 +274,7 @@ int64 PredictMemoryRequirements(PWNet& InNet)
 //InNet is the graph/network
 //Rnd is the previously-seeded randomizer
 //WalkV will hold just this walk
-void SimulateWalk(PWNet& InNet, int64 StartNId, const int& WalkLen, TRnd& Rnd, TIntV& WalkV)
+void SimulateWalk(PWNet& InNet, int64 StartNId, const int& WalkLen, TRnd& Rnd, TIntV& WalkV, bool& OTF, const double& ParamP, const double& ParamQ, const bool& Verbose)
 {
 	WalkV.Add(StartNId);		//add starting node id to random walk
 	
@@ -249,7 +300,20 @@ void SimulateWalk(PWNet& InNet, int64 StartNId, const int& WalkLen, TRnd& Rnd, T
 			return;
 
 		//add another random node to walk - based on transition probabilities and alias sampling
-		int64 Next = AliasDrawInt(InNet->GetNDat(Dst).GetDat(Src), Rnd);
+		int64 Next;		//next node to add to walk
+		//if computing transition probabilities on-the-fly, get necessary values before getting next node
+		if (OTF)
+		{
+			//compute U and K tables for the current node pair
+			TPair<TIntV,TFltV> tables = ProcessNodePair(InNet, ParamP, ParamQ, InNet->GetNI(Src), InNet->GetNI(Dst), Verbose);
+			//get next node based on our tables
+			Next = AliasDrawInt(tables, Rnd);
+		}
+		//if transition probabilities precomputed, just draw from stored alias sampling tables to get next node
+		else	
+		{
+			Next = AliasDrawInt(InNet->GetNDat(Dst).GetDat(Src), Rnd);
+		}
 		WalkV.Add(InNet->GetNI(Dst).GetNbrNId(Next));
 	}
 }

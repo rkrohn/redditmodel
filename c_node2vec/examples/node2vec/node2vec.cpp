@@ -9,7 +9,7 @@
 void ParseArgs(int& argc, char* argv[], TStr& InFile, TStr& OutFile,
 	int& Dimensions, int& WalkLen, int& NumWalks, int& WinSize, int& Iter,
 	bool& Verbose, double& ParamP, double& ParamQ, bool& Directed, bool& Weighted,
-	bool& OutputWalks, TStr& InitInFile, bool& Sticky) 
+	bool& OutputWalks, TStr& InitInFile, bool& Sticky, bool& OTF) 
 {
 	Env = TEnv(argc, argv, TNotify::StdNotify);
 	Env.PrepArgs(TStr::Fmt("\nAn algorithmic framework for representational learning on graphs."));
@@ -33,6 +33,7 @@ void ParseArgs(int& argc, char* argv[], TStr& InFile, TStr& OutFile,
 	ParamQ = Env.GetIfArgPrefixFlt("-q:", 1,
 	"Inout hyperparameter. Default is 1");
 	Verbose = Env.IsArgStr("-v", "Verbose output.");
+	OTF = Env.IsArgStr("-otf", "Computing transition probabilities on-the-fly.");
 	Directed = Env.IsArgStr("-dr", "Graph is directed.");
 	Weighted = Env.IsArgStr("-w", "Graph is weighted.");
 	Sticky = Env.IsArgStr("-s", "Using \"sticky\" factor.");
@@ -200,11 +201,11 @@ int main(int argc, char* argv[])
 	TStr InFile, InitInFile, OutFile;
 	int Dimensions, WalkLen, NumWalks, WinSize, Iter;
 	double ParamP, ParamQ;
-	bool Directed, Weighted, Verbose, OutputWalks, Sticky;
+	bool Directed, Weighted, Verbose, OutputWalks, Sticky, OTF;
 
 	//parse command line args
 	ParseArgs(argc, argv, InFile, OutFile, Dimensions, WalkLen, NumWalks, WinSize,
-	Iter, Verbose, ParamP, ParamQ, Directed, Weighted, OutputWalks, InitInFile, Sticky);
+	Iter, Verbose, ParamP, ParamQ, Directed, Weighted, OutputWalks, InitInFile, Sticky, OTF);
 
 	//for now, require the initial embeddings file - because that's what we're doing, and I don't care enough to do this clean right now
 	if (InitInFile.Len() == 0)
@@ -226,7 +227,7 @@ int main(int argc, char* argv[])
 
 	//run node2vec: network, configuration parameters, objects for walks and embeddings
 	node2vec(InNet, ParamP, ParamQ, Dimensions, WalkLen, NumWalks, WinSize, Iter, 
-	Verbose, OutputWalks, WalksVV, EmbeddingsHV, InitEmbeddingsHV, StickyFactorsH);
+	Verbose, OutputWalks, WalksVV, EmbeddingsHV, InitEmbeddingsHV, StickyFactorsH, OTF);
 
 	//dump results
 	WriteOutput(OutFile, EmbeddingsHV, WalksVV, OutputWalks);
