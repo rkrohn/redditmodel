@@ -345,6 +345,9 @@ void LearnEmbeddings(TVVec<TInt, int64>& WalksVV, const int& Dimensions,
 	TIntIntH RnmBackH;	//reverse hash, assigned consecutive node id -> given node id
 	int64 NNodes = 0;	//node counter
 
+	if (Verbose)
+		printf("Learning embeddings...\n");
+
 	//renaming nodes into consecutive numbers (because reasons)
 	for (int i = 0; i < WalksVV.GetXDim(); i++)
 	{
@@ -366,6 +369,8 @@ void LearnEmbeddings(TVVec<TInt, int64>& WalksVV, const int& Dimensions,
 	}
 
 	//learn vocabulary from random walks
+	if (Verbose)
+		printf("Learning vocab...\n");
 	TIntV Vocab(NNodes);		//arry-type container, one space for each "word" (node), holds frequencies
 	LearnVocab(WalksVV, Vocab);		//count number of times each word/node is used
 
@@ -384,6 +389,8 @@ void LearnEmbeddings(TVVec<TInt, int64>& WalksVV, const int& Dimensions,
 	TVVec<TFlt, int64> SynPos;	//this is actually the embedding returned at the end of training
 	TRnd Rnd(time(NULL));		//seed the randomizer
 
+	if (Verbose)
+		printf("Initializing embeddings...\n");
 	//initialize positive and negative embeddings: len(vocab) * Dimensions
 	InitPosEmb(Vocab, Dimensions, Rnd, SynPos, InitEmbeddingsHV, RnmBackH);		//init embedding with random values - but not random anymore!
 	InitNegEmb(Vocab, Dimensions, SynNeg);			//all 0
@@ -416,6 +423,8 @@ void LearnEmbeddings(TVVec<TInt, int64>& WalksVV, const int& Dimensions,
 		ExpTable[i] = TMath::Power(TMath::E, Value);
 	}
 
+	if (Verbose)
+		printf("Training model...\n");
 	int64 WordCntAll = 0;
 	double Alpha = StartAlpha;                              //learning rate
 // op RS 2016/09/26, collapse does not compile on Mac OS X
@@ -438,6 +447,8 @@ void LearnEmbeddings(TVVec<TInt, int64>& WalksVV, const int& Dimensions,
 	}
 	if (Verbose) { printf("\n"); fflush(stdout); }
 
+	if (Verbose)
+		printf("Finalizing embeddings...\n");
 	//loop node rows
 	for (int64 i = 0; i < SynPos.GetXDim(); i++)
 	{
