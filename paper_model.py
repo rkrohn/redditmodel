@@ -17,11 +17,10 @@ import functions_paper_model
 import cascade_manip
 import fit_partial_cascade
 
-
 print("")
 
 #parse all command-line arguments
-group, sim_post_id, time_observed, outfile, max_nodes, min_node_quality, estimate_initial_params = functions_paper_model.parse_command_args()
+group, input_sim_post_id, time_observed, outfile, max_nodes, min_node_quality, estimate_initial_params = functions_paper_model.parse_command_args()
 
 #ensure working directory exists
 file_utils.verify_dir("sim_files")		
@@ -29,57 +28,115 @@ file_utils.verify_dir("sim_files")
 #load posts and comments for this group
 raw_posts, raw_comments = functions_paper_model.load_group_data(group)
 
-#ensure post id is in dataset
-sim_post_id, random_post = functions_paper_model.verify_post_id(sim_post_id, list(raw_posts.keys()))
+#ensure post id is in dataset (gets list of all post ids if running all)
+sim_post_id_list, random_post = functions_paper_model.verify_post_id(input_sim_post_id, list(raw_posts.keys()))
 
-#pull out just the post (and associated comments) we care about
-sim_post = raw_posts[sim_post_id]
-#and filter to comments
-junk, post_comments = cascade_manip.filter_comments_by_posts({sim_post_id: sim_post}, raw_comments, False)
-print("Simulation post has", len(post_comments), "comments\n")
+#boolean flag for mode==all
+if input_sim_post_id == "all":
+	batch = True
+else:
+	batch = False
 
+#if running in mode all, keep total of all metrics, dump at end
+if batch:
+	total_dist = 0
+	total_update_count = 0
+	total_update_time = 0
+	total_insert_count = 0
+	total_insert_time = 0
+	total_remove_count = 0
+	total_remove_time = 0
+	total_match_count = 0
 
-#GRAPH INFER
-inferred_params = functions_paper_model.graph_infer(sim_post, sim_post_id, group, max_nodes, min_node_quality, estimate_initial_params)
-#inferred_params = [1.73166, 0.651482, 1.08986, 0.762604, 2.49934, 0.19828]		#placeholder if skipping the infer
-print("Inferred params:", inferred_params, "\n")
+#process all posts (or just one, if doing that)
+print("Processing", len(sim_post_id_list), "posts")
+for sim_post_id in sim_post_id_list:
 
-
-#REFINE PARAMS - for partial observed trees
-partial_fit_params = fit_partial_cascade.fit_partial_cascade(sim_post, post_comments, time_observed, inferred_params, display=False)
-print("Refined params:", partial_fit_params)
-
-
-#which params are we using for simulation?
-#sim_params = inferred_params
-sim_params = partial_fit_params			#for now, always the refined params from partial fit
-
-#SIMULATE COMMENT TREE
-sim_events, sim_tree = functions_paper_model.simulate_comment_tree(sim_post, sim_params, group, post_comments, time_observed)
-
-
-#OUTPUT TREES
-
-#save groundtruth cascade to csv
-functions_paper_model.save_groundtruth(sim_post, post_comments, outfile)
-
-#save sim results to json - all simulated events plus some simulation parameters
-functions_paper_model.save_sim_json(group, sim_post_id, random_post, time_observed, min_node_quality, max_nodes, estimate_initial_params, sim_events, outfile)
-
-#save sim results to second output file - csv, one event per row, columns 'rootID', 'nodeID', and 'parentID' for now
-print("Saving results to", outfile + ".csv...")  
-file_utils.save_csv(sim_events, outfile+".csv", fields=['rootID', 'nodeID', 'parentID'])
-print("")
+	#pull out just the post (and associated comments) we care about
+	sim_post = raw_posts[sim_post_id]
+	#and filter to comments
+	junk, post_comments = cascade_manip.filter_comments_by_posts({sim_post_id: sim_post}, raw_comments, False)
+	if batch == False:
+		print("Simulation post has", len(post_comments), "comments\n")
 
 
-#EVAL
+	#GRAPH INFER
+	inferred_params = functions_paper_model.graph_infer(sim_post, sim_post_id, group, max_nodes, min_node_quality, estimate_initial_params)
+	#inferred_params = [1.73166, 0.651482, 1.08986, 0.762604, 2.49934, 0.19828]		#placeholder if skipping the infer
+	if batch == False:
+		print("Inferred params:", inferred_params, "\n")
 
-#compute tree edit distance between ground-truth and simulated cascades
-total_dist, update_count, update_time, insert_count, insert_time, remove_count, remove_time, match_count = functions_paper_model.eval_trees(sim_tree, sim_post, post_comments)
-print("Tree edit distance:", total_dist)
-print("   update:", update_count, update_time)
-print("   insert:", insert_count, insert_time)
-print("   remove:", remove_count, remove_time)
-print("   match:", match_count)
+
+	#REFINE PARAMS - for partial observed trees
+	partial_fit_params = fit_partial_cascade.fit_partial_cascade(sim_post, post_comments, time_observed, inferred_params, display=False)
+	if batch == False:
+		print("Refined params:", partial_fit_params)
+
+
+	#which params are we using for simulation?
+	#sim_params = inferred_params
+	sim_params = partial_fit_params			#for now, always the refined params from partial fit
+
+	#SIMULATE COMMENT TREE
+	sim_events, sim_tree = functions_paper_model.simulate_comment_tree(sim_post, sim_params, group, post_comments, time_observed)
+
+
+	#OUTPUT TREES
+
+	#for now, only output if doing a single post
+	if batch == False:
+		#save groundtruth cascade to csv
+		functions_paper_model.save_groundtruth(sim_post, post_comments, outfile)
+
+		#save sim results to json - all simulated events plus some simulation parameters
+		functions_paper_model.save_sim_json(group, sim_post_id, random_post, time_observed, min_node_quality, max_nodes, estimate_initial_params, sim_events, outfile)
+
+		#save sim results to second output file - csv, one event per row, columns 'rootID', 'nodeID', and 'parentID' for now
+		print("Saving results to", outfile + ".csv...")  
+		file_utils.save_csv(sim_events, outfile+".csv", fields=['rootID', 'nodeID', 'parentID'])
+		print("")
+
+
+	#EVAL
+
+	#compute tree edit distance between ground-truth and simulated cascades
+	dist, update_count, update_time, insert_count, insert_time, remove_count, remove_time, match_count = functions_paper_model.eval_trees(sim_tree, sim_post, post_comments)
+	if batch == False:
+		print("Tree edit distance:", dist)
+		print("   update:", update_count, update_time)
+		print("   insert:", insert_count, insert_time)
+		print("   remove:", remove_count, remove_time)
+		print("   match:", match_count)
+
+	#if running in mode all, keep total of all these metrics, dump at end
+	if batch:
+		total_dist += dist
+		total_update_count += update_count
+		total_update_time += update_time
+		total_insert_count += insert_count
+		total_insert_time += insert_time
+		total_remove_count += remove_count 
+		total_remove_time += remove_time
+		total_match_count += match_count
 
 print("\nAll done\n")
+
+#if mode == all, print metric totals
+if batch:
+	print("Number of posts:", len(sim_post_id_list))
+	print("Time Observed:", time_observed)
+	print("Source group:", group)
+	if min_node_quality != -1:
+		print("Minimum node quality:", min_node_quality)
+	else:
+		print("No minimum node quality")
+	print("Max graph size:", max_nodes, "from file" if limit_from_file else "from argument")
+	if estimate_initial_params:
+		print("Estimating initial params for seed posts based on inverse quality weighted average of neighbors")
+	
+	print("Tree edit distance:", total_dist)
+	print("   update:", total_update_count, total_update_time)
+	print("   insert:", total_insert_count, total_insert_time)
+	print("   remove:", total_remove_count, total_remove_time)
+	print("   match:", total_match_count)
+	print("")

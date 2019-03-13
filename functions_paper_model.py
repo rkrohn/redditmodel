@@ -194,7 +194,7 @@ def load_group_data(group):
 def parse_command_args():
 	#verify command line args
 	if len(sys.argv) < 7:
-		print("Incorrect command line arguments\nUsage: python3 paper_model.py <source group> <seed post id or \"random\"> <time post observed (hours)> <output filename> <max nodes for infer graph (if none given in group_size_limits.txt> <min_node_quality (set to -1 for no filter)> esp(optional, for estimating initial params)")
+		print("Incorrect command line arguments\nUsage: python3 paper_model.py <source group> <seed post id or \"random\" or \"all\"> <time post observed (hours)> <output filename> <max nodes for infer graph (if none given in group_size_limits.txt> <min_node_quality (set to -1 for no filter)> esp(optional, for estimating initial params)")
 		exit(0)
 
 	#extract arguments
@@ -247,8 +247,13 @@ def verify_post_id(sim_post_id, all_post_ids):
 	#if random post id, pick an id from loaded posts
 	if sim_post_id == "random":
 		random_post = True
-		sim_post_id = random.choice(all_post_ids)
+		sim_post_id_list = [random.choice(all_post_ids)]
 		print("Choosing random simulation post:", sim_post_id)
+	#if processing all posts, return list of ids
+	if sim_post_id == "all":
+		random_post = False
+		sim_post_id_list = all_post_ids
+		print("Processing all posts")
 	#if not random, make sure given post id is in the dataset
 	else:
 		random_post = False
@@ -256,7 +261,8 @@ def verify_post_id(sim_post_id, all_post_ids):
 		if sim_post_id not in all_post_ids:
 			print("Given post id not in group set - exiting.\n")
 			exit(0)
-	return sim_post_id, random_post
+		sim_post_id_list = [sim_post_id]
+	return sim_post_id_list, random_post
 #end verify_post_id
 
 
