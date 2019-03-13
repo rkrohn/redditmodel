@@ -20,7 +20,7 @@ import fit_partial_cascade
 print("")
 
 #parse all command-line arguments
-group, input_sim_post_id, time_observed, outfile, max_nodes, min_node_quality, estimate_initial_params = functions_paper_model.parse_command_args()
+group, input_sim_post_id, time_observed, outfile, max_nodes, min_node_quality, estimate_initial_params, batch = functions_paper_model.parse_command_args()
 
 #ensure working directory exists
 file_utils.verify_dir("sim_files")		
@@ -29,13 +29,7 @@ file_utils.verify_dir("sim_files")
 raw_posts, raw_comments = functions_paper_model.load_group_data(group)
 
 #ensure post id is in dataset (gets list of all post ids if running all)
-sim_post_id_list, random_post = functions_paper_model.verify_post_id(input_sim_post_id, list(raw_posts.keys()))
-
-#boolean flag for mode==all
-if input_sim_post_id == "all":
-	batch = True
-else:
-	batch = False
+sim_post_id_list, random_post = functions_paper_model.verify_post_id(input_sim_post_id, batch, list(raw_posts.keys()))
 
 #if running in mode all, keep total of all metrics, dump at end
 if batch:
@@ -49,7 +43,7 @@ if batch:
 	total_match_count = 0
 
 #process all posts (or just one, if doing that)
-print("Processing", len(sim_post_id_list), "posts")
+print("Processing", len(sim_post_id_list), "post", "s" if len(sim_post_id_list) > 1 else "")
 for sim_post_id in sim_post_id_list:
 
 	#pull out just the post (and associated comments) we care about

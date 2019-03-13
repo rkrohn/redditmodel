@@ -8,8 +8,8 @@ import tree_edit_distance
 from shutil import copyfile
 import subprocess
 import os
-import sys
 import random
+from argparse import *
 
 
 #filepaths of pre-computed model files
@@ -24,8 +24,6 @@ graph_filepath = "model_files/graphs/%s_graph.txt"		#edgelist of post graph for 
 users_filepath = "model_files/users/%s_users.txt"		#list of users seen in posts/comments, one file per group
 
 domain_mapping_filepath = "model_files/domain_mapping.pkl"		#maps group -> domain for file loads
-
-limit_filepath = "model_files/group_size_limits.txt"	#per-group graph size limits
 
 #filepaths of output/temporary files - used to pass graph to C++ node2vec for processing
 temp_graph_filepath = "sim_files/%s_graph.txt"			#updated graph for this sim run
@@ -68,21 +66,26 @@ def graph_infer(sim_post, sim_post_id, group, max_nodes, min_node_quality, estim
 	graph = {}
 	isolated_nodes = []
 	added_count = 0
-	sample_graph = False
 
-	#do we need to sample the graph? sample if whole graph too big, imposing a min node quality, need to estimate initial params, we don't have a precomputed graph file
-	if len(posts) > max_nodes or file_utils.verify_file(graph_filepath % group) == False or min_node_quality != -1 or estimate_initial_params:
-		print("\nSampling graph to", max_nodes, "nodes")
-		#sample down posts
-		graph_posts = functions_hybrid_model.user_sample_graph(posts, [sim_post], max_nodes, group, min_node_quality, fitted_quality)
+	#do we need to sample/process the graph? sample if whole graph too big, imposing a min node quality, need to estimate initial params, or we don't have a precomputed graph file
+	if (max_nodes != None and len(posts) > max_nodes) or file_utils.verify_file(graph_filepath % group) == False or min_node_quality != None or estimate_initial_params:
+
+		#only sample down if we actually have to
+		if max_nodes != None:
+			print("\nSampling graph to", max_nodes, "nodes")
+			#sample down posts
+			graph_posts = user_sample_graph(posts, [sim_post], max_nodes, group, min_node_quality, fitted_quality)
+		#otherwise, use them all
+		else:
+			graph_posts = posts
+
 		#build graph, getting initial param estimate if required
 		if estimate_initial_params:
 			estimated_params = functions_hybrid_model.build_graph_estimate_node_params(graph_posts, fitted_params, fitted_quality, numeric_sim_post_id, temp_graph_filepath % group)
 		else:
-			functions_hybrid_model.build_graph(graph_posts, temp_graph_filepath % group)
+			functions_hybrid_model.build_graph(graph_posts, temp_graph_filepath % group)		
 		
-		sample_graph = True
-	#no graph sample, use the full set and copy graph file to temp location
+	#no graph sampling/processing, use the full set and copy graph file to temp location
 	else:
 		graph_posts = posts
 		copyfile(graph_filepath % group, temp_graph_filepath % group)
@@ -192,76 +195,79 @@ def load_group_data(group):
 
 #parse out all command line arguments and return results
 def parse_command_args():
-	#verify command line args
-	if len(sys.argv) < 7:
-		print("Incorrect command line arguments\nUsage: python3 paper_model.py <source group> <seed post id or \"random\" or \"all\"> <time post observed (hours)> <output filename> <max nodes for infer graph (if none given in group_size_limits.txt> <min_node_quality (set to -1 for no filter)> esp(optional, for estimating initial params)")
-		exit(0)
+	#arg parser
+	parser = ArgumentParser(description="Simulate reddit cascades from partially-observed posts.")
 
-	#extract arguments
-	group = sys.argv[1]
-	sim_post_id = sys.argv[2]
-	time_observed = float(sys.argv[3])
-	outfile = sys.argv[4]
-	max_nodes = int(sys.argv[5])
-	min_node_quality = float(sys.argv[6])
-	if len(sys.argv) > 7 and sys.argv[7] == "esp":
-		estimate_initial_params = True
+	#required arguments (still with -flags, because clearer that way, and don't want to impose an order)
+	parser.add_argument("-s", "--sub", dest="subreddit", required=True, help="subreddit to process")
+	parser.add_argument("-o", "--out", dest="outfile", required=True, help="output filename")
+	#must pick one of three processing options: a single id, random, or all
+	group = parser.add_mutually_exclusive_group(required=True)
+	group.add_argument("-id", dest="sim_post_id", default=None,  help="post id for single-processing")
+	group.add_argument("-r", "--rand", dest="sim_post_id", action="store_const", const="random", help="choose a random post from the subreddit to simulate")
+	group.add_argument("-a", "--all", dest="sim_post_id", action="store_const", const="all", help="simulate all posts in the subreddit")
+
+	#optional args	
+	parser.add_argument("-t", dest="time_observed", default=0, help="time of post observation, in hours")
+	parser.add_argument("-g", "--graph", dest="max_nodes", default=None, help="max nodes in post graph for parameter infer")
+	parser.add_argument("-q", "--qual", dest="min_node_quality", default=None, help="minimum node quality for post graph")
+	parser.add_argument("-e", "--esp", dest="estimate_initial_params", action='store_true', help="estimate initial params as inverse quality weighted average of neighbor nodes")
+	parser.set_defaults(estimate_initial_params=False)
+
+	args = parser.parse_args()		#parse the args (magic!)
+
+	#extract arguments (since want to return individual variables)
+	subreddit = args.subreddit
+	sim_post_id = args.sim_post_id
+	time_observed = float(args.time_observed)
+	outfile = args.outfile
+	max_nodes = args.max_nodes if args.max_nodes == None else int(args.max_nodes)
+	min_node_quality = args.min_node_quality
+	estimate_initial_params = args.estimate_initial_params
+	#extra flag for batch processing
+	if sim_post_id == "all":
+		batch = True
 	else:
-		estimate_initial_params = False
-
-	#read group-specific size limits from file
-	with open(limit_filepath, 'r') as f:
-		lines = f.readlines()
-	sub_limits = {}
-	#process each line, extract group and limit
-	for line in lines:
-		values = line.split()
-		sub_limits[values[0]] = int(values[1])
-	#use limit from file, if it exists
-	limit_from_file = False
-	if group in sub_limits:
-		max_nodes = sub_limits[group]
-		limit_from_file = True
+		batch = False
 
 	#print some log-ish stuff in case output being piped and saved
 	print("Post ID:", sim_post_id)
 	print("Time Observed:", time_observed)
 	print("Output:", outfile)
-	print("Source group:", group)
-	if min_node_quality != -1:
-		print("Minimum node quality:", min_node_quality)
-	else:
-		print("No minimum node quality")
-	print("Max graph size:", max_nodes, "from file" if limit_from_file else "from argument")
+	print("Source subreddit:", subreddit)
+	print("Minimum node quality:", min_node_quality)
+	print("Max graph size:", max_nodes)
 	if estimate_initial_params:
 		print("Estimating initial params for seed posts based on inverse quality weighted average of neighbors")
 	print("")
 
 	#return all arguments
-	return group, sim_post_id, time_observed, outfile, max_nodes, min_node_quality, estimate_initial_params 
+	return subreddit, sim_post_id, time_observed, outfile, max_nodes, min_node_quality, estimate_initial_params, batch 
 #end parse_command_args
 
 
 #given a post id and list of dataset ids, ensure post is in this set
-def verify_post_id(sim_post_id, all_post_ids):
-	#if random post id, pick an id from loaded posts
-	if sim_post_id == "random":
-		random_post = True
-		sim_post_id_list = [random.choice(all_post_ids)]
-		print("Choosing random simulation post:", sim_post_id)
+def verify_post_id(input_sim_post_id, process_all, all_post_ids):
 	#if processing all posts, return list of ids
-	if sim_post_id == "all":
+	if process_all:
 		random_post = False
 		sim_post_id_list = all_post_ids
 		print("Processing all posts")
+
+	#if random post id, pick an id from loaded posts
+	elif input_sim_post_id == "random":
+		random_post = True
+		sim_post_id_list = [random.choice(all_post_ids)]
+		print("Choosing random simulation post:", sim_post_id_list)
+
 	#if not random, make sure given post id is in the dataset
 	else:
 		random_post = False
 		#if not in set, exit
-		if sim_post_id not in all_post_ids:
+		if input_sim_post_id not in all_post_ids:
 			print("Given post id not in group set - exiting.\n")
 			exit(0)
-		sim_post_id_list = [sim_post_id]
+		sim_post_id_list = [input_sim_post_id]
 	return sim_post_id_list, random_post
 #end verify_post_id
 
@@ -323,3 +329,34 @@ def verify_sorted(events):
 	print("Events are sorted")
 	return True
 #end verify_sorted
+
+
+#given complete set of posts/params for current subreddit, and seed posts, filter out posts not 
+#meeting node quality threshhold, and sample down to reach the target graph size if necessary
+def user_sample_graph(raw_sub_posts, seeds, max_nodes, subreddit, min_node_quality, fitted_quality):
+	#graph seed posts to make sure they are preserved
+	seed_posts = {seed['id_h']: raw_sub_posts[seed['id_h']] for seed in seeds}
+	#and remove them from sampling pool
+	for seed, seed_info in seed_posts.items():
+		raw_sub_posts.pop(seed, None)
+
+	#if have minimum node quality threshold, throw out any posts with too low a quality
+	#this is the most important criteria, overrides all others (may lose user info, or end up with a smaller graph)
+	if min_node_quality != None:
+		raw_sub_posts = {key: value for key, value in raw_sub_posts.items() if value['id'] in fitted_quality and fitted_quality[value['id']] > min_node_quality}
+		print("   Filtered to", len(raw_sub_posts), "based on minimum node quality of", min_node_quality)
+
+	#no more than max_nodes posts, or this will never finish
+	if max_nodes != None and len(raw_sub_posts)+len(seed_posts) > max_nodes:
+		print("   Sampling down...")
+		sub_posts = dict(random.sample(raw_sub_posts.items(), max_nodes-len(seed_posts)))
+	#no limit, or not too many, take all that match the quality threshold
+	else:
+		sub_posts = raw_sub_posts
+
+	#add seed posts back in, so they are built into the graph
+	sub_posts.update(seed_posts)
+
+	#return sampled posts
+	return sub_posts
+#end user_sample_graph
