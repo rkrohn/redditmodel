@@ -106,7 +106,7 @@ def graph_infer(sim_post, sim_post_id, group, max_nodes, min_node_quality, estim
 		os.remove(output_params_filepath % group)		#clear output to prevent append
 
 	#run node2vec on graph and params
-	subprocess.check_call(["./c_node2vec/examples/node2vec/node2vec", "-i:"+(temp_graph_filepath % group), "-ie:"+(temp_params_filepath % group), "-o:"+(output_params_filepath % group), "-d:6", "-l:3", "-w", "-s"])
+	subprocess.check_call(["./c_node2vec/examples/node2vec/node2vec", "-i:"+(temp_graph_filepath % group), "-ie:"+(temp_params_filepath % group), "-o:"+(output_params_filepath % group), "-d:6", "-l:3", "-w", "-s", "-otf"])
 	print("")
 
 	#load the inferred params (dictionary of numeric id -> params)
