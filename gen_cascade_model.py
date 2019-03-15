@@ -20,13 +20,14 @@ import fit_partial_cascade
 print("")
 
 #parse all command-line arguments
-subreddit, input_sim_post_id, time_observed, outfile, max_nodes, min_node_quality, estimate_initial_params, batch, testing_start_month, testing_start_year, testing_len, training_len = functions_gen_cascade_model.parse_command_args()
+subreddit, input_sim_post_id, time_observed, outfile, max_nodes, min_node_quality, estimate_initial_params, batch, testing_start_month, testing_start_year, testing_len, training_start_month, training_start_year, training_len = functions_gen_cascade_model.parse_command_args()
 
-#ensure working directory exists
-file_utils.verify_dir("sim_files")		
+#ensure working directory exists - for saving of intermediate graph/param files for node2vec
+file_utils.verify_dir("sim_files")	
 
-#load posts and comments for this subreddit
-raw_posts, raw_comments = functions_gen_cascade_model.load_subreddit_data(subreddit)
+
+
+
 
 #ensure post id is in dataset (gets list of all post ids if running all)
 sim_post_id_list, random_post = functions_gen_cascade_model.verify_post_id(input_sim_post_id, batch, list(raw_posts.keys()))

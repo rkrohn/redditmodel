@@ -81,6 +81,9 @@ def parse_command_args():
 	else:
 		batch = False
 
+	#compute start of training period for easy use later
+	training_start_month, training_start_year = monthdelta(testing_start_month, testing_start_year, -training_len)
+
 	#print some log-ish stuff in case output being piped and saved
 	print("Post ID:", sim_post_id)
 	print("Time Observed:", time_observed)
@@ -91,11 +94,11 @@ def parse_command_args():
 	if estimate_initial_params:
 		print("Estimating initial params for seed posts based on inverse quality weighted average of neighbors")
 	print("Testing Period: %d-%d" % (testing_start_month, testing_start_year), "through %d-%d (%d months)" % (monthdelta(testing_start_month, testing_start_year, testing_len, inclusive=True)+(testing_len,)) if testing_len > 1 else "(%d month)" % testing_len)
-	print("Training Period: %d-%d" % monthdelta(testing_start_month, testing_start_year, -training_len), "through %d-%d (%d months)" % (monthdelta(testing_start_month, testing_start_year, -1)+(training_len,)) if training_len > 1 else "(%d month)" % training_len)
+	print("Training Period: %d-%d" % (training_start_month, training_start_year), "through %d-%d (%d months)" % (monthdelta(training_start_month, training_start_year, training_len, inclusive=True)+(training_len,)) if training_len > 1 else "(%d month)" % training_len)
 	print("")
 
 	#return all arguments
-	return subreddit, sim_post_id, time_observed, outfile, max_nodes, min_node_quality, estimate_initial_params, batch, testing_start_month, testing_start_year, testing_len, training_len
+	return subreddit, sim_post_id, time_observed, outfile, max_nodes, min_node_quality, estimate_initial_params, batch, testing_start_month, testing_start_year, testing_len, training_start_month, training_start_year, training_len
 #end parse_command_args
 
 
