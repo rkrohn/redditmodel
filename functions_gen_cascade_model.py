@@ -19,7 +19,7 @@ import string
 #raw posts for (sub, sub, year, month)
 raw_posts_filepath = "reddit_data/%s/%s_submissions_%d_%d.tsv"	
 #raw comments for (sub, sub, post year, comment year, comment month)
-raw_comments_filepath = "reddit_data/%s/%s_%ddiscussions_comments_%d_%d.tsv"  
+raw_comments_filepath = "reddit_data/%s/%s_%sdiscussions_comments_%s_%s.tsv"  
 #processed posts for (sub, sub, year, month) - dictionary of post id -> post containing title tokens, author, created utc
 processed_posts_filepath = "reddit_data/%s/%s_processed_posts_%d_%d.pkl"
 #fitted params for posts for (sub, sub, year, month) - dictionary of post id -> params tuple
@@ -168,11 +168,11 @@ def load_processed_posts(subreddit, start_month, start_year, num_months, params=
 #for a given subreddit, month, and year, preprocess those posts - tokenize and save as pickle
 def process_posts(subreddit, month, year):
 	#make sure raw posts exist
-	if file_utils.verify_file("reddit_data/%s/%s_submissions_%d_%d.tsv" % (subreddit, subreddit, year, month)) == False:
+	if file_utils.verify_file(raw_posts_filepath % (subreddit, subreddit, year, month)) == False:
 		print("No raw posts to process - exiting")
 		exit(0)
 	#load raw posts into pandas dataframe
-	posts_df = pd.read_csv("reddit_data/%s/%s_submissions_%d_%d.tsv" % (subreddit, subreddit, year, month), sep='\t')
+	posts_df = pd.read_csv(raw_posts_filepath % (subreddit, subreddit, year, month), sep='\t')
 	vprint("Loaded %s raw posts" % len(posts_df.index))
 
 	#convert to our nested dictionary structure
@@ -189,7 +189,7 @@ def process_posts(subreddit, month, year):
 		posts[post_id] = post
 
 	#save to pickle 
-	file_utils.save_pickle(posts, "reddit_data/%s/%s_processed_posts_%d_%d.pkl" % (subreddit, subreddit, year, month))
+	file_utils.save_pickle(posts, processed_posts_filepath % (subreddit, subreddit, year, month))
 
 	return posts
 #end process_posts
