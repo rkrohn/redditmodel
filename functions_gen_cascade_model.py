@@ -12,6 +12,9 @@ import random
 from argparse import *
 import pandas as pd
 import string
+import glob
+import re
+
 
 
 #filepaths of data and pre-processed files - keeping everything in the same spot, for sanity/simplicity
@@ -218,11 +221,158 @@ def extract_tokens(text):
 #end extract_tokens
 
 
-#given a subreddit, month, and year, fit parameters for these posts and save results as pickle
-def fit_posts(subreddit, month, year):
+#given a subreddit, month, and year, and loaded posts (but not comments),
+#fit parameters for these posts and save results as pickle
+def fit_posts(subreddit, month, year, posts):
+	#if reconstructed cascades already exist, load those
+	if file_utils.verify_file(cascades_filepath % (subreddit, subreddit, year, month)):
+		cascades = file_utils.load_pickle(cascades_filepath % (subreddit, subreddit, year, month))
+		vprint("Loaded %d cascades" % len(cascades))
+	#otherwise, reconstruct the cascades (get them back as return value)
+	else:
+		#load comments associated with this month of posts
+		comments = load_comments(subreddit, month, year, posts)
+		#reconstruct the cascades
+		cascades = build_cascades(subreddit, month, year, posts, comments)
 
+	#fit parameters to each cascade
+	fit_all_cascades(subreddit, month, year, cascades)
 
 #end fit_posts
+
+
+#given subreddit, month, year, and loaded posts, load comments associated with those posts
+#(filtering out other comments we may encounter along the way)
+#returns nested dictionary of comment_id -> link_id, parent_id, and time (all ids with prefixes)
+def load_comments(subreddit, post_month, post_year, posts):
+	#build set of post ids we care about
+	post_ids = set(posts.keys())
+
+	#get list of comment files for this subreddit and post year
+	comment_files = glob.glob(raw_comments_filepath % (subreddit, subreddit, post_year, "*", "*"))
+
+	#loop comment files, only load the ones that occur after the post
+	comments = {}			#all relevant comments
+	scanned_count = 0		#count of comments scanned for relevancy
+	for file in sorted(comment_files):
+		#extract years and month from filename
+		file_post_year, file_year, file_month = [int(s) for s in re.findall(r'\d+', file)]
+
+		#if file is for comments before post, skip
+		if file_year < post_year or (file_year == post_year and file_month < post_month):
+			continue
+
+		#load this file's comments
+		month_comments_df = pd.read_csv(file, sep='\t')
+
+		#convert to our nested dictionary structure, filtering out irrelevant comments along the way
+		month_comments = {}			#comment id-> dict with link_id, parent_id, and time
+		for index, row in month_comments_df.iterrows():
+			#skip comment if not for post in set
+			if row['link_id'] not in post_ids:
+				continue
+
+			#build new comment dict
+			comment = {}
+			comment['time'] = int(row['created_utc'])
+			comment['link_id'] = row['link_id']
+			comment['parent_id'] = row['parent_id']
+			comment['text'] = row['body']
+			comment['author'] = row['author']
+
+			#add to overall comment dict
+			comment_id = row['name']		#post id with t1_ prefix
+			month_comments[comment_id] = comment
+
+		#add month comments to overall list
+		comments.update(month_comments)
+		scanned_count += len(month_comments_df)
+		vprint("Found %d (of %d) relevant comments in %s" % (len(month_comments), len(month_comments_df), file))
+
+	vprint("Total of %d comments for %d-%d posts (of %d scanned)" % (len(comments), post_month, post_year, scanned_count))
+	return comments
+#end load_comments
+
+
+#given a subreddit, post month-year, dict of posts and dict of relevant comments, 
+#reconstruct the post/comment (cascade) structure
+#store cascades in the following way using a dictionary
+#	post id -> post object
+# 	post/comment replies field -> list of direct replies
+#	post/comment time field -> create time of object as utc timestamp
+#posts also have comment_count_total and comment_count_direct 
+def build_cascades(subreddit, month, year, posts, comments):
+
+	vprint("Extracting post/comment structure for %d %s %d-%d posts and %d comments" % (len(posts), subreddit, month, year, len(comments)))
+
+	#create dictionary of post id -> new post object to store cascades
+	cascades = {key:{'time':value['time'], 'replies':list(), 'comment_count_direct':0, 'comment_count_total':0} for key, value in posts.items()}
+
+	#and corresponding comments dictionary
+	cascade_comments = {key:{'time':value['time'], 'replies':list(), 'id':key} for key, value in comments.items()}
+
+	#now that we can find posts and comments at will, let's build the cascades dictionary!
+	
+	#loop all comments, assign to immediate parent and increment comment_count of post parent
+	fail_cascades = set()		#keep set of post ids with missing comments, throw out at the end
+	for comment_id, comment in comments.items():
+
+		#get immediate parent (post or comment)
+		direct_parent = comment['parent_id']
+		direct_parent_type = "post" if direct_parent[:2] == "t3" else "comment"
+		#get post parent
+		post_parent = comment['link_id']
+
+		#add this comment to replies list of immediate parent, and update counters on post_parent
+		try:
+			#update post parent
+			#if post parent missing, FAIL
+			if post_parent not in cascades:
+				fail_cascades.add(post_parent)
+				continue
+			#update overall post comment count for this new comment
+			cascades[post_parent]['comment_count_total'] += 1
+
+			#now handle direct parent, post or comment
+			#parent is post
+			if direct_parent_type == "post":
+				#missing post, FAIL
+				if direct_parent not in cascades:
+					fail_cascades.add(post_parent)
+					continue
+				#add this comment to replies field of post (no total comment increment, done above)
+				cascades[direct_parent]['replies'].append(cascade_comments[comment_id])
+				#add 1 to direct comment count field
+				cascades[direct_parent]['comment_count_direct'] += 1
+
+			#parent is comment
+			else:	
+				#missing comment, FAIL
+				if direct_parent not in cascade_comments:
+					fail_cascades.add(post_parent)
+					continue
+				#add current comment to replies field of parent comment
+				cascade_comments[direct_parent]['replies'].append(cascade_comments[comment_id])
+		except:
+			print("Something went very wrong, exiting")
+			exit(0)
+
+	#delete failed cascades with missing comments and/or post
+	for key in fail_cascades:
+		cascades.pop(key, None)
+	#and delete all keys that point to these
+	fail_comments = set([comment_id for comment_id, comment in comments.items() if comment['link_id'] in fail_cascades or comment['parent_id'] in fail_cascades])
+	for key in fail_comments:
+		cascade_comments.pop(key, None)
+
+	vprint("Built %d cascades with %d comments" % (len(cascades), len(cascade_comments)))
+	vprint("   Removed %d incomplete cascades (%d associated comments)" % (len(fail_cascades), len(fail_comments)))	
+
+	#save cascades for later loading
+	file_utils.save_pickle(cascades, cascades_filepath % (subreddit, subreddit, year, month))
+
+	return cascades
+#end build_cascades
 
 
 #BOOKMARK - haven't done anything below this
