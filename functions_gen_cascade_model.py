@@ -99,16 +99,16 @@ def parse_command_args():
 		vprint = lambda *a: None      # do-nothing function
 
 	#print some log-ish stuff in case output being piped and saved
-	vprint("Post ID:", sim_post_id)
-	vprint("Time Observed:", time_observed)
-	vprint("Output:", outfile)
-	vprint("Source subreddit:", subreddit)
-	vprint("Minimum node quality:", min_node_quality)
-	vprint("Max graph size:", max_nodes)
+	vprint("Post ID: ", sim_post_id)
+	vprint("Time Observed: ", time_observed)
+	vprint("Output: ", outfile)
+	vprint("Source subreddit: ", subreddit)
+	vprint("Minimum node quality: ", min_node_quality)
+	vprint("Max graph size: ", max_nodes)
 	if estimate_initial_params:
 		print("Estimating initial params for seed posts based on inverse quality weighted average of neighbors")
-	vprint("Testing Period: %d-%d" % (testing_start_month, testing_start_year), "through %d-%d (%d months)" % (monthdelta(testing_start_month, testing_start_year, testing_len, inclusive=True)+(testing_len,)) if testing_len > 1 else "(%d month)" % testing_len)
-	vprint("Training Period: %d-%d" % (training_start_month, training_start_year), "through %d-%d (%d months)" % (monthdelta(training_start_month, training_start_year, training_len, inclusive=True)+(training_len,)) if training_len > 1 else "(%d month)" % training_len)
+	vprint("Testing Period: %d-%d" % (testing_start_month, testing_start_year), " through %d-%d (%d months)" % (monthdelta(testing_start_month, testing_start_year, testing_len, inclusive=True)+(testing_len,)) if testing_len > 1 else " (%d month)" % testing_len)
+	vprint("Training Period: %d-%d" % (training_start_month, training_start_year), " through %d-%d (%d months)" % (monthdelta(training_start_month, training_start_year, training_len, inclusive=True)+(training_len,)) if training_len > 1 else " (%d month)" % training_len)
 	vprint("")
 
 	#return all arguments
@@ -117,7 +117,7 @@ def parse_command_args():
 
 
 #given a month and year, shift by delta months (pos or neg) and return result
-#if inclusive is True, reduct magnitude of delta by 1 to only include months in the range
+#if inclusive is True, reduce magnitude of delta by 1 to only include months in the range
 def monthdelta(month, year, delta, inclusive=False):
 	if inclusive:
 		delta = delta + 1 if delta < 0 else delta - 1
