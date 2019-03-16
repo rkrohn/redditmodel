@@ -8,7 +8,7 @@ import csv
 import os
 import tarfile
 
-DISPLAY = True
+DISPLAY = False
 
 #given a filepath to a zipped json file, load the data
 def load_zipped_json(filename):
