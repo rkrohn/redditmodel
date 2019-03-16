@@ -186,7 +186,7 @@ def process_posts(subreddit, month, year):
 		#build new post dict
 		post = {}
 		post['tokens'] = extract_tokens(row['title'])
-		post['time'] = row['created_utc']
+		post['time'] = int(row['created_utc'])
 		post['author'] = row['author']
 
 		#add to overall post dict
