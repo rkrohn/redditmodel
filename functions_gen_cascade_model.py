@@ -10,29 +10,27 @@ import subprocess
 import os
 import random
 from argparse import *
+import pandas as pd
+import string
 
 
-#filepaths of pre-computed model files
-posts_filepath = "model_files/posts/%s_posts.pkl"		#processed post data for each post, one file per group
-														#each post maps original post id to numeric id, set of tokens, and user id
+#filepaths of data and pre-processed files - keeping everything in the same spot, for sanity/simplicity
 
-params_filepath = "model_files/params/%s_params.txt"	#text file of fitted cascade params, one file per group
-														#one line per cascade: cascade numeric id, params(x6), sticky factor (1-quality)
-
-graph_filepath = "model_files/graphs/%s_graph.txt"		#edgelist of post graph for this group
-
-users_filepath = "model_files/users/%s_users.txt"		#list of users seen in posts/comments, one file per group
-
-domain_mapping_filepath = "model_files/domain_mapping.pkl"		#maps group -> domain for file loads
+#raw posts for (sub, sub, year, month)
+raw_posts_filepath = "reddit_data/%s/%s_submissions_%d_%d.tsv"	
+#raw comments for (sub, sub, post year, comment year, comment month)
+raw_comments_filepath = "reddit_data/%s/%s_%ddiscussions_comments_%d_%d.tsv"  
+#processed posts for (sub, sub, year, month) - dictionary of post id -> post containing title tokens, author, created utc
+processed_posts_filepath = "reddit_data/%s/%s_processed_posts_%d_%d.pkl"
+#fitted params for posts for (sub, sub, year, month) - dictionary of post id -> params tuple
+fitted_params_filepath = "reddit_data/%s/%s_post_params_%d_%d.pkl"
+#reconstructed cascades for (sub, sub, year, month) - dictionary of post id -> cascade dict, with "time", "num_comments", and "replies", where "replies" is nested list of reply objects
+cascades_filepath = "reddit_data/%s/%s_cascades_%d_%d.pkl"
 
 #filepaths of output/temporary files - used to pass graph to C++ node2vec for processing
 temp_graph_filepath = "sim_files/%s_graph.txt"			#updated graph for this sim run
 temp_params_filepath = "sim_files/%s_in_params.txt"		#temporary, filtered params for sim run (if sampled graph)
 output_params_filepath = "sim_files/%s_params.txt"		#output params from node2vec
-
-#filenames of filtered cascades and comments
-cascades_filepath = "data_cache/filtered_cascades/%s_%s_cascades.pkl"	#domain and group cascades
-comments_filepath = "data_cache/filtered_cascades/%s_%s_comments.pkl"	#domain and group comments
 
 
 #parse out all command line arguments and return results
@@ -60,6 +58,8 @@ def parse_command_args():
 	parser.set_defaults(estimate_initial_params=False)
 	parser.add_argument("-l", "--testlen", dest="testing_len", default=1, help="number of months to use for testing")
 	parser.add_argument("-p", "--periodtrain", dest="training_len", default=1, help="number of months to use for training (preceding first test month")
+	parser.add_argument("-v", "--verbose", dest="verbose", action="store_true", help="verbose output")
+	parser.set_defaults(verbose=False)
 
 	args = parser.parse_args()		#parse the args (magic!)
 
@@ -75,6 +75,7 @@ def parse_command_args():
 	testing_start_year = int(args.testing_start_year)
 	testing_len = int(args.testing_len)
 	training_len = int(args.training_len)
+	verbose = args.verbose
 	#extra flag for batch processing
 	if sim_post_id == "all":
 		batch = True
@@ -84,21 +85,34 @@ def parse_command_args():
 	#compute start of training period for easy use later
 	training_start_month, training_start_year = monthdelta(testing_start_month, testing_start_year, -training_len)
 
+	#hackery: declare a special print function for verbose output
+	#make it global here for all the other functions to use
+	global vprint
+	if verbose:
+		def vprint(*args):
+			# Print each argument separately so caller doesn't need to
+			# stuff everything to be printed into a single string
+			for arg in args:
+				print(arg, end='')
+			print("")
+	else:   
+		vprint = lambda *a: None      # do-nothing function
+
 	#print some log-ish stuff in case output being piped and saved
-	print("Post ID:", sim_post_id)
-	print("Time Observed:", time_observed)
-	print("Output:", outfile)
-	print("Source subreddit:", subreddit)
-	print("Minimum node quality:", min_node_quality)
-	print("Max graph size:", max_nodes)
+	vprint("Post ID:", sim_post_id)
+	vprint("Time Observed:", time_observed)
+	vprint("Output:", outfile)
+	vprint("Source subreddit:", subreddit)
+	vprint("Minimum node quality:", min_node_quality)
+	vprint("Max graph size:", max_nodes)
 	if estimate_initial_params:
 		print("Estimating initial params for seed posts based on inverse quality weighted average of neighbors")
-	print("Testing Period: %d-%d" % (testing_start_month, testing_start_year), "through %d-%d (%d months)" % (monthdelta(testing_start_month, testing_start_year, testing_len, inclusive=True)+(testing_len,)) if testing_len > 1 else "(%d month)" % testing_len)
-	print("Training Period: %d-%d" % (training_start_month, training_start_year), "through %d-%d (%d months)" % (monthdelta(training_start_month, training_start_year, training_len, inclusive=True)+(training_len,)) if training_len > 1 else "(%d month)" % training_len)
-	print("")
+	vprint("Testing Period: %d-%d" % (testing_start_month, testing_start_year), "through %d-%d (%d months)" % (monthdelta(testing_start_month, testing_start_year, testing_len, inclusive=True)+(testing_len,)) if testing_len > 1 else "(%d month)" % testing_len)
+	vprint("Training Period: %d-%d" % (training_start_month, training_start_year), "through %d-%d (%d months)" % (monthdelta(training_start_month, training_start_year, training_len, inclusive=True)+(training_len,)) if training_len > 1 else "(%d month)" % training_len)
+	vprint("")
 
 	#return all arguments
-	return subreddit, sim_post_id, time_observed, outfile, max_nodes, min_node_quality, estimate_initial_params, batch, testing_start_month, testing_start_year, testing_len, training_start_month, training_start_year, training_len
+	return subreddit, sim_post_id, time_observed, outfile, max_nodes, min_node_quality, estimate_initial_params, batch, testing_start_month, testing_start_year, testing_len, training_start_month, training_start_year, training_len, verbose
 #end parse_command_args
 
 
@@ -115,15 +129,98 @@ def monthdelta(month, year, delta, inclusive=False):
 #end monthdelta
 
 
-#load cascade/comment data for specified subreddit
-def load_subreddit_data(subreddit):
-	print("")
-	raw_posts = file_utils.load_pickle(cascades_filepath % (domain, group))
-	raw_comments = file_utils.load_pickle(comments_filepath % (domain, group))
-	print("Loaded", len(raw_posts), "posts and", len(raw_comments), "comments\n")
+#given a subreddit, starting month-year, and number of months to load, load processed posts
+#if params = True, also load fitted params for these posts
+#if files don't exist, call methods to perform preprocessing
+def load_processed_posts(subreddit, start_month, start_year, num_months, params=False):
+	posts = {}
+	params = {}
 
-	return raw_posts, raw_comments
-#end load_subreddit_data
+	#loop months to load
+	for m in range(0, num_months):
+		month, year = monthdelta(start_month, start_year, m)	#calc month to load
+		vprint("Loading %d-%d" % (month, year))
+
+		#load posts if processed file exists
+		if file_utils.verify_file(processed_posts_filepath % (subreddit, subreddit, year, month)):
+			posts.update(load_pickle(processed_posts_filepath % (subreddit, subreddit, year, month)))
+		#if posts file doesn't exist, create it - loading in the process
+		else:
+			vprint("Processed posts file doesn't exist, creating now")
+			posts.update(process_posts(subreddit, month, year))
+
+		#params, if desired
+		if params:
+			#load if params file exists
+			if file_utils.verify_file(fitted_params_filepath % (subreddit, subreddit, year, month)):
+				params.update(load_pickle(fitted_params_filepath) % (subreddit, subreddit, year, month))
+			#if params file doesn't exist, create it - loading in the process
+			else:
+				vprint("Fitted params file doesn't exist, creating now")
+				posts.update(fit_posts(subreddit, month, year))
+
+	#return results
+	if params: return posts, params
+	return posts
+#end load_processed_posts
+
+
+#for a given subreddit, month, and year, preprocess those posts - tokenize and save as pickle
+def process_posts(subreddit, month, year):
+	#make sure raw posts exist
+	if file_utils.verify_file("reddit_data/%s/%s_submissions_%d_%d.tsv" % (subreddit, subreddit, year, month)) == False:
+		print("No raw posts to process - exiting")
+		exit(0)
+	#load raw posts into pandas dataframe
+	posts_df = pd.read_csv("reddit_data/%s/%s_submissions_%d_%d.tsv" % (subreddit, subreddit, year, month), sep='\t')
+	vprint("Loaded %s raw posts" % len(posts_df.index))
+
+	#convert to our nested dictionary structure
+	posts = {}
+	for index, row in posts_df.iterrows():
+		#build new post dict
+		post = {}
+		post['tokens'] = extract_tokens(row['title'])
+		post['time'] = row['created_utc']
+		post['author'] = row['author']
+
+		#add to overall post dict
+		post_id = row['name']		#post id with t3_ prefix
+		posts[post_id] = post
+
+	#save to pickle 
+	file_utils.save_pickle(posts, "reddit_data/%s/%s_processed_posts_%d_%d.pkl" % (subreddit, subreddit, year, month))
+
+	return posts
+#end process_posts
+
+
+#given a text string, extract words by tokenizing and normalizing (no limitization for now)
+#removes all leading/trailing punctuation
+#returns list, preserving duplicates
+def extract_tokens(text):
+	punctuations = list(string.punctuation)		#get list of punctuation characters
+	punctuations.append('—')	#kill these too
+	
+	if text != None:
+		tokens = [word.lower() for word in text.split()]	#tokenize and normalize (to lower)		
+		tokens = [word.strip("".join(punctuations)) for word in tokens]		#strip trailing and leading punctuation
+		tokens = [word for word in tokens if word != '' and word not in punctuations and word != '']		#remove punctuation-only tokens and empty strings
+	else:
+		tokens = []
+
+	return tokens	#return list, preserves duplicates
+#end extract_tokens
+
+
+#given a subreddit, month, and year, fit parameters for these posts and save results as pickle
+def fit_posts(subreddit, month, year):
+
+
+#end fit_posts
+
+
+#BOOKMARK - haven't done anything below this
 
 
 #for a given post, infer parameters using post graph

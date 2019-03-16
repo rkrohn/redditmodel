@@ -20,14 +20,33 @@ import fit_partial_cascade
 print("")
 
 #parse all command-line arguments
-subreddit, input_sim_post_id, time_observed, outfile, max_nodes, min_node_quality, estimate_initial_params, batch, testing_start_month, testing_start_year, testing_len, training_start_month, training_start_year, training_len = functions_gen_cascade_model.parse_command_args()
+subreddit, input_sim_post_id, time_observed, outfile, max_nodes, min_node_quality, estimate_initial_params, batch, testing_start_month, testing_start_year, testing_len, training_start_month, training_start_year, training_len, verbose = functions_gen_cascade_model.parse_command_args()
+
+#hackery: declare a special print function for verbose output
+if verbose:
+	def vprint(*args):
+		# Print each argument separately so caller doesn't need to
+		# stuff everything to be printed into a single string
+		for arg in args:
+			print(arg, end='')
+		print("")
+else:   
+	vprint = lambda *a: None      # do-nothing function
 
 #ensure working directory exists - for saving of intermediate graph/param files for node2vec
 file_utils.verify_dir("sim_files")	
 
+#BOOKMARK - good to here
 
+#load pre-processed posts and their fitted params for training period
+vprint("Loading processed training data")
+train_posts, train_params = functions_gen_cascade_model.load_processed_posts(subreddit, training_start_month, training_start_year, training_len, params=True)
 
+#load pre-processed posts for testing period (no params here!)
 
+exit(0)
+
+#BOOKMARK - haven't touched below
 
 #ensure post id is in dataset (gets list of all post ids if running all)
 sim_post_id_list, random_post = functions_gen_cascade_model.verify_post_id(input_sim_post_id, batch, list(raw_posts.keys()))
