@@ -132,7 +132,7 @@ def monthdelta(month, year, delta, inclusive=False):
 #given a subreddit, starting month-year, and number of months to load, load processed posts
 #if params = True, also load fitted params for these posts
 #if files don't exist, call methods to perform preprocessing
-def load_processed_posts(subreddit, start_month, start_year, num_months, params=False):
+def load_processed_posts(subreddit, start_month, start_year, num_months, load_params=False):
 	posts = {}
 	params = {}
 
@@ -143,24 +143,29 @@ def load_processed_posts(subreddit, start_month, start_year, num_months, params=
 
 		#load posts if processed file exists
 		if file_utils.verify_file(processed_posts_filepath % (subreddit, subreddit, year, month)):
-			posts.update(load_pickle(processed_posts_filepath % (subreddit, subreddit, year, month)))
+			month_posts = file_utils.load_pickle(processed_posts_filepath % (subreddit, subreddit, year, month))
 		#if posts file doesn't exist, create it - loading in the process
 		else:
-			vprint("Processed posts file doesn't exist, creating now")
-			posts.update(process_posts(subreddit, month, year))
+			vprint("   Processed posts file doesn't exist, creating now")
+			month_posts = process_posts(subreddit, month, year)
 
 		#params, if desired
-		if params:
+		if load_params:
 			#load if params file exists
 			if file_utils.verify_file(fitted_params_filepath % (subreddit, subreddit, year, month)):
-				params.update(load_pickle(fitted_params_filepath) % (subreddit, subreddit, year, month))
+				params.update(file_utils.load_pickle(fitted_params_filepath) % (subreddit, subreddit, year, month))
 			#if params file doesn't exist, create it - loading in the process
 			else:
-				vprint("Fitted params file doesn't exist, creating now")
-				posts.update(fit_posts(subreddit, month, year))
+				vprint("   Fitted params file doesn't exist, creating now")
+				params.update(fit_posts(subreddit, month, year, month_posts))
+
+		#add this month to overall
+		posts.update(month_posts)
+
+	vprint("Loaded %d posts and %d params" % (len(posts), len(params)))
 
 	#return results
-	if params: return posts, params
+	if load_params: return posts, params
 	return posts
 #end load_processed_posts
 
