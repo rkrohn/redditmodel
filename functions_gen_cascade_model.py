@@ -157,7 +157,7 @@ def load_processed_posts(subreddit, start_month, start_year, num_months, load_pa
 		if load_params:
 			#load if params file exists
 			if file_utils.verify_file(fitted_params_filepath % (subreddit, subreddit, year, month)):
-				params.update(file_utils.load_pickle(fitted_params_filepath) % (subreddit, subreddit, year, month))
+				params.update(file_utils.load_pickle(fitted_params_filepath % (subreddit, subreddit, year, month)))
 			#if params file doesn't exist, create it - loading in the process
 			else:
 				vprint("   Fitted params file doesn't exist, creating now")
@@ -166,10 +166,10 @@ def load_processed_posts(subreddit, start_month, start_year, num_months, load_pa
 		#add this month to overall
 		posts.update(month_posts)
 
-	vprint("Loaded %d posts and %d params" % (len(posts), len(params)))
+	vprint("Loaded %d posts " % len(posts), "and %d params" % len(params) if load_params else "")
 
 	#throw out posts that we don't have params for - incomplete or some other issue
-	if len(posts) != len(params):
+	if load_params and len(posts) != len(params):
 		del_keys = set([post_id for post_id in posts.keys() if post_id not in params])
 		for key in del_keys:
 			posts.pop(key, None)
