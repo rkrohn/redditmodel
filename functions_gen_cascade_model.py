@@ -159,7 +159,6 @@ def load_processed_posts(subreddit, start_month, start_year, num_months, load_pa
 		else:
 			vprint("   Processed posts file doesn't exist, creating now")
 			month_posts = process_posts(subreddit, month, year)
-		vprint("Loaded %d posts for %d-%d" % (len(month_posts), month, year))
 
 		#params, if desired
 		if load_params:
@@ -179,23 +178,15 @@ def load_processed_posts(subreddit, start_month, start_year, num_months, load_pa
 		#add this month's posts to overall
 		posts.update(month_posts)
 
-	vprint("Loaded %d posts " % len(posts))
-	if load_cascades: vprint("   %d cascades" % len(cascades))
-	if load_params: vprint("   %d params" % len(params))
-
 	#throw out posts that we don't have cascades for - incomplete or some other issue
 	if load_cascades and len(posts) != len(cascades):
-		del_keys = set([post_id for post_id in posts.keys() if post_id not in cascades])
-		for key in del_keys:
-			posts.pop(key, None)
-		vprint("Deleted %d posts without cascades" % len(del_keys))
+		posts, deleted_count = filter_dict_by_dict(posts, cascades, num_deleted=True)
+		vprint("Deleted %d posts without cascades" % deleted_count)
 
 	#throw out posts that we don't have params for - neg comment times or some other issue
 	if load_params and len(posts) != len(params):
-		del_keys = set([post_id for post_id in posts.keys() if post_id not in params])
-		for key in del_keys:
-			posts.pop(key, None)
-		vprint("Deleted %d posts without params" % len(del_keys))
+		posts, deleted_count = filter_dict_by_dict(posts, params, num_deleted=True)
+		vprint("Deleted %d posts without params" % deleted_count)
 
 	vprint("Loaded %d posts " % len(posts))
 	if load_cascades: vprint("   %d cascades" % len(cascades))
@@ -322,10 +313,21 @@ def get_cascades(subreddit, month, year, posts):
 		#reconstruct the cascades
 		cascades = build_cascades(subreddit, month, year, posts, comments)
 
-	vprint("Loaded %d cascades" % len(cascades))
-
 	return cascades
 #end get_cascades
+
+
+#filter one dictionary based on the keys of the other (only one-way)
+#returns modified dictionary
+#if num_deleted=True, also return number of items removed
+def filter_dict_by_dict(dict_to_filter, keep_dict, num_deleted=False):
+	del_keys = set([key for key in dict_to_filter.keys() if key not in keep_dict])
+	for key in del_keys:
+		dict_to_filter.pop(key, None)
+
+	if num_deleted: return dict_to_filter, len(del_keys)
+	return dict_to_filter
+#end filter_dict_by_dict
 
 
 #given subreddit, month, year, and loaded posts, load comments associated with those posts
@@ -462,27 +464,27 @@ def build_cascades(subreddit, month, year, posts, comments):
 #end build_cascades
 
 
-#given a post id and list of dataset ids, ensure post is in this set
-#returns list of post ids to simulate (single item for random or given)
-def verify_post_id(input_sim_post_id, process_all, pick_random, all_post_ids):
+#given a post id, boolean mode flags, and dictionary of posts, ensure post is in this set
+#returns modified post dictionary that contains only the posts to be tested
+def verify_post_set(input_sim_post_id, process_all, pick_random, posts):
 	#if processing all posts, return list of ids
 	if process_all:		
-		sim_post_id_list = all_post_ids
-		vprint("Processing all %d posts in test set" % len(sim_post_id_list))
+		vprint("Processing all %d posts in test set" % len(posts))
 	#if random post id, pick an id from loaded posts
 	elif pick_random:
-		sim_post_id_list = [random.choice(all_post_ids)]
-		vprint("Choosing random simulation post: %s" % sim_post_id_list[0])
+		rand_sim_post_id = random.choice(list(posts.keys()))
+		posts = {rand_sim_post_id: posts[rand_sim_post_id]}
+		vprint("Choosing random simulation post: %s" % rand_sim_post_id)
 	#if not random or batch, make sure given post id is in the dataset
 	else:
 		#if given not in set, exit
-		if input_sim_post_id not in all_post_ids:
+		if input_sim_post_id not in posts:
 			print("Given post id not in group set - exiting.\n")
 			exit(0)
-		sim_post_id_list = [input_sim_post_id]
+		posts = {input_sim_post_id: posts[input_sim_post_id]}
 		vprint("Using input post id: %s" % input_sim_post_id)
-	return sim_post_id_list
-#end verify_post_id
+	return posts
+#end verify_post_set
 
 
 #BOOKMARK - haven't done anything below this

@@ -44,9 +44,13 @@ train_posts, train_params = functions_gen_cascade_model.load_processed_posts(sub
 vprint("\nLoading processed testing data")
 test_posts, test_cascades = functions_gen_cascade_model.load_processed_posts(subreddit, testing_start_month, testing_start_year, testing_len, load_cascades=True)
 
-#ensure post id is in dataset (gets list of all post ids if running all)
+#ensure post id is in dataset (and filter test_posts set down to processing group only)
 vprint("")
-sim_post_id_list = functions_gen_cascade_model.verify_post_id(input_sim_post_id, batch, random, list(test_posts.keys()))
+test_posts = functions_gen_cascade_model.verify_post_set(input_sim_post_id, batch, random, test_posts)
+#reduce cascades to match this set
+if len(test_posts) != len(test_cascades):
+	test_cascades = functions_gen_cascade_model.filter_dict_by_dict(test_cascades, test_posts)
+
 
 exit(0)
 
