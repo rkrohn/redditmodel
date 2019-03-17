@@ -46,13 +46,20 @@ def parse_command_args():
 	parser.add_argument("-s", "--sub", dest="subreddit", required=True, help="subreddit to process")
 	parser.add_argument("-o", "--out", dest="outfile", required=True, help="output filename")
 	#must pick one of three processing options: a single id, random, or all
-	group = parser.add_mutually_exclusive_group(required=True)
-	group.add_argument("-id", dest="sim_post_id", default=None,  help="post id for single-processing")
-	group.add_argument("-r", "--rand", dest="sim_post_id", action="store_const", const="random", help="choose a random post from the subreddit to simulate")
-	group.add_argument("-a", "--all", dest="sim_post_id", action="store_const", const="all", help="simulate all posts in the subreddit")
+	proc_group = parser.add_mutually_exclusive_group(required=True)
+	proc_group.add_argument("-id", dest="sim_post_id", default=None,  help="post id for single-processing")
+	proc_group.add_argument("-r", "--rand", dest="sim_post_id", action="store_const", const="random", help="choose a random post from the subreddit to simulate")
+	proc_group.add_argument("-a", "--all", dest="sim_post_id", action="store_const", const="all", help="simulate all posts in the subreddit")
 	#must provide year and month for start of testing data set
 	parser.add_argument("-y", "--year", dest="testing_start_year", required=True, help="year to use for test set")
 	parser.add_argument("-m", "--month", dest="testing_start_month", required=True, help="month to use for test set")
+	#must pick an edge weight computation method: cosine (based on tf-idf) or jaccard
+	weight_group = parser.add_mutually_exclusive_group(required=True)
+	weight_group.add_argument("-j", "--jaccard", dest="jaccard", action='store_true', help="compute edge weight between pairs using jaccard index")
+	weight_group.add_argument("-c", "--cosine", dest="jaccard", action='store_false', help="compute edge weight between pairs using tf-idf and cosine similarity")
+	#must pick an edge limit method: top n edges per node, or weight threshold, or both
+	parser.add_argument("-topn", dest="top_n", default=False, metavar=('<max edges per node>'), help="limit post graph to n edges per node")
+	parser.add_argument("-threshold", dest="weight_threshold", default=False, metavar=('<minimum edge weight>'), help="limit post graph to edges with weight above threshold")
 
 	#optional args	
 	parser.add_argument("-t", dest="time_observed", default=0, help="time of post observation, in hours")
@@ -67,6 +74,10 @@ def parse_command_args():
 
 	args = parser.parse_args()		#parse the args (magic!)
 
+	#make sure at least one edge-limit option was chosen
+	if not (args.top_n or args.weight_threshold):
+		parser.error('No edge limit selected, add -top_n, -threshold, or both')
+
 	#extract arguments (since want to return individual variables)
 	subreddit = args.subreddit
 	sim_post_id = args.sim_post_id
@@ -79,7 +90,10 @@ def parse_command_args():
 	testing_start_year = int(args.testing_start_year)
 	testing_len = int(args.testing_len)
 	training_len = int(args.training_len)
+	jaccard = args.jaccard
 	verbose = args.verbose
+	top_n = args.top_n
+	weight_threshold = args.weight_threshold
 	#extra flags for batch processing and random post selection
 	if sim_post_id == "all":
 		batch = True
@@ -114,14 +128,20 @@ def parse_command_args():
 	vprint("Source subreddit: ", subreddit)
 	vprint("Minimum node quality: ", min_node_quality)
 	vprint("Max graph size: ", max_nodes)
+	vprint("Max edges per node: ", "None" if top_n==False else top_n)
+	vprint("Minimum edge weight: ", "None" if weight_threshold==False else weight_threshold)
 	if estimate_initial_params:
-		print("Estimating initial params for seed posts based on inverse quality weighted average of neighbors")
+		vprint("Estimating initial params for seed posts based on inverse quality weighted average of neighbors")
 	vprint("Testing Period: %d-%d" % (testing_start_month, testing_start_year), " through %d-%d (%d months)" % (monthdelta(testing_start_month, testing_start_year, testing_len, inclusive=True)+(testing_len,)) if testing_len > 1 else " (%d month)" % testing_len)
 	vprint("Training Period: %d-%d" % (training_start_month, training_start_year), " through %d-%d (%d months)" % (monthdelta(training_start_month, training_start_year, training_len, inclusive=True)+(training_len,)) if training_len > 1 else " (%d month)" % training_len)
+	if jaccard:
+		vprint("Using Jaccard index to compute graph edge weights")
+	else:
+		vprint("Using tf-idf and cosine similarity to compute graph edge weights")
 	vprint("")
 
 	#return all arguments
-	return subreddit, sim_post_id, time_observed, outfile, max_nodes, min_node_quality, estimate_initial_params, batch, random, testing_start_month, testing_start_year, testing_len, training_start_month, training_start_year, training_len, verbose
+	return subreddit, sim_post_id, time_observed, outfile, max_nodes, min_node_quality, estimate_initial_params, batch, random, testing_start_month, testing_start_year, testing_len, training_start_month, training_start_year, training_len, jaccard, top_n, weight_threshold, verbose
 #end parse_command_args
 
 
