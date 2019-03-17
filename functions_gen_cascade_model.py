@@ -93,7 +93,11 @@ def parse_command_args():
 	jaccard = args.jaccard
 	verbose = args.verbose
 	top_n = args.top_n
+	if top_n != False:
+		top_n = int(top_n)
 	weight_threshold = args.weight_threshold
+	if weight_threshold != False:
+		weight_threshold = float(weight_threshold)
 	#extra flags for batch processing and random post selection
 	if sim_post_id == "all":
 		batch = True
