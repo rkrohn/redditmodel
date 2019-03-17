@@ -36,13 +36,13 @@ else:
 #ensure working directory exists - for saving of intermediate graph/param files for node2vec
 file_utils.verify_dir("sim_files")	
 
-#BOOKMARK - good to here
-
 #load pre-processed posts and their fitted params for training period
 vprint("Loading processed training data")
 train_posts, train_params = functions_gen_cascade_model.load_processed_posts(subreddit, training_start_month, training_start_year, training_len, load_params=True)
 
-#load pre-processed posts for testing period (no params here!)
+#load pre-processed posts and their reconstructed cascades for testing period (no params here!)
+vprint("\nLoading processed testing data")
+test_posts, test_cascades = functions_gen_cascade_model.load_processed_posts(subreddit, testing_start_month, testing_start_year, testing_len, load_cascades=True)
 
 exit(0)
 

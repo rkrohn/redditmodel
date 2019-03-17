@@ -135,10 +135,12 @@ def monthdelta(month, year, delta, inclusive=False):
 
 #given a subreddit, starting month-year, and number of months to load, load processed posts
 #if params = True, also load fitted params for these posts
+#if cascades = True, also load reconstructed cascades for these posts
 #if files don't exist, call methods to perform preprocessing
-def load_processed_posts(subreddit, start_month, start_year, num_months, load_params=False):
+def load_processed_posts(subreddit, start_month, start_year, num_months, load_params=False, load_cascades=False):
 	posts = {}
 	params = {}
+	cascades = {}
 
 	#loop months to load
 	for m in range(0, num_months):
@@ -152,6 +154,7 @@ def load_processed_posts(subreddit, start_month, start_year, num_months, load_pa
 		else:
 			vprint("   Processed posts file doesn't exist, creating now")
 			month_posts = process_posts(subreddit, month, year)
+		vprint("Loaded %d posts for %d-%d" % (len(month_posts), month, year))
 
 		#params, if desired
 		if load_params:
@@ -163,20 +166,40 @@ def load_processed_posts(subreddit, start_month, start_year, num_months, load_pa
 				vprint("   Fitted params file doesn't exist, creating now")
 				params.update(fit_posts(subreddit, month, year, month_posts))
 
-		#add this month to overall
+		#cascades, if desired
+		if load_cascades:
+			#get cascades for this month
+			cascades.update(get_cascades(subreddit, month, year, month_posts))
+
+		#add this month's posts to overall
 		posts.update(month_posts)
 
-	vprint("Loaded %d posts " % len(posts), "and %d params" % len(params) if load_params else "")
+	vprint("Loaded %d posts " % len(posts))
+	if load_cascades: vprint("   %d cascades" % len(cascades))
+	if load_params: vprint("   %d params" % len(params))
 
-	#throw out posts that we don't have params for - incomplete or some other issue
+	#throw out posts that we don't have cascades for - incomplete or some other issue
+	if load_cascades and len(posts) != len(cascades):
+		del_keys = set([post_id for post_id in posts.keys() if post_id not in cascades])
+		for key in del_keys:
+			posts.pop(key, None)
+		vprint("Deleted %d posts without cascades" % len(del_keys))
+
+	#throw out posts that we don't have params for - neg comment times or some other issue
 	if load_params and len(posts) != len(params):
 		del_keys = set([post_id for post_id in posts.keys() if post_id not in params])
 		for key in del_keys:
 			posts.pop(key, None)
 		vprint("Deleted %d posts without params" % len(del_keys))
 
+	vprint("Loaded %d posts " % len(posts))
+	if load_cascades: vprint("   %d cascades" % len(cascades))
+	if load_params: vprint("   %d params" % len(params))
+
 	#return results
+	if load_params and load_cascades: return posts, cascades, params
 	if load_params: return posts, params
+	if load_cascades: return posts, cascades
 	return posts
 #end load_processed_posts
 
@@ -189,14 +212,21 @@ def process_posts(subreddit, month, year):
 		exit(0)
 	#load raw posts into pandas dataframe
 	posts_df = pd.read_csv(raw_posts_filepath % (subreddit, subreddit, year, month), sep='\t')
-	vprint("Loaded %s raw posts" % len(posts_df.index))
 
 	#convert to our nested dictionary structure
 	posts = {}
 	for index, row in posts_df.iterrows():
+		#check for good row, fail and error if something is amiss (probably a non-quoted body)
+		if pd.isnull(row['title']) or pd.isnull(row['subreddit']) or pd.isnull(row['created_utc']) or pd.isnull(row['author']):
+			print("Invalid post, exiting\n", row)
+			exit(0)
+
 		#build new post dict
 		post = {}
 		post['tokens'] = extract_tokens(row['title'])
+		if post['tokens'] == False:
+			print(row)
+			exit(0)
 		post['time'] = int(row['created_utc'])
 		post['author'] = row['author']
 
@@ -219,9 +249,15 @@ def extract_tokens(text):
 	punctuations.append('—')	#kill these too
 	
 	if text != None:
-		tokens = [word.lower() for word in text.split()]	#tokenize and normalize (to lower)		
-		tokens = [word.strip("".join(punctuations)) for word in tokens]		#strip trailing and leading punctuation
-		tokens = [word for word in tokens if word != '' and word not in punctuations and word != '']		#remove punctuation-only tokens and empty strings
+		try:
+			tokens = [word.lower() for word in text.split()]	#tokenize and normalize (to lower)		
+			tokens = [word.strip("".join(punctuations)) for word in tokens]		#strip trailing and leading punctuation
+			tokens = [word for word in tokens if word != '' and word not in punctuations and word != '']		#remove punctuation-only tokens and empty strings
+		except Exception as e:
+			print("Token extraction fail")
+			print(e)
+			print(text)
+			return False
 	else:
 		tokens = []
 
@@ -235,16 +271,8 @@ def extract_tokens(text):
 #cascades format is post_id -> nested dict of replies, time, comment_count_total and comment_count_direct
 #each reply has id, time, and their own replies field
 def fit_posts(subreddit, month, year, posts):
-	#if reconstructed cascades already exist, load those
-	if file_utils.verify_file(cascades_filepath % (subreddit, subreddit, year, month)):
-		cascades = file_utils.load_pickle(cascades_filepath % (subreddit, subreddit, year, month))
-		vprint("Loaded %d cascades" % len(cascades))
-	#otherwise, reconstruct the cascades (get them back as return value)
-	else:
-		#load comments associated with this month of posts
-		comments = load_comments(subreddit, month, year, posts)
-		#reconstruct the cascades
-		cascades = build_cascades(subreddit, month, year, posts, comments)
+	#get cascades for this month
+	cascades = get_cascades(subreddit, month, year, posts)
 
 	#fit parameters to each cascade
 	vprint("Fitting %d cascades for %s %d-%d" % (len(cascades), subreddit, month, year))
@@ -272,6 +300,27 @@ def fit_posts(subreddit, month, year, posts):
 	
 	return cascade_params 		#return all params
 #end fit_posts
+
+
+#given subreddit, month, year and loaded posts, load cascades associated with those posts
+#if cascades don't exist, build them
+#returns cascades dictionary
+def get_cascades(subreddit, month, year, posts):
+	#if reconstructed cascades already exist, load those
+	if file_utils.verify_file(cascades_filepath % (subreddit, subreddit, year, month)):
+		cascades = file_utils.load_pickle(cascades_filepath % (subreddit, subreddit, year, month))		
+	#otherwise, reconstruct the cascades (get them back as return value)
+	else:
+		vprint("Reconstructing cascades for %s %d-%d" % (subreddit, month, year))
+		#load comments associated with this month of posts
+		comments = load_comments(subreddit, month, year, posts)
+		#reconstruct the cascades
+		cascades = build_cascades(subreddit, month, year, posts, comments)
+
+	vprint("Loaded %d cascades" % len(cascades))
+
+	return cascades
+#end get_cascades
 
 
 #given subreddit, month, year, and loaded posts, load comments associated with those posts
