@@ -4,6 +4,7 @@ import file_utils
 import functions_hybrid_model
 import sim_tree
 import tree_edit_distance
+import fit_cascade_gen_model as fit_cascade
 
 from shutil import copyfile
 import subprocess
@@ -167,6 +168,13 @@ def load_processed_posts(subreddit, start_month, start_year, num_months, load_pa
 
 	vprint("Loaded %d posts and %d params" % (len(posts), len(params)))
 
+	#throw out posts that we don't have params for - incomplete or some other issue
+	if len(posts) != len(params):
+		del_keys = set([post_id for post_id in posts.keys() if post_id not in params])
+		for key in del_keys:
+			posts.pop(key, None)
+		vprint("Deleted %d posts without params" % len(del_keys))
+
 	#return results
 	if load_params: return posts, params
 	return posts
@@ -223,6 +231,9 @@ def extract_tokens(text):
 
 #given a subreddit, month, and year, and loaded posts (but not comments),
 #fit parameters for these posts and save results as pickle
+#load cascades if they already exist, otherwise build them first
+#cascades format is post_id -> nested dict of replies, time, comment_count_total and comment_count_direct
+#each reply has id, time, and their own replies field
 def fit_posts(subreddit, month, year, posts):
 	#if reconstructed cascades already exist, load those
 	if file_utils.verify_file(cascades_filepath % (subreddit, subreddit, year, month)):
@@ -236,8 +247,30 @@ def fit_posts(subreddit, month, year, posts):
 		cascades = build_cascades(subreddit, month, year, posts, comments)
 
 	#fit parameters to each cascade
-	fit_all_cascades(subreddit, month, year, cascades)
+	vprint("Fitting %d cascades for %s %d-%d" % (len(cascades), subreddit, month, year))
 
+	cascade_params = {}		#build dict of post id -> 6 fitted params + quality
+	post_count = 0
+
+	#loop and fit cascades
+	for post_id, post in cascades.items():		
+		param_res = fit_cascade.fit_params(post)	#fit the current cascade 
+
+		#if negative comment times, skip this cascade and move to next
+		if param_res == False: continue
+
+		cascade_params[post_id] = param_res		#store params
+
+		post_count += 1
+		if post_count % 2500 == 0:
+			vprint("Fitted %d cascades" % post_count)	
+
+	#dump params to file
+	vprint("Fitted a total of %d cascades" % len(cascade_params))
+
+	file_utils.save_pickle(cascade_params, fitted_params_filepath % (subreddit, subreddit, year, month))
+	
+	return cascade_params 		#return all params
 #end fit_posts
 
 
