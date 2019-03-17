@@ -80,11 +80,16 @@ def parse_command_args():
 	testing_len = int(args.testing_len)
 	training_len = int(args.training_len)
 	verbose = args.verbose
-	#extra flag for batch processing
+	#extra flags for batch processing and random post selection
 	if sim_post_id == "all":
 		batch = True
+		random = False
+	elif sim_post_id == "random":
+		random = True
+		batch = False
 	else:
 		batch = False
+		random = False
 
 	#compute start of training period for easy use later
 	training_start_month, training_start_year = monthdelta(testing_start_month, testing_start_year, -training_len)
@@ -116,7 +121,7 @@ def parse_command_args():
 	vprint("")
 
 	#return all arguments
-	return subreddit, sim_post_id, time_observed, outfile, max_nodes, min_node_quality, estimate_initial_params, batch, testing_start_month, testing_start_year, testing_len, training_start_month, training_start_year, training_len, verbose
+	return subreddit, sim_post_id, time_observed, outfile, max_nodes, min_node_quality, estimate_initial_params, batch, random, testing_start_month, testing_start_year, testing_len, training_start_month, training_start_year, training_len, verbose
 #end parse_command_args
 
 
@@ -457,6 +462,29 @@ def build_cascades(subreddit, month, year, posts, comments):
 #end build_cascades
 
 
+#given a post id and list of dataset ids, ensure post is in this set
+#returns list of post ids to simulate (single item for random or given)
+def verify_post_id(input_sim_post_id, process_all, pick_random, all_post_ids):
+	#if processing all posts, return list of ids
+	if process_all:		
+		sim_post_id_list = all_post_ids
+		vprint("Processing all %d posts in test set" % len(sim_post_id_list))
+	#if random post id, pick an id from loaded posts
+	elif pick_random:
+		sim_post_id_list = [random.choice(all_post_ids)]
+		vprint("Choosing random simulation post: %s" % sim_post_id_list[0])
+	#if not random or batch, make sure given post id is in the dataset
+	else:
+		#if given not in set, exit
+		if input_sim_post_id not in all_post_ids:
+			print("Given post id not in group set - exiting.\n")
+			exit(0)
+		sim_post_id_list = [input_sim_post_id]
+		vprint("Using input post id: %s" % input_sim_post_id)
+	return sim_post_id_list
+#end verify_post_id
+
+
 #BOOKMARK - haven't done anything below this
 
 
@@ -597,32 +625,6 @@ def simulate_comment_tree(sim_post, sim_params, group, sim_comments, time_observ
 
 	return sim_events, sim_root		#return events list, and dictionary format of simulated tree
 #end simulate_comment_tree
-
-
-#given a post id and list of dataset ids, ensure post is in this set
-def verify_post_id(input_sim_post_id, process_all, all_post_ids):
-	#if processing all posts, return list of ids
-	if process_all:
-		random_post = False
-		sim_post_id_list = all_post_ids
-		print("Processing all posts")
-
-	#if random post id, pick an id from loaded posts
-	elif input_sim_post_id == "random":
-		random_post = True
-		sim_post_id_list = [random.choice(all_post_ids)]
-		print("Choosing random simulation post:", sim_post_id_list)
-
-	#if not random, make sure given post id is in the dataset
-	else:
-		random_post = False
-		#if not in set, exit
-		if input_sim_post_id not in all_post_ids:
-			print("Given post id not in group set - exiting.\n")
-			exit(0)
-		sim_post_id_list = [input_sim_post_id]
-	return sim_post_id_list, random_post
-#end verify_post_id
 
 
 #given simulated and ground-truth cascades, compute the tree edit distance between them

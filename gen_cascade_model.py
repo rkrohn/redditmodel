@@ -20,7 +20,7 @@ import fit_partial_cascade
 print("")
 
 #parse all command-line arguments
-subreddit, input_sim_post_id, time_observed, outfile, max_nodes, min_node_quality, estimate_initial_params, batch, testing_start_month, testing_start_year, testing_len, training_start_month, training_start_year, training_len, verbose = functions_gen_cascade_model.parse_command_args()
+subreddit, input_sim_post_id, time_observed, outfile, max_nodes, min_node_quality, estimate_initial_params, batch, random, testing_start_month, testing_start_year, testing_len, training_start_month, training_start_year, training_len, verbose = functions_gen_cascade_model.parse_command_args()
 
 #hackery: declare a special print function for verbose output
 if verbose:
@@ -44,12 +44,13 @@ train_posts, train_params = functions_gen_cascade_model.load_processed_posts(sub
 vprint("\nLoading processed testing data")
 test_posts, test_cascades = functions_gen_cascade_model.load_processed_posts(subreddit, testing_start_month, testing_start_year, testing_len, load_cascades=True)
 
+#ensure post id is in dataset (gets list of all post ids if running all)
+vprint("")
+sim_post_id_list = functions_gen_cascade_model.verify_post_id(input_sim_post_id, batch, random, list(test_posts.keys()))
+
 exit(0)
 
 #BOOKMARK - haven't touched below
-
-#ensure post id is in dataset (gets list of all post ids if running all)
-sim_post_id_list, random_post = functions_gen_cascade_model.verify_post_id(input_sim_post_id, batch, list(raw_posts.keys()))
 
 #if running in mode all, keep total of all metrics, dump at end
 if batch:
