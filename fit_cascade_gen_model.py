@@ -15,57 +15,57 @@ import random
 #given a post, return sorted list of post (root) reply times in minutes (originally stored in seconds),
 #taking the post time as 0 and offsetting the comment times accordingly
 def get_root_comment_times(post):
-    root_comment_times = []     #build list of reply times
+	root_comment_times = []     #build list of reply times
 
-    root_time = post['time']     #get post time in seconds to use as offset
+	root_time = post['time']     #get post time in seconds to use as offset
 
-    #list of sorted reply times, shifted by post time
-    replies = sorted([(comment['time'] - root_time) / 60.0 for comment in post['replies']])
+	#list of sorted reply times, shifted by post time
+	replies = sorted([(comment['time'] - root_time) / 60.0 for comment in post['replies']])
 
-    #check for negative comment times, if any exist return False
-    if not all(reply >= 0 for reply in replies):
-        return False
+	#check for negative comment times, if any exist return False
+	if not all(reply >= 0 for reply in replies):
+		return False
 
-    return replies      #return sorted replies
+	return replies      #return sorted replies
 #end get_root_comment_times
 
 
 #get list of comment times of all comments not on post (root) in minutes, offset based on the post time
 def get_other_comment_times(post):
-    other_comment_times = []    #list of comment times
+	other_comment_times = []    #list of comment times
 
-    root_time = post['time']    #get post time in seconds to use as offset
+	root_time = post['time']    #get post time in seconds to use as offset
 
-    #build list of all non-root replies for this post
-    other_comment_ids = []
-    #init queue to second-level replies (ie, replies to root replies)
-    nodes_to_visit = []
-    for comment in post['replies']:  
-        nodes_to_visit.extend(comment['replies']) 
-    while len(nodes_to_visit) != 0:
-        curr = nodes_to_visit.pop(0)    #grab current comment id
-        other_comment_ids.append(curr['time'])           #add this comment to set of cascade comments
-        nodes_to_visit.extend(curr['replies'])    #add this comment's replies to queue
+	#build list of all non-root replies for this post
+	other_comment_ids = []
+	#init queue to second-level replies (ie, replies to root replies)
+	nodes_to_visit = []
+	for comment in post['replies']:  
+		nodes_to_visit.extend(comment['replies']) 
+	while len(nodes_to_visit) != 0:
+		curr = nodes_to_visit.pop(0)    #grab current comment id
+		other_comment_ids.append(curr['time'])           #add this comment to set of cascade comments
+		nodes_to_visit.extend(curr['replies'])    #add this comment's replies to queue
 
-    #sort and shift comment times
-    other_comment_times = sorted([(time - root_time) / 60.0 for time in other_comment_times])
+	#sort and shift comment times
+	other_comment_times = sorted([(time - root_time) / 60.0 for time in other_comment_times])
 
-    #if any < 0, return false
-    if not all(reply >= 0 for reply in other_comment_times):
-        return False
+	#if any < 0, return false
+	if not all(reply >= 0 for reply in other_comment_times):
+		return False
 
-    return other_comment_times
+	return other_comment_times
 #end get_other_comment_times
 
 
 #estimate branching number n_b: 1 - (root degree / total comments)
 #pass in number of root replies and number of comment replies
 def estimate_branching_factor(root_replies, comment_replies):
-    if root_replies + comment_replies != 0:
-        n_b = 1 - (root_replies / (root_replies + comment_replies))  
-    else:
-        n_b = 0
-    return n_b
+	if root_replies + comment_replies != 0:
+		n_b = 1 - (root_replies / (root_replies + comment_replies))  
+	else:
+		n_b = 0
+	return n_b
 #end estimate_branching_factor
 
 
@@ -73,25 +73,25 @@ def estimate_branching_factor(root_replies, comment_replies):
 #deeper-comment lognormal distributions, and estimate the branching factor
 #return quality estimate for optional quality filter in graph infer step
 def fit_params(post):
-    #fit weibull to root comment times
-    root_comment_times = get_root_comment_times(post)
-    if root_comment_times == False:
-        return False
-    a, lbd, k, weibull_quality = fit_weibull(root_comment_times)
+	#fit weibull to root comment times
+	root_comment_times = get_root_comment_times(post)
+	if root_comment_times == False:
+		return False
+	a, lbd, k, weibull_quality = fit_weibull(root_comment_times)
 
-    #fit log-normal to all other comment times
-    other_comment_times = get_other_comment_times(post)
-    if other_comment_times == False:
-        return False
-    mu, sigma, lognorm_quality = fit_lognormal(other_comment_times)
+	#fit log-normal to all other comment times
+	other_comment_times = get_other_comment_times(post)
+	if other_comment_times == False:
+		return False
+	mu, sigma, lognorm_quality = fit_lognormal(other_comment_times)
 
-    #estimate branching factor
-    n_b = estimate_branching_factor(len(root_comment_times), len(other_comment_times))
+	#estimate branching factor
+	n_b = estimate_branching_factor(len(root_comment_times), len(other_comment_times))
 
-    #combine all quality measures together into a single one
-    quality = (3 * weibull_quality + 2 * lognorm_quality) / 5.0
+	#combine all quality measures together into a single one
+	quality = (3 * weibull_quality + 2 * lognorm_quality) / 5.0
 
-    #return all parameters together - your job to keep the order straight ;)
-    return a, lbd, k, mu, sigma, n_b, quality
+	#return all parameters together - your job to keep the order straight ;)
+	return a, lbd, k, mu, sigma, n_b, quality
 #end fit_params
 
