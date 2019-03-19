@@ -36,6 +36,23 @@ temp_graph_filepath = "sim_files/%s_graph.txt"			#updated graph for this sim run
 temp_params_filepath = "sim_files/%s_in_params.txt"		#temporary, filtered params for sim run (if sampled graph)
 output_params_filepath = "sim_files/%s_params.txt"		#output params from node2vec
 
+#hardcoded params for failed fit cascades
+#only used when fit/estimation fails and these posts are still included in graph
+
+DEFAULT_WEIBULL_NONE = [1, 1, 0.15]     #weibull param results if post has NO comments to fit
+                                        #force a distribution heavily weighted towards the left, then decreasing
+
+DEFAULT_WEIBULL_SINGLE = [1, 2, 0.75]   #weibull param result if post has ONE comment and other fit methods fail
+                                        #force a distribution heavily weighted towards the left, then decreasing
+                   #use this same hardcode for other fit failures, but set a (index 0) equal to the number of replies
+
+DEFAULT_WEIBULL_QUALITY = 0.45      #default weibull quality if hardcode param is used
+
+DEFAULT_LOGNORMAL = [0.15, 1.5]    	#lognormal param results if post has no comment replies to fit
+                                	#mu = 0, sigma = 1.5 should allow for occasional comment replies, but not many
+
+DEFAULT_LOGNORM_QUALITY = 0.45     #default lognormal quality if hardcode param is used
+
 
 #parse out all command line arguments and return results
 def parse_command_args():
