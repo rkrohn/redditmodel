@@ -4,7 +4,7 @@ import file_utils
 import functions_hybrid_model
 import sim_tree
 import tree_edit_distance
-import fit_cascade_gen_model as fit_cascade
+import fit_cascade_gen_model
 
 from shutil import copyfile
 import subprocess
@@ -169,6 +169,7 @@ def monthdelta(month, year, delta, inclusive=False):
 def load_processed_posts(subreddit, start_month, start_year, num_months, load_params=False, load_cascades=False):
 	posts = {}
 	params = {}
+	failed_fit_posts = []
 	cascades = {}
 
 	#loop months to load
@@ -188,11 +189,14 @@ def load_processed_posts(subreddit, start_month, start_year, num_months, load_pa
 		if load_params:
 			#load if params file exists
 			if file_utils.verify_file(fitted_params_filepath % (subreddit, subreddit, year, month)):
-				params.update(file_utils.load_pickle(fitted_params_filepath % (subreddit, subreddit, year, month)))
+				params_data = file_utils.load_pickle(fitted_params_filepath % (subreddit, subreddit, year, month))
 			#if params file doesn't exist, create it - loading in the process
 			else:
 				vprint("   Fitted params file doesn't exist, creating now")
-				params.update(fit_posts(subreddit, month, year, month_posts))
+				params_data = fit_posts(subreddit, month, year, month_posts)
+			#extract successfully fitted params and list of failed posts
+			params.update(params_data['params_dict'])
+			failed_fit_posts.extend(params_data['failed_fit_list'])
 
 		#cascades, if desired
 		if load_cascades:
@@ -204,21 +208,21 @@ def load_processed_posts(subreddit, start_month, start_year, num_months, load_pa
 
 	#throw out posts that we don't have cascades for - incomplete or some other issue
 	if load_cascades and len(posts) != len(cascades):
-		posts, deleted_count = filter_dict_by_dict(posts, cascades, num_deleted=True)
+		posts, deleted_count = filter_dict_by_list(posts, list(cascades.keys()), num_deleted=True)
 		vprint("Deleted %d posts without cascades" % deleted_count)
 
-	#throw out posts that we don't have params for - neg comment times or some other issue
-	if load_params and len(posts) != len(params):
-		posts, deleted_count = filter_dict_by_dict(posts, params, num_deleted=True)
+	#throw out posts that we don't have params (or fail note) for - neg comment times or some other issue
+	if load_params and len(posts) != len(params)+len(failed_fit_posts):
+		posts, deleted_count = filter_dict_by_list(posts, list(params.keys())+failed_fit_posts, num_deleted=True)
 		vprint("Deleted %d posts without params" % deleted_count)
 
 	vprint("Loaded %d posts " % len(posts))
 	if load_cascades: vprint("   %d cascades" % len(cascades))
-	if load_params: vprint("   %d params" % len(params))
+	if load_params: vprint("   %d fitted params, %d failed fit" % (len(params), len(failed_fit_posts)))
 
 	#return results
-	if load_params and load_cascades: return posts, cascades, params
-	if load_params: return posts, params
+	if load_params and load_cascades: return posts, cascades, params, failed_fit_posts
+	if load_params: return posts, params, failed_fit_posts
 	if load_cascades: return posts, cascades
 	return posts
 #end load_processed_posts
@@ -298,27 +302,48 @@ def fit_posts(subreddit, month, year, posts):
 	vprint("Fitting %d cascades for %s %d-%d" % (len(cascades), subreddit, month, year))
 
 	cascade_params = {}		#build dict of post id -> 6 fitted params + quality
+	failed_fit_posts = []	#list of posts that failed to fit
 	post_count = 0
+	fail_count = 0		#count of posts with failed param fit
+	fail_size = 0
+	succeed_size = 0
+	neg_comment_times_count = 0
 
 	#loop and fit cascades
 	for post_id, post in cascades.items():		
-		param_res = fit_cascade.fit_params(post)	#fit the current cascade 
+		param_res = fit_cascade_gen_model.fit_params(post)	#fit the current cascade 
 
 		#if negative comment times, skip this cascade and move to next
-		if param_res == False: continue
+		if param_res == False: 
+			neg_comment_times_count += 1
+			continue
 
-		cascade_params[post_id] = param_res		#store params
+		#if fit failed, increment fail count and add post_id to fail list
+		if param_res[0] == False:
+			fail_count += 1
+			fail_size += post['comment_count_total']
+			failed_fit_posts.append(post_id)
+		#if fit succeeded, add params to success dictionary
+		else:
+			succeed_size += post['comment_count_total']
+			cascade_params[post_id] = param_res		#store params
 
 		post_count += 1
 		if post_count % 2500 == 0:
-			vprint("Fitted %d cascades" % post_count)	
+			vprint("Fitted %d cascades (%d failed)" % (post_count, fail_count))
 
 	#dump params to file
-	vprint("Fitted a total of %d cascades" % len(cascade_params))
+	vprint("Fitted params for a total of %d cascades" % len(cascade_params))
+	vprint("   %d cascades failed fit process" % fail_count)	
+	vprint("   skipped %d cascades with negative comment times" % neg_comment_times_count)
+	vprint("   fail average cascade size: %d" % (fail_size/fail_count))
+	vprint("   succeed average cascade size: %d" % (succeed_size/(post_count-fail_count)))
 
-	file_utils.save_pickle(cascade_params, fitted_params_filepath % (subreddit, subreddit, year, month))
+	#save both fitted params and list of failed fits to the same file in a wrapping dictionary
+	params_out = {"params_dict": cascade_params, "failed_fit_list": failed_fit_posts}
+	file_utils.save_pickle(params_out, fitted_params_filepath % (subreddit, subreddit, year, month))
 	
-	return cascade_params 		#return all params
+	return params_out		#return params + fail list in dict
 #end fit_posts
 
 
@@ -341,17 +366,17 @@ def get_cascades(subreddit, month, year, posts):
 #end get_cascades
 
 
-#filter one dictionary based on the keys of the other (only one-way)
+#filter one dictionary based on list of keys
 #returns modified dictionary
 #if num_deleted=True, also return number of items removed
-def filter_dict_by_dict(dict_to_filter, keep_dict, num_deleted=False):
-	del_keys = set([key for key in dict_to_filter.keys() if key not in keep_dict])
+def filter_dict_by_list(dict_to_filter, keep_list, num_deleted=False):
+	del_keys = set([key for key in dict_to_filter.keys() if key not in keep_list])
 	for key in del_keys:
 		dict_to_filter.pop(key, None)
 
 	if num_deleted: return dict_to_filter, len(del_keys)
 	return dict_to_filter
-#end filter_dict_by_dict
+#end filter_dict_by_list
 
 
 #given subreddit, month, year, and loaded posts, load comments associated with those posts
