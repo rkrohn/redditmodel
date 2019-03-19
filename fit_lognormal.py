@@ -101,9 +101,8 @@ def perturb(data):
 #if fit succeeds, returns mu and lambda paramters
 def fit_partial_lognormal(event_times, param_guess = False, max_iter = False, display = False):
 
-    #no event times (ie, no comment replies), hardcode some values
+    #no event times (ie, no comment replies), return False
     if len(event_times) == 0:
-        params = perturb(list(DEFAULT_LOGNORMAL))
         if display:   
             print("No events to fit lognormal, returning")
         return False
@@ -122,16 +121,22 @@ def fit_partial_lognormal(event_times, param_guess = False, max_iter = False, di
 
 
 #given event times, fit the lognormal distribution
-#if fit fails, return None
+#if fit fails/no events and hardcode_default is True, hardcode a perturbed default value
+#if hardcode_default is False, return False for each parameter
 #otherwise, returns mu and lambda paramters
-def fit_lognormal(event_times, display = False):
+def fit_lognormal(event_times, display = False, hardcode_default = True):
 
-    #no event times (ie, no comment replies), hardcode some values
+    #no event times (ie, no comment replies)
     if len(event_times) == 0:
-        params = perturb(list(DEFAULT_LOGNORMAL))
-        if display:   
-            print("No events to fit, setting Log-normal params: (quality", str(DEFAULT_QUALITY) + "\n   mu\t\t", params[0], "\n   sigma\t", params[1], "\n")
-        return params + [DEFAULT_QUALITY]
+        #hardcode values
+        if hardcode_default:
+            params = perturb(list(DEFAULT_LOGNORMAL))
+            if display:   
+                print("No events to fit, setting Log-normal params: (quality", str(DEFAULT_QUALITY) + "\n   mu\t\t", params[0], "\n   sigma\t", params[1], "\n")
+            return params + [DEFAULT_QUALITY]
+        #no hardcode
+        else:
+            return [False, False, False]
 
     params = lognorm_parameters_estimation(event_times)     #try loglikelihood estimation first
 

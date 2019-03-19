@@ -151,7 +151,6 @@ def fit_partial_weibull(event_times, param_guess = False, max_iter = False, disp
 
     #no events to fit, return False
     if len(event_times) == 0:
-        params = perturb(list(DEFAULT_WEIBULL_NONE))    #small random perturbation of hardcoded vals
         if display:
             print("No events to fit Weibull, returning")
         return False
@@ -165,7 +164,7 @@ def fit_partial_weibull(event_times, param_guess = False, max_iter = False, disp
         else:
             params = [None, None, None]     #next if will catch this
 
-    #if both fail, return - will use inferred params
+    #if both fail, return False - will use inferred params
     if params[0] == None: 
         if display:
             print("Weibull fit failed, returning")
@@ -179,16 +178,21 @@ def fit_partial_weibull(event_times, param_guess = False, max_iter = False, disp
 
 
 #given event times, fit the weibull function
-#if both methods fail, returns None for all parameters
+#if both fit methods fail or no events, use either perturbed hardcoded defaults or return all False
 #otherwise, returns a, lambda, and k parameters, and quality measure
-def fit_weibull(event_times, display = False):
+def fit_weibull(event_times, display = False, hardcode_default = True):
 
-    #no events to fit, hardcode
+    #no events to fit
     if len(event_times) == 0:
-        params = perturb(list(DEFAULT_WEIBULL_NONE))    #small random perturbation of hardcoded vals
-        if display:
-            print("No events to fit, setting Weibull params: (quality", str(DEFAULT_QUALITY) + ")\n   a\t\t", params[0], "\n   lambda\t", params[1], "\n   k\t\t", params[2], "\n")
-        return params + [DEFAULT_QUALITY]
+        #hardcode
+        if hardcode_default:
+            params = perturb(list(DEFAULT_WEIBULL_NONE))    #small random perturbation of hardcoded vals
+            if display:
+                print("No events to fit, setting Weibull params: (quality", str(DEFAULT_QUALITY) + ")\n   a\t\t", params[0], "\n   lambda\t", params[1], "\n   k\t\t", params[2], "\n")
+            return params + [DEFAULT_QUALITY]
+        #no hardcode
+        else:
+            return [False, False, False, False]
 
     params = weibull_parameters_estimation(event_times)     #try loglikelihood estimation first
     quality = 0.95
@@ -201,15 +205,18 @@ def fit_weibull(event_times, display = False):
         else:
             params = [None, None, None]     #next if will catch this
 
-    #if both fail, hardcode - not sure what else to do
+    #if both fail, hardcode or do nothing - not sure what else to do
     if params[0] == None: 
-        params = list(DEFAULT_WEIBULL_SINGLE)
-        if len(event_times) > 1:
-            params[0] = len(event_times)    
-        params = perturb(params)        #small random perturbation
-        if display:
-            print("Fit failed, setting Weibull params: (quality", str(DEFAULT_QUALITY) + ")", "\n   a\t\t", params[0], "\n   lambda\t", params[1], "\n   k\t\t", params[2], "\n")
-        return params + [DEFAULT_QUALITY]
+        if hardcode_default:
+            params = list(DEFAULT_WEIBULL_SINGLE)
+            if len(event_times) > 1:
+                params[0] = len(event_times)    
+            params = perturb(params)        #small random perturbation
+            if display:
+                print("Fit failed, setting Weibull params: (quality", str(DEFAULT_QUALITY) + ")", "\n   a\t\t", params[0], "\n   lambda\t", params[1], "\n   k\t\t", params[2], "\n")
+            return params + [DEFAULT_QUALITY]
+        else:
+            return [False, False, False, False]
 
     if display:
         if params[0] == None:
