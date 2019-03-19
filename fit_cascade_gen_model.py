@@ -36,15 +36,13 @@ def get_other_comment_times(post):
 
 	root_time = post['time']    #get post time in seconds to use as offset
 
-	#build list of all non-root replies for this post
-	other_comment_ids = []
 	#init queue to second-level replies (ie, replies to root replies)
 	nodes_to_visit = []
 	for comment in post['replies']:  
 		nodes_to_visit.extend(comment['replies']) 
 	while len(nodes_to_visit) != 0:
-		curr = nodes_to_visit.pop(0)    #grab current comment id
-		other_comment_ids.append(curr['time'])           #add this comment to set of cascade comments
+		curr = nodes_to_visit.pop(0)    #grab current comment
+		other_comment_times.append(curr['time'])           #add this comment to set of cascade comments
 		nodes_to_visit.extend(curr['replies'])    #add this comment's replies to queue
 
 	#sort and shift comment times
