@@ -88,6 +88,8 @@ def parse_command_args():
 	parser.add_argument("-p", "--periodtrain", dest="training_len", default=1, help="number of months to use for training (preceding first test month")
 	parser.add_argument("-v", "--verbose", dest="verbose", action="store_true", help="verbose output")
 	parser.set_defaults(verbose=False)
+	parser.add_argument("-d", "--default_params", dest="include_default_posts", action='store_true', help="include posts with hardcoded default parameters in infer graph")
+	parser.set_defaults(include_default_posts=False)
 
 	args = parser.parse_args()		#parse the args (magic!)
 
@@ -108,6 +110,7 @@ def parse_command_args():
 	testing_len = int(args.testing_len)
 	training_len = int(args.training_len)
 	jaccard = args.jaccard
+	include_default_posts = args.include_default_posts
 	verbose = args.verbose
 	top_n = args.top_n
 	if top_n != False:
@@ -162,7 +165,7 @@ def parse_command_args():
 	vprint("")
 
 	#return all arguments
-	return subreddit, sim_post_id, time_observed, outfile, max_nodes, min_node_quality, estimate_initial_params, batch, random, testing_start_month, testing_start_year, testing_len, training_start_month, training_start_year, training_len, jaccard, top_n, weight_threshold, verbose
+	return subreddit, sim_post_id, time_observed, outfile, max_nodes, min_node_quality, estimate_initial_params, batch, random, testing_start_month, testing_start_year, testing_len, training_start_month, training_start_year, training_len, jaccard, top_n, weight_threshold, include_default_posts, verbose
 #end parse_command_args
 
 
