@@ -162,6 +162,10 @@ def parse_command_args():
 		vprint("Using Jaccard index to compute graph edge weights")
 	else:
 		vprint("Using tf-idf and cosine similarity to compute graph edge weights")
+	if include_default_posts:
+		vprint("Including posts with hardcoded default parameters")
+	else:
+		vprint("Ignoring posts with hardcoded default parameters")
 	vprint("")
 
 	#return all arguments
