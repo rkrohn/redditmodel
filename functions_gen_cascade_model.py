@@ -297,13 +297,14 @@ def process_posts(subreddit, month, year):
 #returns list, preserving duplicates
 def extract_tokens(text):
 	punctuations = list(string.punctuation)		#get list of punctuation characters
-	punctuations.append('—')	#kill these too
+	punctuations.extend(['—', '“', '”'])	#kill these too
 	
 	if text != None:
 		try:
 			tokens = [word.lower() for word in text.split()]	#tokenize and normalize (to lower)		
 			tokens = [word.strip("".join(punctuations)) for word in tokens]		#strip trailing and leading punctuation
-			tokens = [word for word in tokens if word != '' and word not in punctuations and word != '']		#remove punctuation-only tokens and empty strings
+			#remove punctuation-only tokens and empty strings
+			tokens = [word for word in tokens if word != '' and word not in punctuations and word != '']		
 		except Exception as e:
 			print("Token extraction fail")
 			print(e)
