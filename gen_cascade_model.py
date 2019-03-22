@@ -51,6 +51,9 @@ test_posts = functions_gen_cascade_model.verify_post_set(input_sim_post_id, batc
 if len(test_posts) != len(test_cascades):
 	test_cascades = functions_gen_cascade_model.filter_dict_by_list(test_cascades, list(test_posts.keys()))
 
+#build graph for training set - will add infer posts later
+base_graph = functions_gen_cascade_model.build_base_graph(train_posts, train_params, train_fit_fail_list, include_default_posts, min_node_quality, weight_method, weight_threshold, top_n)
+vprint("")
 
 exit(0)
 

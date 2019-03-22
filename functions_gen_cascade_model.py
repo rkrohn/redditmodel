@@ -15,7 +15,9 @@ import pandas as pd
 import string
 import glob
 import re
-
+from collections import defaultdict
+import itertools
+import bisect
 
 
 #filepaths of data and pre-processed files - keeping everything in the same spot, for sanity/simplicity
@@ -46,12 +48,10 @@ DEFAULT_WEIBULL_SINGLE = [1, 2, 0.75]   #weibull param result if post has ONE co
                                         #force a distribution heavily weighted towards the left, then decreasing
                    #use this same hardcode for other fit failures, but set a (index 0) equal to the number of replies
 
-DEFAULT_WEIBULL_QUALITY = 0.45      #default weibull quality if hardcode param is used
-
 DEFAULT_LOGNORMAL = [0.15, 1.5]    	#lognormal param results if post has no comment replies to fit
                                 	#mu = 0, sigma = 1.5 should allow for occasional comment replies, but not many
 
-DEFAULT_LOGNORM_QUALITY = 0.45     #default lognormal quality if hardcode param is used
+DEFAULT_QUALITY = 0.45     #default param quality if hardcode params are used
 
 
 #parse out all command line arguments and return results
@@ -561,6 +561,167 @@ def verify_post_set(input_sim_post_id, process_all, pick_random, posts):
 		vprint("Using input post id: %s" % input_sim_post_id)
 	return posts
 #end verify_post_set
+
+
+#given a set of processed posts, and graph build settings, "build" the post parameter graph
+#but don't actually build it, just create and return an adjacency list
+#(adjacency list may contain duplicate edges at this point, but we'll deal with that later)
+#weight_method is string, one of 'jaccard', 'cosine', or 'word_mover'
+#   if jaccard, use jaccard index to compute edge weight
+#   if cosine, use tf-idf and cosine similarity
+#   if word_mover, use GloVe embeddings and word_mover distance
+#if top_n != False, take top_n highest weight edges for each node
+#if min_weight != False, only include edges with weight > min_weight in final graph
+#min_weight overrides top_n, such that some nodes may have fewer than top_n edges 
+#		if weight requirement leaves fewer than top_n candidate edges
+#if include_default_posts = True, include posts with hardcoded default params in graph (otherwise, leave out)
+#if min_node_quality != False, only include nodes with param fit quality >= threshold in graph build
+#include_default_posts overrides min_node_quality - all default posts thrown out regardless of default quality setting
+def build_base_graph(posts, params, default_params_list, include_default_posts, min_node_quality, weight_method, min_weight, top_n):
+
+	vprint("\nBuilding param graph for %d posts" % len(posts))
+	
+	#define post set to use for graph build based on options
+	graph_post_ids = list(params.keys())	#start with list of nodes we have fitted params for
+	#filter these by min node quality, if given
+	if min_node_quality != False:
+		graph_post_ids = [post_id for post_id in graph_post_ids if params[post_id][6] >= min_node_quality]
+		vprint("   %d/%d fitted posts meet quality threshold" % (len(graph_post_ids), len(params)))
+	#include failed fit posts if specified and their default quality meets the threshold
+	if (include_default_posts and min_node_quality != False and min_node_quality < DEFAULT_QUALITY) or (include_default_posts and min_node_quality == False):
+		vprint("   Including posts with default parameters")
+		graph_post_ids.extend(default_params_list)		
+	
+	vprint("Using %d posts for graph" % len(graph_post_ids))
+
+	#chose edge computation method, store relevant function in variable for easy no-if calling later
+	if weight_method == "jaccard":
+		vprint("Using jaccard index for edge weight")
+		compute_edge_weight = jaccard_edge_weight
+	elif weight_method == "cosine":
+		vprint("Using cosine similarity for edge weight")
+		compute_edge_weight = cosine_edge_weight
+	else:  #word_mover
+		vprint("Using word-mover distance for edge weight")
+		compute_edge_weight = word_mover_edge_weight
+
+	#build the multi-graph
+	#	one node for each post
+	#	edge of weight=1 connecting posts by the same user
+	#	edge of weight=<computed val> between posts with common words
+	#(but really only one edge, with sum of both weights)
+	#store graph as adjacency list dictionary, where node -> dict['weights'],['neighbors'] -> sorted lists
+	#   maintain two parallel sorted lists, one of edge weights and one of connected nodes
+	#	keep weight list sorted to easily maintain the topn requirement, if required
+	graph = defaultdict(lambda: defaultdict(list))
+	pair_count = 0
+
+	#loop all post-pairs and determine weight of edge, if any, between them
+	for post_pair in itertools.combinations(graph_post_ids, 2):		#pair contains ids of two posts
+		#grab posts for easy access
+		id_post_a = post_pair[0]
+		id_post_b = post_pair[1]
+		post_a = posts[id_post_a]
+		post_b = posts[id_post_b]
+
+		#compute edge weight based on post token sets (chose method earlier)
+		#print(id_post_a, post_a['tokens'])
+		#print(id_post_b, post_b['tokens'])
+		weight = compute_edge_weight(post_a['tokens'], post_b['tokens'])
+		if weight < min_weight:		#minimum token weight threshold, try to keep edge explosion to a minimum
+			weight = 0
+
+		#if posts have same author, add 1 to weight
+		if post_a['author'] == post_b['author']:
+			weight += 1
+
+		#if edge weight is nonzero, add edge to graph
+		if weight != 0:
+			#add edge to adjacency list for both nodes
+			add_edge(graph, id_post_a, id_post_b, weight)
+			add_edge(graph, id_post_b, id_post_a, weight)
+
+			#if top_n in effect, do we need to remove any too-small edges from these nodes?
+			if top_n != False and len(graph[id_post_a]['weights']) > top_n:
+				remove_low_edge(graph, id_post_a)
+			if top_n != False and len(graph[id_post_b]['weights']) > top_n:
+				remove_low_edge(graph, id_post_b)
+
+		#progress prints
+		pair_count += 1
+		if pair_count % 100000 == 0:
+			vprint("   %d pairs" % pair_count)
+
+	#verify top-n condition worked, get some stats
+	edge_total = 0		#total number of edge entries (not unique edges)
+	max_degree = 0
+	min_degree = -1
+	graph_edges = set()	#build a set of edges, each as tuple, order doesn't matter
+	node_degrees = defaultdict(int)		#node id -> degree (from self top-n edges and others)
+	for id_post_a, edges in graph.items():
+		#add any unseen edges to edge set
+		for id_post_b in edges['neighbors']:
+			if (id_post_a, id_post_b) not in graph_edges and (id_post_b, id_post_a) not in graph_edges:
+				graph_edges.add((id_post_a, id_post_b))		#add edge to set
+				#update degree counts
+				node_degrees[id_post_a] += 1
+				node_degrees[id_post_b] += 1
+		edge_total += len(edges['weights'])		#count edge entries
+	#min/max degree stats
+	for node, degree in node_degrees.items():
+		if degree > max_degree:
+			max_degree = degree
+		if degree < min_degree or min_degree == -1:
+			min_degree = degree
+
+	vprint("Graph contains %d nodes and %d unique edges (%d edge entries)" % (len(graph), len(graph_edges), edge_total))
+	vprint("  max degree: %d" % max_degree)
+	vprint("  min degree: %d" % min_degree)
+
+	return graph 		#return edgelist (may contain duplicates)
+#end build_graph
+
+
+#given two lists of tokens from two posts, 
+#compute the edge weight between the posts using jaccard index
+def jaccard_edge_weight(tokens_a, tokens_b):
+	intersection = len(set(tokens_a).intersection(tokens_b))
+	union = len(set(tokens_a).union(tokens_b))
+	return float(intersection / union)
+#end jaccard_edge_weight
+
+
+#given two lists of tokens from two posts,
+#compute the edge weight between the posts using tf-idf cosine similarity
+def cosine_edge_weight(tokens_a, tokens_b):
+	print("TODO, no cosine yet, sorry, quitting")
+	exit(0)
+#end cosine_edge_weight
+
+
+#given two lists of tokens from two posts,
+#compute the edge weight between the posts using GloVe embeddings and word-mover distance
+def word_mover_edge_weight(tokens_a, tokens_b):
+	print("TODO, no word-mover yet, sorry, quitting")
+	exit(0)
+#end word_mover_edge_weight
+
+
+#small graph-build helper method, adds edge specified from a to b with weight
+#adjacency list stored as two parallel lists, sorted by weight
+def add_edge(graph, a, b, weight):
+	index = bisect.bisect_left(graph[a]['weights'], weight)
+	graph[a]['weights'].insert(index, weight)
+	graph[a]['neighbors'].insert(index, b)
+#end add_edge
+
+
+#small graph-build helper method, removes smallest weight edge from node
+#assumes edges are sorted (which they are)
+def remove_low_edge(graph, node):
+	graph[node]['weights'].pop(0)
+	graph[node]['neighbors'].pop(0)
+#end remove_low_edge
 
 
 #BOOKMARK - haven't done anything below this
