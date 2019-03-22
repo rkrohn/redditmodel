@@ -72,16 +72,17 @@ def parse_command_args():
 	parser.add_argument("-m", "--month", dest="testing_start_month", required=True, help="month to use for test set")
 	#must pick an edge weight computation method: cosine (based on tf-idf) or jaccard
 	weight_group = parser.add_mutually_exclusive_group(required=True)
-	weight_group.add_argument("-j", "--jaccard", dest="jaccard", action='store_true', help="compute edge weight between pairs using jaccard index")
-	weight_group.add_argument("-c", "--cosine", dest="jaccard", action='store_false', help="compute edge weight between pairs using tf-idf and cosine similarity")
+	weight_group.add_argument("-j", "--jaccard", dest="weight_method", action='store_const', const="jaccard", help="compute edge weight between pairs using jaccard index")
+	weight_group.add_argument("-c", "--cosine", dest="weight_method", action='store_const', const="cosine", help="compute edge weight between pairs using tf-idf and cosine similarity")
+	weight_group.add_argument("-wmd", "--word_mover", dest="weight_method", action='store_const', const="word_mover", help="compute edge weight between pairs using GloVe embeddings and word-mover distance")
 	#must pick an edge limit method: top n edges per node, or weight threshold, or both
 	parser.add_argument("-topn", dest="top_n", default=False, metavar=('<max edges per node>'), help="limit post graph to n edges per node")
 	parser.add_argument("-threshold", dest="weight_threshold", default=False, metavar=('<minimum edge weight>'), help="limit post graph to edges with weight above threshold")
 
 	#optional args	
 	parser.add_argument("-t", dest="time_observed", default=0, help="time of post observation, in hours")
-	parser.add_argument("-g", "--graph", dest="max_nodes", default=None, help="max nodes in post graph for parameter infer")
-	parser.add_argument("-q", "--qual", dest="min_node_quality", default=None, help="minimum node quality for post graph")
+	parser.add_argument("-g", "--graph", dest="max_nodes", default=False, help="max nodes in post graph for parameter infer")
+	parser.add_argument("-q", "--qual", dest="min_node_quality", default=False, help="minimum node quality for post graph")
 	parser.add_argument("-e", "--esp", dest="estimate_initial_params", action='store_true', help="estimate initial params as inverse quality weighted average of neighbor nodes")
 	parser.set_defaults(estimate_initial_params=False)
 	parser.add_argument("-l", "--testlen", dest="testing_len", default=1, help="number of months to use for testing")
@@ -102,14 +103,14 @@ def parse_command_args():
 	sim_post_id = args.sim_post_id
 	time_observed = float(args.time_observed)
 	outfile = args.outfile
-	max_nodes = args.max_nodes if args.max_nodes == None else int(args.max_nodes)
-	min_node_quality = args.min_node_quality
+	max_nodes = args.max_nodes if args.max_nodes == False else int(args.max_nodes)
+	min_node_quality = args.min_node_quality if args.min_node_quality == False else float(args.min_node_quality)
 	estimate_initial_params = args.estimate_initial_params
 	testing_start_month = int(args.testing_start_month)
 	testing_start_year = int(args.testing_start_year)
 	testing_len = int(args.testing_len)
 	training_len = int(args.training_len)
-	jaccard = args.jaccard
+	weight_method = args.weight_method
 	include_default_posts = args.include_default_posts
 	verbose = args.verbose
 	top_n = args.top_n
@@ -158,14 +159,20 @@ def parse_command_args():
 		vprint("Estimating initial params for seed posts based on inverse quality weighted average of neighbors")
 	vprint("Testing Period: %d-%d" % (testing_start_month, testing_start_year), " through %d-%d (%d months)" % (monthdelta(testing_start_month, testing_start_year, testing_len, inclusive=True)+(testing_len,)) if testing_len > 1 else " (%d month)" % testing_len)
 	vprint("Training Period: %d-%d" % (training_start_month, training_start_year), " through %d-%d (%d months)" % (monthdelta(training_start_month, training_start_year, training_len, inclusive=True)+(training_len,)) if training_len > 1 else " (%d month)" % training_len)
-	if jaccard:
+	if weight_method == "jaccard":
 		vprint("Using Jaccard index to compute graph edge weights")
-	else:
+	elif weight_method == "cosine":
 		vprint("Using tf-idf and cosine similarity to compute graph edge weights")
+	else:  #word_mover
+		vprint("Using GloVe embeddings and word-mover distance to compute graph edge weights")
+	if include_default_posts:
+		vprint("Including posts with hardcoded default parameters")
+	else:
+		vprint("Ignoring posts with hardcoded default parameters")
 	vprint("")
 
 	#return all arguments
-	return subreddit, sim_post_id, time_observed, outfile, max_nodes, min_node_quality, estimate_initial_params, batch, random, testing_start_month, testing_start_year, testing_len, training_start_month, training_start_year, training_len, jaccard, top_n, weight_threshold, include_default_posts, verbose
+	return subreddit, sim_post_id, time_observed, outfile, max_nodes, min_node_quality, estimate_initial_params, batch, random, testing_start_month, testing_start_year, testing_len, training_start_month, training_start_year, training_len, weight_method, top_n, weight_threshold, include_default_posts, verbose
 #end parse_command_args
 
 
