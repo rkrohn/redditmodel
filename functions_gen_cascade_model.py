@@ -725,7 +725,7 @@ def remove_low_edge(graph, node):
 #end remove_low_edge
 
 
-#BOOKMARK - haven't done anything below this
+#BOOKMARK - finished above this
 
 
 #for a given post, infer parameters using post graph
@@ -808,6 +808,9 @@ def graph_infer(sim_post, sim_post_id, group, max_nodes, min_node_quality, estim
 
 	return inferred_params
 #end graph_infer
+
+
+#BOOKMARK - haven't done anything below this
 
 
 #given a ground-truth cascade, and an optional observed time, convert from list of comments to nested dictionary tree
