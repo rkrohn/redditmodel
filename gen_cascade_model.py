@@ -20,7 +20,7 @@ import fit_partial_cascade
 print("")
 
 #parse all command-line arguments
-subreddit, input_sim_post_id, time_observed, outfile, max_nodes, min_node_quality, estimate_initial_params, batch, random, testing_start_month, testing_start_year, testing_len, training_start_month, training_start_year, training_len, jaccard, top_n, weight_threshold, include_default_posts, verbose = functions_gen_cascade_model.parse_command_args()
+subreddit, input_sim_post_id, time_observed, outfile, max_nodes, min_node_quality, estimate_initial_params, batch, random, testing_start_month, testing_start_year, testing_len, training_start_month, training_start_year, training_len, weight_method, top_n, weight_threshold, include_default_posts, verbose = functions_gen_cascade_model.parse_command_args()
 
 #hackery: declare a special print function for verbose output
 if verbose:
@@ -51,10 +51,9 @@ test_posts = functions_gen_cascade_model.verify_post_set(input_sim_post_id, batc
 if len(test_posts) != len(test_cascades):
 	test_cascades = functions_gen_cascade_model.filter_dict_by_list(test_cascades, list(test_posts.keys()))
 
-
-exit(0)
-
-#BOOKMARK - haven't touched below
+#build graph for training set - will add infer posts later
+base_graph = functions_gen_cascade_model.build_base_graph(train_posts, train_params, train_fit_fail_list, include_default_posts, min_node_quality, weight_method, weight_threshold, top_n)
+vprint("")
 
 #if running in mode all, keep total of all metrics, dump at end
 if batch:
@@ -68,15 +67,15 @@ if batch:
 	total_match_count = 0
 
 #process all posts (or just one, if doing that)
-print("Processing", len(sim_post_id_list), "post", "s" if len(sim_post_id_list) > 1 else "")
-for sim_post_id in sim_post_id_list:
+print("Processing", len(test_posts), "post", "s" if len(test_posts) > 1 else "")
+for sim_post_id, sim_post in test_posts.items():
 
-	#pull out just the post (and associated comments) we care about
-	sim_post = raw_posts[sim_post_id]
-	#and filter to comments
-	junk, post_comments = cascade_manip.filter_comments_by_posts({sim_post_id: sim_post}, raw_comments, False)
 	if batch == False:
-		print("Simulation post has", len(post_comments), "comments\n")
+		vprint("Simulation post has %d comments" % test_cascades[sim_post_id]['comment_count_total'])
+
+	exit(0)
+
+	#BOOKMARK - haven't touched below
 
 
 	#GRAPH INFER
