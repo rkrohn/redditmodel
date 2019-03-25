@@ -96,7 +96,7 @@ def parse_command_args():
 
 	#make sure at least one edge-limit option was chosen
 	if not (args.top_n or args.weight_threshold):
-		parser.error('No edge limit selected, add -top_n, -threshold, or both')
+		parser.error('No edge limit selected, add -topn, -threshold, or both')
 
 	#extract arguments (since want to return individual variables)
 	subreddit = args.subreddit
