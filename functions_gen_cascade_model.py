@@ -596,15 +596,7 @@ def build_base_graph(posts, params, default_params_list, include_default_posts, 
 	vprint("Using %d posts for graph" % len(graph_post_ids))
 
 	#chose edge computation method, store relevant function in variable for easy no-if calling later
-	if weight_method == "jaccard":
-		vprint("Using jaccard index for edge weight")
-		compute_edge_weight = jaccard_edge_weight
-	elif weight_method == "cosine":
-		vprint("Using cosine similarity for edge weight")
-		compute_edge_weight = cosine_edge_weight
-	else:  #word_mover
-		vprint("Using word-mover distance for edge weight")
-		compute_edge_weight = word_mover_edge_weight
+	compute_edge_weight = get_edge_weight_method(weight_method)
 
 	#build the multi-graph
 	#	one node for each post
@@ -681,6 +673,21 @@ def build_base_graph(posts, params, default_params_list, include_default_posts, 
 
 	return graph 		#return edgelist (may contain duplicates)
 #end build_graph
+
+
+#return correct edge weight computation function based on mode
+def get_edge_weight_method(weight_method):
+	#chose edge computation method, store relevant function in variable for easy no-if calling later
+	if weight_method == "jaccard":
+		vprint("Using jaccard index for edge weight")
+		return jaccard_edge_weight
+	elif weight_method == "cosine":
+		vprint("Using cosine similarity for edge weight")
+		return cosine_edge_weight
+	else:  #word_mover
+		vprint("Using word-mover distance for edge weight")
+		return word_mover_edge_weight
+#end get_edge_weight_method
 
 
 #given two lists of tokens from two posts, 
