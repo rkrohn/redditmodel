@@ -34,9 +34,9 @@ fitted_params_filepath = "reddit_data/%s/%s_post_params_%d_%d.pkl"
 cascades_filepath = "reddit_data/%s/%s_cascades_%d_%d.pkl"
 
 #filepaths of output/temporary files - used to pass graph to C++ node2vec for processing
-temp_graph_filepath = "sim_files/%s_graph.txt"			#updated graph for this sim run
-temp_params_filepath = "sim_files/%s_in_params.txt"		#temporary, filtered params for sim run (if sampled graph)
-output_params_filepath = "sim_files/%s_params.txt"		#output params from node2vec
+temp_graph_filepath = "sim_files/graph.txt"			#updated graph for this sim run
+temp_params_filepath = "sim_files/in_params.txt"		#temporary, filtered params for sim run (if sampled graph)
+output_params_filepath = "sim_files/out_params.txt"		#output params from node2vec
 
 #hardcoded params for failed fit cascades
 #only used when fit/estimation fails and these posts are still included in graph
