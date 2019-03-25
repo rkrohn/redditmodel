@@ -38,7 +38,7 @@ file_utils.verify_dir("sim_files")
 
 #load pre-processed posts and their fitted params for training period
 vprint("Loading processed training data")
-train_posts, train_params, train_fit_fail_list = functions_gen_cascade_model.load_processed_posts(subreddit, training_start_month, training_start_year, training_len, load_params=True)
+train_posts, train_cascades, train_params, train_fit_fail_list = functions_gen_cascade_model.load_processed_posts(subreddit, training_start_month, training_start_year, training_len, load_params=True, load_cascades=True)
 
 #load pre-processed posts and their reconstructed cascades for testing period (no params here!)
 vprint("\nLoading processed testing data")
