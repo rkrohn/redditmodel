@@ -583,16 +583,7 @@ def build_base_graph(posts, params, default_params_list, include_default_posts, 
 	vprint("\nBuilding param graph for %d posts" % len(posts))
 	
 	#define post set to use for graph build based on options
-	graph_post_ids = list(params.keys())	#start with list of nodes we have fitted params for
-	#filter these by min node quality, if given
-	if min_node_quality != False:
-		graph_post_ids = [post_id for post_id in graph_post_ids if params[post_id][6] >= min_node_quality]
-		vprint("   %d/%d fitted posts meet quality threshold" % (len(graph_post_ids), len(params)))
-	#include failed fit posts if specified and their default quality meets the threshold
-	if (include_default_posts and min_node_quality != False and min_node_quality < DEFAULT_QUALITY) or (include_default_posts and min_node_quality == False):
-		vprint("   Including posts with default parameters")
-		graph_post_ids.extend(default_params_list)		
-	
+	graph_post_ids = filter_post_set(params, default_params_list, min_node_quality, include_default_posts)	
 	vprint("Using %d posts for graph" % len(graph_post_ids))
 
 	#chose edge computation method, store relevant function in variable for easy no-if calling later
@@ -618,8 +609,6 @@ def build_base_graph(posts, params, default_params_list, include_default_posts, 
 		post_b = posts[id_post_b]
 
 		#compute edge weight based on post token sets (chose method earlier)
-		#print(id_post_a, post_a['tokens'])
-		#print(id_post_b, post_b['tokens'])
 		weight = compute_edge_weight(post_a['tokens'], post_b['tokens'])
 		if weight < min_weight:		#minimum token weight threshold, try to keep edge explosion to a minimum
 			weight = 0
@@ -671,9 +660,24 @@ def build_base_graph(posts, params, default_params_list, include_default_posts, 
 	vprint("  max degree: %d" % max_degree)
 	vprint("  min degree: %d" % min_degree)
 
-	return graph 		#return edgelist (may contain duplicates)
+	return graph, graph_post_ids 		#return edgelist (may contain duplicates), and list of post ids considered for graph (may not all actually be in graph)
 #end build_graph
 
+
+#graph build helper: filter list of posts by min_node_quality and include_default_posts
+def filter_post_set(params, default_params_list, min_node_quality, include_default_posts):
+	#define post set to use for graph build based on options
+	graph_post_ids = list(params.keys())	#start with list of nodes we have fitted params for
+	#filter these by min node quality, if given
+	if min_node_quality != False:
+		graph_post_ids = [post_id for post_id in graph_post_ids if params[post_id][6] >= min_node_quality]
+		vprint("   %d/%d fitted posts meet quality threshold" % (len(graph_post_ids), len(params)))
+	#include failed fit posts if specified and their default quality meets the threshold
+	if (include_default_posts and min_node_quality != False and min_node_quality < DEFAULT_QUALITY) or (include_default_posts and min_node_quality == False):
+		vprint("   Including posts with default parameters")
+		graph_post_ids.extend(default_params_list)	
+	return graph_post_ids
+#end filter_post_set
 
 #return correct edge weight computation function based on mode
 def get_edge_weight_method(weight_method):
