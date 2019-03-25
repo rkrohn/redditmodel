@@ -319,7 +319,7 @@ void TrainModel(TVVec<TInt, int64>& WalksVV, const int& Dimensions,
 			}
 			else
 			{
-				CurrSticky = 5.0;		//no sticky provided, use 1 for full adjustment effect
+				CurrSticky = 1.0;		//no sticky provided, use 1 for full adjustment effect
 				//printf("%d -> %d: no sticky, use 1.0\n", orig_id, CurrWord);
 			}
 			//update hidden weight
