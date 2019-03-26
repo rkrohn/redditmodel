@@ -17,6 +17,7 @@ import re
 from collections import defaultdict
 import itertools
 import bisect
+from copy import deepcopy
 
 
 #filepaths of data and pre-processed files - keeping everything in the same spot, for sanity/simplicity
@@ -471,7 +472,7 @@ def build_cascades(subreddit, month, year, posts, comments):
 	vprint("Extracting post/comment structure for %d %s %d-%d posts and %d comments" % (len(posts), subreddit, month, year, len(comments)))
 
 	#create dictionary of post id -> new post object to store cascades
-	cascades = {key:{'time':value['time'], 'replies':list(), 'comment_count_direct':0, 'comment_count_total':0} for key, value in posts.items()}
+	cascades = {key:{'id':key, 'time':value['time'], 'replies':list(), 'comment_count_direct':0, 'comment_count_total':0} for key, value in posts.items()}
 
 	#and corresponding comments dictionary
 	cascade_comments = {key:{'time':value['time'], 'replies':list(), 'id':key} for key, value in comments.items()}
@@ -979,75 +980,78 @@ def load_inferred_params(filename):
 #end load_inferred_params
 
 
-#BOOKMARK - haven't done anything below this
-
-
-#given a ground-truth cascade, and an optional observed time, convert from list of comments to nested dictionary tree
-#output is the form expected by sim_tree.simulate_comment_tree and tree_edit_distance.build_tree
-#time_observed should be given in seconds
-def convert_comment_tree(post, comments, time_observed=False):
-	#build new list/structure of post comments - offset times by post time
-	observed_tree = {}		#build as dictionary of id->object, then just pass in root
-
-	#add post first - will serve as root of tree
-	observed_tree[post['id_h']] = {'id': post['id_h'], 'time': 0, 'children': list()}		#post at time 0
-
-	#add all comments, loop by comment time - filter by observed time, if given
-	for comment in sorted(list(comments.values()), key=lambda k: k['created_utc']):
-		#if filtering and comment within observed window, add to our object
-		#if not filtering, add all comments
-		if (time_observed == False) or (time_observed != False and comment['created_utc'] - post['created_utc'] <= time_observed * 3600):
-			#new object in dictionary for this comment
-			observed_tree[comment['id_h']] = {'id': comment['id_h'], 'time': (comment['created_utc'] - post['created_utc']) / 60.0, 'children': list()}		#time is offset from post in minutes
-			#add this comment to parent's children list
-			parent = comment['parent_id_h'][3:] if (comment['parent_id_h'].startswith("t1_") or comment['parent_id_h'].startswith("t3_")) else comment['parent_id_h']
-			observed_tree[parent]['children'].append(observed_tree[comment['id_h']])
-
-	#return post/root
-	return observed_tree[post['id_h']]
-#end convert_comment_tree
-
-
 #given params, simulate a comment tree
-def simulate_comment_tree(sim_post, sim_params, group, sim_comments, time_observed):
+#arguments: post object, simulation parameters, actual cascade, observed time
+def simulate_comment_tree(sim_post, sim_params, group, sim_cascade, time_observed):
 	print("\nSimulating comment tree")
 
-	#load active users list to draw from when assigning users to comments
-	user_ids = file_utils.load_pickle(users_filepath % group)
-
 	#simulate tree structure + comment times!	
-	print("Post created at", sim_post['created_utc'] / 60.0)
+	vprint("Post created at %d" % sim_post['time'])
 	#simulate from partially observed tree
 	if time_observed != 0:
-		#get alternate structure of observed tree
-		observed_tree = convert_comment_tree(sim_post, sim_comments, time_observed)
+		#get observed tree
+		observed_tree, observed_count = filter_comment_tree(sim_post, sim_cascade, time_observed)
 		#simulate from this observed tree
 		sim_root, all_times = sim_tree.simulate_comment_tree(sim_params, time_observed*60, observed_tree)
 	#simulate entirely new tree from root only
 	else:
 		sim_root, all_times = sim_tree.simulate_comment_tree(sim_params)
 
+	'''
 	#convert that to desired output format
 	sim_events = functions_hybrid_model.build_cascade_events(sim_root, sim_post, user_ids, group)
 	#sort list of events by time
 	sim_events = sorted(sim_events, key=lambda k: k['nodeTime']) 
+	'''
 
-	print("Generated", len(sim_events)-1, "total comments for post", sim_post['id_h'], "(including observed)")
-	print("   ", len(sim_comments), "actual\n")
+	vprint("Generated %d total comments for post (including %d observed)" % (len(all_times), observed_count))
+	vprint("   %d actual\n" % sim_cascade['comment_count_total'])
 
-	return sim_events, sim_root		#return events list, and dictionary format of simulated tree
+	return sim_root		#return events list, and dictionary format of simulated tree
 #end simulate_comment_tree
+
+
+#given a ground-truth cascade stored as nested dictionary structure, and an observed time, 
+#filter tree to only the comments we have observed, and offset comment times by root time
+#if time_observed == False, just time shift and return that
+def filter_comment_tree(post, cascade, time_observed=False):
+	#build new list/structure of post comments - offset times by post time
+	observed_tree = deepcopy(cascade)	#start with given, modify from there
+
+	#grab post time to use as offset
+	root_time = post['time']
+
+	#update root
+	observed_tree['time'] = 0		#post at time 0
+
+	#traverse the tree, removing unovserved comments and offsetting times
+	comments_to_visit = [] + [(observed_tree, reply) for reply in observed_tree['replies']]	#init queue to root replies
+	observed_count = 0
+	while len(comments_to_visit) != 0:
+		parent, curr = comments_to_visit.pop()		#get current comment
+		#check time, delete if not within observed window
+		if time_observed != False and curr['time'] - root_time > time_observed * 3600:
+			parent['replies'].remove(curr)
+			print(curr['time'] - root_time, time_observed * 3600)
+			continue
+		#observed comment time, shift and add replies to queue
+		curr['time'] -= root_time
+		observed_count += 1
+		comments_to_visit.extend([(curr, reply) for reply in curr['replies']])
+
+	#return post/root
+	return observed_tree, observed_count
+#end convert_comment_tree
 
 
 #given simulated and ground-truth cascades, compute the tree edit distance between them
 #both trees given as dictionary-nested structure (returned from simulate_comment_tree and convert_comment_tree)
-def eval_trees(sim_dict_tree, sim_post, sim_comments):
-	#get ground-truth cascade in same tree format
-	truth_dict_tree = convert_comment_tree(sim_post, sim_comments)
-
-	#return distance
-	return tree_edit_distance.compare_trees(sim_dict_tree, truth_dict_tree)
+def eval_trees(sim_tree, true_cascade):
+	return tree_edit_distance.compare_trees(sim_tree, true_cascade)
 #end eval_trees
+
+
+#BOOKMARK - haven't done anything below this
 
 
 #convert ground-truth cascade to output format and save for later evaluation

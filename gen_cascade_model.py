@@ -78,13 +78,13 @@ for sim_post_id, sim_post in test_posts.items():
 	inferred_params = functions_gen_cascade_model.graph_infer(sim_post, sim_post_id, weight_method, weight_threshold, base_graph, graph_post_ids, train_posts, train_cascades, train_params, train_fit_fail_list, top_n, estimate_initial_params)
 	#inferred_params = [1.73166, 0.651482, 1.08986, 0.762604, 2.49934, 0.19828]		#placeholder if skipping the infer
 	if batch == False:
-		print("Inferred params:", inferred_params, "\n")
+		vprint("Inferred params: ", inferred_params, "\n")
 
 
 	#REFINE PARAMS - for partial observed trees
 	partial_fit_params = fit_partial_cascade.fit_partial_cascade(sim_post, test_cascades[sim_post_id], time_observed, inferred_params, verbose=(verbose if batch==False else False))
 	if batch == False:
-		print("Refined params:", partial_fit_params)
+		vprint("Refined params: ", partial_fit_params)
 
 	#which params are we using for simulation?
 	#sim_params = inferred_params
@@ -92,12 +92,13 @@ for sim_post_id, sim_post in test_posts.items():
 
 
 	#SIMULATE COMMENT TREE
-	sim_events, sim_tree = functions_gen_cascade_model.simulate_comment_tree(sim_post, sim_params, subreddit, post_comments, time_observed)
+	sim_tree = functions_gen_cascade_model.simulate_comment_tree(sim_post, sim_params, subreddit, test_cascades[sim_post_id], time_observed)
 
 
 	#OUTPUT TREES
 
 	#for now, only output if doing a single post
+	'''
 	if batch == False:
 		#save groundtruth cascade to csv
 		functions_gen_cascade_model.save_groundtruth(sim_post, post_comments, outfile)
@@ -109,12 +110,16 @@ for sim_post_id, sim_post in test_posts.items():
 		print("Saving results to", outfile + ".csv...")  
 		file_utils.save_csv(sim_events, outfile+".csv", fields=['rootID', 'nodeID', 'parentID'])
 		print("")
+	'''
 
 
 	#EVAL
 
+	#get time-shifted ground-truth cascade
+	true_cascade, true_comment_count = functions_gen_cascade_model.filter_comment_tree(sim_post, test_cascades[sim_post_id])
+
 	#compute tree edit distance between ground-truth and simulated cascades
-	dist, update_count, update_time, insert_count, insert_time, remove_count, remove_time, match_count = functions_gen_cascade_model.eval_trees(sim_tree, sim_post, post_comments)
+	dist, update_count, update_time, insert_count, insert_time, remove_count, remove_time, match_count = functions_gen_cascade_model.eval_trees(sim_tree, true_cascade)
 	if batch == False:
 		print("Tree edit distance:", dist)
 		print("   update:", update_count, update_time)
