@@ -578,13 +578,21 @@ def verify_post_set(input_sim_post_id, process_all, pick_random, posts):
 #if include_default_posts = True, include posts with hardcoded default params in graph (otherwise, leave out)
 #if min_node_quality != False, only include nodes with param fit quality >= threshold in graph build
 #include_default_posts overrides min_node_quality - all default posts thrown out regardless of default quality setting
-def build_base_graph(posts, params, default_params_list, include_default_posts, min_node_quality, weight_method, min_weight, top_n):
+def build_base_graph(posts, params, default_params_list, include_default_posts, max_nodes, min_node_quality, weight_method, min_weight, top_n):
 
 	vprint("\nBuilding param graph for %d posts" % len(posts))
 	
 	#define post set to use for graph build based on options
 	graph_post_ids = filter_post_set(params, default_params_list, min_node_quality, include_default_posts)	
 	vprint("Using %d posts for graph" % len(graph_post_ids))
+
+	#do we need to sample the graph? if so, do it now
+	#the graph may well end up smaller than the max_nodes limit (because probably not all connected)
+	#but that's for the user to deal with!
+	if max_nodes != False and len(graph_post_ids) >= max_nodes:
+		vprint("\nSampling graph to %d nodes" % max_nodes)
+		#sample down posts, true random sample
+		graph_post_ids = set(random.sample(graph_post_ids, max_nodes-1))	#-1, leave room for sim_post
 
 	#chose edge computation method, store relevant function in variable for easy no-if calling later
 	compute_edge_weight = get_edge_weight_method(weight_method)

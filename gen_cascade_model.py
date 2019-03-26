@@ -52,7 +52,7 @@ if len(test_posts) != len(test_cascades):
 	test_cascades = functions_gen_cascade_model.filter_dict_by_list(test_cascades, list(test_posts.keys()))
 
 #build graph for training set - will add infer posts later
-base_graph, graph_post_ids = functions_gen_cascade_model.build_base_graph(train_posts, train_params, train_fit_fail_list, include_default_posts, min_node_quality, weight_method, weight_threshold, top_n)
+base_graph, graph_post_ids = functions_gen_cascade_model.build_base_graph(train_posts, train_params, train_fit_fail_list, include_default_posts, max_nodes, min_node_quality, weight_method, weight_threshold, top_n)
 vprint("")
 
 #if running in mode all, keep total of all metrics, dump at end
