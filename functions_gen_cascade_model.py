@@ -1,7 +1,6 @@
 #functions for paper_model.py - offloading and modularizing all the things
 
 import file_utils
-import functions_hybrid_model
 import sim_tree
 import tree_edit_distance
 import fit_cascade_gen_model
@@ -743,10 +742,6 @@ def remove_low_edge(graph, node):
 	graph[node]['neighbors'].pop(0)
 #end remove_low_edge
 
-
-#BOOKMARK - finished above this
-
-
 #for a given post, infer parameters using post graph
 #parameters:
 #	sim_post 					post to be simulated
@@ -798,11 +793,8 @@ def graph_infer(sim_post, sim_post_id, weight_method, min_weight, base_graph, el
 
 	#how many nodes are actually in the graph, if we dump it now? build set of nodes in graph
 	graph_post_ids = set(base_graph.keys())		#all nodes in base graph
-	graph_post_ids.update(new_edges.keys())		#plus nodes connected to sim_post
-	#leave out sim_post itself for now, since we might have to sample
-
-	#include sim_post in graph!
-	graph_post_ids.add(sim_post_id)
+	graph_post_ids.update(new_edges.keys())		#plus nodes connected to sim_post	
+	graph_post_ids.add(sim_post_id)				#and include sim_post in graph!
 
 	#estimate initial params for sim_post, if required
 	if estimate_initial_params:
@@ -865,8 +857,16 @@ def graph_infer(sim_post, sim_post_id, weight_method, min_weight, base_graph, el
 					edges[(numeric_ids[other_post], numeric_ids[post_id])] = weight
 	vprint("Final graph contains %d nodes and %d edges" % (len(graph_post_ids), len(edges)))
 
+	#if no edges connecting sim post to graph (BAD), add node as isolated so that we at least get something back
+	#and print a big fat warning
+	if len(new_edges) == 0:
+		print("WARNING: No edges connecting sim post to infer graph. Results may be poor.")
+		isolated_nodes = [0]
+	else:
+		isolated_nodes = []
+
 	#save graph and params to files for node2vec
-	save_graph(edges, temp_graph_filepath)
+	save_graph(edges, temp_graph_filepath, isolated_nodes)
 	save_params(numeric_ids, posts, cascades, params, temp_params_filepath, param_estimate=(estimated_params if estimate_initial_params else False))
 
 	#clear any previous output params
