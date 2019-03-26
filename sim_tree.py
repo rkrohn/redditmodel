@@ -208,7 +208,7 @@ def simulate_comment_tree_times_only(model_params, display = True):
 #otherwise, simulate from the partially observed tree
 #
 #returns a tree stored using a dictionary structure (for easy field additions later) and a sorted list of all comment times - note comment times are in MINUTES from original post, not seconds
-#current fields: time, id (arbitrarily assigned), children (list)
+#current fields: time, id (arbitrarily assigned), replies (list)
 #generate root comments based on fitted weibull, comment replies based on fitted log-normal
 #requires fitted weibull and log-normal distribution to define hawkes process
 #model params = [a, lbd, k, mu, sigma, n_b] (first 3 weibull, next 2 lognorm, last branching factor)
@@ -224,15 +224,15 @@ def simulate_comment_tree(model_params, time_observed = False, observed_tree = F
     #simulate from empty starting tree (just the root, no observed comments)
     else:
         root_comment_times = generate_weibull_times(weibull_params)
-        root = {'time' : 0, 'id' : 0, 'children' : list()}       #root at time 0, id is 0
+        root = {'time' : 0, 'id' : 0, 'replies' : list()}       #root at time 0, id is 0
 
-    #update tree object based on generated root comments - each node is a dictionary with 'time' and 'children' fields    
+    #update tree object based on generated root comments - each node is a dictionary with 'time' and 'replies' fields    
     node_id = itertools.count(start = 1)      #iterator counter for new node ids, start at 1 for root replies
-    root['children'].extend([{'time' : child_time, 'children' : list(), 'id' : next(node_id)} for child_time in root_comment_times])
+    root['replies'].extend([{'time' : child_time, 'replies' : list(), 'id' : next(node_id)} for child_time in root_comment_times])
 
     #generate deeper comments for each root comment (and each of their comments, etc)
-    needs_replies = [] + root['children']
-    all_replies = [] + root_comment_times
+    needs_replies = [] + root['replies']
+    all_replies = [] + [comment['time'] for comment in root['replies']]
     while len(needs_replies) != 0:
         comment = needs_replies.pop(0)	#get current object
         #get new reply times for the comment, whether it has observed comments already or not
@@ -243,9 +243,9 @@ def simulate_comment_tree(model_params, time_observed = False, observed_tree = F
         	#generated comment, simulate replies from comment time
         	reply_times = generate_lognorm_times(lognorm_params, n_b, start_time = comment['time'])		#get reply times
         #add child objects for all generated replies
-        comment['children'].extend([{'time' : reply_time, 'children' : list(), 'id' : next(node_id)} for reply_time in reply_times])	
-        needs_replies.extend(comment['children'])		#add all children to list to be processed
-        all_replies.extend([reply['time'] for reply in comment['children']])
+        comment['replies'].extend([{'time' : reply_time, 'replies' : list(), 'id' : next(node_id)} for reply_time in reply_times])	
+        needs_replies.extend(comment['replies'])		#add all replies to list to be processed
+        all_replies.extend([reply['time'] for reply in comment['replies']])
 
     if display:
         print_tree(root)
@@ -361,8 +361,8 @@ def print_tree(root, level=0):
         print("    " * level + "%.3f" % curr['time'] if level != 0 else "root = 0")   #print this comment time
         if curr['id'] not in visited:
             visited.add(curr['id'])
-            #append children in reverse time order so final output is sorted
-            stack.extend([(child, level+1) for child in curr['children']][::-1])    
+            #append replies in reverse time order so final output is sorted
+            stack.extend([(child, level+1) for child in curr['replies']][::-1])    
 #end print_tree
 
 
@@ -372,7 +372,7 @@ def sim_count_nodes_per_level(root):
     depth_counts = defaultdict(int)     #dictionary for depth counts
     depth_counts[0] = 1
 
-    nodes_to_visit = [] + root['children']    #init queue to direct post replies
+    nodes_to_visit = [] + root['replies']    #init queue to direct post replies
     depth_queue = [1] * len(nodes_to_visit)  #and a parallel depth queue
     while len(nodes_to_visit) != 0:     #BFS
         curr = nodes_to_visit.pop(0)    #grab current comment id
@@ -380,8 +380,8 @@ def sim_count_nodes_per_level(root):
 
         depth_counts[depth] += 1
 
-        nodes_to_visit.extend(curr['children'])    #add this comment's replies to queue
-        depth_queue.extend([depth+1] * len(curr['children']))
+        nodes_to_visit.extend(curr['replies'])    #add this comment's replies to queue
+        depth_queue.extend([depth+1] * len(curr['replies']))
 
     return depth_counts
 #end count_nodes_per_level
