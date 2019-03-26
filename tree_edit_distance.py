@@ -32,6 +32,19 @@ def time_dist(a, b):
 		return 1
 #end time_dist
 
+#distance function that ignores node labels, but takes node time into account
+#if node times are within level*margin minutes of each other, distance is 0
+#otherwise, distance is 1
+#should mitigate compounding error down the tree, since allowable error increases with depth
+def time_level_dist(a, b):
+	global time_error_margin
+	time_diff = abs(a.get_time() - b.get_time())
+	if time_diff <= time_error_margin * a.get_level() or time_diff <= time_error_margin * b.get_level():
+		return 0
+	else:
+		return 1
+#end time_level_dist
+
 
 #basic insert and removal cost functions - either operation is a cost of 1
 def remove_cost(a):
@@ -42,10 +55,11 @@ def insert_cost(a):
 
 #custom node class for comment trees, with required method to get list of children
 class CommentNode(object):
-	def __init__(self, label, time):
+	def __init__(self, label, time, level=None):
 		self.label = label
 		self.children = list()
 		self.time = time
+		self.level = level
 
 	def get_children(self):
 		return self.children
@@ -56,13 +70,18 @@ class CommentNode(object):
 	def get_time(self):
 		return self.time
 
+	def get_level(self):
+		return self.level
+
     #append child to end of list of children
 	def append_child(self, node):
+		node.level = self.level + 1
 		self.children.append(node)
 		return self     #return self so we can chain add operations
 
     #insert a child to the front of the list of children
 	def prepend_child(self, node):
+		node.level = self.level + 1
 		self.children.insert(0, node)
 		return self     #return self so we can chain add operations
 #end CommentNode
@@ -73,11 +92,10 @@ class CommentNode(object):
 #each input object has an id, time in minutes, and list of children objects
 #input objects should be sorted by time within each children list
 def build_tree(input_root):
-
 	#create root node
-	root = CommentNode(input_root['id'], input_root['time'])
+	root = CommentNode(input_root['id'], input_root['time'], level=0)
 
-	stack = [(root, input_root['children'])]		#processing stack, CommentNode and list of children
+	stack = [(root, input_root['replies'])]		#processing stack, CommentNode and list of children
 
 	while len(stack) != 0:
 		node, children = stack.pop()	#get last node added to stack, and it's list of children
@@ -86,7 +104,7 @@ def build_tree(input_root):
 		for child in children:
 			child_node = CommentNode(child['id'], child['time'])
 			node.append_child(child_node)		#add child node
-			stack.append((child_node, child['children']))
+			stack.append((child_node, child['replies']))
 
 	#return root of tree
 	return root
@@ -100,7 +118,7 @@ def print_tree(root):
 
 	while len(stack) != 0:
 		curr, level = stack.pop()  #get last node added to stack
-		print("    " * level + "%.3f" % curr.get_time())   #print this comment time
+		print("    " * level + "%.3f %d" % (curr.get_time(), curr.get_level()))   #print this comment time
 
 		#append children in reverse time order so final output is sorted
 		stack.extend([(child, level+1) for child in curr.get_children()][::-1])   
@@ -118,13 +136,17 @@ def print_tree(root):
 #	remove count, number of comments removed (deleted from sim tree)
 #	remove time error, total time delta of all removed comments
 #	match count, total number of node matches (for easy % correct calcs)
-def compare_trees(sim_dict_tree, truth_dict_tree):
+def compare_trees(sim_dict_tree, truth_dict_tree, error_margin=30):
+	#set global time_error_margin for time_level_dist function
+	global time_error_margin
+	time_error_margin = error_margin
+
 	#get CommentNode format of the trees
 	sim = build_tree(sim_dict_tree)
 	truth = build_tree(truth_dict_tree)
 
 	#compute edit distance - for now the time-version
-	dist, ops = zss.distance(sim, truth, CommentNode.get_children, insert_cost, remove_cost, time_dist, return_operations=True)
+	dist, ops = zss.distance(sim, truth, CommentNode.get_children, insert_cost, remove_cost, time_level_dist, return_operations=True)
 
 	#break down the ops to get different operation counts and time errors
 	update_count = 0
@@ -176,21 +198,21 @@ def parse_op(op):
 def example():
 	#define two test trees - same as in example above
 	A = (
-		CommentNode("f", 0)
-			.append_child(CommentNode("a", 32)
-				.append_child(CommentNode("h", 37))
-				.append_child(CommentNode("c", 65)
-					.append_child(CommentNode("l", 123))))
-			.append_child(CommentNode("e", 50))
+		CommentNode("f", 0, level=0)
+			.append_child(CommentNode("a", 32, 1)
+				.append_child(CommentNode("h", 37, 2))
+				.append_child(CommentNode("c", 65, 2)
+					.append_child(CommentNode("l", 123, 3))))
+			.append_child(CommentNode("e", 50, 1))
 		)
 	B = (
-		CommentNode("f", 0)
-			.append_child(CommentNode("a", 30)
-				.append_child(CommentNode("d", 42))
-				.append_child(CommentNode("c", 60)
-					.append_child(CommentNode("b", 80))))
-			.append_child(CommentNode("e", 47))
-			.append_child(CommentNode("g", 126))
+		CommentNode("f", 0, level=0)
+			.append_child(CommentNode("a", 30, 1)
+				.append_child(CommentNode("d", 42, 2))
+				.append_child(CommentNode("c", 60, 2)
+					.append_child(CommentNode("b", 80, 3))))
+			.append_child(CommentNode("e", 47, 1))
+			.append_child(CommentNode("g", 126, 1))
 		)
 
 	print_tree(A)
@@ -207,7 +229,15 @@ def example():
 	#result should be 3, 1 for B's additional node and 2 from rename operations h->d and l->b
 
 	#get distance taking node times into account, but ignoring labels
-	time_dist = zss.distance(A, B, CommentNode.get_children, insert_cost, remove_cost, time_dist)
-	print("tree edit distance for A,B time_dist =", time_dist)
-	#result should be 2, 1 for B's additional node and 2 from the time difference between l and b
+	time_distance = zss.distance(A, B, CommentNode.get_children, insert_cost, remove_cost, time_dist)
+	print("tree edit distance for A,B time_dist =", time_distance)
+	#result should be 2, 1 for B's additional node and 1 from the time difference between l and b
+
+	#get distance taking node times and levels into account, but ignoring labels
+	global time_error_margin
+	time_error_margin = 30
+	time_level_distance = zss.distance(A, B, CommentNode.get_children, insert_cost, remove_cost, time_level_dist)
+	print("tree edit distance for A,B time_level_dist (error margin %d) =" % time_error_margin, time_level_distance)
+	#result should be 1, 1 for B's additional node (time difference between l and b = 43 < 3*30 = 90)
 #end example
+
