@@ -748,85 +748,235 @@ def remove_low_edge(graph, node):
 
 
 #for a given post, infer parameters using post graph
-def graph_infer(sim_post, sim_post_id, group, max_nodes, min_node_quality, estimate_initial_params):
-	print("Inferring post parameters from post graph")
+#parameters:
+#	sim_post 					post to be simulated
+#	sim_post_id 				id of simulation post
+#	weight_method 				method to use for edge weight calculation: jaccard, cosine, or wmd
+#	min_weight 					minimum weight of title-based edge to include in grpah
+#	base_graph 					base graph, excluding sim post, as constructed by build_base_graph - DO NOT
+#	eligible_post_ids			list of post ids eligible to be included in graph, based on selected options
+#	posts 						set of training posts for graph build
+#	cascades 					training cascades (for comment counts)
+#	params						dictionary of post id -> fitted params + quality
+#	fit_fail_list				list of posts for which param fit failed
+#	max_nodes 					if not False, max nodes to include in graph
+#	top_n 						if not False, max number of edges per node
+#	estimate_initial_params		if True, estimate initial params for sim post based on neighbors
+def graph_infer(sim_post, sim_post_id, weight_method, min_weight, base_graph, eligible_post_ids, posts, cascades, params, fit_fail_list, top_n, estimate_initial_params):
+	vprint("Inferring post parameters from post graph")
 
-	#load preprocessed posts for this group
-	if file_utils.verify_file(posts_filepath % group):
-		posts = file_utils.load_pickle(posts_filepath % group)
-		print("Loaded", len(posts), "processed posts from", posts_filepath % group)
-	else:
-		print("Cannot simulate for group", group, "without processed posts file", posts_filepath % group)
-		exit(0)
+	#define edge weight computation method
+	compute_edge_weight = get_edge_weight_method(weight_method)
 
-	#if seed post not in posts file - we're gonna have a bad time
-	if sim_post['id_h'] not in posts:
-		print("Simulation post not in dataset - exiting\n")
-		exit(0)
+	#compute new edges between sim post and other posts already in graph - enforcing top_n if in effect
+	new_edges = {}		#dictionary of neighbor -> edge weight (for edge between neighbor and sim post)
+	#loop posts
+	vprint("Computing edges with %d posts" % len(eligible_post_ids))
+	for post_id in eligible_post_ids:
+		#post for this id
+		post = posts[post_id]
 
-	#grab numeric/graph id of sim post
-	numeric_sim_post_id = posts[sim_post_id]['id']
+		#compute edge weight based on post token sets (chose method earlier)
+		weight = compute_edge_weight(post['tokens'], sim_post['tokens'])
+		if weight < min_weight:		#minimum token weight threshold, try to keep edge explosion to a minimum
+			weight = 0
 
-	#load in fitted simulation params - need these for graph build
-	fitted_params, fitted_quality = functions_hybrid_model.load_params(params_filepath % group, posts, False, True)	
+		#if posts have same author, add 1 to weight
+		if post['author'] == sim_post['author']:
+			weight += 1
 
-	#remove sim post from graph params - no cheating! (pop based on numeric id)
-	res = fitted_params.pop(numeric_sim_post_id)
-	res = fitted_quality.pop(numeric_sim_post_id)
+		#if edge weight is nonzero, add edge to list
+		if weight != 0:
+			new_edges[post_id] = weight
 
-	#graph stuff - sample graph if necessary, add new nodes, etc
-	graph = {}
-	isolated_nodes = []
-	added_count = 0
+			#too many edges? remove the smallest
+			if top_n != False and len(new_edges) > top_n:
+				remove = min(new_edges, key=new_edges.get)
+				del new_edges[remove]
 
-	#do we need to sample/process the graph? sample if whole graph too big, imposing a min node quality, need to estimate initial params, or we don't have a precomputed graph file
-	if (max_nodes != None and len(posts) > max_nodes) or file_utils.verify_file(graph_filepath % group) == False or min_node_quality != None or estimate_initial_params:
+	vprint("Found %d edges connecting to sim post" % len(new_edges))
 
-		#only sample down if we actually have to
-		if max_nodes != None:
-			print("\nSampling graph to", max_nodes, "nodes")
-			#sample down posts
-			graph_posts = user_sample_graph(posts, [sim_post], max_nodes, group, min_node_quality, fitted_quality)
-		#otherwise, use them all
-		else:
-			graph_posts = posts
+	#how many nodes are actually in the graph, if we dump it now? build set of nodes in graph
+	graph_post_ids = set(base_graph.keys())		#all nodes in base graph
+	graph_post_ids.update(new_edges.keys())		#plus nodes connected to sim_post
+	#leave out sim_post itself for now, since we might have to sample
 
-		#build graph, getting initial param estimate if required
-		if estimate_initial_params:
-			estimated_params = functions_hybrid_model.build_graph_estimate_node_params(graph_posts, fitted_params, fitted_quality, numeric_sim_post_id, temp_graph_filepath % group)
-		else:
-			functions_hybrid_model.build_graph(graph_posts, temp_graph_filepath % group)		
-		
-	#no graph sampling/processing, use the full set and copy graph file to temp location
-	else:
-		graph_posts = posts
-		copyfile(graph_filepath % group, temp_graph_filepath % group)
-		print("Copied complete post-graph to", temp_graph_filepath % group)
+	#include sim_post in graph!
+	graph_post_ids.add(sim_post_id)
 
-	#ALWAYS sample down params to match whatever graph we have - because we can't use the previously fitted params!
+	#estimate initial params for sim_post, if required
 	if estimate_initial_params:
-		functions_hybrid_model.get_graph_params(graph_posts, numeric_sim_post_id, fitted_params, fitted_quality, temp_params_filepath % group, estimated_params)
-	else:
-		functions_hybrid_model.get_graph_params(graph_posts, numeric_sim_post_id, fitted_params, fitted_quality, temp_params_filepath % group)
+		#weighted average of neighboring post params, weight is (1-quality)
+		estimated_params = [0, 0, 0, 0, 0, 0]
+		neighbor_count = 0
+		#loop edges connecting sim_post to other posts
+		for neighbor_id, weight in new_edges.items():
+			#if neighbor included in (possibly sampled) graph, add their params to running total
+			if neighbor_id in graph_post_ids:
+				#grab params/quality for average
+				if neighbor_id in params:
+					fitted_params = params[neighbor_id]
+				else:
+					fitted_params = get_default_params(cascades[neighbor_id])
+				#weighted sum params, update count
+				for i in range(6):
+					estimated_params[i] += (1 - fitted_params[6]) * fitted_params[i]
+				neighbor_count += (1 - fitted_params[6])
+
+		#for initial param estimate, finish average and return result
+		if neighbor_count != 0:
+			for i in range(6):
+				estimated_params[i] /= neighbor_count
+		vprint("Estimated params: ", estimated_params)
+
+	#build edgelist of all graph edges, both base and new, removing duplicate edges as we go
+	#also enforce the top_n criteria, if in effect
+	#also assign numeric node ids, forcing sim_post = 0
+	edges = {}			#edge (node1, node2) -> weight
+	numeric_ids = {}	#post_id -> numeric node_id
+	numeric_ids[sim_post_id] = 0
+	next_id = 1
+	#loop all posts to be included in graph
+	for post_id in graph_post_ids:
+		#edges connected to sim_post
+		if post_id in new_edges:
+			#does this post need an id? assign it
+			if post_id not in numeric_ids:
+				numeric_ids[post_id] = next_id
+				next_id += 1
+			edges[(numeric_ids[post_id], 0)] = new_edges[post_id]	#(post, sim_post) -> weight
+
+		#base graph nodes
+		if post_id in base_graph:
+			#does this post need an id? assign it
+			if post_id not in numeric_ids:
+				numeric_ids[post_id] = next_id
+				next_id += 1
+			#loop this post's edgelist
+			for i in range(len(base_graph[post_id]['weights'])):
+				other_post = base_graph[post_id]['neighbors'][i]
+				weight = base_graph[post_id]['weights'][i]
+				#does other post need an id?
+				if other_post not in numeric_ids:
+					numeric_ids[other_post] = next_id
+					next_id += 1
+				#add edge if not in list already
+				if (numeric_ids[other_post], numeric_ids[post_id]) not in edges and (numeric_ids[post_id], numeric_ids[other_post]) not in edges:
+					edges[(numeric_ids[other_post], numeric_ids[post_id])] = weight
+	vprint("Final graph contains %d nodes and %d edges" % (len(graph_post_ids), len(edges)))
+
+	#save graph and params to files for node2vec
+	save_graph(edges, temp_graph_filepath)
+	save_params(numeric_ids, posts, cascades, params, temp_params_filepath, param_estimate=(estimated_params if estimate_initial_params else False))
+
+	#clear any previous output params
+	if file_utils.verify_file(output_params_filepath):
+		os.remove(output_params_filepath)		#clear output to prevent append
 
 	#graph is built and ready - graph file and input params file
 
 	#run node2vec to get embeddings - if we have to infer parameters
 	#offload to C++, because I feel the need... the need for speed!:
 
-	if file_utils.verify_file(output_params_filepath % group):
-		os.remove(output_params_filepath % group)		#clear output to prevent append
-
-	#run node2vec on graph and params
-	subprocess.check_call(["./c_node2vec/examples/node2vec/node2vec", "-i:"+(temp_graph_filepath % group), "-ie:"+(temp_params_filepath % group), "-o:"+(output_params_filepath % group), "-d:6", "-l:3", "-w", "-s", "-otf"])
+	#run node2vec on graph and params - with on-the-fly transition probs option, or probably die
+	subprocess.check_call(["./c_node2vec/examples/node2vec/node2vec", "-i:"+temp_graph_filepath, "-ie:"+temp_params_filepath, "-o:"+output_params_filepath, "-d:6", "-l:3", "-w", "-s", "-otf"])
 	print("")
 
-	#load the inferred params (dictionary of numeric id -> params)
-	all_inferred_params = functions_hybrid_model.load_params(output_params_filepath % group, posts, inferred=True)
-	inferred_params = all_inferred_params[numeric_sim_post_id]
+	#load the inferred params (dictionary of numeric id -> params) and extract sim_post inferred params
+	all_inferred_params = load_inferred_params(output_params_filepath)
+	inferred_params = all_inferred_params[numeric_ids[sim_post_id]]
 
 	return inferred_params
 #end graph_infer
+
+
+#given a post (in the form of a cascade object), get default params for it
+def get_default_params(post):
+	total_comments = post['comment_count_total']
+	direct_comments = post['comment_count_direct']
+
+	#weibull: based on number of comments
+	if total_comments == 0:
+		params = DEFAULT_WEIBULL_NONE.copy()
+	else:
+		params = DEFAULT_WEIBULL_SINGLE.copy()
+		params[0] = direct_comments
+	#lognorm: same for all
+	params.extend(DEFAULT_LOGNORMAL)
+	#branching factor: estimate as in fit
+	params.append(fit_cascade_gen_model.estimate_branching_factor(direct_comments, total_comments-direct_comments))
+	#and append quality
+	params.append(DEFAULT_QUALITY)
+
+	#return params
+	return params
+#end get_default_params
+
+
+#save graph to txt file for node2vec processing, assigning numeric node ids along the way
+#force sim_post to have id=0 for easy lookup later
+def save_graph(edgelist, filename, isolated_nodes = []):
+	#and save graph to file
+	with open(filename, "w") as f:
+		for edge, weight in edgelist.items():
+			f.write("%d %d %f\n" % (edge[0], edge[1], weight))
+		for node in isolated_nodes:
+			f.write("%d\n" % node)
+	vprint("Saved graph to %s" % filename)
+#end save_graph
+
+
+#save params to txt file for node2vec processing
+def save_params(numeric_ids, posts, cascades, params, filename, param_estimate=False):
+	with open(filename, "w") as f: 
+		for post_id, numeric_id in numeric_ids.items():
+			#skip sim post for now
+			if numeric_id == 0:
+				continue
+
+			f.write(str(numeric_id) + " ")		#write numeric post id
+			#fetch params
+			if post_id in params:
+				post_params = params[post_id]
+			else:
+				post_params = get_default_params(cascades[post_id])
+			#write params
+			for i in range(6):
+				f.write(str(post_params[i]) + ' ')
+			f.write(str(post_params[6]) + "\n")	#write quality (last value in params)
+
+		#estimated params for sim_post, if we have them	(no quality)
+		if param_estimate != False:
+			f.write("%d %f %f %f %f %f %f\n" % (0, param_estimate[0], param_estimate[1], param_estimate[2], param_estimate[3], param_estimate[4], param_estimate[5]))
+
+	vprint("Saved graph params to %s" % filename)
+#end save_params
+
+
+#load inferred params from file
+def load_inferred_params(filename):
+	#read all lines of file
+	with open(filename, 'r') as f:
+		lines = f.readlines()
+
+	#reading inferred file, so skip first line
+	lines.pop(0)
+
+	all_params = {}
+	#process each line, extract params
+	for line in lines:
+		values = line.split()
+		post_id = int(values[0])	#get numeric id for this post
+		params = []
+		#read params
+		for i in range(1, 7):
+			params.append(float(values[i]))
+		all_params[post_id] = params
+
+	vprint("Loaded %d fitted params from %s" %(len(all_params), filename))
+
+	return all_params
+#end load_inferred_params
 
 
 #BOOKMARK - haven't done anything below this
@@ -946,34 +1096,3 @@ def verify_sorted(events):
 	print("Events are sorted")
 	return True
 #end verify_sorted
-
-
-#given complete set of posts/params for current subreddit, and seed posts, filter out posts not 
-#meeting node quality threshhold, and sample down to reach the target graph size if necessary
-def user_sample_graph(raw_sub_posts, seeds, max_nodes, subreddit, min_node_quality, fitted_quality):
-	#graph seed posts to make sure they are preserved
-	seed_posts = {seed['id_h']: raw_sub_posts[seed['id_h']] for seed in seeds}
-	#and remove them from sampling pool
-	for seed, seed_info in seed_posts.items():
-		raw_sub_posts.pop(seed, None)
-
-	#if have minimum node quality threshold, throw out any posts with too low a quality
-	#this is the most important criteria, overrides all others (may lose user info, or end up with a smaller graph)
-	if min_node_quality != None:
-		raw_sub_posts = {key: value for key, value in raw_sub_posts.items() if value['id'] in fitted_quality and fitted_quality[value['id']] > min_node_quality}
-		print("   Filtered to", len(raw_sub_posts), "based on minimum node quality of", min_node_quality)
-
-	#no more than max_nodes posts, or this will never finish
-	if max_nodes != None and len(raw_sub_posts)+len(seed_posts) > max_nodes:
-		print("   Sampling down...")
-		sub_posts = dict(random.sample(raw_sub_posts.items(), max_nodes-len(seed_posts)))
-	#no limit, or not too many, take all that match the quality threshold
-	else:
-		sub_posts = raw_sub_posts
-
-	#add seed posts back in, so they are built into the graph
-	sub_posts.update(seed_posts)
-
-	#return sampled posts
-	return sub_posts
-#end user_sample_graph
