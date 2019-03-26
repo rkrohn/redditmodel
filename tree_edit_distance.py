@@ -1,5 +1,6 @@
 import zss
 from zss import Node, Operation
+from collections import defaultdict
 
 
 #op types, taken from library code
@@ -149,30 +150,26 @@ def compare_trees(sim_dict_tree, truth_dict_tree, error_margin=30):
 	dist, ops = zss.distance(sim, truth, CommentNode.get_children, insert_cost, remove_cost, time_level_dist, return_operations=True)
 
 	#break down the ops to get different operation counts and time errors
-	update_count = 0
-	insert_count = 0
-	remove_count = 0
-	update_time = 0
-	insert_time = 0
-	remove_time = 0
-	match_count = 0
+	#store in dictionary
+	results = defaultdict(int)
+	results['dist'] = dist
 	for op in ops:
 		op_type, op_time_error, op_str = parse_op(op)
 		#handle different types
 		if op.type == REMOVE:
-			remove_count += 1
-			remove_time += op_time_error
+			results['remove_count'] += 1
+			results['remove_time'] += op_time_error
 		elif op.type == INSERT:
-			insert_count += 1
-			insert_time += op_time_error
+			results['insert_count'] += 1
+			results['insert_time'] += op_time_error
 		elif op.type == UPDATE:
-			update_count += 1
-			update_time += op_time_error
+			results['update_count'] += 1
+			results['update_time'] += op_time_error
 		else:
-			match_count += 1
+			results['match_count'] += 1
 
 	#return result
-	return dist, update_count, update_time, insert_count, insert_time, remove_count, remove_time, match_count
+	return results
 #end compare_trees
 
 

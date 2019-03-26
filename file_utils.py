@@ -7,6 +7,9 @@ import pickle
 import csv
 import os
 import tarfile
+import csv
+import itertools
+import sys
 
 DISPLAY = False
 
@@ -137,3 +140,14 @@ def list_tar(filename):
 	for file in files:
 		print(file)
 #end list_tar
+
+#write nested dictionary to csv
+def dict_to_csv(data, fields, filename):
+	with open(filename, "w") as f:
+		w = csv.DictWriter(f, fields)
+		w.writeheader()
+		for key, val in sorted(data.items()):
+			row = {fields[0]: key}
+			row.update(val)
+			w.writerow(row)
+#end dict_to_csv

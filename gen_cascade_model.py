@@ -18,11 +18,12 @@ import cascade_manip
 import fit_partial_cascade
 
 import time
+from collections import defaultdict
 
 print("")
 
 #parse all command-line arguments
-subreddit, input_sim_post_id, time_observed, outfile, max_nodes, min_node_quality, estimate_initial_params, batch, random, testing_start_month, testing_start_year, testing_len, training_start_month, training_start_year, training_len, weight_method, top_n, weight_threshold, include_default_posts, verbose = functions_gen_cascade_model.parse_command_args()
+subreddit, input_sim_post_id, time_observed_list, outfile, max_nodes, min_node_quality, estimate_initial_params, batch, random, testing_start_month, testing_start_year, testing_len, training_start_month, training_start_year, training_len, weight_method, top_n, weight_threshold, include_default_posts, verbose = functions_gen_cascade_model.parse_command_args()
 
 #hackery: declare a special print function for verbose output
 if verbose:
@@ -78,68 +79,65 @@ for sim_post_id, sim_post in test_posts.items():
 		vprint("Inferred params: ", inferred_params, "\n")
 
 
-	#REFINE PARAMS - for partial observed trees
-	partial_fit_params = fit_partial_cascade.fit_partial_cascade(sim_post, test_cascades[sim_post_id], time_observed, inferred_params, verbose=(verbose if batch==False else False))
-	if batch == False:
-		vprint("Refined params: ", partial_fit_params)
+	#use the same inferred params for all the time_observed values
+	for time_observed in time_observed_list:
 
-	#which params are we using for simulation?
-	#sim_params = inferred_params
-	sim_params = partial_fit_params			#for now, always the refined params from partial fit
+		#REFINE PARAMS - for partial observed trees
+		partial_fit_params = fit_partial_cascade.fit_partial_cascade(sim_post, test_cascades[sim_post_id], time_observed, inferred_params, verbose=(verbose if batch==False else False))
+		if batch == False:
+			vprint("Refined params: ", partial_fit_params)
 
-
-	#SIMULATE COMMENT TREE
-	sim_tree = functions_gen_cascade_model.simulate_comment_tree(sim_post, sim_params, subreddit, test_cascades[sim_post_id], time_observed)
-
-
-	#OUTPUT TREES
-
-	#for now, only output if doing a single post
-	'''
-	if batch == False:
-		#save groundtruth cascade to csv
-		functions_gen_cascade_model.save_groundtruth(sim_post, post_comments, outfile)
-
-		#save sim results to json - all simulated events plus some simulation parameters
-		functions_gen_cascade_model.save_sim_json(subreddit, sim_post_id, random_post, time_observed, min_node_quality, max_nodes, estimate_initial_params, sim_events, outfile)
-
-		#save sim results to second output file - csv, one event per row, columns 'rootID', 'nodeID', and 'parentID' for now
-		print("Saving results to", outfile + ".csv...")  
-		file_utils.save_csv(sim_events, outfile+".csv", fields=['rootID', 'nodeID', 'parentID'])
-		print("")
-	'''
+		#which params are we using for simulation?
+		#sim_params = inferred_params
+		sim_params = partial_fit_params			#for now, always the refined params from partial fit
 
 
-	#EVAL
+		#SIMULATE COMMENT TREE
+		sim_tree = functions_gen_cascade_model.simulate_comment_tree(sim_post, sim_params, subreddit, test_cascades[sim_post_id], time_observed)
 
-	#get time-shifted ground-truth cascade
-	true_cascade, true_comment_count = functions_gen_cascade_model.filter_comment_tree(sim_post, test_cascades[sim_post_id])
 
-	#compute tree edit distance between ground-truth and simulated cascades
-	dist, update_count, update_time, insert_count, insert_time, remove_count, remove_time, match_count = functions_gen_cascade_model.eval_trees(sim_tree, true_cascade)
-	if batch == False:
-		print("Tree edit distance:", dist)
-		print("   update:", update_count, update_time)
-		print("   insert:", insert_count, insert_time)
-		print("   remove:", remove_count, remove_time)
-		print("   match:", match_count)
+		#OUTPUT TREES
 
-	#if running in mode all, keep total of all these metrics, dump at end
-	if batch:
-		total_dist += dist
-		total_update_count += update_count
-		total_update_time += update_time
-		total_insert_count += insert_count
-		total_insert_time += insert_time
-		total_remove_count += remove_count 
-		total_remove_time += remove_time
-		total_match_count += match_count
+		#for now, only output if doing a single post
+		'''
+		if batch == False:
+			#save groundtruth cascade to csv
+			functions_gen_cascade_model.save_groundtruth(sim_post, post_comments, outfile)
 
-print("\nAll done\n")
+			#save sim results to json - all simulated events plus some simulation parameters
+			functions_gen_cascade_model.save_sim_json(subreddit, sim_post_id, random_post, time_observed, min_node_quality, max_nodes, estimate_initial_params, sim_events, outfile)
+
+			#save sim results to second output file - csv, one event per row, columns 'rootID', 'nodeID', and 'parentID' for now
+			print("Saving results to", outfile + ".csv...")  
+			file_utils.save_csv(sim_events, outfile+".csv", fields=['rootID', 'nodeID', 'parentID'])
+			print("")
+		'''
+
+
+		#EVAL
+
+		#get time-shifted ground-truth cascade
+		true_cascade, true_comment_count = functions_gen_cascade_model.filter_comment_tree(sim_post, test_cascades[sim_post_id])
+
+		#compute tree edit distance between ground-truth and simulated cascades
+		eval_res = functions_gen_cascade_model.eval_trees(sim_tree, true_cascade)
+
+		if batch == False and len(time_observed_list) == 1:
+			vprint("Tree edit distance:", eval_res['dist'])
+			vprint("   update:", eval_res['update_count'], eval_res['update_time'])
+			vprint("   insert:", eval_res['insert_count'], eval_res['insert_time'])
+			vprint("   remove:", eval_res['remove_count'], eval_res['remove_time'])
+			vprint("   match:", eval_res['match_count'])
+
+		#if running in mode all, or multiple times, keep total of all these metrics, dump at end
+		else:
+			for metric, value in eval_res.items():
+				total_metrics[time_observed][metric] += value
 
 #if mode == all, print metric totals
-if batch:
-	print("Number of posts:", len(sim_post_id_list))
+if batch or len(time_observed_list) > 1:
+	print("\nAll done\n")
+	print("Number of posts:", len(test_posts))
 	print("Time Observed:", time_observed)
 	print("Source subreddit:", subreddit)
 	if min_node_quality != -1:
@@ -149,10 +147,16 @@ if batch:
 	print("Max graph size:", max_nodes)
 	if estimate_initial_params:
 		print("Estimating initial params for seed posts based on inverse quality weighted average of neighbors")
-	
-	print("Tree edit distance:", total_dist)
-	print("   update:", total_update_count, total_update_time)
-	print("   insert:", total_insert_count, total_insert_time)
-	print("   remove:", total_remove_count, total_remove_time)
-	print("   match:", total_match_count)
+
+	for time_observed in time_observed_list:
+		print("\nObserved time: %f" % time_observed)
+		print("Tree edit distance:", total_metrics[time_observed]['dist'])
+		print("   update:", total_metrics[time_observed]['update_count'], total_metrics[time_observed]['update_time'])
+		print("   insert:", total_metrics[time_observed]['insert_count'], total_metrics[time_observed]['insert_time'])
+		print("   remove:", total_metrics[time_observed]['remove_count'], total_metrics[time_observed]['remove_time'])
+		print("   match:", total_metrics[time_observed]['match_count'])
 	print("")
+
+	#dump metrics dict to file
+	file_utils.verify_dir(outfile)
+	file_utils.dict_to_csv(total_metrics, ['time_observed']+list(total_metrics[time_observed_list[0]].keys()), outfile+("/%s_metric_results.csv"%filename_id))

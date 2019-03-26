@@ -80,7 +80,7 @@ def parse_command_args():
 	parser.add_argument("-threshold", dest="weight_threshold", default=False, metavar=('<minimum edge weight>'), help="limit post graph to edges with weight above threshold")
 
 	#optional args	
-	parser.add_argument("-t", dest="time_observed", default=0, help="time of post observation, in hours")
+	parser.add_argument("-t", dest="time_observed", default=0, help="time of post observation, in hours", nargs='+')
 	parser.add_argument("-g", "--graph", dest="max_nodes", default=False, help="max nodes in post graph for parameter infer")
 	parser.add_argument("-q", "--qual", dest="min_node_quality", default=False, help="minimum node quality for post graph")
 	parser.add_argument("-e", "--esp", dest="estimate_initial_params", action='store_true', help="estimate initial params as inverse quality weighted average of neighbor nodes")
@@ -101,7 +101,7 @@ def parse_command_args():
 	#extract arguments (since want to return individual variables)
 	subreddit = args.subreddit
 	sim_post_id = args.sim_post_id
-	time_observed = float(args.time_observed)
+	time_observed = [float(time) for time in args.time_observed]
 	outfile = args.outfile
 	max_nodes = args.max_nodes if args.max_nodes == False else int(args.max_nodes)
 	min_node_quality = args.min_node_quality if args.min_node_quality == False else float(args.min_node_quality)
