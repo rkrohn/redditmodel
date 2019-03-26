@@ -73,25 +73,23 @@ for sim_post_id, sim_post in test_posts.items():
 	if batch == False:
 		vprint("Simulation post has %d comments" % test_cascades[sim_post_id]['comment_count_total'])
 
+
 	#GRAPH INFER
 	inferred_params = functions_gen_cascade_model.graph_infer(sim_post, sim_post_id, weight_method, weight_threshold, base_graph, graph_post_ids, train_posts, train_cascades, train_params, train_fit_fail_list, top_n, estimate_initial_params)
 	#inferred_params = [1.73166, 0.651482, 1.08986, 0.762604, 2.49934, 0.19828]		#placeholder if skipping the infer
 	if batch == False:
 		print("Inferred params:", inferred_params, "\n")
 
-	exit(0)
-
-	#BOOKMARK - haven't touched below
 
 	#REFINE PARAMS - for partial observed trees
-	partial_fit_params = fit_partial_cascade.fit_partial_cascade(sim_post, post_comments, time_observed, inferred_params, display=False)
+	partial_fit_params = fit_partial_cascade.fit_partial_cascade(sim_post, test_cascades[sim_post_id], time_observed, inferred_params, verbose=(verbose if batch==False else False))
 	if batch == False:
 		print("Refined params:", partial_fit_params)
-
 
 	#which params are we using for simulation?
 	#sim_params = inferred_params
 	sim_params = partial_fit_params			#for now, always the refined params from partial fit
+
 
 	#SIMULATE COMMENT TREE
 	sim_events, sim_tree = functions_gen_cascade_model.simulate_comment_tree(sim_post, sim_params, subreddit, post_comments, time_observed)
