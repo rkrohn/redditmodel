@@ -34,9 +34,9 @@ fitted_params_filepath = "reddit_data/%s/%s_post_params_%d_%d.pkl"
 cascades_filepath = "reddit_data/%s/%s_cascades_%d_%d.pkl"
 
 #filepaths of output/temporary files - used to pass graph to C++ node2vec for processing
-temp_graph_filepath = "sim_files/graph.txt"			#updated graph for this sim run
-temp_params_filepath = "sim_files/in_params.txt"		#temporary, filtered params for sim run (if sampled graph)
-output_params_filepath = "sim_files/out_params.txt"		#output params from node2vec
+temp_graph_filepath = "sim_files/graph_%s.txt"			#updated graph for this sim run
+temp_params_filepath = "sim_files/in_params_%s.txt"		#temporary, filtered params for sim run (if sampled graph)
+output_params_filepath = "sim_files/out_params_%s.txt"		#output params from node2vec
 
 #hardcoded params for failed fit cascades
 #only used when fit/estimation fails and these posts are still included in graph
@@ -758,7 +758,7 @@ def remove_low_edge(graph, node):
 #	max_nodes 					if not False, max nodes to include in graph
 #	top_n 						if not False, max number of edges per node
 #	estimate_initial_params		if True, estimate initial params for sim post based on neighbors
-def graph_infer(sim_post, sim_post_id, weight_method, min_weight, base_graph, eligible_post_ids, posts, cascades, params, fit_fail_list, top_n, estimate_initial_params):
+def graph_infer(sim_post, sim_post_id, weight_method, min_weight, base_graph, eligible_post_ids, posts, cascades, params, fit_fail_list, top_n, estimate_initial_params, filename_id):
 	vprint("Inferring post parameters from post graph")
 
 	#define edge weight computation method
@@ -867,8 +867,8 @@ def graph_infer(sim_post, sim_post_id, weight_method, min_weight, base_graph, el
 		isolated_nodes = []
 
 	#save graph and params to files for node2vec
-	save_graph(edges, temp_graph_filepath, isolated_nodes)
-	save_params(numeric_ids, posts, cascades, params, temp_params_filepath, param_estimate=(estimated_params if estimate_initial_params else False))
+	save_graph(edges, temp_graph_filepath % filename_id, isolated_nodes)
+	save_params(numeric_ids, posts, cascades, params, temp_params_filepath % filename_id, param_estimate=(estimated_params if estimate_initial_params else False))
 
 	#clear any previous output params
 	if file_utils.verify_file(output_params_filepath):
@@ -880,11 +880,11 @@ def graph_infer(sim_post, sim_post_id, weight_method, min_weight, base_graph, el
 	#offload to C++, because I feel the need... the need for speed!:
 
 	#run node2vec on graph and params - with on-the-fly transition probs option, or probably die
-	subprocess.check_call(["./c_node2vec/examples/node2vec/node2vec", "-i:"+temp_graph_filepath, "-ie:"+temp_params_filepath, "-o:"+output_params_filepath, "-d:6", "-l:3", "-w", "-s", "-otf"])
+	subprocess.check_call(["./c_node2vec/examples/node2vec/node2vec", "-i:"+(temp_graph_filepath % filename_id), "-ie:"+(temp_params_filepath % filename_id), "-o:"+(output_params_filepath % filename_id), "-d:6", "-l:3", "-w", "-s", "-otf"])
 	print("")
 
 	#load the inferred params (dictionary of numeric id -> params) and extract sim_post inferred params
-	all_inferred_params = load_inferred_params(output_params_filepath)
+	all_inferred_params = load_inferred_params(output_params_filepath % filename_id)
 	inferred_params = all_inferred_params[numeric_ids[sim_post_id]]
 
 	return inferred_params
@@ -996,6 +996,7 @@ def simulate_comment_tree(sim_post, sim_params, group, sim_cascade, time_observe
 	#simulate entirely new tree from root only
 	else:
 		sim_root, all_times = sim_tree.simulate_comment_tree(sim_params)
+		observed_count = 0
 
 	'''
 	#convert that to desired output format

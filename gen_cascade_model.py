@@ -17,6 +17,8 @@ import functions_gen_cascade_model
 import cascade_manip
 import fit_partial_cascade
 
+import time
+
 print("")
 
 #parse all command-line arguments
@@ -66,6 +68,8 @@ if batch:
 	total_remove_time = 0
 	total_match_count = 0
 
+filename_id = str(time.time())		#unique temp file identifier for this run
+
 #process all posts (or just one, if doing that)
 print("Processing", len(test_posts), "post", "s" if len(test_posts) > 1 else "")
 for sim_post_id, sim_post in test_posts.items():
@@ -75,7 +79,7 @@ for sim_post_id, sim_post in test_posts.items():
 
 
 	#GRAPH INFER
-	inferred_params = functions_gen_cascade_model.graph_infer(sim_post, sim_post_id, weight_method, weight_threshold, base_graph, graph_post_ids, train_posts, train_cascades, train_params, train_fit_fail_list, top_n, estimate_initial_params)
+	inferred_params = functions_gen_cascade_model.graph_infer(sim_post, sim_post_id, weight_method, weight_threshold, base_graph, graph_post_ids, train_posts, train_cascades, train_params, train_fit_fail_list, top_n, estimate_initial_params, filename_id)
 	#inferred_params = [1.73166, 0.651482, 1.08986, 0.762604, 2.49934, 0.19828]		#placeholder if skipping the infer
 	if batch == False:
 		vprint("Inferred params: ", inferred_params, "\n")
