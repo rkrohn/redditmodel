@@ -983,7 +983,7 @@ def load_inferred_params(filename):
 #given params, simulate a comment tree
 #arguments: post object, simulation parameters, actual cascade, observed time
 def simulate_comment_tree(sim_post, sim_params, group, sim_cascade, time_observed):
-	print("\nSimulating comment tree")
+	vprint("\nSimulating comment tree")
 
 	#simulate tree structure + comment times!	
 	vprint("Post created at %d" % sim_post['time'])
@@ -1033,7 +1033,6 @@ def filter_comment_tree(post, cascade, time_observed=False):
 		#check time, delete if not within observed window
 		if time_observed != False and curr['time'] - root_time > time_observed * 3600:
 			parent['replies'].remove(curr)
-			print(curr['time'] - root_time, time_observed * 3600)
 			continue
 		#observed comment time, shift and add replies to queue
 		curr['time'] -= root_time

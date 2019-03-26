@@ -58,20 +58,13 @@ base_graph, graph_post_ids = functions_gen_cascade_model.build_base_graph(train_
 vprint("")
 
 #if running in mode all, keep total of all metrics, dump at end
-if batch:
-	total_dist = 0
-	total_update_count = 0
-	total_update_time = 0
-	total_insert_count = 0
-	total_insert_time = 0
-	total_remove_count = 0
-	total_remove_time = 0
-	total_match_count = 0
+if batch or len(time_observed_list) > 1:
+	total_metrics = defaultdict(lambda: defaultdict(int))		#time observed -> metrics dictionary
 
 filename_id = str(time.time())		#unique temp file identifier for this run
 
 #process all posts (or just one, if doing that)
-print("Processing", len(test_posts), "post", "s" if len(test_posts) > 1 else "")
+vprint("Processing", len(test_posts), "post", "s" if len(test_posts) > 1 else "")
 for sim_post_id, sim_post in test_posts.items():
 
 	if batch == False:
@@ -153,7 +146,7 @@ if batch:
 		print("Minimum node quality:", min_node_quality)
 	else:
 		print("No minimum node quality")
-	print("Max graph size:", max_nodes, "from file" if limit_from_file else "from argument")
+	print("Max graph size:", max_nodes)
 	if estimate_initial_params:
 		print("Estimating initial params for seed posts based on inverse quality weighted average of neighbors")
 	
