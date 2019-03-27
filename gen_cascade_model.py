@@ -65,16 +65,14 @@ if batch or len(time_observed_list) > 1:
 filename_id = str(time.time())		#unique temp file identifier for this run
 
 #process all posts (or just one, if doing that)
-vprint("Processing", len(test_posts), "post", "s" if len(test_posts) > 1 else "")
+vprint("Processing %d post" % len(test_posts), "s" if len(test_posts) > 1 else "")
 for sim_post_id, sim_post in test_posts.items():
 
 	if batch == False:
 		vprint("Simulation post has %d comments" % test_cascades[sim_post_id]['comment_count_total'])
 
-
 	#GRAPH INFER
-	inferred_params = functions_gen_cascade_model.graph_infer(sim_post, sim_post_id, weight_method, weight_threshold, base_graph, graph_post_ids, train_posts, train_cascades, train_params, train_fit_fail_list, top_n, estimate_initial_params, filename_id)
-	#inferred_params = [1.73166, 0.651482, 1.08986, 0.762604, 2.49934, 0.19828]		#placeholder if skipping the infer
+	inferred_params = functions_gen_cascade_model.graph_infer(sim_post, sim_post_id, weight_method, weight_threshold, base_graph, graph_post_ids, train_posts, train_cascades, train_params, train_fit_fail_list, top_n, estimate_initial_params, filename_id, display= not batch)
 	if batch == False:
 		vprint("Inferred params: ", inferred_params, "\n")
 
@@ -93,7 +91,7 @@ for sim_post_id, sim_post in test_posts.items():
 
 
 		#SIMULATE COMMENT TREE
-		sim_tree = functions_gen_cascade_model.simulate_comment_tree(sim_post, sim_params, subreddit, test_cascades[sim_post_id], time_observed)
+		sim_tree, observed_count = functions_gen_cascade_model.simulate_comment_tree(sim_post, sim_params, subreddit, test_cascades[sim_post_id], time_observed, not batch)
 
 
 		#OUTPUT TREES

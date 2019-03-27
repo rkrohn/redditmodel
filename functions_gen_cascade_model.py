@@ -688,16 +688,19 @@ def filter_post_set(params, default_params_list, min_node_quality, include_defau
 #end filter_post_set
 
 #return correct edge weight computation function based on mode
-def get_edge_weight_method(weight_method):
+def get_edge_weight_method(weight_method, display=True):
 	#chose edge computation method, store relevant function in variable for easy no-if calling later
 	if weight_method == "jaccard":
-		vprint("Using jaccard index for edge weight")
+		if display:
+			vprint("Using jaccard index for edge weight")
 		return jaccard_edge_weight
 	elif weight_method == "cosine":
-		vprint("Using cosine similarity for edge weight")
+		if display:
+			vprint("Using cosine similarity for edge weight")
 		return cosine_edge_weight
 	else:  #word_mover
-		vprint("Using word-mover distance for edge weight")
+		if display:
+			vprint("Using word-mover distance for edge weight")
 		return word_mover_edge_weight
 #end get_edge_weight_method
 
@@ -758,16 +761,19 @@ def remove_low_edge(graph, node):
 #	max_nodes 					if not False, max nodes to include in graph
 #	top_n 						if not False, max number of edges per node
 #	estimate_initial_params		if True, estimate initial params for sim post based on neighbors
-def graph_infer(sim_post, sim_post_id, weight_method, min_weight, base_graph, eligible_post_ids, posts, cascades, params, fit_fail_list, top_n, estimate_initial_params, filename_id):
-	vprint("Inferring post parameters from post graph")
+def graph_infer(sim_post, sim_post_id, weight_method, min_weight, base_graph, eligible_post_ids, posts, cascades, params, fit_fail_list, top_n, estimate_initial_params, filename_id, display=False):
+
+	if display:
+		vprint("Inferring post parameters from post graph")
 
 	#define edge weight computation method
-	compute_edge_weight = get_edge_weight_method(weight_method)
+	compute_edge_weight = get_edge_weight_method(weight_method, display)
 
 	#compute new edges between sim post and other posts already in graph - enforcing top_n if in effect
 	new_edges = {}		#dictionary of neighbor -> edge weight (for edge between neighbor and sim post)
 	#loop posts
-	vprint("Computing edges with %d posts" % len(eligible_post_ids))
+	if display:
+		vprint("Computing edges with %d posts" % len(eligible_post_ids))
 	for post_id in eligible_post_ids:
 		#post for this id
 		post = posts[post_id]
@@ -790,7 +796,8 @@ def graph_infer(sim_post, sim_post_id, weight_method, min_weight, base_graph, el
 				remove = min(new_edges, key=new_edges.get)
 				del new_edges[remove]
 
-	vprint("Found %d edges connecting to sim post" % len(new_edges))
+	if display:
+		vprint("Found %d edges connecting to sim post" % len(new_edges))
 
 	#how many nodes are actually in the graph, if we dump it now? build set of nodes in graph
 	graph_post_ids = set(base_graph.keys())		#all nodes in base graph
@@ -820,7 +827,8 @@ def graph_infer(sim_post, sim_post_id, weight_method, min_weight, base_graph, el
 		if neighbor_count != 0:
 			for i in range(6):
 				estimated_params[i] /= neighbor_count
-		vprint("Estimated params: ", estimated_params)
+		if display:
+			vprint("Estimated params: ", estimated_params)
 
 	#build edgelist of all graph edges, both base and new, removing duplicate edges as we go
 	#also enforce the top_n criteria, if in effect
@@ -856,7 +864,8 @@ def graph_infer(sim_post, sim_post_id, weight_method, min_weight, base_graph, el
 				#add edge if not in list already
 				if (numeric_ids[other_post], numeric_ids[post_id]) not in edges and (numeric_ids[post_id], numeric_ids[other_post]) not in edges:
 					edges[(numeric_ids[other_post], numeric_ids[post_id])] = weight
-	vprint("Final graph contains %d nodes and %d edges" % (len(graph_post_ids), len(edges)))
+	if display:
+		vprint("Final graph contains %d nodes and %d edges" % (len(graph_post_ids), len(edges)))
 
 	#if no edges connecting sim post to graph (BAD), add node as isolated so that we at least get something back
 	#and print a big fat warning
@@ -867,8 +876,8 @@ def graph_infer(sim_post, sim_post_id, weight_method, min_weight, base_graph, el
 		isolated_nodes = []
 
 	#save graph and params to files for node2vec
-	save_graph(edges, temp_graph_filepath % filename_id, isolated_nodes)
-	save_params(numeric_ids, posts, cascades, params, temp_params_filepath % filename_id, param_estimate=(estimated_params if estimate_initial_params else False))
+	save_graph(edges, temp_graph_filepath % filename_id, isolated_nodes, display)
+	save_params(numeric_ids, posts, cascades, params, temp_params_filepath % filename_id, param_estimate=(estimated_params if estimate_initial_params else False), display=display)
 
 	#clear any previous output params
 	if file_utils.verify_file(output_params_filepath):
@@ -881,10 +890,11 @@ def graph_infer(sim_post, sim_post_id, weight_method, min_weight, base_graph, el
 
 	#run node2vec on graph and params - with on-the-fly transition probs option, or probably die
 	out = subprocess.check_output(["./c_node2vec/examples/node2vec/node2vec", "-i:"+(temp_graph_filepath % filename_id), "-ie:"+(temp_params_filepath % filename_id), "-o:"+(output_params_filepath % filename_id), "-d:6", "-l:3", "-w", "-s", "-otf"])
-	print("")
+	if display:
+		vprint("")
 
 	#load the inferred params (dictionary of numeric id -> params) and extract sim_post inferred params
-	all_inferred_params = load_inferred_params(output_params_filepath % filename_id)
+	all_inferred_params = load_inferred_params(output_params_filepath % filename_id, display)
 	inferred_params = all_inferred_params[numeric_ids[sim_post_id]]
 
 	return inferred_params
@@ -916,19 +926,20 @@ def get_default_params(post):
 
 #save graph to txt file for node2vec processing, assigning numeric node ids along the way
 #force sim_post to have id=0 for easy lookup later
-def save_graph(edgelist, filename, isolated_nodes = []):
+def save_graph(edgelist, filename, isolated_nodes = [], display=False):
 	#and save graph to file
 	with open(filename, "w") as f:
 		for edge, weight in edgelist.items():
 			f.write("%d %d %f\n" % (edge[0], edge[1], weight))
 		for node in isolated_nodes:
 			f.write("%d\n" % node)
-	vprint("Saved graph to %s" % filename)
+	if display:
+		vprint("Saved graph to %s" % filename)
 #end save_graph
 
 
 #save params to txt file for node2vec processing
-def save_params(numeric_ids, posts, cascades, params, filename, param_estimate=False):
+def save_params(numeric_ids, posts, cascades, params, filename, param_estimate=False, display=False):
 	with open(filename, "w") as f: 
 		for post_id, numeric_id in numeric_ids.items():
 			#skip sim post for now
@@ -950,12 +961,13 @@ def save_params(numeric_ids, posts, cascades, params, filename, param_estimate=F
 		if param_estimate != False:
 			f.write("%d %f %f %f %f %f %f\n" % (0, param_estimate[0], param_estimate[1], param_estimate[2], param_estimate[3], param_estimate[4], param_estimate[5]))
 
-	vprint("Saved graph params to %s" % filename)
+	if display:
+		vprint("Saved graph params to %s" % filename)
 #end save_params
 
 
 #load inferred params from file
-def load_inferred_params(filename):
+def load_inferred_params(filename, display=False):
 	#read all lines of file
 	with open(filename, 'r') as f:
 		lines = f.readlines()
@@ -974,7 +986,8 @@ def load_inferred_params(filename):
 			params.append(float(values[i]))
 		all_params[post_id] = params
 
-	vprint("Loaded %d fitted params from %s" %(len(all_params), filename))
+	if display:
+		vprint("Loaded %d fitted params from %s" %(len(all_params), filename))
 
 	return all_params
 #end load_inferred_params
@@ -982,11 +995,13 @@ def load_inferred_params(filename):
 
 #given params, simulate a comment tree
 #arguments: post object, simulation parameters, actual cascade, observed time
-def simulate_comment_tree(sim_post, sim_params, group, sim_cascade, time_observed):
-	vprint("\nSimulating comment tree")
+def simulate_comment_tree(sim_post, sim_params, group, sim_cascade, time_observed, display=False):
+	if display:
+		vprint("\nSimulating comment tree")
+		vprint("Post created at %d" % sim_post['time'])
 
 	#simulate tree structure + comment times!	
-	vprint("Post created at %d" % sim_post['time'])
+	
 	#simulate from partially observed tree
 	if time_observed != 0:
 		#get observed tree
@@ -998,15 +1013,9 @@ def simulate_comment_tree(sim_post, sim_params, group, sim_cascade, time_observe
 		sim_root, all_times = sim_tree.simulate_comment_tree(sim_params)
 		observed_count = 0
 
-	'''
-	#convert that to desired output format
-	sim_events = functions_hybrid_model.build_cascade_events(sim_root, sim_post, user_ids, group)
-	#sort list of events by time
-	sim_events = sorted(sim_events, key=lambda k: k['nodeTime']) 
-	'''
-
-	vprint("Generated %d total comments for post (including %d observed)" % (len(all_times), observed_count))
-	vprint("   %d actual\n" % sim_cascade['comment_count_total'])
+	if display:
+		vprint("Generated %d total comments for post (including %d observed)" % (len(all_times), observed_count))
+		vprint("   %d actual\n" % sim_cascade['comment_count_total'])
 
 	return sim_root		#return events list, and dictionary format of simulated tree
 #end simulate_comment_tree
