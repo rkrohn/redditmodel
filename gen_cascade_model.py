@@ -110,14 +110,15 @@ for sim_post_id, sim_post in test_posts.items():
 		true_cascade, true_comment_count = functions_gen_cascade_model.filter_comment_tree(sim_post, test_cascades[sim_post_id])
 
 		#compute tree edit distance between ground-truth and simulated cascades
-		eval_res = functions_gen_cascade_model.eval_trees(sim_tree, true_cascade)
+		eval_res = functions_gen_cascade_model.eval_trees(sim_tree, true_cascade, observed_count, true_comment_count)
 
 		if batch == False and len(time_observed_list) == 1:
-			vprint("Tree edit distance:", eval_res['dist'])
-			vprint("   update:", eval_res['update_count'], eval_res['update_time'])
-			vprint("   insert:", eval_res['insert_count'], eval_res['insert_time'])
-			vprint("   remove:", eval_res['remove_count'], eval_res['remove_time'])
-			vprint("   match:", eval_res['match_count'])
+			vprint("Tree edit distance: ", eval_res['dist'])
+			vprint("   normalized distance: ", eval_res['norm_dist'])
+			vprint("   update: ", eval_res['update_count'], eval_res['update_time'])
+			vprint("   insert: ", eval_res['insert_count'], eval_res['insert_time'])
+			vprint("   remove: ", eval_res['remove_count'], eval_res['remove_time'])
+			vprint("   match: ", eval_res['match_count'])
 
 		#if running in mode all, or multiple times, keep total of all these metrics, dump at end
 		else:

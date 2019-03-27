@@ -1043,7 +1043,7 @@ def simulate_comment_tree(sim_post, sim_params, group, sim_cascade, time_observe
 		vprint("Generated %d total comments for post (including %d observed)" % (len(all_times), observed_count))
 		vprint("   %d actual\n" % sim_cascade['comment_count_total'])
 
-	return sim_root		#return events list, and dictionary format of simulated tree
+	return sim_root, observed_count		#return events list, and dictionary format of simulated tree
 #end simulate_comment_tree
 
 
@@ -1081,8 +1081,19 @@ def filter_comment_tree(post, cascade, time_observed=False):
 
 #given simulated and ground-truth cascades, compute the tree edit distance between them
 #both trees given as dictionary-nested structure (returned from simulate_comment_tree and convert_comment_tree)
-def eval_trees(sim_tree, true_cascade):
-	return tree_edit_distance.compare_trees(sim_tree, true_cascade)
+def eval_trees(sim_tree, true_cascade, observed_comment_count, true_comment_count):
+	#get edit distance stats for sim vs truth
+	edit_dist_res = tree_edit_distance.compare_trees(sim_tree, true_cascade)
+
+	#normalize the distance value: error / max error if sim nothing
+	#max error if sim nothing = true comment count - observed comment count
+	#ie, can only be wrong by how many comments are missing (in theory)
+	norm_error = true_comment_count - observed_comment_count	
+	if norm_error == 0:
+		norm_error = 1
+	edit_dist_res['norm_dist'] = edit_dist_res['dist'] / norm_error
+
+	return edit_dist_res
 #end eval_trees
 
 
