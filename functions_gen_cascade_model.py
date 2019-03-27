@@ -33,6 +33,10 @@ fitted_params_filepath = "reddit_data/%s/%s_post_params_%d_%d.pkl"
 #reconstructed cascades for (sub, sub, year, month) - dictionary of post id -> cascade dict, with "time", "num_comments", and "replies", where "replies" is nested list of reply objects
 cascades_filepath = "reddit_data/%s/%s_cascades_%d_%d.pkl"
 
+#filepath for random test samples, determined by subreddit, number of posts, testing start (year-month), and testing length
+#(save these to files so you can have repeated runs of the same random set)
+random_sample_list_filepath = "sim_files/%s_%d_test_keys_list_start%d-%d_%d_months.pkl"
+
 #filepaths of output/temporary files - used to pass graph to C++ node2vec for processing
 temp_graph_filepath = "sim_files/graph_%s.txt"			#updated graph for this sim run
 temp_params_filepath = "sim_files/in_params_%s.txt"		#temporary, filtered params for sim run (if sampled graph)
@@ -64,9 +68,10 @@ def parse_command_args():
 	parser.add_argument("-o", "--out", dest="outfile", required=True, help="output filename")
 	#must pick one of three processing options: a single id, random, or all
 	proc_group = parser.add_mutually_exclusive_group(required=True)
-	proc_group.add_argument("-id", dest="sim_post_id", default=None,  help="post id for single-processing")
-	proc_group.add_argument("-r", "--rand", dest="sim_post_id", action="store_const", const="random", help="choose a random post from the subreddit to simulate")
-	proc_group.add_argument("-a", "--all", dest="sim_post_id", action="store_const", const="all", help="simulate all posts in the subreddit")
+	proc_group.add_argument("-id", dest="sim_post", default=None,  help="post id for single-processing")
+	proc_group.add_argument("-r", "--rand", dest="sim_post", action="store_const", const="random", help="choose a random post from the subreddit to simulate")
+	proc_group.add_argument("-a", "--all", dest="sim_post", action="store_const", const="all", help="simulate all posts in the subreddit")
+	proc_group.add_argument("-n", "--n_sample", dest="sim_post", default=100, help="number of posts to test, taken as random sample from testing period")
 	#must provide year and month for start of testing data set
 	parser.add_argument("-y", "--year", dest="testing_start_year", required=True, help="year to use for test set")
 	parser.add_argument("-m", "--month", dest="testing_start_month", required=True, help="month to use for test set")
@@ -100,7 +105,7 @@ def parse_command_args():
 
 	#extract arguments (since want to return individual variables)
 	subreddit = args.subreddit
-	sim_post_id = args.sim_post_id
+	sim_post = args.sim_post
 	time_observed = [float(time) for time in args.time_observed]
 	outfile = args.outfile
 	max_nodes = args.max_nodes if args.max_nodes == False else int(args.max_nodes)
@@ -119,16 +124,23 @@ def parse_command_args():
 	weight_threshold = args.weight_threshold
 	if weight_threshold != False:
 		weight_threshold = float(weight_threshold)
-	#extra flags for batch processing and random post selection
-	if sim_post_id == "all":
+	#extra flags/variables for different processing modes
+	sample_num = False
+	if sim_post == "all":
 		batch = True
-		random = False
-	elif sim_post_id == "random":
-		random = True
+	elif sim_post == "random":
 		batch = False
 	else:
-		batch = False
-		random = False
+		#is this a number (n_sample), or an id (single post)?
+		try:
+			#number of posts to sample
+			int(sim_post)
+			batch = True
+			sample_num = int(sim_post)
+			sim_post = "sample"
+		except ValueError:
+			#single specified post
+			batch = False
 
 	#compute start of training period for easy use later
 	training_start_month, training_start_year = monthdelta(testing_start_month, testing_start_year, -training_len)
@@ -147,7 +159,7 @@ def parse_command_args():
 		vprint = lambda *a: None      # do-nothing function
 
 	#print some log-ish stuff in case output being piped and saved
-	vprint("Post ID: ", sim_post_id)
+	vprint("Sim Post: ", sim_post, " %d" % sample_num if sample_num != False else "")
 	vprint("Time Observed: ", time_observed)
 	vprint("Output: ", outfile)
 	vprint("Source subreddit: ", subreddit)
@@ -172,7 +184,7 @@ def parse_command_args():
 	vprint("")
 
 	#return all arguments
-	return subreddit, sim_post_id, time_observed, outfile, max_nodes, min_node_quality, estimate_initial_params, batch, random, testing_start_month, testing_start_year, testing_len, training_start_month, training_start_year, training_len, weight_method, top_n, weight_threshold, include_default_posts, verbose
+	return subreddit, sim_post, time_observed, outfile, max_nodes, min_node_quality, estimate_initial_params, batch, sample_num, testing_start_month, testing_start_year, testing_len, training_start_month, training_start_year, training_len, weight_method, top_n, weight_threshold, include_default_posts, verbose
 #end parse_command_args
 
 
@@ -542,24 +554,38 @@ def build_cascades(subreddit, month, year, posts, comments):
 
 
 #given a post id, boolean mode flags, and dictionary of posts, ensure post is in this set
+#if running in sample mode, pick the sample
 #returns modified post dictionary that contains only the posts to be tested
-def verify_post_set(input_sim_post_id, process_all, pick_random, posts):
-	#if processing all posts, return list of ids
-	if process_all:		
+def get_test_post_set(input_sim_post, batch_process, sample_num, posts, subreddit, testing_start_month, testing_start_year, testing_len):
+	#if processing all posts in test set, return list of ids
+	if input_sim_post == "all":		
 		vprint("Processing all %d posts in test set" % len(posts))
 	#if random post id, pick an id from loaded posts
-	elif pick_random:
+	elif input_sim_post == "random":
 		rand_sim_post_id = random.choice(list(posts.keys()))
 		posts = {rand_sim_post_id: posts[rand_sim_post_id]}
 		vprint("Choosing random simulation post: %s" % rand_sim_post_id)
-	#if not random or batch, make sure given post id is in the dataset
+	#if sampling, choose random sample of posts
+	elif sample_num != False:		
+		#if stored random sample exists, load that
+		if file_utils.verify_file(random_sample_list_filepath % (subreddit, sample_num, testing_start_year, testing_start_month, testing_len)):
+			vprint("Loading cached sample simulation post set")
+			keys = file_utils.load_pickle(random_sample_list_filepath % (subreddit, sample_num, testing_start_year, testing_start_month, testing_len))
+		#no existing sample file, pick random post id set, and dump list to pickle
+		else:
+			vprint("Sampling %d random posts for simulation set" % sample_num)
+			keys = random.sample(list(posts.keys()), sample_num)
+			file_utils.save_pickle(keys, random_sample_list_filepath % (subreddit, sample_num, testing_start_year, testing_start_month, testing_len))
+		#filter posts to match keys list
+		test_posts = filter_dict_by_list(posts, keys)
+	#if single id, make sure given post id is in the dataset
 	else:
 		#if given not in set, exit
-		if input_sim_post_id not in posts:
+		if input_sim_post not in posts:
 			print("Given post id not in group set - exiting.\n")
 			exit(0)
-		posts = {input_sim_post_id: posts[input_sim_post_id]}
-		vprint("Using input post id: %s" % input_sim_post_id)
+		posts = {input_sim_post: posts[input_sim_post]}
+		vprint("Using input post id: %s" % input_sim_post)
 	return posts
 #end verify_post_set
 

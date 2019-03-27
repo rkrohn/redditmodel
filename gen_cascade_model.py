@@ -15,7 +15,7 @@ from collections import defaultdict
 print("")
 
 #parse all command-line arguments
-subreddit, input_sim_post_id, time_observed_list, outfile, max_nodes, min_node_quality, estimate_initial_params, batch, random, testing_start_month, testing_start_year, testing_len, training_start_month, training_start_year, training_len, weight_method, top_n, weight_threshold, include_default_posts, verbose = functions_gen_cascade_model.parse_command_args()
+subreddit, input_sim_post, time_observed_list, outfile, max_nodes, min_node_quality, estimate_initial_params, batch, sample_num, testing_start_month, testing_start_year, testing_len, training_start_month, training_start_year, training_len, weight_method, top_n, weight_threshold, include_default_posts, verbose = functions_gen_cascade_model.parse_command_args()
 
 #hackery: declare a special print function for verbose output
 if verbose:
@@ -41,7 +41,7 @@ test_posts, test_cascades = functions_gen_cascade_model.load_processed_posts(sub
 
 #ensure post id is in dataset (and filter test_posts set down to processing group only)
 vprint("")
-test_posts = functions_gen_cascade_model.verify_post_set(input_sim_post_id, batch, random, test_posts)
+test_posts = functions_gen_cascade_model.get_test_post_set(input_sim_post, batch, sample_num, test_posts, subreddit, testing_start_month, testing_start_year, testing_len)
 #reduce cascades to match this set
 if len(test_posts) != len(test_cascades):
 	test_cascades = functions_gen_cascade_model.filter_dict_by_list(test_cascades, list(test_posts.keys()))
