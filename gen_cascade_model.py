@@ -3,14 +3,6 @@
 #given a single cascade (top-level post and any observed comments), simulate the remainder of the cascade
 #offload node2vec to c++, because speed
 
-#requires the following command-line args: subreddit (or hackernews or cve), id of cascade post to predict (or "random"), output filename for simulation results (no extension), max number of nodes for infer graph, minimum node quality for graph inference (set to -1 for no filter), esp (optional, for estimating initial params based on surrouding)
-
-#for example:
-#	python3 paper_model.py pivx random 4 sim_tree 2000 -1
-#	python3 paper_model.py pivx 26RPcnyIuA0JyQpTqEui7A 1 sim_tree 500 -1			(4 comments)
-#	paper_model.py pivx ZeuF7ZTDw3McZUOaosvXdA 5 sim_tree 250 -1					(11 comments)
-#	paper_model.py compsci qOjspbLmJbLMVFxYbjB1mQ 200 sim_tree 250 -1				(58 comments)
-
 
 import file_utils
 import functions_gen_cascade_model
@@ -54,7 +46,7 @@ test_posts = functions_gen_cascade_model.verify_post_set(input_sim_post_id, batc
 if len(test_posts) != len(test_cascades):
 	test_cascades = functions_gen_cascade_model.filter_dict_by_list(test_cascades, list(test_posts.keys()))
 
-#build graph for training set - will add infer posts later
+#build base graph for training set - will add infer posts later
 base_graph, graph_post_ids = functions_gen_cascade_model.build_base_graph(train_posts, train_params, train_fit_fail_list, include_default_posts, max_nodes, min_node_quality, weight_method, weight_threshold, top_n)
 vprint("")
 
