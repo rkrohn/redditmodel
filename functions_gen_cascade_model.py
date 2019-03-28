@@ -863,6 +863,7 @@ def graph_infer(sim_post, sim_post_id, weight_method, min_weight, base_graph, el
 	numeric_ids = {}	#post_id -> numeric node_id
 	numeric_ids[sim_post_id] = 0
 	next_id = 1
+	disconnected = False
 	#loop all posts to be included in graph
 	for post_id in graph_post_ids:
 		#edges connected to sim_post
@@ -896,8 +897,9 @@ def graph_infer(sim_post, sim_post_id, weight_method, min_weight, base_graph, el
 	#if no edges connecting sim post to graph (BAD), add node as isolated so that we at least get something back
 	#and print a big fat warning
 	if len(new_edges) == 0:
-		print("WARNING: No edges connecting sim post to infer graph. Results may be poor.")
+		if display: vprint("WARNING: No edges connecting sim post to infer graph. Results may be poor.")
 		isolated_nodes = [0]
+		disconnected = True
 	else:
 		isolated_nodes = []
 
@@ -923,7 +925,7 @@ def graph_infer(sim_post, sim_post_id, weight_method, min_weight, base_graph, el
 	all_inferred_params = load_inferred_params(output_params_filepath % filename_id, display)
 	inferred_params = all_inferred_params[numeric_ids[sim_post_id]]
 
-	return inferred_params
+	return inferred_params, disconnected
 #end graph_infer
 
 

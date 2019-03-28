@@ -57,6 +57,8 @@ if batch or len(time_observed_list) > 1:
 filename_id = str(time.time())		#unique temp file identifier for this run
 
 #process all posts (or just one, if doing that)
+post_count = 0
+disconnected_count = 0
 vprint("Processing %d post" % len(test_posts), "s" if len(test_posts) > 1 else "")
 for sim_post_id, sim_post in test_posts.items():
 
@@ -64,10 +66,13 @@ for sim_post_id, sim_post in test_posts.items():
 		vprint("Simulation post has %d comments" % test_cascades[sim_post_id]['comment_count_total'])
 
 	#GRAPH INFER
-	inferred_params = functions_gen_cascade_model.graph_infer(sim_post, sim_post_id, weight_method, weight_threshold, base_graph, graph_post_ids, train_posts, train_cascades, train_params, train_fit_fail_list, top_n, estimate_initial_params, filename_id, display= not batch)
+	inferred_params, disconnected = functions_gen_cascade_model.graph_infer(sim_post, sim_post_id, weight_method, weight_threshold, base_graph, graph_post_ids, train_posts, train_cascades, train_params, train_fit_fail_list, top_n, estimate_initial_params, filename_id, display= not batch)
 	if batch == False:
 		vprint("Inferred params: ", inferred_params, "\n")
 
+	#keep count of disconnected (bad results, probably) posts
+	if disconnected:
+		disconnected_count += 1
 
 	#use the same inferred params for all the time_observed values
 	for time_observed in time_observed_list:
@@ -124,6 +129,11 @@ for sim_post_id, sim_post in test_posts.items():
 		else:
 			for metric, value in eval_res.items():
 				total_metrics[time_observed][metric] += value
+
+	#counter and periodic prints
+	post_count += 1
+	if batch and post_count % 100 == 0:
+		vprint("   finished %d posts (%d disconnected)" % (post_count, disconnected_count))
 
 #if mode == all, print metric totals
 if batch or len(time_observed_list) > 1:
