@@ -212,7 +212,7 @@ def simulate_comment_tree_times_only(model_params, display = True):
 #generate root comments based on fitted weibull, comment replies based on fitted log-normal
 #requires fitted weibull and log-normal distribution to define hawkes process
 #model params = [a, lbd, k, mu, sigma, n_b] (first 3 weibull, next 2 lognorm, last branching factor)
-def simulate_comment_tree(model_params, time_observed = False, observed_tree = False, display = False):
+def simulate_comment_tree(model_params, time_observed = False, observed_tree = False, display = False, to_seconds = False):
     weibull_params, lognorm_params, n_b = unpack_params(model_params)   #unfold parameters
 
     #simulate from partial tree, including any observed comments - and create root object
@@ -225,6 +225,9 @@ def simulate_comment_tree(model_params, time_observed = False, observed_tree = F
     else:
         root_comment_times = generate_weibull_times(weibull_params)
         root = {'time' : 0, 'id' : 0, 'replies' : list()}       #root at time 0, id is 0
+
+    if to_seconds:
+        root_comment_times = [time * 60 for time in root_comment_times]
 
     #update tree object based on generated root comments - each node is a dictionary with 'time' and 'replies' fields    
     node_id = itertools.count(start = 1)      #iterator counter for new node ids, start at 1 for root replies
@@ -242,6 +245,10 @@ def simulate_comment_tree(model_params, time_observed = False, observed_tree = F
         else:
         	#generated comment, simulate replies from comment time
         	reply_times = generate_lognorm_times(lognorm_params, n_b, start_time = comment['time'])		#get reply times
+
+        if to_seconds:
+            reply_times = [time * 60 for time in reply_times]
+            
         #add child objects for all generated replies
         comment['replies'].extend([{'time' : reply_time, 'replies' : list(), 'id' : next(node_id)} for reply_time in reply_times])	
         needs_replies.extend(comment['replies'])		#add all replies to list to be processed
