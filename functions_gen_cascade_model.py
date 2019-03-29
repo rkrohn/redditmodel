@@ -1112,11 +1112,28 @@ def eval_trees(post_id, sim_tree, true_cascade, simulated_comment_count, observe
 #save all sim results to csv file
 #one row per simulated post/time pair, with a bunch of data in it
 #then, at the bottom, all the settings/arguments, for tracking purposes
-def save_results():
+def save_results(filename, metrics, input_sim_post, time_observed, subreddit, min_node_quality, max_graph_size, min_weight, testing_start_month, testing_start_year, testing_len, training_start_month, training_start_year, training_len, edge_weight_method, include_hardcoded_posts):
 	#dump metrics dict to file, enforcing a semi-meaningful order
 	fields = ["post_id", "time_observed", "true_comment_count", "observed_comment_count", "simulated_comment_count", "dist", "norm_dist", "remove_count", "remove_time", "insert_count", "insert_time", "update_count", "update_time", "match_count", "disconnected"]
-	file_utils.verify_dir(outfile)
-	file_utils.save_csv(all_metrics, outfile + ("%s_%d_eval_res_start%d-%d_%d_months.csv" % (subreddit, len(test_posts), testing_start_year, testing_start_month, testing_len)), fields)
+	file_utils.save_csv(metrics, filename, fields)
+	
+	#append arguments/settings to the end
+	with open(filename, "a") as file:
+		file.write("\nSettings\n")
+		file.write("sim_post,%s\n" % input_sim_post)
+		file.write("time_observed,%s\n" % time_observed)
+		file.write("subreddit,%s\n" % subreddit)
+		file.write("min_node_quality,%s\n" % min_node_quality)
+		file.write("max_graph_size,%s\n" % max_graph_size)
+		file.write("min_edge_weight,%s\n" % min_weight)
+		file.write("testing_period,%d-%d\n" % (testing_start_month, testing_start_year))
+		file.write("test_len,%s\n" % testing_len)
+		file.write("training_period,%d-%d\n" % (training_start_month, training_start_year))
+		file.write("train_len,%s\n" % training_len)
+		file.write("edge_weight_method,%s\n" % edge_weight_method)
+		file.write("include_default_params_posts,%s\n" % include_hardcoded_posts)
+
+	return
 #end save_results
 
 

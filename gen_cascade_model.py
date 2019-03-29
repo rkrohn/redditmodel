@@ -56,7 +56,7 @@ filename_id = str(time.time())		#unique temp file identifier for this run
 #process all posts (or just one, if doing that)
 post_count = 0
 disconnected_count = 0
-vprint("Processing %d post" % len(test_posts), "s" if len(test_posts) > 1 else "")
+print("Processing %d post" % len(test_posts) + "s" if len(test_posts) > 1 else "")
 for sim_post_id, sim_post in test_posts.items():
 
 	if batch == False:
@@ -109,25 +109,23 @@ for sim_post_id, sim_post in test_posts.items():
 	#counter and periodic prints
 	post_count += 1
 	if batch and post_count % 100 == 0:
-		vprint("   finished %d posts (%d disconnected)" % (post_count, disconnected_count))
+		print("   finished %d posts (%d disconnected)" % (post_count, disconnected_count))
 
 #if mode == all, print metric totals
 if batch or len(time_observed_list) > 1:
 	print("\nAll done\n")
-	print("Number of posts:", len(test_posts))
-	print("Time Observed:", time_observed)
-	print("Source subreddit:", subreddit)
+	vprint("Number of posts:", len(test_posts))
+	vprint("Time Observed:", time_observed)
+	vprint("Source subreddit:", subreddit)
 	if min_node_quality != -1:
-		print("Minimum node quality:", min_node_quality)
+		vprint("Minimum node quality:", min_node_quality)
 	else:
-		print("No minimum node quality")
-	print("Max graph size:", max_nodes)
+		vprint("No minimum node quality")
+	vprint("Max graph size:", max_nodes)
 	if estimate_initial_params:
-		print("Estimating initial params for seed posts based on inverse quality weighted average of neighbors")
+		vprint("Estimating initial params for seed posts based on inverse quality weighted average of neighbors")
 
-	print("")
+	vprint("")
 
-	#dump metrics dict to file, enforcing a semi-meaningful order
-	fields = ["post_id", "time_observed", "true_comment_count", "observed_comment_count", "simulated_comment_count", "dist", "norm_dist", "remove_count", "remove_time", "insert_count", "insert_time", "update_count", "update_time", "match_count", "disconnected"]
-	file_utils.verify_dir(outfile)
-	file_utils.save_csv(all_metrics, outfile + ("%s_%d_eval_res_start%d-%d_%d_months.csv" % (subreddit, len(test_posts), testing_start_year, testing_start_month, testing_len)), fields)
+	#save metrics + settings to output file
+	functions_gen_cascade_model.save_results(outfile, all_metrics, input_sim_post, time_observed_list, subreddit, min_node_quality, max_nodes, weight_threshold, testing_start_month, testing_start_year, testing_len, training_start_month, training_start_year, training_len, weight_method, include_default_posts)
