@@ -121,18 +121,18 @@ for sim_post_id, sim_post in test_posts.items():
 #if mode == all, print metric totals
 if batch or len(time_observed_list) > 1:
 	print("\nAll done\n")
-	vprint("Number of posts:", len(test_posts))
-	vprint("Time Observed:", time_observed)
-	vprint("Source subreddit:", subreddit)
+	vprint("Number of posts: ", len(test_posts))
+	vprint("Time Observed: ", time_observed)
+	vprint("Source subreddit: ", subreddit)
 	if min_node_quality != -1:
-		vprint("Minimum node quality:", min_node_quality)
+		vprint("Minimum node quality: ", min_node_quality)
 	else:
 		vprint("No minimum node quality")
-	vprint("Max graph size:", max_nodes)
+	vprint("Max graph size: ", max_nodes)
 	if estimate_initial_params:
 		vprint("Estimating initial params for seed posts based on inverse quality weighted average of neighbors")
 
 	vprint("")
 
 	#save metrics + settings to output file
-	functions_gen_cascade_model.save_results(outfile, all_metrics, input_sim_post, time_observed_list, subreddit, min_node_quality, max_nodes, weight_threshold, testing_start_month, testing_start_year, testing_len, training_start_month, training_start_year, training_len, weight_method, include_default_posts)
+	functions_gen_cascade_model.save_results(outfile, all_metrics, input_sim_post, time_observed_list, subreddit, min_node_quality, max_nodes, weight_threshold, testing_start_month, testing_start_year, testing_len, training_start_month, training_start_year, training_len, weight_method, include_default_posts, estimate_initial_params)
