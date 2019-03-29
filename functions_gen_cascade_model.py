@@ -1082,27 +1082,48 @@ def filter_comment_tree(post, cascade, time_observed=False):
 #end convert_comment_tree
 
 
-#given simulated and ground-truth cascades, compute the tree edit distance between them
+#given simulated and ground-truth cascades, compute the accuracy and precision of the simulation
 #both trees given as dictionary-nested structure (returned from simulate_comment_tree and convert_comment_tree)
+#return eval results in a metric-coded dictionary
 def eval_trees(post_id, sim_tree, true_cascade, simulated_comment_count, observed_comment_count, true_comment_count, time_observed, disconnected):
 	#get edit distance stats for sim vs truth
 	eval_res = tree_edit_distance.compare_trees(sim_tree, true_cascade)
 
-	#normalize the distance value: error / max error if sim nothing
-	#max error if sim nothing = true comment count - observed comment count
-	#ie, can only be wrong by how many comments are missing (in theory)
-	norm_error = true_comment_count - observed_comment_count	
-	if norm_error == 0:
-		norm_error = 1
-	eval_res['norm_dist'] = eval_res['dist'] / norm_error
-
-	#add more fields to the results dictionary
+	#add more data fields to the results dictionary
 	eval_res['post_id'] = post_id
 	eval_res['observed_comment_count'] = observed_comment_count
 	eval_res['true_comment_count'] = true_comment_count
 	eval_res['simulated_comment_count'] = simulated_comment_count
 	eval_res['disconnected'] = "True" if disconnected else "False"
 	eval_res['time_observed'] = time_observed
+
+	#true pos = node is in the right place and at the right time (+/- error) = match
+	#but don't count the observed comments or the root, because that would be cheating
+	eval_res['true_pos'] = eval_res['match_count'] - observed_comment_count - 1
+	#false pos = put a node where there shouldn't be one = remove
+	eval_res['false_pos'] = eval_res['remove_count']
+	#false neg = didn't put a node where there should be one = insert
+	eval_res['false_neg'] = eval_res['insert_count']
+	#time update nodes - we put a node in the correct topological place, but not the right temporal place
+	#consider this both a false pos and a false neg
+	eval_res['false_pos'] += eval_res['update_count']
+	eval_res['false_neg'] += eval_res['update_count']
+
+	#precision and recall/sensitivity (no accuracy, because no true neg)
+	try:
+		eval_res['precision'] = eval_res['true_pos'] / (eval_res['true_pos'] +  eval_res['false_pos'])
+	except ZeroDivisionError:
+		eval_res['precision'] = 0
+	try:
+		eval_res['recall'] = eval_res['true_pos'] / (eval_res['true_pos'] +  eval_res['false_neg'])
+	except ZeroDivisionError:
+		eval_res['recall'] = 0
+
+	#f1 score
+	try:
+		eval_res['f1'] = 2 * (eval_res['recall'] * eval_res['precision']) / (eval_res['recall'] + eval_res['precision'])
+	except ZeroDivisionError:
+		eval_res['f1'] = 0
 
 	return eval_res
 #end eval_trees
@@ -1132,8 +1153,34 @@ def save_results(filename, metrics, input_sim_post, time_observed, subreddit, mi
 		file.write("train_len,%s\n" % training_len)
 		file.write("edge_weight_method,%s\n" % edge_weight_method)
 		file.write("include_default_params_posts,%s\n" % include_hardcoded_posts)
+		file.write("estimate_initial_params,%s\n" % estimate_initial_params)
 
 	return
 #end save_results
 
 
+#OLD LEGACY CODE: not using this method anymore, but keeping it around for now just in case
+#given simulated and ground-truth cascades, compute the tree edit distance between them
+#both trees given as dictionary-nested structure (returned from simulate_comment_tree and convert_comment_tree)
+def eval_trees_edit_dist(post_id, sim_tree, true_cascade, simulated_comment_count, observed_comment_count, true_comment_count, time_observed, disconnected):
+	#get edit distance stats for sim vs truth
+	eval_res = tree_edit_distance.compare_trees(sim_tree, true_cascade)
+
+	#normalize the distance value: error / max error if sim nothing
+	#max error if sim nothing = true comment count - observed comment count
+	#ie, can only be wrong by how many comments are missing (in theory)
+	norm_error = true_comment_count - observed_comment_count	
+	if norm_error == 0:
+		norm_error = 1
+	eval_res['norm_dist'] = eval_res['dist'] / norm_error
+
+	#add more fields to the results dictionary
+	eval_res['post_id'] = post_id
+	eval_res['observed_comment_count'] = observed_comment_count
+	eval_res['true_comment_count'] = true_comment_count
+	eval_res['simulated_comment_count'] = simulated_comment_count
+	eval_res['disconnected'] = "True" if disconnected else "False"
+	eval_res['time_observed'] = time_observed
+
+	return eval_res
+#end eval_trees_edit_dist

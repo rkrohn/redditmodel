@@ -100,11 +100,18 @@ for sim_post_id, sim_post in test_posts.items():
 
 		if batch == False and len(time_observed_list) == 1:
 			vprint("Tree edit distance: ", eval_res['dist'])
-			vprint("   normalized distance: ", eval_res['norm_dist'])
 			vprint("   update: ", eval_res['update_count'], " ", eval_res['update_time'])
 			vprint("   insert: ", eval_res['insert_count'], " ", eval_res['insert_time'])
 			vprint("   remove: ", eval_res['remove_count'], " ", eval_res['remove_time'])
 			vprint("   match: ", eval_res['match_count'])
+			vprint("Accuracy measures:")
+			vprint("   true pos: ", eval_res['true_pos'])
+			vprint("   false pos: ", eval_res['false_pos'])
+			vprint("   false neg: ", eval_res['false_neg'])
+			vprint("   precision: ", eval_res['precision'])
+			vprint("   recall: ", eval_res['recall'])
+			vprint("   f1 score: ", eval_res['f1'])
+
 
 	#counter and periodic prints
 	post_count += 1
