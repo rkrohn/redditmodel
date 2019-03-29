@@ -1084,9 +1084,9 @@ def filter_comment_tree(post, cascade, time_observed=False):
 
 #given simulated and ground-truth cascades, compute the tree edit distance between them
 #both trees given as dictionary-nested structure (returned from simulate_comment_tree and convert_comment_tree)
-def eval_trees(sim_tree, true_cascade, observed_comment_count, true_comment_count):
+def eval_trees(post_id, sim_tree, true_cascade, simulated_comment_count, observed_comment_count, true_comment_count, time_observed, disconnected):
 	#get edit distance stats for sim vs truth
-	edit_dist_res = tree_edit_distance.compare_trees(sim_tree, true_cascade)
+	eval_res = tree_edit_distance.compare_trees(sim_tree, true_cascade)
 
 	#normalize the distance value: error / max error if sim nothing
 	#max error if sim nothing = true comment count - observed comment count
@@ -1094,58 +1094,29 @@ def eval_trees(sim_tree, true_cascade, observed_comment_count, true_comment_coun
 	norm_error = true_comment_count - observed_comment_count	
 	if norm_error == 0:
 		norm_error = 1
-	edit_dist_res['norm_dist'] = edit_dist_res['dist'] / norm_error
+	eval_res['norm_dist'] = eval_res['dist'] / norm_error
 
-	return edit_dist_res
+	#add more fields to the results dictionary
+	eval_res['post_id'] = post_id
+	eval_res['observed_comment_count'] = observed_comment_count
+	eval_res['true_comment_count'] = true_comment_count
+	eval_res['simulated_comment_count'] = simulated_comment_count
+	eval_res['disconnected'] = "True" if disconnected else "False"
+	eval_res['time_observed'] = time_observed
+
+	return eval_res
 #end eval_trees
 
 
-#BOOKMARK - haven't done anything below this
+
+#save all sim results to csv file
+#one row per simulated post/time pair, with a bunch of data in it
+#then, at the bottom, all the settings/arguments, for tracking purposes
+def save_results():
+	#dump metrics dict to file, enforcing a semi-meaningful order
+	fields = ["post_id", "time_observed", "true_comment_count", "observed_comment_count", "simulated_comment_count", "dist", "norm_dist", "remove_count", "remove_time", "insert_count", "insert_time", "update_count", "update_time", "match_count", "disconnected"]
+	file_utils.verify_dir(outfile)
+	file_utils.save_csv(all_metrics, outfile + ("%s_%d_eval_res_start%d-%d_%d_months.csv" % (subreddit, len(test_posts), testing_start_year, testing_start_month, testing_len)), fields)
+#end save_results
 
 
-#convert ground-truth cascade to output format and save for later evaluation
-def save_groundtruth(post, comments, outfile):
-	print("Saving groundtruth as", outfile+"_groundtruth.csv")
-
-	#convert ground_truth from given format to eval format
-	truth_events = []
-	#include post
-	truth_events.append({'rootID': "t3_"+post['id_h'], 'nodeID': "t3_"+post['id_h'], 'parentID': "t3_"+post['id_h']})
-	#and all comments, sorted by time
-	for comment in sorted(comments.values(), key=lambda k: k['created_utc']): 
-		truth_events.append({'rootID': comment['link_id_h'], 'nodeID': "t1_"+comment['id_h'], 'parentID': comment['parent_id_h']})
-
-	#save ground-truth of this cascade	
-	file_utils.save_csv(truth_events, outfile+"_groundtruth.csv", fields=['rootID', 'nodeID', 'parentID'])
-#end save_groundtruth
-
-
-#save simulated cascade to json
-def save_sim_json(group, sim_post_id, random_post, time_observed, min_node_quality, max_nodes, estimate_initial_params, sim_events, outfile):
-	#save sim results to output file - json with events and run settings
-	print("Saving results to", outfile + ".json...")    
-	#write to json, include some run info
-	output = {'group'    				: group,
-	          'post_id'  				: sim_post_id,
-	          'post_randomly_selected'	: random_post,
-	          'time_observed'   		: time_observed,
-	          'min_node_quality' 		: min_node_quality,
-	          'max_graph_size' 			: max_nodes,
-	          'estimate_initial_params' : estimate_initial_params,
-	          'data'     				: sim_events}
-	file_utils.save_json(output, outfile+".json")
-#end save_sim_json
-
-
-#given a list of events, check event times to make sure they are in sorted order
-def verify_sorted(events):
-	prev_time = -1
-	for event in events:
-		curr_time = event['nodeTime']
-		if prev_time != -1 and curr_time < prev_time:
-			print("out of order!", prev_time, curr_time)
-			return False
-		prev_time = curr_time
-	print("Events are sorted")
-	return True
-#end verify_sorted

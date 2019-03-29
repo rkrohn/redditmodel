@@ -50,10 +50,7 @@ if len(test_posts) != len(test_cascades):
 base_graph, graph_post_ids = functions_gen_cascade_model.build_base_graph(train_posts, train_params, train_fit_fail_list, include_default_posts, max_nodes, min_node_quality, weight_method, weight_threshold, top_n)
 vprint("")
 
-#if running in mode all, keep total of all metrics, dump at end
-if batch or len(time_observed_list) > 1:
-	total_metrics = defaultdict(lambda: defaultdict(int))		#time observed -> metrics dictionary
-
+all_metrics = []		#keep all metrics, separate for each post/observed time run, dump them all at the end
 filename_id = str(time.time())		#unique temp file identifier for this run
 
 #process all posts (or just one, if doing that)
@@ -88,26 +85,7 @@ for sim_post_id, sim_post in test_posts.items():
 
 
 		#SIMULATE COMMENT TREE
-		sim_tree, observed_count = functions_gen_cascade_model.simulate_comment_tree(sim_post, sim_params, subreddit, test_cascades[sim_post_id], time_observed, not batch)
-
-
-		#OUTPUT TREES
-
-		#for now, only output if doing a single post
-		'''
-		if batch == False:
-			#save groundtruth cascade to csv
-			functions_gen_cascade_model.save_groundtruth(sim_post, post_comments, outfile)
-
-			#save sim results to json - all simulated events plus some simulation parameters
-			functions_gen_cascade_model.save_sim_json(subreddit, sim_post_id, random_post, time_observed, min_node_quality, max_nodes, estimate_initial_params, sim_events, outfile)
-
-			#save sim results to second output file - csv, one event per row, columns 'rootID', 'nodeID', and 'parentID' for now
-			print("Saving results to", outfile + ".csv...")  
-			file_utils.save_csv(sim_events, outfile+".csv", fields=['rootID', 'nodeID', 'parentID'])
-			print("")
-		'''
-
+		sim_tree, observed_count, simulated_count = functions_gen_cascade_model.simulate_comment_tree(sim_post, sim_params, subreddit, test_cascades[sim_post_id], time_observed, not batch)
 
 		#EVAL
 
@@ -115,20 +93,18 @@ for sim_post_id, sim_post in test_posts.items():
 		true_cascade, true_comment_count = functions_gen_cascade_model.filter_comment_tree(sim_post, test_cascades[sim_post_id])
 
 		#compute tree edit distance between ground-truth and simulated cascades
-		eval_res = functions_gen_cascade_model.eval_trees(sim_tree, true_cascade, observed_count, true_comment_count)
+		eval_res = functions_gen_cascade_model.eval_trees(sim_post_id, sim_tree, true_cascade, simulated_count, observed_count, true_comment_count, time_observed, disconnected)
+
+		#append eval data to overall list
+		all_metrics.append(eval_res)
 
 		if batch == False and len(time_observed_list) == 1:
 			vprint("Tree edit distance: ", eval_res['dist'])
 			vprint("   normalized distance: ", eval_res['norm_dist'])
-			vprint("   update: ", eval_res['update_count'], eval_res['update_time'])
-			vprint("   insert: ", eval_res['insert_count'], eval_res['insert_time'])
-			vprint("   remove: ", eval_res['remove_count'], eval_res['remove_time'])
+			vprint("   update: ", eval_res['update_count'], " ", eval_res['update_time'])
+			vprint("   insert: ", eval_res['insert_count'], " ", eval_res['insert_time'])
+			vprint("   remove: ", eval_res['remove_count'], " ", eval_res['remove_time'])
 			vprint("   match: ", eval_res['match_count'])
-
-		#if running in mode all, or multiple times, keep total of all these metrics, dump at end
-		else:
-			for metric, value in eval_res.items():
-				total_metrics[time_observed][metric] += value
 
 	#counter and periodic prints
 	post_count += 1
@@ -149,15 +125,9 @@ if batch or len(time_observed_list) > 1:
 	if estimate_initial_params:
 		print("Estimating initial params for seed posts based on inverse quality weighted average of neighbors")
 
-	for time_observed in time_observed_list:
-		print("\nObserved time: %f" % time_observed)
-		print("Tree edit distance:", total_metrics[time_observed]['dist'])
-		print("   update:", total_metrics[time_observed]['update_count'], total_metrics[time_observed]['update_time'])
-		print("   insert:", total_metrics[time_observed]['insert_count'], total_metrics[time_observed]['insert_time'])
-		print("   remove:", total_metrics[time_observed]['remove_count'], total_metrics[time_observed]['remove_time'])
-		print("   match:", total_metrics[time_observed]['match_count'])
 	print("")
 
-	#dump metrics dict to file
+	#dump metrics dict to file, enforcing a semi-meaningful order
+	fields = ["post_id", "time_observed", "true_comment_count", "observed_comment_count", "simulated_comment_count", "dist", "norm_dist", "remove_count", "remove_time", "insert_count", "insert_time", "update_count", "update_time", "match_count", "disconnected"]
 	file_utils.verify_dir(outfile)
-	file_utils.dict_to_csv(total_metrics, ['time_observed']+list(total_metrics[time_observed_list[0]].keys()), outfile+("/%s_metric_results.csv"%filename_id))
+	file_utils.save_csv(all_metrics, outfile + ("%s_%d_eval_res_start%d-%d_%d_months.csv" % (subreddit, len(test_posts), testing_start_year, testing_start_month, testing_len)), fields)
