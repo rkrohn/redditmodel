@@ -1,6 +1,5 @@
 import zss
 from zss import Node, Operation
-from collections import defaultdict
 
 
 #op types, taken from library code
@@ -151,8 +150,16 @@ def compare_trees(sim_dict_tree, truth_dict_tree, error_margin=30):
 
 	#break down the ops to get different operation counts and time errors
 	#store in dictionary
-	results = defaultdict(int)
+	results = {}
 	results['dist'] = dist
+	#make sure all the fields show up, even if 0
+	results['remove_count'] = 0
+	results['remove_time'] = 0
+	results['insert_count'] = 0
+	results['insert_time'] = 0
+	results['update_count'] = 0
+	results['update_time'] = 0
+	results['match_count'] = 0
 	for op in ops:
 		op_type, op_time_error, op_str = parse_op(op)
 		#handle different types
