@@ -954,8 +954,8 @@ def graph_infer(sim_post, sim_post_id, weight_method, min_weight, base_graph, el
 	#offload to C++, because I feel the need... the need for speed!:
 
 	#run node2vec on graph and params - with on-the-fly transition probs option, or probably die
-	#out = subprocess.check_output(["./c_node2vec/examples/node2vec/node2vec", "-i:"+(temp_graph_filepath % filename_id), "-ie:"+(temp_params_filepath % filename_id), "-o:"+(output_params_filepath % filename_id), "-d:6", "-l:3", "-w", "-s", "-otf"])
-	subprocess.check_call(["./c_node2vec/examples/node2vec/node2vec", "-i:"+(temp_graph_filepath % filename_id), "-ie:"+(temp_params_filepath % filename_id), "-o:"+(output_params_filepath % filename_id), "-d:6", "-l:3", "-w", "-s", "-otf"])
+	out = subprocess.check_output(["./c_node2vec/examples/node2vec/node2vec", "-i:"+(temp_graph_filepath % filename_id), "-ie:"+(temp_params_filepath % filename_id), "-o:"+(output_params_filepath % filename_id), "-d:6", "-l:3", "-w", "-s", "-otf"])
+	#subprocess.check_call(["./c_node2vec/examples/node2vec/node2vec", "-i:"+(temp_graph_filepath % filename_id), "-ie:"+(temp_params_filepath % filename_id), "-o:"+(output_params_filepath % filename_id), "-d:6", "-l:3", "-w", "-s", "-otf"])
 	if display:
 		vprint("")
 
