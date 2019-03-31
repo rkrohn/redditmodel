@@ -137,7 +137,9 @@ def print_tree(root):
 #end print_tree
 
 
-#given two trees in dictionary format, compute the tree edit distance between them
+#given two trees in dictionary format, error_method, and optional error_margin, 
+#compute the tree edit distance between the trees
+#error method must be one of topo, abs, or level
 #return a few different measures:
 #	total tree edit distance, count of inserted/removed/updated comments
 #	update count, number of comments updated
@@ -147,7 +149,7 @@ def print_tree(root):
 #	remove count, number of comments removed (deleted from sim tree)
 #	remove time error, total time delta of all removed comments
 #	match count, total number of node matches (for easy % correct calcs)
-def compare_trees(sim_dict_tree, truth_dict_tree, error_margin=30, absolute_error_method=False):
+def compare_trees(sim_dict_tree, truth_dict_tree, error_method, error_margin=30):
 	#set global time_error_margin for time_level_dist function
 	global time_error_margin
 	time_error_margin = error_margin
@@ -157,10 +159,15 @@ def compare_trees(sim_dict_tree, truth_dict_tree, error_margin=30, absolute_erro
 	truth, truth_depth, truth_breadth = build_tree(truth_dict_tree, get_stats=True)
 
 	#compute edit distance - for now the time-version
-	if absolute_error_method:
+	if error_method == "abs":
 		dist, ops = zss.distance(sim, truth, CommentNode.get_children, insert_cost, remove_cost, time_dist, return_operations=True)
-	else:
+	elif error_method == "level":
 		dist, ops = zss.distance(sim, truth, CommentNode.get_children, insert_cost, remove_cost, time_level_dist, return_operations=True)
+	elif error_method == "topo":
+		dist, ops = zss.distance(sim, truth, CommentNode.get_children, insert_cost, remove_cost, struct_only_dist, return_operations=True)
+	else:
+		print("Invalid eval mode. Exiting")
+		exit(0)
 
 	#break down the ops to get different operation counts and time errors
 	#store in dictionary

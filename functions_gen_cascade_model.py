@@ -66,7 +66,7 @@ def parse_command_args():
 	#required arguments (still with -flags, because clearer that way, and don't want to impose an order)
 	parser.add_argument("-s", "--sub", dest="subreddit", required=True, help="subreddit to process")
 	parser.add_argument("-o", "--out", dest="outfile", required=True, help="output filename")
-	#must pick one of three processing options: a single id, random, or all
+	#must pick one of four processing options: a single id, random, all, or sample of size n
 	proc_group = parser.add_mutually_exclusive_group(required=True)
 	proc_group.add_argument("-id", dest="sim_post", default=None,  help="post id for single-processing")
 	proc_group.add_argument("-r", "--rand", dest="sim_post", action="store_const", const="random", help="choose a random post from the subreddit to simulate")
@@ -96,15 +96,21 @@ def parse_command_args():
 	parser.set_defaults(verbose=False)
 	parser.add_argument("-d", "--default_params", dest="include_default_posts", action='store_true', help="include posts with hardcoded default parameters in infer graph")
 	parser.set_defaults(include_default_posts=False)
-	parser.add_argument("--err", dest="time_error_margin", default=30, help="allowable time error for evaluation, in minutes")
+	parser.add_argument("--err", dest="time_error_margin", default=False, help="allowable time error for evaluation, in minutes")
 	parser.add_argument("--err_abs", dest="time_error_absolute", action="store_true", help="use absolute time error, instead of increasing by level")
 	parser.set_defaults(time_error_absolute=False)
+	parser.add_argument("--topo_err", dest="topological_error", action="store_true", help="compute topological error only, ignoring comment timestamps")
+	parser.set_defaults(topological_error=False)
 
 	args = parser.parse_args()		#parse the args (magic!)
 
 	#make sure at least one edge-limit option was chosen
 	if not (args.top_n or args.weight_threshold):
 		parser.error('No edge limit selected, add -topn, -threshold, or both')
+
+	#make sure error settings don't conflict
+	if args.topological_error and (args.time_error_absolute or args.time_error_margin != False):
+		parser.error('Cannot use topological error method with absolute time error or error margin setting')
 
 	#extract arguments (since want to return individual variables)
 	subreddit = args.subreddit
@@ -122,8 +128,9 @@ def parse_command_args():
 	include_default_posts = args.include_default_posts
 	verbose = args.verbose
 	top_n = args.top_n
-	time_error_margin = float(args.time_error_margin)
+	time_error_margin = float(args.time_error_margin) if args.time_error_margin != False else 30.0
 	time_error_absolute = args.time_error_absolute
+	topological_error = args.topological_error
 	if top_n != False:
 		top_n = int(top_n)
 	weight_threshold = args.weight_threshold
@@ -146,6 +153,13 @@ def parse_command_args():
 		except ValueError:
 			#single specified post
 			batch = False
+	#and for eval mode
+	if topological_error:
+		error_method = "topo"
+	elif time_error_absolute:
+		error_method = "abs"
+	else:	#both false, use by-level
+		error_method = "level"
 
 	#compute start of training period for easy use later
 	training_start_month, training_start_year = monthdelta(testing_start_month, testing_start_year, -training_len)
@@ -172,7 +186,6 @@ def parse_command_args():
 	vprint("Max graph size: ", max_nodes)
 	vprint("Max edges per node: ", "None" if top_n==False else top_n)
 	vprint("Minimum edge weight: ", "None" if weight_threshold==False else weight_threshold)
-	vprint("Allowable eval time error: ", time_error_margin)
 	if estimate_initial_params:
 		vprint("Estimating initial params for seed posts based on inverse quality weighted average of neighbors")
 	vprint("Testing Period: %d-%d" % (testing_start_month, testing_start_year), " through %d-%d (%d months)" % (monthdelta(testing_start_month, testing_start_year, testing_len, inclusive=True)+(testing_len,)) if testing_len > 1 else " (%d month)" % testing_len)
@@ -187,14 +200,18 @@ def parse_command_args():
 		vprint("Including posts with hardcoded default parameters")
 	else:
 		vprint("Ignoring posts with hardcoded default parameters")
-	if time_error_absolute:
+	if error_method == "abs":
 		vprint("Using absolute time error margin for all levels of tree")
+		vprint("   Allowable eval time error: ", time_error_margin)
+	elif error_method == "topo":
+		vprint("Using topological error for tree evaluation (ignoring comment times)")
 	else:
-		vprint("Allowable time error increasing by tree level")
+		vprint("Using error margin increasing by level")
+		vprint("   Allowable eval time error: ", time_error_margin)
 	vprint("")
 
 	#return all arguments
-	return subreddit, sim_post, time_observed, outfile, max_nodes, min_node_quality, estimate_initial_params, batch, sample_num, testing_start_month, testing_start_year, testing_len, training_start_month, training_start_year, training_len, weight_method, top_n, weight_threshold, include_default_posts, time_error_margin, time_error_absolute, verbose
+	return subreddit, sim_post, time_observed, outfile, max_nodes, min_node_quality, estimate_initial_params, batch, sample_num, testing_start_month, testing_start_year, testing_len, training_start_month, training_start_year, training_len, weight_method, top_n, weight_threshold, include_default_posts, time_error_margin, error_method, verbose
 #end parse_command_args
 
 
@@ -1095,9 +1112,9 @@ def filter_comment_tree(post, cascade, time_observed=False):
 #given simulated and ground-truth cascades, compute the accuracy and precision of the simulation
 #both trees given as dictionary-nested structure (returned from simulate_comment_tree and convert_comment_tree)
 #return eval results in a metric-coded dictionary
-def eval_trees(post_id, sim_tree, true_cascade, simulated_comment_count, observed_comment_count, true_comment_count, time_observed, time_error_margin, time_error_absolute, disconnected):
+def eval_trees(post_id, sim_tree, true_cascade, simulated_comment_count, observed_comment_count, true_comment_count, time_observed, time_error_margin, error_method, disconnected):
 	#get edit distance stats for sim vs truth
-	eval_res = tree_edit_distance.compare_trees(sim_tree, true_cascade, time_error_margin, time_error_absolute)
+	eval_res = tree_edit_distance.compare_trees(sim_tree, true_cascade, error_method, time_error_margin)
 
 	#add more data fields to the results dictionary
 	eval_res['post_id'] = post_id
@@ -1143,7 +1160,7 @@ def eval_trees(post_id, sim_tree, true_cascade, simulated_comment_count, observe
 #save all sim results to csv file
 #one row per simulated post/time pair, with a bunch of data in it
 #then, at the bottom, all the settings/arguments, for tracking purposes
-def save_results(filename, metrics, avg_metrics, input_sim_post, time_observed, subreddit, min_node_quality, max_graph_size, min_weight, testing_start_month, testing_start_year, testing_len, training_start_month, training_start_year, training_len, edge_weight_method, include_hardcoded_posts, estimate_initial_params, time_error_margin, time_error_absolute):
+def save_results(filename, metrics, avg_metrics, input_sim_post, time_observed, subreddit, min_node_quality, max_graph_size, min_weight, testing_start_month, testing_start_year, testing_len, training_start_month, training_start_year, training_len, edge_weight_method, include_hardcoded_posts, estimate_initial_params, time_error_margin, error_method):
 	#dump metrics dict to file, enforcing a semi-meaningful order
 	fields = ["post_id", "time_observed", "true_comment_count", "observed_comment_count", "simulated_comment_count", "true_depth", "true_breadth", "simulated_depth", "simulated_breadth", "f1", "precision", "recall", "true_pos", "false_pos", "false_neg", "dist", "remove_count", "remove_time", "insert_count", "insert_time", "update_count", "update_time", "match_count", "disconnected"]
 	file_utils.save_csv(metrics, filename, fields)
@@ -1176,7 +1193,7 @@ def save_results(filename, metrics, avg_metrics, input_sim_post, time_observed, 
 		file.write("include_default_params_posts,%s\n" % include_hardcoded_posts)
 		file.write("estimate_initial_params,%s\n" % estimate_initial_params)
 		file.write("allowable time error,%s\n" % time_error_margin)
-		file.write("time error method,%s\n" % ("absolute" if time_error_absolute else "by-level"))
+		file.write("time error method,%s\n" % error_method)
 
 	return
 #end save_results
