@@ -38,12 +38,10 @@ def fit_partial_cascade(post, cascade, observed_time, param_guess=False, verbose
     vprint("Fitting partial cascade, observed %d of %d comments" % (observed_count, cascade['comment_count_total']))
 
     #weibull fit
-    vprint("root comments: ", root_comment_times)
     #refine the weibull params by calling fit with guess as starting point and #comments (total) as max iterations
     weibull_res = fit_partial_weibull(root_comment_times, param_guess[0:3], observed_count, verbose)       #get back [a, lbd, k], or False if fit fail
 
     #lognorm fit
-    vprint("other comments: ", other_comment_times)
     #refine the lognormal params by calling fit with guess as starting point and #comments (total) as max iterations
     lognorm_res = fit_partial_lognormal(other_comment_times, param_guess[3:5], observed_count, verbose)    #get back [mu, sigma], or False if fit fail
 
