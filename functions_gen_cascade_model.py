@@ -1133,10 +1133,21 @@ def eval_trees(post_id, sim_tree, true_cascade, simulated_comment_count, observe
 #save all sim results to csv file
 #one row per simulated post/time pair, with a bunch of data in it
 #then, at the bottom, all the settings/arguments, for tracking purposes
-def save_results(filename, metrics, input_sim_post, time_observed, subreddit, min_node_quality, max_graph_size, min_weight, testing_start_month, testing_start_year, testing_len, training_start_month, training_start_year, training_len, edge_weight_method, include_hardcoded_posts, estimate_initial_params):
+def save_results(filename, metrics, avg_metrics, input_sim_post, time_observed, subreddit, min_node_quality, max_graph_size, min_weight, testing_start_month, testing_start_year, testing_len, training_start_month, training_start_year, training_len, edge_weight_method, include_hardcoded_posts, estimate_initial_params):
 	#dump metrics dict to file, enforcing a semi-meaningful order
 	fields = ["post_id", "time_observed", "true_comment_count", "observed_comment_count", "simulated_comment_count", "true_depth", "true_breadth", "simulated_depth", "simulated_breadth", "f1", "precision", "recall", "true_pos", "false_pos", "false_neg", "dist", "remove_count", "remove_time", "insert_count", "insert_time", "update_count", "update_time", "match_count", "disconnected"]
 	file_utils.save_csv(metrics, filename, fields)
+
+	#dump average metrics after that
+	with open(filename, 'a') as file:
+		file.write("\nAverage by time observed\n")		#header/label
+	#convert avg metrics from nested dict to list of dict
+	avg_metrics = [avg_metrics[time] for time in avg_metrics.keys()]
+	#remove a couple unneeded fields for this dump
+	fields.remove("post_id")
+	fields.remove("disconnected")
+	#save avg metrics
+	file_utils.save_csv(avg_metrics, filename, fields, file_mode='a')
 	
 	#append arguments/settings to the end
 	with open(filename, "a") as file:
