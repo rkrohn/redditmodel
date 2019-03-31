@@ -101,6 +101,8 @@ def parse_command_args():
 	parser.set_defaults(time_error_absolute=False)
 	parser.add_argument("--topo_err", dest="topological_error", action="store_true", help="compute topological error only, ignoring comment timestamps")
 	parser.set_defaults(topological_error=False)
+	parser.add_argument("-np", "--norm_param", dest="normalize_parameters", action="store_true", help="min-max normalize paramters for graph inference")
+	parser.set_defaults(normalize_parameters=False)
 
 	args = parser.parse_args()		#parse the args (magic!)
 
@@ -131,6 +133,7 @@ def parse_command_args():
 	time_error_margin = float(args.time_error_margin) if args.time_error_margin != False else 30.0
 	time_error_absolute = args.time_error_absolute
 	topological_error = args.topological_error
+	normalize_parameters = args.normalize_parameters
 	if top_n != False:
 		top_n = int(top_n)
 	weight_threshold = args.weight_threshold
@@ -188,6 +191,10 @@ def parse_command_args():
 	vprint("Minimum edge weight: ", "None" if weight_threshold==False else weight_threshold)
 	if estimate_initial_params:
 		vprint("Estimating initial params for seed posts based on inverse quality weighted average of neighbors")
+	if normalize_parameters:
+		vprint("Normalizing params (min-max) for graph infer")
+	else:
+		vprint("No param normalization for infer step")
 	vprint("Testing Period: %d-%d" % (testing_start_month, testing_start_year), " through %d-%d (%d months)" % (monthdelta(testing_start_month, testing_start_year, testing_len, inclusive=True)+(testing_len,)) if testing_len > 1 else " (%d month)" % testing_len)
 	vprint("Training Period: %d-%d" % (training_start_month, training_start_year), " through %d-%d (%d months)" % (monthdelta(training_start_month, training_start_year, training_len, inclusive=True)+(training_len,)) if training_len > 1 else " (%d month)" % training_len)
 	if weight_method == "jaccard":
@@ -211,7 +218,7 @@ def parse_command_args():
 	vprint("")
 
 	#return all arguments
-	return subreddit, sim_post, time_observed, outfile, max_nodes, min_node_quality, estimate_initial_params, batch, sample_num, testing_start_month, testing_start_year, testing_len, training_start_month, training_start_year, training_len, weight_method, top_n, weight_threshold, include_default_posts, time_error_margin, error_method, verbose
+	return subreddit, sim_post, time_observed, outfile, max_nodes, min_node_quality, estimate_initial_params, normalize_parameters, batch, sample_num, testing_start_month, testing_start_year, testing_len, training_start_month, training_start_year, training_len, weight_method, top_n, weight_threshold, include_default_posts, time_error_margin, error_method, verbose
 #end parse_command_args
 
 
@@ -814,7 +821,7 @@ def remove_low_edge(graph, node):
 #	max_nodes 					if not False, max nodes to include in graph
 #	top_n 						if not False, max number of edges per node
 #	estimate_initial_params		if True, estimate initial params for sim post based on neighbors
-def graph_infer(sim_post, sim_post_id, weight_method, min_weight, base_graph, eligible_post_ids, posts, cascades, params, fit_fail_list, top_n, estimate_initial_params, filename_id, display=False):
+def graph_infer(sim_post, sim_post_id, weight_method, min_weight, base_graph, eligible_post_ids, posts, cascades, params, fit_fail_list, top_n, estimate_initial_params, normalize_parameters, filename_id, display=False):
 
 	if display:
 		vprint("Inferring post parameters from post graph")
@@ -932,7 +939,10 @@ def graph_infer(sim_post, sim_post_id, weight_method, min_weight, base_graph, el
 
 	#save graph and params to files for node2vec
 	save_graph(edges, temp_graph_filepath % filename_id, isolated_nodes, display)
-	save_params(numeric_ids, posts, cascades, params, temp_params_filepath % filename_id, param_estimate=(estimated_params if estimate_initial_params else False), display=display)
+	if normalize_parameters:
+		min_params, max_params = save_params(numeric_ids, posts, cascades, params, temp_params_filepath % filename_id, param_estimate=(estimated_params if estimate_initial_params else False), normalize=True, display=display)
+	else:
+		save_params(numeric_ids, posts, cascades, params, temp_params_filepath % filename_id, param_estimate=(estimated_params if estimate_initial_params else False), normalize=False, display=display)
 
 	#clear any previous output params
 	if file_utils.verify_file(output_params_filepath):
@@ -944,12 +954,16 @@ def graph_infer(sim_post, sim_post_id, weight_method, min_weight, base_graph, el
 	#offload to C++, because I feel the need... the need for speed!:
 
 	#run node2vec on graph and params - with on-the-fly transition probs option, or probably die
-	out = subprocess.check_output(["./c_node2vec/examples/node2vec/node2vec", "-i:"+(temp_graph_filepath % filename_id), "-ie:"+(temp_params_filepath % filename_id), "-o:"+(output_params_filepath % filename_id), "-d:6", "-l:3", "-w", "-s", "-otf"])
+	#out = subprocess.check_output(["./c_node2vec/examples/node2vec/node2vec", "-i:"+(temp_graph_filepath % filename_id), "-ie:"+(temp_params_filepath % filename_id), "-o:"+(output_params_filepath % filename_id), "-d:6", "-l:3", "-w", "-s", "-otf"])
+	subprocess.check_call(["./c_node2vec/examples/node2vec/node2vec", "-i:"+(temp_graph_filepath % filename_id), "-ie:"+(temp_params_filepath % filename_id), "-o:"+(output_params_filepath % filename_id), "-d:6", "-l:3", "-w", "-s", "-otf"])
 	if display:
 		vprint("")
 
 	#load the inferred params (dictionary of numeric id -> params) and extract sim_post inferred params
-	all_inferred_params = load_inferred_params(output_params_filepath % filename_id, display)
+	if normalize_parameters:
+		all_inferred_params = load_inferred_params(output_params_filepath % filename_id, min_params, max_params, display=display)
+	else:
+		all_inferred_params = load_inferred_params(output_params_filepath % filename_id, display=display)
 	inferred_params = all_inferred_params[numeric_ids[sim_post_id]]
 
 	return inferred_params, disconnected
@@ -994,7 +1008,28 @@ def save_graph(edgelist, filename, isolated_nodes = [], display=False):
 
 
 #save params to txt file for node2vec processing
-def save_params(numeric_ids, posts, cascades, params, filename, param_estimate=False, display=False):
+def save_params(numeric_ids, posts, cascades, params, filename, param_estimate=False, normalize=False, display=False):
+	#if normalizing, find min and max values in each position (not sticky/quality)
+	if normalize:
+		#start at defaults, so those values included in min/max checks
+		min_params = DEFAULT_WEIBULL_NONE + DEFAULT_LOGNORMAL + [DEFAULT_QUALITY]
+		max_params = DEFAULT_WEIBULL_SINGLE + DEFAULT_LOGNORMAL + [DEFAULT_QUALITY]
+		for post_id, params in params.items():
+			for i in range(6):
+				if params[i] < min_params[i]:
+					min_params[i] = params[i]
+				if params[i] > max_params[i] :
+					max_params[i] = params[i]
+		#max value at index 0 (first weibull) could be highest number of comments for any default post
+		for post_id, numeric_id in numeric_ids.items():
+			if post_id not in params and post_id in cascades and cascades[post_id]['comment_count_direct'] > max_params[0]:
+				max_params[0] = cascades[post_id]['comment_count_direct']
+		#compute normalization denominator
+		denom = [0] * 6
+		for i in range(6):
+			denom[i] = max_params[i] - min_params[i]
+
+	#write all params out to file
 	with open(filename, "w") as f: 
 		for post_id, numeric_id in numeric_ids.items():
 			#skip sim post for now
@@ -1008,21 +1043,39 @@ def save_params(numeric_ids, posts, cascades, params, filename, param_estimate=F
 			else:
 				post_params = get_default_params(cascades[post_id])
 			#write params
-			for i in range(6):
-				f.write(str(post_params[i]) + ' ')
+			if normalize:
+				for i in range(6):
+					f.write(str((post_params[i] - min_params[i]) / denom[i]) + ' ')
+			else:
+				for i in range(6):
+					f.write(str(post_params[i]) + ' ')
 			f.write(str(post_params[6]) + "\n")	#write quality (last value in params)
 
 		#estimated params for sim_post, if we have them	(no quality)
 		if param_estimate != False:
-			f.write("%d %f %f %f %f %f %f\n" % (0, param_estimate[0], param_estimate[1], param_estimate[2], param_estimate[3], param_estimate[4], param_estimate[5]))
+			if normalize:
+				for i in range(6):
+					f.write(str((param_estimate[i] - min_params[i]) / denom[i]) + ' ')
+			else:
+				f.write("%d %f %f %f %f %f %f\n" % (0, param_estimate[0], param_estimate[1], param_estimate[2], param_estimate[3], param_estimate[4], param_estimate[5]))
 
 	if display:
 		vprint("Saved graph params to %s" % filename)
+
+	#if normalized, return min/max values so we can reverse it later
+	if normalize:
+		return min_params, max_params
 #end save_params
 
 
 #load inferred params from file
-def load_inferred_params(filename, display=False):
+def load_inferred_params(filename, min_params=False, max_params=False, display=False):
+	#if reversing normalization, compute denominator
+	if min_params != False:
+		denom = [0] * 6
+		for i in range(6):
+			denom[i] = max_params[i] - min_params[i]
+
 	#read all lines of file
 	with open(filename, 'r') as f:
 		lines = f.readlines()
@@ -1039,6 +1092,10 @@ def load_inferred_params(filename, display=False):
 		#read params
 		for i in range(1, 7):
 			params.append(float(values[i]))
+		#reverse normalization, if applicable
+		if min_params != False:
+			for i in range(6):
+				params[i] = params[i] * denom[i] + min_params[i]
 		all_params[post_id] = params
 
 	if display:

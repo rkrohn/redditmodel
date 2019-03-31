@@ -15,7 +15,7 @@ from collections import defaultdict
 print("")
 
 #parse all command-line arguments
-subreddit, input_sim_post, time_observed_list, outfile, max_nodes, min_node_quality, estimate_initial_params, batch, sample_num, testing_start_month, testing_start_year, testing_len, training_start_month, training_start_year, training_len, weight_method, top_n, weight_threshold, include_default_posts, time_error_margin, error_method, verbose = functions_gen_cascade_model.parse_command_args()
+subreddit, input_sim_post, time_observed_list, outfile, max_nodes, min_node_quality, estimate_initial_params, normalize_parameters, batch, sample_num, testing_start_month, testing_start_year, testing_len, training_start_month, training_start_year, training_len, weight_method, top_n, weight_threshold, include_default_posts, time_error_margin, error_method, verbose = functions_gen_cascade_model.parse_command_args()
 
 #hackery: declare a special print function for verbose output
 if verbose:
@@ -64,7 +64,7 @@ for sim_post_id, sim_post in test_posts.items():
 		vprint("Simulation post has %d comments" % test_cascades[sim_post_id]['comment_count_total'])
 
 	#GRAPH INFER
-	inferred_params, disconnected = functions_gen_cascade_model.graph_infer(sim_post, sim_post_id, weight_method, weight_threshold, base_graph, graph_post_ids, train_posts, train_cascades, train_params, train_fit_fail_list, top_n, estimate_initial_params, filename_id, display= not batch)
+	inferred_params, disconnected = functions_gen_cascade_model.graph_infer(sim_post, sim_post_id, weight_method, weight_threshold, base_graph, graph_post_ids, train_posts, train_cascades, train_params, train_fit_fail_list, top_n, estimate_initial_params, normalize_parameters, filename_id, display= not batch)
 	if batch == False:
 		vprint("Inferred params: ", inferred_params, "\n")
 
