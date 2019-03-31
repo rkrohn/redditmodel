@@ -99,6 +99,10 @@ for sim_post_id, sim_post in test_posts.items():
 		all_metrics.append(eval_res)
 
 		if batch == False and len(time_observed_list) == 1:
+			vprint("Tree stats:")
+			vprint("   comment count: true ", eval_res['true_comment_count'], " simulated ", eval_res['simulated_comment_count'])
+			vprint("   depth: true ", eval_res['true_depth'], " simulated ", eval_res['simulated_depth'])
+			vprint("   breadth: true ", eval_res['true_breadth'], " simulated ", eval_res['simulated_breadth'])
 			vprint("Tree edit distance: ", eval_res['dist'])
 			vprint("   update: ", eval_res['update_count'], " ", eval_res['update_time'])
 			vprint("   insert: ", eval_res['insert_count'], " ", eval_res['insert_time'])
