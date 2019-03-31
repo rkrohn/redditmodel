@@ -96,6 +96,9 @@ def parse_command_args():
 	parser.set_defaults(verbose=False)
 	parser.add_argument("-d", "--default_params", dest="include_default_posts", action='store_true', help="include posts with hardcoded default parameters in infer graph")
 	parser.set_defaults(include_default_posts=False)
+	parser.add_argument("--err", dest="time_error_margin", default=30, help="allowable time error for evaluation, in minutes")
+	parser.add_argument("--err_abs", dest="time_error_absolute", action="store_true", help="use absolute time error, instead of increasing by level")
+	parser.set_defaults(time_error_absolute=False)
 
 	args = parser.parse_args()		#parse the args (magic!)
 
@@ -119,6 +122,8 @@ def parse_command_args():
 	include_default_posts = args.include_default_posts
 	verbose = args.verbose
 	top_n = args.top_n
+	time_error_margin = float(args.time_error_margin)
+	time_error_absolute = args.time_error_absolute
 	if top_n != False:
 		top_n = int(top_n)
 	weight_threshold = args.weight_threshold
@@ -167,6 +172,7 @@ def parse_command_args():
 	vprint("Max graph size: ", max_nodes)
 	vprint("Max edges per node: ", "None" if top_n==False else top_n)
 	vprint("Minimum edge weight: ", "None" if weight_threshold==False else weight_threshold)
+	vprint("Allowable eval time error: ", time_error_margin)
 	if estimate_initial_params:
 		vprint("Estimating initial params for seed posts based on inverse quality weighted average of neighbors")
 	vprint("Testing Period: %d-%d" % (testing_start_month, testing_start_year), " through %d-%d (%d months)" % (monthdelta(testing_start_month, testing_start_year, testing_len, inclusive=True)+(testing_len,)) if testing_len > 1 else " (%d month)" % testing_len)
@@ -181,10 +187,14 @@ def parse_command_args():
 		vprint("Including posts with hardcoded default parameters")
 	else:
 		vprint("Ignoring posts with hardcoded default parameters")
+	if time_error_absolute:
+		vprint("Using absolute time error margin for all levels of tree")
+	else:
+		vprint("Allowable time error increasing by tree level")
 	vprint("")
 
 	#return all arguments
-	return subreddit, sim_post, time_observed, outfile, max_nodes, min_node_quality, estimate_initial_params, batch, sample_num, testing_start_month, testing_start_year, testing_len, training_start_month, training_start_year, training_len, weight_method, top_n, weight_threshold, include_default_posts, verbose
+	return subreddit, sim_post, time_observed, outfile, max_nodes, min_node_quality, estimate_initial_params, batch, sample_num, testing_start_month, testing_start_year, testing_len, training_start_month, training_start_year, training_len, weight_method, top_n, weight_threshold, include_default_posts, time_error_margin, time_error_absolute, verbose
 #end parse_command_args
 
 
@@ -1085,9 +1095,9 @@ def filter_comment_tree(post, cascade, time_observed=False):
 #given simulated and ground-truth cascades, compute the accuracy and precision of the simulation
 #both trees given as dictionary-nested structure (returned from simulate_comment_tree and convert_comment_tree)
 #return eval results in a metric-coded dictionary
-def eval_trees(post_id, sim_tree, true_cascade, simulated_comment_count, observed_comment_count, true_comment_count, time_observed, disconnected):
+def eval_trees(post_id, sim_tree, true_cascade, simulated_comment_count, observed_comment_count, true_comment_count, time_observed, time_error_margin, time_error_absolute, disconnected):
 	#get edit distance stats for sim vs truth
-	eval_res = tree_edit_distance.compare_trees(sim_tree, true_cascade)
+	eval_res = tree_edit_distance.compare_trees(sim_tree, true_cascade, time_error_margin, time_error_absolute)
 
 	#add more data fields to the results dictionary
 	eval_res['post_id'] = post_id
@@ -1133,7 +1143,7 @@ def eval_trees(post_id, sim_tree, true_cascade, simulated_comment_count, observe
 #save all sim results to csv file
 #one row per simulated post/time pair, with a bunch of data in it
 #then, at the bottom, all the settings/arguments, for tracking purposes
-def save_results(filename, metrics, avg_metrics, input_sim_post, time_observed, subreddit, min_node_quality, max_graph_size, min_weight, testing_start_month, testing_start_year, testing_len, training_start_month, training_start_year, training_len, edge_weight_method, include_hardcoded_posts, estimate_initial_params):
+def save_results(filename, metrics, avg_metrics, input_sim_post, time_observed, subreddit, min_node_quality, max_graph_size, min_weight, testing_start_month, testing_start_year, testing_len, training_start_month, training_start_year, training_len, edge_weight_method, include_hardcoded_posts, estimate_initial_params, time_error_margin, time_error_absolute):
 	#dump metrics dict to file, enforcing a semi-meaningful order
 	fields = ["post_id", "time_observed", "true_comment_count", "observed_comment_count", "simulated_comment_count", "true_depth", "true_breadth", "simulated_depth", "simulated_breadth", "f1", "precision", "recall", "true_pos", "false_pos", "false_neg", "dist", "remove_count", "remove_time", "insert_count", "insert_time", "update_count", "update_time", "match_count", "disconnected"]
 	file_utils.save_csv(metrics, filename, fields)
@@ -1165,6 +1175,8 @@ def save_results(filename, metrics, avg_metrics, input_sim_post, time_observed, 
 		file.write("edge_weight_method,%s\n" % edge_weight_method)
 		file.write("include_default_params_posts,%s\n" % include_hardcoded_posts)
 		file.write("estimate_initial_params,%s\n" % estimate_initial_params)
+		file.write("allowable time error,%s\n" % time_error_margin)
+		file.write("time error method,%s\n" % ("absolute" if time_error_absolute else "by-level"))
 
 	return
 #end save_results

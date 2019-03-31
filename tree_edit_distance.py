@@ -24,10 +24,12 @@ def label_equality_dist(a, b):
 #end label_equality_dist
 
 #distance function that ignores node labels, but takes node time into account
-#if node times are within 30 minutes of each other, distance is 0
+#if node times are within margin minutes of each other, distance is 0
 #otherwise, distance is 1
+#same as time_level_dist, but without the by-level margin increase
 def time_dist(a, b):
-	if abs(a.get_time() - b.get_time()) <= 30:
+	global time_error_margin
+	if abs(a.get_time() - b.get_time()) <= time_error_margin:
 		return 0
 	else:
 		return 1
@@ -145,7 +147,7 @@ def print_tree(root):
 #	remove count, number of comments removed (deleted from sim tree)
 #	remove time error, total time delta of all removed comments
 #	match count, total number of node matches (for easy % correct calcs)
-def compare_trees(sim_dict_tree, truth_dict_tree, error_margin=30):
+def compare_trees(sim_dict_tree, truth_dict_tree, error_margin=30, absolute_error_method=False):
 	#set global time_error_margin for time_level_dist function
 	global time_error_margin
 	time_error_margin = error_margin
@@ -155,7 +157,10 @@ def compare_trees(sim_dict_tree, truth_dict_tree, error_margin=30):
 	truth, truth_depth, truth_breadth = build_tree(truth_dict_tree, get_stats=True)
 
 	#compute edit distance - for now the time-version
-	dist, ops = zss.distance(sim, truth, CommentNode.get_children, insert_cost, remove_cost, time_level_dist, return_operations=True)
+	if absolute_error_method:
+		dist, ops = zss.distance(sim, truth, CommentNode.get_children, insert_cost, remove_cost, time_dist, return_operations=True)
+	else:
+		dist, ops = zss.distance(sim, truth, CommentNode.get_children, insert_cost, remove_cost, time_level_dist, return_operations=True)
 
 	#break down the ops to get different operation counts and time errors
 	#store in dictionary
