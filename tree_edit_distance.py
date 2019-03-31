@@ -99,6 +99,7 @@ def build_tree(input_root, get_stats=False):
 	#if want breadth or depth of tree, track number of nodes added to each level
 	if get_stats:
 		breadth = defaultdict(int)		#level -> number of nodes
+		breadth[0] = 1
 
 	#create root node
 	root = CommentNode(input_root['id'], input_root['time'], level=0)
