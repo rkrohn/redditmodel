@@ -103,6 +103,8 @@ def parse_command_args():
 	parser.set_defaults(topological_error=False)
 	parser.add_argument("-np", "--norm_param", dest="normalize_parameters", action="store_true", help="min-max normalize paramters for graph inference")
 	parser.set_defaults(normalize_parameters=False)
+	parser.add_argument("--sanity", dest="sanity_check", action="store_true", help="sanity check: simulate from fitted params instead of inferring")
+	parser.set_defaults(sanity_check=False)
 
 	args = parser.parse_args()		#parse the args (magic!)
 
@@ -134,6 +136,7 @@ def parse_command_args():
 	time_error_absolute = args.time_error_absolute
 	topological_error = args.topological_error
 	normalize_parameters = args.normalize_parameters
+	sanity_check = args.sanity_check
 	if top_n != False:
 		top_n = int(top_n)
 	weight_threshold = args.weight_threshold
@@ -163,6 +166,9 @@ def parse_command_args():
 		error_method = "abs"
 	else:	#both false, use by-level
 		error_method = "level"
+	#if simming from fitted params, ignore observed time input
+	if sanity_check:
+		time_observed = [0]
 
 	#compute start of training period for easy use later
 	training_start_month, training_start_year = monthdelta(testing_start_month, testing_start_year, -training_len)
@@ -215,10 +221,12 @@ def parse_command_args():
 	else:
 		vprint("Using error margin increasing by level")
 		vprint("   Allowable eval time error: ", time_error_margin)
+	if sanity_check:
+		vprint("Simulating from fitted params, skipping graph/infer/refine steps")
 	vprint("")
 
 	#return all arguments
-	return subreddit, sim_post, time_observed, outfile, max_nodes, min_node_quality, estimate_initial_params, normalize_parameters, batch, sample_num, testing_start_month, testing_start_year, testing_len, training_start_month, training_start_year, training_len, weight_method, top_n, weight_threshold, include_default_posts, time_error_margin, error_method, verbose
+	return subreddit, sim_post, time_observed, outfile, max_nodes, min_node_quality, estimate_initial_params, normalize_parameters, batch, sample_num, testing_start_month, testing_start_year, testing_len, training_start_month, training_start_year, training_len, weight_method, top_n, weight_threshold, include_default_posts, time_error_margin, error_method, sanity_check, verbose
 #end parse_command_args
 
 
