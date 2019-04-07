@@ -85,7 +85,7 @@ def parse_command_args():
 	parser.add_argument("-threshold", dest="weight_threshold", default=False, metavar=('<minimum edge weight>'), help="limit post graph to edges with weight above threshold")
 
 	#optional args	
-	parser.add_argument("-t", dest="time_observed", default=0, help="time of post observation, in hours", nargs='+')
+	parser.add_argument("-t", dest="time_observed", default=[0], help="time of post observation, in hours", nargs='+')
 	parser.add_argument("-g", "--graph", dest="max_nodes", default=False, help="max nodes in post graph for parameter infer")
 	parser.add_argument("-q", "--qual", dest="min_node_quality", default=False, help="minimum node quality for post graph")
 	parser.add_argument("-e", "--esp", dest="estimate_initial_params", action='store_true', help="estimate initial params as inverse quality weighted average of neighbor nodes")
