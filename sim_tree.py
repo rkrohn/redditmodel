@@ -132,9 +132,9 @@ def lognorm_intensity(t, mu, sigma, n_b):
 #   sigma   variance
 #
 #essentially a homogenous poisson process, but with a variable base intensity mu defined by the log-normal distribution
-#bounded by inter-event time of 7200 minutes = 120 hours or max number of events 200
+#bounded by inter-event time of 7200 minutes = 120 hours or max number of events 2000
 #also utilizes the estimated branching factor 
-def generate_lognorm_times(params, n_b, start_time = 0, T = 7200, N_max = 200): # Log-normal kernel
+def generate_lognorm_times(params, n_b, start_time = 0, T = 7200, N_max = 2000): # Log-normal kernel
     (mu, sigma) = params    #unpack the parameters
 
     new_event_times = []    #build list of new event times
