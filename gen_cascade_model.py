@@ -63,7 +63,7 @@ filename_id = str(time.time())		#unique temp file identifier for this run
 #process all posts (or just one, if doing that)
 post_count = 0
 disconnected_count = 0
-print("Processing %d post" % len(test_posts) + "s" if len(test_posts) > 1 else "")
+vprint("Processing %d post" % len(test_posts) + ("s" if len(test_posts) > 1 else ""))
 for sim_post_id, sim_post in test_posts.items():
 
 	if batch == False:
@@ -97,6 +97,8 @@ for sim_post_id, sim_post in test_posts.items():
 			disconnected = False 		#set this for output
 		else:
 			sim_params = partial_fit_params			#refined params from partial fit
+		if not batch:
+			vprint("Simulation params: ", sim_params)
 
 		#SIMULATE COMMENT TREE
 		sim_tree, observed_count, simulated_count = functions_gen_cascade_model.simulate_comment_tree(sim_post, sim_params, subreddit, test_cascades[sim_post_id], time_observed, not batch)
@@ -146,7 +148,7 @@ for sim_post_id, sim_post in test_posts.items():
 if batch or len(time_observed_list) > 1:
 	print("\nAll done\n")
 	vprint("Number of posts: ", len(test_posts))
-	vprint("Time Observed: ", time_observed)
+	vprint("Time Observed: ", time_observed_list)
 	vprint("Source subreddit: ", subreddit)
 	if min_node_quality != -1:
 		vprint("Minimum node quality: ", min_node_quality)
