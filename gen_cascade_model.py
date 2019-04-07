@@ -85,8 +85,7 @@ for sim_post_id, sim_post in test_posts.items():
 		#REFINE PARAMS - for partial observed trees
 		if not sanity_check:
 			partial_fit_params = fit_partial_cascade.fit_partial_cascade(sim_post, test_cascades[sim_post_id], time_observed, inferred_params, verbose=(verbose if batch==False else False))
-			if batch == False:
-				vprint("Refined params: ", partial_fit_params)
+			if batch == False: vprint("Refined params: ", partial_fit_params, "\n")
 
 		#which params are we using for simulation?
 		if sanity_check:
@@ -95,10 +94,10 @@ for sim_post_id, sim_post in test_posts.items():
 			else:
 				sim_params = functions_gen_cascade_model.get_default_params(test_cascades[sim_post_id])
 			disconnected = False 		#set this for output
+			if not batch:
+				vprint("Simulation params: ", sim_params)
 		else:
 			sim_params = partial_fit_params			#refined params from partial fit
-		if not batch:
-			vprint("Simulation params: ", sim_params)
 
 		#SIMULATE COMMENT TREE
 		sim_tree, observed_count, simulated_count = functions_gen_cascade_model.simulate_comment_tree(sim_post, sim_params, subreddit, test_cascades[sim_post_id], time_observed, not batch)
