@@ -1115,6 +1115,8 @@ def load_inferred_params(filename, min_params=False, max_params=False, display=F
 
 #given params, simulate a comment tree
 #arguments: post object, simulation parameters, actual cascade, observed time
+#sim_cascade comment times in utc seconds, time_observed in minutes
+#returned simulated cascade has relative comment times in minutes
 def simulate_comment_tree(sim_post, sim_params, group, sim_cascade, time_observed, display=False):
 	if display:
 		vprint("\nSimulating comment tree")
@@ -1127,10 +1129,10 @@ def simulate_comment_tree(sim_post, sim_params, group, sim_cascade, time_observe
 		#get observed tree
 		observed_tree, observed_count = filter_comment_tree(sim_post, sim_cascade, time_observed)
 		#simulate from this observed tree
-		sim_root, all_times = sim_tree.simulate_comment_tree(sim_params, time_observed*60, observed_tree, to_seconds=True)
+		sim_root, all_times = sim_tree.simulate_comment_tree(sim_params, time_observed*60, observed_tree)
 	#simulate entirely new tree from root only
 	else:
-		sim_root, all_times = sim_tree.simulate_comment_tree(sim_params, to_seconds=True)
+		sim_root, all_times = sim_tree.simulate_comment_tree(sim_params)
 		observed_count = 0
 
 	if display:
@@ -1143,7 +1145,9 @@ def simulate_comment_tree(sim_post, sim_params, group, sim_cascade, time_observe
 
 
 #given a ground-truth cascade stored as nested dictionary structure, and an observed time, 
-#filter tree to only the comments we have observed, and offset comment times by root time
+#filter tree to only the comments we have observed, offset comment times by root time, 
+#and convert relative comment times to minutes
+#time_observed given in hours, cascade times in seconds
 #if time_observed == False, just time shift and return that
 def filter_comment_tree(post, cascade, time_observed=False):
 	#build new list/structure of post comments - offset times by post time
@@ -1164,8 +1168,8 @@ def filter_comment_tree(post, cascade, time_observed=False):
 		if time_observed != False and curr['time'] - root_time > time_observed * 3600:
 			parent['replies'].remove(curr)
 			continue
-		#observed comment time, shift and add replies to queue
-		curr['time'] -= root_time
+		#observed comment time, shift/convert and add replies to queue
+		curr['time'] = (curr['time'] - root_time) / 60.0
 		observed_count += 1
 		comments_to_visit.extend([(curr, reply) for reply in curr['replies']])
 
