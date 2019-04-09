@@ -642,7 +642,7 @@ def get_test_post_set(input_sim_post, batch_process, size_filter, sample_num, po
 		vprint("Using input post id: %s" % input_sim_post)
 
 	return posts
-#end verify_post_set
+#end get_test_post_set
 
 
 #given a set of processed posts, and graph build settings, "build" the post parameter graph
