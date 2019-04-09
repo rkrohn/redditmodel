@@ -33,9 +33,9 @@ fitted_params_filepath = "reddit_data/%s/%s_post_params_%d_%d.pkl"
 #reconstructed cascades for (sub, sub, year, month) - dictionary of post id -> cascade dict, with "time", "num_comments", and "replies", where "replies" is nested list of reply objects
 cascades_filepath = "reddit_data/%s/%s_cascades_%d_%d.pkl"
 
-#filepath for random test samples, determined by subreddit, number of posts, testing start (year-month), and testing length
+#filepath for random test samples, determined by subreddit, number of posts, testing start (year-month), testing length, and min number of comments
 #(save these to files so you can have repeated runs of the same random set)
-random_sample_list_filepath = "sim_files/%s_%d_test_keys_list_start%d-%d_%d_months.pkl"
+random_sample_list_filepath = "sim_files/%s_%d_test_keys_list_start%d-%d_%dmonths_filter%d.pkl"
 
 #filepaths of output/temporary files - used to pass graph to C++ node2vec for processing
 temp_graph_filepath = "sim_files/graph_%s.txt"			#updated graph for this sim run
@@ -105,6 +105,9 @@ def parse_command_args():
 	parser.set_defaults(normalize_parameters=False)
 	parser.add_argument("--sanity", dest="sanity_check", action="store_true", help="sanity check: simulate from fitted params instead of inferring")
 	parser.set_defaults(sanity_check=False)
+	#can also layer in a size filter: only simulate cascades above a certain size 
+	#(filter applied before sample/rand)
+	parser.add_argument("-sf", "--size_filter", dest="size_filter", default=False, help="minimum cascade size for simulation test set")
 
 	args = parser.parse_args()		#parse the args (magic!)
 
@@ -137,6 +140,7 @@ def parse_command_args():
 	topological_error = args.topological_error
 	normalize_parameters = args.normalize_parameters
 	sanity_check = args.sanity_check
+	size_filter = int(args.size_filter) if args.size_filter != False else False
 	if top_n != False:
 		top_n = int(top_n)
 	weight_threshold = args.weight_threshold
@@ -221,12 +225,14 @@ def parse_command_args():
 	else:
 		vprint("Using error margin increasing by level")
 		vprint("   Allowable eval time error: ", time_error_margin)
+	if size_filter != False:
+		vprint("Only simulating cascades with true size greater than or equal to %d" % size_filter)
 	if sanity_check:
 		vprint("Simulating from fitted params, skipping graph/infer/refine steps")
 	vprint("")
 
 	#return all arguments
-	return subreddit, sim_post, time_observed, outfile, max_nodes, min_node_quality, estimate_initial_params, normalize_parameters, batch, sample_num, testing_start_month, testing_start_year, testing_len, training_start_month, training_start_year, training_len, weight_method, top_n, weight_threshold, include_default_posts, time_error_margin, error_method, sanity_check, verbose
+	return subreddit, sim_post, time_observed, outfile, max_nodes, min_node_quality, estimate_initial_params, normalize_parameters, batch, sample_num, testing_start_month, testing_start_year, testing_len, training_start_month, training_start_year, training_len, weight_method, top_n, weight_threshold, include_default_posts, time_error_margin, error_method, sanity_check, size_filter, verbose
 #end parse_command_args
 
 
@@ -598,7 +604,13 @@ def build_cascades(subreddit, month, year, posts, comments):
 #given a post id, boolean mode flags, and dictionary of posts, ensure post is in this set
 #if running in sample mode, pick the sample
 #returns modified post dictionary that contains only the posts to be tested
-def get_test_post_set(input_sim_post, batch_process, sample_num, posts, subreddit, testing_start_month, testing_start_year, testing_len):
+def get_test_post_set(input_sim_post, batch_process, size_filter, sample_num, posts, cascades, subreddit, testing_start_month, testing_start_year, testing_len):
+	#apply min-size filter before anything else
+	if size_filter != False:
+		keys = [post_id for post_id in cascades if cascades[post_id]['comment_count_total'] >= size_filter]
+		posts = filter_dict_by_list(posts, keys)
+		vprint("Filtered to %d posts with >= %d comments" % (len(keys), size_filter))
+
 	#if processing all posts in test set, return list of ids
 	if input_sim_post == "all":		
 		vprint("Processing all %d posts in test set" % len(posts))
@@ -610,16 +622,16 @@ def get_test_post_set(input_sim_post, batch_process, sample_num, posts, subreddi
 	#if sampling, choose random sample of posts
 	elif sample_num != False:		
 		#if stored random sample exists, load that
-		if file_utils.verify_file(random_sample_list_filepath % (subreddit, sample_num, testing_start_year, testing_start_month, testing_len)):
+		if file_utils.verify_file(random_sample_list_filepath % (subreddit, sample_num, testing_start_year, testing_start_month, testing_len, (size_filter if size_filter != False else 0))):
 			vprint("Loading cached sample simulation post set")
-			keys = file_utils.load_pickle(random_sample_list_filepath % (subreddit, sample_num, testing_start_year, testing_start_month, testing_len))
+			keys = file_utils.load_pickle(random_sample_list_filepath % (subreddit, sample_num, testing_start_year, testing_start_month, testing_len, (size_filter if size_filter != False else 0)))
 		#no existing sample file, pick random post id set, and dump list to pickle
 		else:
 			vprint("Sampling %d random posts for simulation set" % sample_num)
 			keys = random.sample(list(posts.keys()), sample_num)
-			file_utils.save_pickle(keys, random_sample_list_filepath % (subreddit, sample_num, testing_start_year, testing_start_month, testing_len))
+			file_utils.save_pickle(keys, random_sample_list_filepath % (subreddit, sample_num, testing_start_year, testing_start_month, testing_len, (size_filter if size_filter != False else 0)))
 		#filter posts to match keys list
-		test_posts = filter_dict_by_list(posts, keys)
+		posts = filter_dict_by_list(posts, keys)
 	#if single id, make sure given post id is in the dataset
 	else:
 		#if given not in set, exit
@@ -628,6 +640,7 @@ def get_test_post_set(input_sim_post, batch_process, sample_num, posts, subreddi
 			exit(0)
 		posts = {input_sim_post: posts[input_sim_post]}
 		vprint("Using input post id: %s" % input_sim_post)
+
 	return posts
 #end verify_post_set
 
