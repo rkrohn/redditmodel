@@ -1206,6 +1206,11 @@ def eval_trees(post_id, sim_tree, true_cascade, simulated_comment_count, observe
 	eval_res['disconnected'] = "True" if disconnected else "False"
 	eval_res['time_observed'] = time_observed
 
+	#breakdown of comment counts - root level comments for both true and sim cascades
+	eval_res['true_root_comments'] = true_cascade['comment_count_direct']
+	eval_res['sim_root_comments'] = len(sim_tree['replies'])
+	#can get other = total - root in post-processing
+
 	#true pos = node is in the right place and at the right time (+/- error) = match
 	#but don't count the observed comments or the root, because that would be cheating
 	eval_res['true_pos'] = eval_res['match_count'] - observed_comment_count - 1
@@ -1244,7 +1249,7 @@ def eval_trees(post_id, sim_tree, true_cascade, simulated_comment_count, observe
 #then, at the bottom, all the settings/arguments, for tracking purposes
 def save_results(filename, metrics, avg_metrics, input_sim_post, time_observed, subreddit, min_node_quality, max_graph_size, min_weight, testing_start_month, testing_start_year, testing_len, training_start_month, training_start_year, training_len, edge_weight_method, include_hardcoded_posts, estimate_initial_params, time_error_margin, error_method):
 	#dump metrics dict to file, enforcing a semi-meaningful order
-	fields = ["post_id", "time_observed", "true_comment_count", "observed_comment_count", "simulated_comment_count", "true_depth", "true_breadth", "simulated_depth", "simulated_breadth", "f1", "precision", "recall", "true_pos", "false_pos", "false_neg", "dist", "remove_count", "remove_time", "insert_count", "insert_time", "update_count", "update_time", "match_count", "disconnected"]
+	fields = ["post_id", "time_observed", "true_comment_count", "observed_comment_count", "simulated_comment_count", "true_root_comments", "sim_root_comments", "true_depth", "true_breadth", "simulated_depth", "simulated_breadth", "f1", "precision", "recall", "true_pos", "false_pos", "false_neg", "dist", "remove_count", "remove_time", "insert_count", "insert_time", "update_count", "update_time", "match_count", "disconnected"]
 	file_utils.save_csv(metrics, filename, fields)
 
 	#dump average metrics after that
