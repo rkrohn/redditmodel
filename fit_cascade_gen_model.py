@@ -12,6 +12,9 @@ from collections import defaultdict
 import random
 
 
+DEFAULT_BRANCHING = 0.05        #default branching factor n_b if post has no comments, or post comments have no replies
+
+
 #given a post, return sorted list of post (root) reply times in minutes (originally stored in seconds),
 #taking the post time as 0 and offsetting the comment times accordingly
 def get_root_comment_times(post):
@@ -65,6 +68,28 @@ def estimate_branching_factor(root_replies, comment_replies):
 		n_b = 0
 	return n_b
 #end estimate_branching_factor
+
+
+#estimate branching number n_b: 1 - (root degree / total comments)
+#pass in number of root replies and number of comment replies
+def estimate_branching_factor_modified(root_replies, comment_replies):
+    #hardcode or estimate, depending on number of comments
+    if root_replies + comment_replies == 0:
+        #hardcode (+perturb) to maybe allow for rare comment replies
+        n_b = DEFAULT_BRANCHING   
+    elif comment_replies > root_replies * 1.25:
+        n_b = 1 - (root_replies / (root_replies + comment_replies)) + (comment_replies / root_replies / 3.5)
+        #cap this one at 3
+        if n_b > 3:
+            n_b = 3.0
+    else:
+        n_b = 1 - (root_replies / (root_replies + comment_replies))
+    #if estimate is 0 (post comments have no replies), hardcode
+    if n_b == 0:
+        #hardcode (+perturb) to maybe allow for rare comment replies
+        n_b = DEFAULT_BRANCHING      
+    return n_b
+#end estimate_branching_factor_modified
 
 
 #given a single cascade and associated comments, fit both the root-comment Weibull and 
