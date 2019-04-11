@@ -159,11 +159,11 @@ if batch or len(time_observed_list) > 1:
 
 	vprint("")
 
-	#finish average metrics
-	if batch:
-		for time_observed, metrics in avg_metrics.items():
-			for metric in metrics.keys():
-				avg_metrics[time_observed][metric] /= len(test_posts)
+#finish average metrics
+if batch:
+	for time_observed, metrics in avg_metrics.items():
+		for metric in metrics.keys():
+			avg_metrics[time_observed][metric] /= len(test_posts)
 
-	#save metrics + settings to output file
-	functions_gen_cascade_model.save_results(outfile, all_metrics, avg_metrics, input_sim_post, time_observed_list, subreddit, min_node_quality, max_nodes, weight_threshold, testing_start_month, testing_start_year, testing_len, training_start_month, training_start_year, training_len, weight_method, include_default_posts, estimate_initial_params, time_error_margin, error_method)
+#save metrics + settings to output file
+functions_gen_cascade_model.save_results(outfile, all_metrics, avg_metrics, input_sim_post, time_observed_list, subreddit, min_node_quality, max_nodes, weight_threshold, testing_start_month, testing_start_year, testing_len, training_start_month, training_start_year, training_len, weight_method, include_default_posts, estimate_initial_params, time_error_margin, error_method)
