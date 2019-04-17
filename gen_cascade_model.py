@@ -109,6 +109,13 @@ for sim_post_id, sim_post in test_posts.items():
 
 		#compute tree edit distance between ground-truth and simulated cascades
 		eval_res = functions_gen_cascade_model.eval_trees(sim_post_id, sim_tree, true_cascade, simulated_count, observed_count, true_comment_count, time_observed, time_error_margin, error_method, disconnected)
+		#add a column indicating where the params for this sim came from
+		if not sanity_check:
+			eval_res['param_source'] = "infer+partial_fit"
+		elif sim_post_id in test_params:
+			eval_res['param_source'] = "fitted"
+		else:
+			eval_res['param_source'] = "default"
 
 		#append eval data to overall list
 		all_metrics.append(eval_res)
@@ -134,7 +141,8 @@ for sim_post_id, sim_post in test_posts.items():
 		#aggregate metrics for average later
 		if batch:
 			for metric, value in eval_res.items():
-				if metric == "post_id" or metric == "disconnected": continue
+				if metric == "post_id" or metric == "disconnected" or metric == "param_source": 
+					continue
 				avg_metrics[time_observed][metric] += value
 
 
