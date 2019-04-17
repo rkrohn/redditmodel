@@ -394,7 +394,11 @@ def fit_posts(subreddit, month, year, posts):
 	post_count = 0
 	fail_count = 0		#count of posts with failed param fit
 	fail_size = 0
+	succeed_count = 0
 	succeed_size = 0
+	partial_count = 0
+	partial_size = 0
+	partial_weibull_fail = 0
 	neg_comment_times_count = 0
 
 	#loop and fit cascades
@@ -406,26 +410,43 @@ def fit_posts(subreddit, month, year, posts):
 			neg_comment_times_count += 1
 			continue
 
-		#if fit failed, increment fail count and add post_id to fail list
-		if param_res[0] == False:
+		#if both weibull and lognorm fit failed, increment fail count and add post_id to fail list
+		if not any(param_res):		#entire param array False
 			fail_count += 1
 			fail_size += post['comment_count_total']
 			failed_fit_posts.append(post_id)
-		#if fit succeeded, add params to success dictionary
-		else:
-			succeed_size += post['comment_count_total']
-			cascade_params[post_id] = param_res		#store params
+		#fit succeeded to some degree, add params to success dictionary
+		else:	#some True		
+			#both fits succeeded
+			if all(param_res):
+				succeed_count += 1
+				succeed_size += post['comment_count_total']
+			#partial success
+			else:
+				partial_count += 1
+				partial_size += post['comment_count_total']
+				if param_res[0] == False:
+					partial_weibull_fail += 1
+			#always store params (will handle the False values later)
+			cascade_params[post_id] = param_res		
 
 		post_count += 1
 		if post_count % 2500 == 0:
 			vprint("Fitted %d cascades (%d failed)" % (post_count, fail_count))
 
 	#dump params to file
-	vprint("Fitted params for a total of %d cascades" % len(cascade_params))
-	vprint("   %d cascades failed fit process" % fail_count)	
+	vprint("Fitted params for a total of %d cascades" % len(cascade_params))	
 	vprint("   skipped %d cascades with negative comment times" % neg_comment_times_count)
-	vprint("   fail average cascade size: %d" % (fail_size/fail_count))
-	vprint("   succeed average cascade size: %d" % (succeed_size/(post_count-fail_count)))
+	vprint("   %d cascades failed fit process" % fail_count)	
+	if fail_count != 0:
+		vprint("   fail average cascade size: %d" % (fail_size/fail_count))
+	vprint("   %d cascades succeeded fit process" % succeed_count)
+	if succeed_count != 0:
+		vprint("   succeed average cascade size: %d" % (succeed_size/(succeed_count)))
+	vprint("   %d cascades partially-succeeded fit process (some missing params)" % partial_count)
+	vprint("      %d cascades failed weibull fit" % partial_weibull_fail)
+	if partial_count != 0:
+		vprint("   partial-succeed average cascade size: %d" % (partial_size/(partial_count)))
 
 	#save both fitted params and list of failed fits to the same file in a wrapping dictionary
 	params_out = {"params_dict": cascade_params, "failed_fit_list": failed_fit_posts}
@@ -897,6 +918,9 @@ def graph_infer(sim_post, sim_post_id, weight_method, min_weight, base_graph, el
 				#grab params/quality for average
 				if neighbor_id in params:
 					fitted_params = params[neighbor_id]
+					#fill in holes if params not complete
+					if not all(fitted_params):
+						fitted_params = get_complete_params(cascades[neighbor_id], fitted_params)
 				else:
 					fitted_params = get_default_params(cascades[neighbor_id])
 				#weighted sum params, update count
@@ -1009,9 +1033,34 @@ def get_default_params(post):
 	#and append quality
 	params.append(DEFAULT_QUALITY)
 
-	#return params
 	return params
 #end get_default_params
+
+
+#given a post (in the form of a cascade object), and incomplete fitted params, 
+#get a complete param set by filling in the holes
+def get_complete_params(post, params):
+
+	total_comments = post['comment_count_total']
+	direct_comments = post['comment_count_direct']
+
+	#weibull: default based on number of comments
+	if params[0] == False:
+		if total_comments == 0:
+			params[:3] = DEFAULT_WEIBULL_NONE.copy()
+		else:
+			params[:3] = DEFAULT_WEIBULL_SINGLE.copy()
+			params[0] = direct_comments
+
+	#lognorm: default same for all
+	if params[3] == False:
+		params[3:5] = DEFAULT_LOGNORMAL.copy()
+
+	#branching factor will always be a value, so leave it alone
+	#and quality will already be set based on using defaults for the missing
+
+	return params
+#end get_complete_params
 
 
 #save graph to txt file for node2vec processing, assigning numeric node ids along the way
@@ -1060,7 +1109,10 @@ def save_params(numeric_ids, posts, cascades, params, filename, param_estimate=F
 			f.write(str(numeric_id) + " ")		#write numeric post id
 			#fetch params
 			if post_id in params:
-				post_params = params[post_id]
+				post_params = params[post_id]				
+				#fill in holes if params not complete
+				if not all(post_params):
+					post_params = get_complete_params(cascades[post_id], post_params)
 			else:
 				post_params = get_default_params(cascades[post_id])
 			#write params

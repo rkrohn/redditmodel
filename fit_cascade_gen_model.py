@@ -14,6 +14,8 @@ import random
 
 DEFAULT_BRANCHING = 0.05        #default branching factor n_b if post has no comments, or post comments have no replies
 
+DEFAULT_QUALITY = 0.45     #default param quality if hardcode params are used
+
 
 #given a post, return sorted list of post (root) reply times in minutes (originally stored in seconds),
 #taking the post time as 0 and offsetting the comment times accordingly
@@ -114,14 +116,17 @@ def fit_params(post):
 	#estimate branching factor
 	n_b = estimate_branching_factor(len(root_comment_times), len(other_comment_times))
 
-	#any bad params, set all as bad
-	if a == False or mu == False:
+	#if both fits failed, return all False
+	if a == False and mu == False:
 		return [False, False, False, False, False, False, False]
 
+	#if either fit failed, set that quality to default value
+	if weibull_quality == False: weibull_quality = DEFAULT_QUALITY
+	if lognorm_quality == False: lognorm_quality = DEFAULT_QUALITY
 	#combine all quality measures together into a single one
 	quality = (3 * weibull_quality + 2 * lognorm_quality) / 5.0
 
-	#return all parameters together - your job to keep the order straight ;)
-	return a, lbd, k, mu, sigma, n_b, quality
+	#return all parameters together in a list - your job to keep the order straight ;)
+	return [a, lbd, k, mu, sigma, n_b, quality]
 #end fit_params
 

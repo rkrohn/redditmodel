@@ -91,6 +91,9 @@ for sim_post_id, sim_post in test_posts.items():
 		if sanity_check:
 			if sim_post_id in test_params:
 				sim_params = test_params[sim_post_id]
+				#if hole in fitted params (part of fit failed), fill that in with default
+				if not all(sim_params):
+					sim_params = functions_gen_cascade_model.get_complete_params(test_cascades[sim_post_id], sim_params)
 			else:
 				sim_params = functions_gen_cascade_model.get_default_params(test_cascades[sim_post_id])
 			disconnected = False 		#set this for output
@@ -111,9 +114,11 @@ for sim_post_id, sim_post in test_posts.items():
 		eval_res = functions_gen_cascade_model.eval_trees(sim_post_id, sim_tree, true_cascade, simulated_count, observed_count, true_comment_count, time_observed, time_error_margin, error_method, disconnected)
 		#add a column indicating where the params for this sim came from
 		if not sanity_check:
-			eval_res['param_source'] = "infer+partial_fit"
-		elif sim_post_id in test_params:
+			eval_res['param_source'] = "infer+observed_fit"
+		elif sim_post_id in test_params and all(test_params[sim_post_id]):
 			eval_res['param_source'] = "fitted"
+		elif sim_post_id in test_params:
+			eval_res['param_source'] = "incomplete_fitted"
 		else:
 			eval_res['param_source'] = "default"
 
