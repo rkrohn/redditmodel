@@ -1040,26 +1040,27 @@ def get_default_params(post):
 #given a post (in the form of a cascade object), and incomplete fitted params, 
 #get a complete param set by filling in the holes
 def get_complete_params(post, params):
-
 	total_comments = post['comment_count_total']
 	direct_comments = post['comment_count_direct']
+
+	new_params = params.copy()		#don't modify original params
 
 	#weibull: default based on number of comments
 	if params[0] == False:
 		if total_comments == 0:
-			params[:3] = DEFAULT_WEIBULL_NONE.copy()
+			new_params[:3] = DEFAULT_WEIBULL_NONE.copy()
 		else:
-			params[:3] = DEFAULT_WEIBULL_SINGLE.copy()
-			params[0] = direct_comments
+			new_params[:3] = DEFAULT_WEIBULL_SINGLE.copy()
+			new_params[0] = direct_comments
 
 	#lognorm: default same for all
 	if params[3] == False:
-		params[3:5] = DEFAULT_LOGNORMAL.copy()
+		new_params[3:5] = DEFAULT_LOGNORMAL.copy()
 
 	#branching factor will always be a value, so leave it alone
 	#and quality will already be set based on using defaults for the missing
 
-	return params
+	return new_params
 #end get_complete_params
 
 
