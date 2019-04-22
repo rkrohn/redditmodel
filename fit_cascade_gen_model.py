@@ -35,23 +35,25 @@ def get_root_comment_times(post):
 #end get_root_comment_times
 
 
-#get list of comment times of all comments not on post (root) in minutes, offset based on the post time
+#get list of comment times of all comments not on post (root) in minutes, 
+#offset based on the time of the parent comment
 def get_other_comment_times(post):
 	other_comment_times = []    #list of comment times
 
-	root_time = post['time']    #get post time in seconds to use as offset
-
-	#init queue to second-level replies (ie, replies to root replies)
+	#init queue to root replies, will process children as nodes are removed from queue
 	nodes_to_visit = []
 	for comment in post['replies']:  
-		nodes_to_visit.extend(comment['replies']) 
+		nodes_to_visit.append(comment)
 	while len(nodes_to_visit) != 0:
-		curr = nodes_to_visit.pop(0)    #grab current comment
-		other_comment_times.append(curr['time'])           #add this comment to set of cascade comments
-		nodes_to_visit.extend(curr['replies'])    #add this comment's replies to queue
+		parent = nodes_to_visit.pop(0)    #grab current comment
+		parent_time = parent['time']	#grab time for parent comment, use to offset children
+		#add all reply times to set of cascade comments, and add child nodes to queue
+		for comment in parent['replies']:
+			other_comment_times.append(comment['time'] - parent_time)   #offset by parent time
+			nodes_to_visit.append(comment)    #add reply to processing queue
 
-	#sort and shift comment times
-	other_comment_times = sorted([(time - root_time) / 60.0 for time in other_comment_times])
+	#sort and convert comment times (all in minutes from parent comment)
+	other_comment_times = sorted([time / 60.0 for time in other_comment_times])
 
 	#if any < 0, return false
 	if not all(reply >= 0 for reply in other_comment_times):
@@ -100,7 +102,6 @@ def estimate_branching_factor_modified(root_replies, comment_replies):
 #both weibull and lognormal fit set to return False for all params if no comments or fit fails
 #if this occurs for either, set all params and quality to False
 def fit_params(post):
-
 	#fit weibull to root comment times
 	root_comment_times = get_root_comment_times(post)
 	if root_comment_times == False:
