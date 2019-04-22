@@ -170,9 +170,6 @@ def parse_command_args():
 		error_method = "abs"
 	else:	#both false, use by-level
 		error_method = "level"
-	#if simming from fitted params, ignore observed time input
-	if sanity_check:
-		time_observed = [0]
 
 	#compute start of training period for easy use later
 	training_start_month, training_start_year = monthdelta(testing_start_month, testing_start_year, -training_len)
