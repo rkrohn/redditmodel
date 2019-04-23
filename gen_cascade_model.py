@@ -116,7 +116,10 @@ for sim_post_id, sim_post in test_posts.items():
 		eval_res = functions_gen_cascade_model.eval_trees(sim_post_id, sim_tree, true_cascade, simulated_count, observed_count, true_comment_count, time_observed, time_error_margin, error_method, disconnected)
 		#add a column indicating where the params for this sim came from
 		if not sanity_check:
-			eval_res['param_source'] = "infer+observed_fit"
+			if time_observed == 0:
+				eval_res['param_source'] = "infer"
+			else:
+				eval_res['param_source'] = "infer+observed_fit"
 		elif sim_post_id in test_params and all(test_params[sim_post_id]):
 			eval_res['param_source'] = "fitted"
 		elif sim_post_id in test_params:
