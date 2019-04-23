@@ -1,0 +1,64 @@
+
+Sim Post: sample 100
+Time Observed: [0.0, 1.0, 2.0, 5.0, 10.0, 20.0, 30.0, 40.0, 50.0]
+Output: sim_results/100_esp_res.csv
+Source subreddit: explainlikeimfive
+Minimum node quality: False
+Max graph size: False
+Max edges per node: 25
+Minimum edge weight: 0.5
+Estimating initial params for seed posts based on inverse quality weighted average of neighbors
+No param normalization for infer step
+Testing Period: 9-2016 (1 month)
+Training Period: 8-2016 (1 month)
+Using Jaccard index to compute graph edge weights
+Ignoring posts with hardcoded default parameters
+Using topological error for tree evaluation (ignoring comment times)
+
+Loading processed training data
+Loading 8-2016
+Deleted 6 posts without cascades
+Deleted 1 posts without params
+Loaded 18610 posts 
+   18611 cascades
+   1561 fitted params, 17049 failed fit
+
+Loading processed testing data
+Loading 9-2016
+Deleted 6 posts without cascades
+Loaded 18072 posts 
+   18072 cascades
+
+Loading cached sample simulation post set
+
+Building param graph for 18610 posts
+Using 1561 posts for graph
+Using jaccard index for edge weight
+   100000 pairs
+   200000 pairs
+   300000 pairs
+   400000 pairs
+   500000 pairs
+   600000 pairs
+   700000 pairs
+   800000 pairs
+   900000 pairs
+   1000000 pairs
+   1100000 pairs
+   1200000 pairs
+Graph contains 287 nodes and 2456 unique edges (2953 edge entries)
+  max degree: 104
+  min degree: 1
+
+Processing 100 posts
+   finished 100 posts (71 disconnected)
+
+All done
+
+Number of posts: 100
+Time Observed: 50.0
+Source subreddit: explainlikeimfive
+Minimum node quality: False
+Max graph size: False
+Estimating initial params for seed posts based on inverse quality weighted average of neighbors
+

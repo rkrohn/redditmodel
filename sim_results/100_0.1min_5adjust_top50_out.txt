@@ -1,0 +1,62 @@
+
+Sim Post: sample 100
+Time Observed: [0.0, 1.0, 2.0, 5.0, 10.0, 20.0, 30.0, 40.0, 50.0]
+Output: sim_results/100_0.1min_5adjust_top50_res.csv
+Source subreddit: explainlikeimfive
+Minimum node quality: False
+Max graph size: False
+Max edges per node: 50
+Minimum edge weight: 0.1
+No param normalization for infer step
+Testing Period: 9-2016 (1 month)
+Training Period: 8-2016 (1 month)
+Using Jaccard index to compute graph edge weights
+Ignoring posts with hardcoded default parameters
+Using topological error for tree evaluation (ignoring comment times)
+
+Loading processed training data
+Loading 8-2016
+Deleted 6 posts without cascades
+Deleted 1 posts without params
+Loaded 18610 posts 
+   18611 cascades
+   1561 fitted params, 17049 failed fit
+
+Loading processed testing data
+Loading 9-2016
+Deleted 6 posts without cascades
+Loaded 18072 posts 
+   18072 cascades
+
+Loading cached sample simulation post set
+
+Building param graph for 18610 posts
+Using 1561 posts for graph
+Using jaccard index for edge weight
+   100000 pairs
+   200000 pairs
+   300000 pairs
+   400000 pairs
+   500000 pairs
+   600000 pairs
+   700000 pairs
+   800000 pairs
+   900000 pairs
+   1000000 pairs
+   1100000 pairs
+   1200000 pairs
+Graph contains 1560 nodes and 57473 unique edges (75874 edge entries)
+  max degree: 307
+  min degree: 1
+
+Processing 100 posts
+   finished 100 posts (0 disconnected)
+
+All done
+
+Number of posts: 100
+Time Observed: 50.0
+Source subreddit: explainlikeimfive
+Minimum node quality: False
+Max graph size: False
+
