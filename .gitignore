@@ -10,4 +10,5 @@ dryrun
 model_files_BACKUP
 output
 sim_files
+reddit_data
 socsim_ssh_usc
