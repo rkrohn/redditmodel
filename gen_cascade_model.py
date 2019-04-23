@@ -30,6 +30,8 @@ else:
 
 #ensure working directory exists - for saving of intermediate graph/param files for node2vec
 file_utils.verify_dir("sim_files")	
+#ensure data directory for this subreddit exists - for saving posts, cascades, params, etc
+file_utils.verify_dir("reddit_data/%s" % subreddit)
 
 #load pre-processed posts and their fitted params for training period
 if not sanity_check:
