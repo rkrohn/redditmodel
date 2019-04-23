@@ -23,9 +23,9 @@ from copy import deepcopy
 #filepaths of data and pre-processed files - keeping everything in the same spot, for sanity/simplicity
 
 #raw posts for (sub, sub, year, month)
-raw_posts_filepath = "reddit_data/%s/%s_submissions_%d_%d.tsv"	
+raw_posts_filepath = "/data/datasets/reddit_discussions/%s/%s_submissions_%d_%d.tsv"	
 #raw comments for (sub, sub, post year, comment year, comment month)
-raw_comments_filepath = "reddit_data/%s/%s_%sdiscussions_comments_%s_%s.tsv"  
+raw_comments_filepath = "/data/datasets/reddit_discussions/%s/%s_%sdiscussions_comments_%s_%s.tsv"  
 #processed posts for (sub, sub, year, month) - dictionary of post id -> post containing title tokens, author, created utc
 processed_posts_filepath = "reddit_data/%s/%s_processed_posts_%d_%d.pkl"
 #fitted params for posts for (sub, sub, year, month) - dictionary of post id -> params tuple
