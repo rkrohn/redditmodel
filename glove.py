@@ -169,19 +169,34 @@ def get_glove_model(dimension = 50):
 #given an initialized model and a query corpus, get a similarity model
 def get_similarity_model(model, corpus, top_n = 10):
     #build/index similarity model
-    similarity_model = WmdSimilarity(corpus, model, num_best=top_n)
+    similarity_model = WmdSimilarity(corpus, model, num_best=top_n+1)   
+    #top_n+1, in case we have to remove exact matches later
     return similarity_model
 #end get_similarity_model
 
-def get_most_similar(query, sim_model, corpus):
+
+#given a single query phrase (list of processed tokens), an initialized similarity model, and the model's corpus,
+#return the top-n most similar results (top-n defined in model setup)
+#returned as a list of tuples, first item is index of match, second is similarity value
+def get_most_similar(query, sim_model, corpus, exclude_index = False):
     #make query
     sims = similarity_model[query]
 
+    #if excluding a particular index, and that index in results remove it from results
+    res_indexes = [res[0] for res in sims]
+    if exclude_index != False and exclude_index in res_indexes:
+        remove_pos = res_indexes.index(exclude_index)       #get pos of match in results list
+        del sims[remove_pos]                        #delete it
+    #otherwise, remove lowest result to get exactly top-n results
+    else:
+        del sims[-1]        #results are sorted by similarity, so drop the last item
+
     #print
-    print("\nQuery: %s" % query)
-    for i in range(len(sims)):
-        print('sim = %.4f' % sims[i][1])
-        print(corpus[sims[i][0]])
+    if DISPLAY:
+        print("\nQuery: %s" % query)
+        for i in range(len(sims)):
+            print('sim = %.4f' % sims[i][1])
+            print(sims[i][0], corpus[sims[i][0]])
 
     return sims
 #end get_most_similar
@@ -225,3 +240,4 @@ if __name__ == "__main__":
     from gensim.test.utils import common_texts
     similarity_model = get_similarity_model(glove_model, common_texts, top_n = 5)
     similarity_results = get_most_similar(['person', 'time'], similarity_model, common_texts)
+    similarity_results = get_most_similar(['trees'], similarity_model, common_texts, exclude_index=5)
