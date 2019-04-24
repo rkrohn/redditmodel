@@ -57,7 +57,7 @@ def get_text_vector(text, word_embeddings, vocab):
         #word not in vocabulary, error and return False for now
         else:
             if DISPLAY: print('Word: %s  Out of dictionary!\n' % term)
-            return False
+            return None
 
     #normalize the input vector representation - unit variance
     vec_norm = np.zeros(vec_result.shape)
@@ -74,7 +74,7 @@ def get_text_vector(text, word_embeddings, vocab):
 def cosine_distance(word_embeddings, vocab, ivocab, text, num_results = 10):
     #get normalized vector representation of text
     vec_norm = get_text_vector(text, word_embeddings, vocab)
-    if vec_norm == False:
+    if vec_norm is None:
         return False
 
     #compute cosine distance between input text and all words in vocabulary (dot product)
