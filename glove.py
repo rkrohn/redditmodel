@@ -43,7 +43,11 @@ def load_embeddings(dimension = 50):
 #verify that all text words are in vocabulary
 #text given as list of lowercase tokens
 #returns normalized vector representation of input text
+#if some tokens are not in the vocabulary, skip them and use the defined tokens instead
+#if ALL text tokens not in vocabulary, return None
 def get_text_vector(text, word_embeddings, vocab):
+    missing_count = 0       #count of text words not in vocabulary
+
     #loop text terms
     for idx, term in enumerate(text):
         #if term in vocab, add that word's representation to running list
@@ -56,8 +60,16 @@ def get_text_vector(text, word_embeddings, vocab):
                 vec_result += word_embeddings[vocab[term], :]       #add values of this word to running sum
         #word not in vocabulary, error and return False for now
         else:
-            if DISPLAY: print('Word: %s  Out of dictionary!\n' % term)
-            return None
+            if DISPLAY: print('Word: %s  Out of vocabulary' % term)
+            missing_count += 1
+
+    #if all of text not in vocabulary, return None
+    if missing_count == len(text)  :
+        if DISPLAY: print("All of text tokens out of dictionary, returning None")
+        return None
+    #some number missing, print error if desired and proceed
+    elif missing_count != 0:
+        if DISPLAY: print('%d words out of dictionary!' % missing_count)
 
     #normalize the input vector representation - unit variance
     vec_norm = np.zeros(vec_result.shape)
@@ -80,8 +92,9 @@ def cosine_distance(word_embeddings, vocab, ivocab, text, num_results = 10):
     #compute cosine distance between input text and all words in vocabulary (dot product)
     dist = np.dot(word_embeddings, vec_norm.T)
 
-    #set distance to words in text to -inf, so they are not included in ranking
+    #set distance to words in text (and vocab) to -inf, so they are not included in ranking
     for term in text:
+        if term not in vocab: continue      #skip words outside of vocab
         index = vocab[term]
         dist[index] = -np.Inf
 
