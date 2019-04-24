@@ -1,9 +1,19 @@
 import argparse
 import numpy as np
 import sys
+from gensim.scripts.glove2word2vec import glove2word2vec
+from gensim.models.keyedvectors import KeyedVectors
+from gensim.similarities import WmdSimilarity
+from nltk.corpus import stopwords
+from nltk import download
+
+import file_utils
 
 #path to pre-computed embedding vectors (vector dimension, one of 50, 100, 200, or 300)
-vector_filepath = "reddit_data/glove_embeddings/glove.6B.%dd.txt"      
+vector_filepath = "reddit_data/glove_embeddings/glove.6B.%dd.txt"
+#path to converted pre-computed embedding vectors (same dimensions)
+#these will contain the same information as the standard glove files, but are in the gensim format
+gensim_vector_filepath = "reddit_data/glove_embeddings/glove.6B.%dd.gensim.txt"
 
 #global display flag
 DISPLAY = True  
@@ -112,7 +122,74 @@ def cosine_distance(word_embeddings, vocab, ivocab, text, num_results = 10):
 #end cosine_distance
 
 
+#remove stopwords from list of tokens
+def remove_stopwords(tokens):
+    #download stopwords list from nltk - only once per run
+    try:
+        remove_stopwords.downloaded += 1      #(static flag hack)
+    except AttributeError:
+        remove_stopwords.downloaded = 0
+        download('stopwords')  
+    stop_words = stopwords.words('english')
+
+    #remove stopwords from given tokens list
+    updated_tokens = [w for w in tokens if w not in stop_words]
+    return updated_tokens
+#end remove_stopwords
+
+
+#given two sentences as lists of lowercase tokens, and an initialized model, 
+#compute the word-mover distance between them
+def wmd_distance(model, sentence1, sentence2):
+    #remove stopwords from both sentences
+    sentence1 = remove_stopwords(sentence1)
+    sentence2 = remove_stopwords(sentence2)
+
+    #compute wmd between them
+    distance = model.wmdistance(sentence1, sentence2)
+    if DISPLAY: print('distance = %.4f' % distance)
+
+    return distance
+#end wmd_distance
+
+
+#for the specified dimension, load precomputed glove embeddings and return a gensim model
+def get_glove_model(dimension = 50):
+    #convert Stanford glove format to gensim word2vec format, if file doesn't exist
+    if file_utils.verify_file(gensim_vector_filepath % dimension) == False:
+        glove2word2vec(glove_input_file = (vector_filepath % dimension), word2vec_output_file = (gensim_vector_filepath % dimension))
+
+    #load embeddings and init model (word2vec model, but init with glove embeddings)
+    glove_model = KeyedVectors.load_word2vec_format(gensim_vector_filepath % dimension, binary=False)
+
+    return glove_model
+#end get_glove_model
+
+
+#given an initialized model and a query corpus, get a similarity model
+def get_similarity_model(model, corpus, top_n = 10):
+    #build/index similarity model
+    similarity_model = WmdSimilarity(corpus, model, num_best=top_n)
+    return similarity_model
+#end get_similarity_model
+
+def get_most_similar(query, sim_model, corpus):
+    #make query
+    sims = similarity_model[query]
+
+    #print
+    print("\nQuery: %s" % query)
+    for i in range(len(sims)):
+        print('sim = %.4f' % sims[i][1])
+        print(corpus[sims[i][0]])
+
+    return sims
+#end get_most_similar
+
+
 if __name__ == "__main__":
+    #old functionality, loading embeddings and computing distance manually
+    '''
     #load pre-computed embeddings, normalize
     word_embeddings, word_to_index, index_to_word = load_embeddings()
 
@@ -122,4 +199,29 @@ if __name__ == "__main__":
             break
         else:
             cosine_distance(word_embeddings, word_to_index, index_to_word, input_term.split(' '))  #get cosine distance   
+    '''
 
+    #new gensim functionality - given two sentences, compute wmd distance and similarity between them
+
+    #get a model by reading precomputed embeddings
+    glove_model = get_glove_model()
+
+    #get two sentences
+    phrase1 = 'Obama speaks to the media in Illinois'
+    phrase2 = 'The president greets the press in Chicago'
+    phrase3 = 'Oranges are my favorite fruit'
+    #lowercase and tokenize
+    token_phrase1 = phrase1.lower().split()
+    token_phrase2 = phrase2.lower().split()
+    token_phrase3 = phrase3.lower().split()
+
+    #compute wmd between them
+    print("Distance between \"%s\" and \"%s\": " % (phrase1, phrase2))
+    distance = wmd_distance(glove_model, token_phrase1, token_phrase2)
+    print("Distance between \"%s\" and \"%s\": " % (phrase1, phrase3))
+    distance = wmd_distance(glove_model, token_phrase1, token_phrase3)
+
+    #try a similarity ranking, using our precomputed vectors to init the model, and a separate corpus
+    from gensim.test.utils import common_texts
+    similarity_model = get_similarity_model(glove_model, common_texts, top_n = 5)
+    similarity_results = get_most_similar(['person', 'time'], similarity_model, common_texts)
