@@ -1,0 +1,65 @@
+
+Sim Post: sample 500
+Time Observed: [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+Output: sim_results/multi_sim_test_t3_526gtc.csv
+Source subreddit: explainlikeimfive
+Minimum node quality: False
+Max graph size: False
+Max edges per node: 25
+Minimum edge weight: 0.1
+No param normalization for infer step
+Testing Period: 9-2016 (1 month)
+Training Period: 8-2016 (1 month)
+Using Jaccard index to compute graph edge weights
+Ignoring posts with hardcoded default parameters
+Using topological error for tree evaluation (ignoring comment times)
+Simulating from fitted params, skipping graph/infer/refine steps
+
+
+Loading processed testing data
+Loading 9-2016
+   Fitted params file doesn't exist, creating now
+Fitting 18072 cascades for explainlikeimfive 9-2016
+Fitted 2500 cascades (1731 failed)
+Fitted 5000 cascades (3467 failed)
+Fitted 7500 cascades (5090 failed)
+Fitted 10000 cascades (6658 failed)
+Fitted 12500 cascades (8231 failed)
+Fitted 15000 cascades (9816 failed)
+Fitted 17500 cascades (11429 failed)
+Fitted params for a total of 6279 cascades
+   skipped 0 cascades with negative comment times
+   11793 cascades failed fit process
+   fail average cascade size: 1
+   1530 cascades succeeded fit process
+   succeed average cascade size: 41
+   4749 cascades partially-succeeded fit process (some missing params)
+      4343 cascades failed weibull fit
+   partial-succeed average cascade size: 9
+Deleted 6 posts without cascades
+Loaded 18072 posts 
+   18072 cascades
+   6279 fitted params, 11793 failed fit
+
+Loading cached sample simulation post set
+
+Processing 500 posts
+   finished 50 posts (0 disconnected)
+   finished 100 posts (0 disconnected)
+   finished 150 posts (0 disconnected)
+   finished 200 posts (0 disconnected)
+   finished 250 posts (0 disconnected)
+   finished 300 posts (0 disconnected)
+   finished 350 posts (0 disconnected)
+   finished 400 posts (0 disconnected)
+   finished 450 posts (0 disconnected)
+   finished 500 posts (0 disconnected)
+
+All done
+
+Number of posts: 500
+Time Observed: [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+Source subreddit: explainlikeimfive
+Minimum node quality: False
+Max graph size: False
+
