@@ -1310,6 +1310,7 @@ def save_results(filename, metrics, avg_metrics, input_sim_post, time_observed, 
 	#remove a couple unneeded fields for this dump
 	fields.remove("post_id")
 	fields.remove("disconnected")
+	fields.remove("param_source")
 	#save avg metrics
 	file_utils.save_csv(avg_metrics, filename, fields, file_mode='a')
 	
