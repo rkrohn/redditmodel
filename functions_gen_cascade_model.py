@@ -18,7 +18,7 @@ from collections import defaultdict
 import itertools
 import bisect
 from copy import deepcopy
-
+import statistics
 
 #filepaths of data and pre-processed files - keeping everything in the same spot, for sanity/simplicity
 
@@ -41,6 +41,9 @@ random_sample_list_filepath = "sim_files/%s_%d_test_keys_list_start%d-%d_%dmonth
 temp_graph_filepath = "sim_files/graph_%s.txt"			#updated graph for this sim run
 temp_params_filepath = "sim_files/in_params_%s.txt"		#temporary, filtered params for sim run (if sampled graph)
 output_params_filepath = "sim_files/out_params_%s.txt"		#output params from node2vec
+
+#output filepaths
+training_stats_filepath = "sim_results/post_set_stats_%s_%d_%d_(%dmonths).csv"		#training set stats (subreddit, year, month, num_months)
 
 #hardcoded params for failed fit cascades
 #only used when fit/estimation fails and these posts are still included in graph
@@ -108,6 +111,8 @@ def parse_command_args():
 	#can also layer in a size filter: only simulate cascades above a certain size 
 	#(filter applied before sample/rand)
 	parser.add_argument("-sf", "--size_filter", dest="size_filter", default=False, help="minimum cascade size for simulation test set")
+	parser.add_argument("--train_stats", dest="training_stats", action="store_true", help="output statistics for training set")
+	parser.set_defaults(training_stats=False)
 
 	args = parser.parse_args()		#parse the args (magic!)
 
@@ -141,6 +146,7 @@ def parse_command_args():
 	normalize_parameters = args.normalize_parameters
 	sanity_check = args.sanity_check
 	size_filter = int(args.size_filter) if args.size_filter != False else False
+	training_stats = args.training_stats
 	if top_n != False:
 		top_n = int(top_n)
 	weight_threshold = args.weight_threshold
@@ -170,6 +176,10 @@ def parse_command_args():
 		error_method = "abs"
 	else:	#both false, use by-level
 		error_method = "level"
+	#no training stats if doing sanity check
+	if training_stats and sanity_check:
+		print("No training data loaded for sanity check mode - cannot output training data stats.")
+		training_stats = False
 
 	#compute start of training period for easy use later
 	training_start_month, training_start_year = monthdelta(testing_start_month, testing_start_year, -training_len)
@@ -229,7 +239,7 @@ def parse_command_args():
 	vprint("")
 
 	#return all arguments
-	return subreddit, sim_post, time_observed, outfile, max_nodes, min_node_quality, estimate_initial_params, normalize_parameters, batch, sample_num, testing_start_month, testing_start_year, testing_len, training_start_month, training_start_year, training_len, weight_method, top_n, weight_threshold, include_default_posts, time_error_margin, error_method, sanity_check, size_filter, verbose
+	return subreddit, sim_post, time_observed, outfile, max_nodes, min_node_quality, estimate_initial_params, normalize_parameters, batch, sample_num, testing_start_month, testing_start_year, testing_len, training_start_month, training_start_year, training_len, weight_method, top_n, weight_threshold, include_default_posts, time_error_margin, error_method, sanity_check, size_filter, training_stats, verbose
 #end parse_command_args
 
 
@@ -661,6 +671,104 @@ def get_test_post_set(input_sim_post, batch_process, size_filter, sample_num, po
 
 	return posts
 #end get_test_post_set
+
+
+#for a given set of processed posts and reconstructed cascades, 
+#compute and output some stats on the post set
+def output_post_set_stats(posts, cascades, subreddit, year, month, num_months):
+	#do we already have a stats file for this subreddit set? if so, skip
+	if file_utils.verify_file(training_stats_filepath % (subreddit, year, month, num_months)):
+		vprint("Training data stats already exist.")
+		return
+
+	#cascade size distribution
+	cascade_sizes = defaultdict(int)
+	for post_id, cascade in cascades.items():
+		cascade_sizes[cascade['comment_count_total']] += 1
+
+	#build dict of post id -> list of sorted relative comment times
+	post_to_comment_times = {}
+	#and dict of lifetime distribution (binned by 15 minutes)
+	lifetime_dist = defaultdict(int)
+	#loop cascades
+	for post_id, cascade in cascades.items():
+		comment_times = get_list_of_comment_times(cascade)
+		post_to_comment_times[post_id] = comment_times
+		if len(comment_times) == 0:
+			lifetime_dist[0] += 1
+		else:
+			lifetime_dist[int(comment_times[-1] // 15) * 15] += 1
+
+	#% of lifetime vs % of comments observed
+	#collect mean, and median
+
+	lifetime_percents = [x * 2.5 for x in range(0, 41)]		#do every 2.5% for now
+	observed_percents = defaultdict(list)
+	#loop cascades, build list of percent of comments seen at each lifetime percentage
+	#only considers cascades with at least 10 comments, since the small ones muck up the plot
+	for post_id, comment_times in post_to_comment_times.items():
+		if len(comment_times) < 10:
+			continue
+		lifetime_comment_counts = get_lifetime_percent_comment_counts(comment_times, lifetime_percents)
+		cascade_comment_count = len(comment_times)
+		for percent, count in lifetime_comment_counts.items():
+			observed_percents[percent].append(count / cascade_comment_count)
+	#get mean, median
+	mean_observed = {}
+	median_observed = {}
+	for percent in observed_percents.keys():
+		mean_observed[percent] = sum(observed_percents[percent]) / len(observed_percents[percent])
+		median_observed[percent] = statistics.median(observed_percents[percent])
+
+	#write all to output
+	file_utils.multi_dict_to_csv(training_stats_filepath % (subreddit, year, month, num_months), ["number_of_comments", "number_of_cascades", "lifetime(minutes)", "number_of_cascades", "percent_lifetime", "mean_comments_observed", "percent_lifetime", "median_comments_observed"], [cascade_sizes, lifetime_dist, mean_observed, median_observed])
+#end output_post_set_stats
+
+
+#given a single cascade, get a list of all comment times in minutes, relative to root time
+def get_list_of_comment_times(cascade):
+	comment_times = []		#list of all comment times
+
+	root_time = cascade['time']     #get post time in seconds to use as offset
+
+	#init queue to root, will process children as nodes are removed from queue
+	nodes_to_visit = [cascade]
+	while len(nodes_to_visit) != 0:
+		parent = nodes_to_visit.pop(0)    #grab current comment/node
+		#add all reply times to set of cascade comments, and add child nodes to queue
+		for comment in parent['replies']:
+			if comment['time'] - root_time < 0:
+				comment_times.append(0)
+			else:
+				comment_times.append(comment['time'] - root_time)   #offset by parent time, still in seconds
+			nodes_to_visit.append(comment)    #add reply to processing queue
+
+	#sort and convert comment times (all in minutes from root post)
+	comment_times = sorted([time / 60.0 for time in comment_times])
+
+	return comment_times
+#end get_list_of_comment_times
+
+
+#given a list of sorted comment times for a single cascade and a list of lifetime percentages,
+#count how many comments have been observed at each percentage through the lifetime
+def get_lifetime_percent_comment_counts(comment_times, lifetime_percents):
+	#if post has no comment, return 0 for all percents
+	if len(comment_times) == 0:
+		return {percent: 0 for percent in lifetime_percents}
+
+	lifetime = comment_times[-1]		#lifetime is time of last comment
+
+	#convert lifetime percentages from whole numbers to times in minutes
+	time_percents = [percent/100.0 * lifetime for percent in lifetime_percents]
+
+	#build dict of lifetime percent -> # of comments observed up to and including that time
+	percent_counts = {}
+	for percent, percent_time in zip(lifetime_percents, time_percents):
+		percent_counts[percent] = len([time for time in comment_times if time <= percent_time])
+
+	return percent_counts
+#end get_lifetime_percent_comment_counts
 
 
 #given a set of processed posts, and graph build settings, "build" the post parameter graph

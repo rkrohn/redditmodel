@@ -15,7 +15,7 @@ from collections import defaultdict
 print("")
 
 #parse all command-line arguments
-subreddit, input_sim_post, time_observed_list, outfile, max_nodes, min_node_quality, estimate_initial_params, normalize_parameters, batch, sample_num, testing_start_month, testing_start_year, testing_len, training_start_month, training_start_year, training_len, weight_method, top_n, weight_threshold, include_default_posts, time_error_margin, error_method, sanity_check, size_filter, verbose = functions_gen_cascade_model.parse_command_args()
+subreddit, input_sim_post, time_observed_list, outfile, max_nodes, min_node_quality, estimate_initial_params, normalize_parameters, batch, sample_num, testing_start_month, testing_start_year, testing_len, training_start_month, training_start_year, training_len, weight_method, top_n, weight_threshold, include_default_posts, time_error_margin, error_method, sanity_check, size_filter, get_training_stats, verbose = functions_gen_cascade_model.parse_command_args()
 
 #hackery: declare a special print function for verbose output
 if verbose:
@@ -37,6 +37,11 @@ file_utils.verify_dir("reddit_data/%s" % subreddit)
 if not sanity_check:
 	vprint("Loading processed training data")
 	train_posts, train_cascades, train_params, train_fit_fail_list = functions_gen_cascade_model.load_processed_posts(subreddit, training_start_month, training_start_year, training_len, load_params=True, load_cascades=True)
+
+#if want training data stats, get those now
+if get_training_stats:
+	vprint("Computing training data stats")
+	functions_gen_cascade_model.output_post_set_stats(train_posts, train_cascades, subreddit, training_start_year, training_start_month, training_len)
 
 vprint("\nLoading processed testing data")
 #load pre-processed posts and their reconstructed cascades for testing period (no params here!)
