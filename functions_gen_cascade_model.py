@@ -86,9 +86,12 @@ def parse_command_args():
 	#must pick an edge limit method: top n edges per node, or weight threshold, or both
 	parser.add_argument("-topn", dest="top_n", default=False, metavar=('<max edges per node>'), help="limit post graph to n edges per node")
 	parser.add_argument("-threshold", dest="weight_threshold", default=False, metavar=('<minimum edge weight>'), help="limit post graph to edges with weight above threshold")
+	#must select an observation type (time or comments) and provide at least one time/count
+	observed_group = parser.add_mutually_exclusive_group(required=False)
+	observed_group.add_argument("-t", dest="time_observed", default=False, help="time of post observation, in hours", nargs='+')
+	observed_group.add_argument("-nco", "--num_comments_observed", dest="num_comments_observed", default=False, help="number of comments observed", nargs='+')
 
-	#optional args	
-	parser.add_argument("-t", dest="time_observed", default=[0], help="time of post observation, in hours", nargs='+')
+	#optional args
 	parser.add_argument("-g", "--graph", dest="max_nodes", default=False, help="max nodes in post graph for parameter infer")
 	parser.add_argument("-q", "--qual", dest="min_node_quality", default=False, help="minimum node quality for post graph")
 	parser.add_argument("-e", "--esp", dest="estimate_initial_params", action='store_true', help="estimate initial params as inverse quality weighted average of neighbor nodes")
@@ -127,7 +130,12 @@ def parse_command_args():
 	#extract arguments (since want to return individual variables)
 	subreddit = args.subreddit
 	sim_post = args.sim_post
-	time_observed = [float(time) for time in args.time_observed]
+	if args.time_observed != False:
+		observed_list = [float(time) for time in args.time_observed]
+		observing_time = True
+	elif args.num_comments_observed != False:
+		observed_list = [int(count) for count in args.num_comments_observed]
+		observing_time = False
 	outfile = args.outfile
 	max_nodes = args.max_nodes if args.max_nodes == False else int(args.max_nodes)
 	min_node_quality = args.min_node_quality if args.min_node_quality == False else float(args.min_node_quality)
@@ -199,7 +207,10 @@ def parse_command_args():
 
 	#print some log-ish stuff in case output being piped and saved
 	vprint("Sim Post: ", sim_post, " %d" % sample_num if sample_num != False else "")
-	vprint("Time Observed: ", time_observed)
+	if observing_time:
+		vprint("Time Observed: ", observed_list)
+	else:
+		vprint("Comments Observed: ", observed_list)
 	vprint("Output: ", outfile)
 	vprint("Source subreddit: ", subreddit)
 	vprint("Minimum node quality: ", min_node_quality)
@@ -239,7 +250,7 @@ def parse_command_args():
 	vprint("")
 
 	#return all arguments
-	return subreddit, sim_post, time_observed, outfile, max_nodes, min_node_quality, estimate_initial_params, normalize_parameters, batch, sample_num, testing_start_month, testing_start_year, testing_len, training_start_month, training_start_year, training_len, weight_method, top_n, weight_threshold, include_default_posts, time_error_margin, error_method, sanity_check, size_filter, training_stats, verbose
+	return subreddit, sim_post, observing_time, observed_list, outfile, max_nodes, min_node_quality, estimate_initial_params, normalize_parameters, batch, sample_num, testing_start_month, testing_start_year, testing_len, training_start_month, training_start_year, training_len, weight_method, top_n, weight_threshold, include_default_posts, time_error_margin, error_method, sanity_check, size_filter, training_stats, verbose
 #end parse_command_args
 
 
@@ -1288,7 +1299,7 @@ def load_inferred_params(filename, min_params=False, max_params=False, display=F
 #arguments: post object, simulation parameters, actual cascade, observed time
 #sim_cascade comment times in utc seconds, time_observed in minutes
 #returned simulated cascade has relative comment times in minutes
-def simulate_comment_tree(sim_post, sim_params, group, sim_cascade, time_observed, display=False):
+def simulate_comment_tree(sim_params, group, sim_cascade, observed, observing_time, display=False):
 	if display:
 		vprint("\nSimulating comment tree")
 		vprint("Post created at %d" % sim_post['time'])
@@ -1296,11 +1307,20 @@ def simulate_comment_tree(sim_post, sim_params, group, sim_cascade, time_observe
 	#simulate tree structure + comment times!	
 	
 	#simulate from partially observed tree
-	if time_observed != 0:
-		#get observed tree
-		observed_tree, observed_count = filter_comment_tree(sim_post, sim_cascade, time_observed)
-		#simulate from this observed tree
+	if observed != 0:
+		#observation defined by time
+		if observing_time:
+			#get observed tree based on observation time and comment timestamps
+			observed_tree, observed_count = filter_comment_tree(sim_cascade, observed*60)
+			#set observed time equal to given for sim
+			time_observed = observed
+		#observation defined by number of comments
+		else:
+			observed_tree, observed_count, time_observed = filter_comment_tree_by_num_comments(sim_cascade, observed)
+
+		#simulate from this observed tree (regardless of how we got it)
 		sim_root, all_times = sim_tree.simulate_comment_tree(sim_params, time_observed*60, observed_tree)
+
 	#simulate entirely new tree from root only
 	else:
 		sim_root, all_times = sim_tree.simulate_comment_tree(sim_params)
@@ -1311,21 +1331,21 @@ def simulate_comment_tree(sim_post, sim_params, group, sim_cascade, time_observe
 		vprint("   %d actual\n" % sim_cascade['comment_count_total'])
 
 	#return simulated tree, observed comment count, and simulated comment count (counts for output/eval)
-	return sim_root, observed_count, len(all_times)		
+	return sim_root, observed_count, time_observed, len(all_times)
 #end simulate_comment_tree
 
 
 #given a ground-truth cascade stored as nested dictionary structure, and an observed time, 
 #filter tree to only the comments we have observed, offset comment times by root time, 
 #and convert relative comment times to minutes
-#time_observed given in hours, cascade times in seconds
+#time_observed given in minutes, cascade times in seconds
 #if time_observed == False, just time shift and return that
-def filter_comment_tree(post, cascade, time_observed=False):
+def filter_comment_tree(cascade, time_observed=False):
 	#build new list/structure of post comments - offset times by post time
 	observed_tree = deepcopy(cascade)	#start with given, modify from there
 
 	#grab post time to use as offset
-	root_time = post['time']
+	root_time = cascade['time']
 
 	#update root
 	observed_tree['time'] = 0		#post at time 0
@@ -1336,7 +1356,7 @@ def filter_comment_tree(post, cascade, time_observed=False):
 	while len(comments_to_visit) != 0:
 		parent, curr = comments_to_visit.pop()		#get current comment
 		#check time, delete if not within observed window
-		if time_observed != False and curr['time'] - root_time > time_observed * 3600:
+		if time_observed != False and curr['time'] - root_time > time_observed * 60:
 			parent['replies'].remove(curr)
 			continue
 		#observed comment time, shift/convert and add replies to queue
@@ -1346,13 +1366,52 @@ def filter_comment_tree(post, cascade, time_observed=False):
 
 	#return post/root
 	return observed_tree, observed_count
-#end convert_comment_tree
+#end filter_comment_tree
+
+
+#given a ground-truth cascade stored as nested dictionary structure, and an observed number of comments,
+#filter tree to only the comments we have observed, offset comment times by root time,
+#and convert relative comment times to minutes
+#cascade times given in seconds
+#if num_observed == False, just time shift and return that
+def filter_comment_tree_by_num_comments(cascade, num_observed=0):
+	#get sorted list of ALL comment times, in minutes
+	all_comment_times = get_list_of_comment_times(cascade)
+	#pull just the observed comments
+	observed_comments = all_comment_times[:num_observed]
+
+	#what is the observation time corresponding to this set of observed comments?
+	#use time of the first comment that we didn't observe (if such a thing exists),
+	#averaged with the last time we did observe (midpoint between two)
+	#pick this to (hopefully) prevent floating-point sadness
+	if num_observed < len(all_comment_times):
+		time_observed = (all_comment_times[num_observed] + observed_comments[-1]) / 2.0
+	#if no unobserved comments, just use time of last observed comment + 1 (again, prevent float sadness)
+	else:
+		time_observed = observed_comments[-1] + 1
+
+	#filter tree based on this determine observation time
+	observed_tree, observed_count = filter_comment_tree(cascade, time_observed)
+
+
+	#verify that the tree size matches
+	if observed_count != len(observed_comments):
+		print("Error filtering comment tree by number of observed comments. Exiting.")
+		print("all", all_comment_times)
+		print("observed comments list", observed_comments)
+		print("time_observed", time_observed)
+		print("observed count from filter", observed_count)
+		print("observed tree", observed_tree)
+		exit(0)
+
+	return observed_tree, observed_count, time_observed
+#end filter_comment_tree_by_num_comments
 
 
 #given simulated and ground-truth cascades, compute the accuracy and precision of the simulation
 #both trees given as dictionary-nested structure (returned from simulate_comment_tree and convert_comment_tree)
 #return eval results in a metric-coded dictionary
-def eval_trees(post_id, sim_tree, true_cascade, simulated_comment_count, observed_comment_count, true_comment_count, time_observed, time_error_margin, error_method, disconnected):
+def eval_trees(post_id, sim_tree, true_cascade, simulated_comment_count, observed_comment_count, true_comment_count, time_observed, observing_time, time_error_margin, error_method, disconnected, max_observed_comment_count=False):
 	#get edit distance stats for sim vs truth
 	eval_res = tree_edit_distance.compare_trees(sim_tree, true_cascade, error_method, time_error_margin)
 
@@ -1363,6 +1422,9 @@ def eval_trees(post_id, sim_tree, true_cascade, simulated_comment_count, observe
 	eval_res['simulated_comment_count'] = simulated_comment_count
 	eval_res['disconnected'] = "True" if disconnected else "False"
 	eval_res['time_observed'] = time_observed
+	eval_res['observing_by_time'] = observing_time
+	if max_observed_comment_count != False:
+		eval_res['max_observed_comments'] = max_observed_comment_count
 
 	#breakdown of comment counts - root level comments for both true and sim cascades
 	eval_res['true_root_comments'] = true_cascade['comment_count_direct']
@@ -1405,23 +1467,26 @@ def eval_trees(post_id, sim_tree, true_cascade, simulated_comment_count, observe
 #save all sim results to csv file
 #one row per simulated post/time pair, with a bunch of data in it
 #then, at the bottom, all the settings/arguments, for tracking purposes
-def save_results(base_filename, metrics, avg_metrics, input_sim_post, time_observed, subreddit, min_node_quality, max_graph_size, min_weight, testing_start_month, testing_start_year, testing_len, training_start_month, training_start_year, training_len, edge_weight_method, include_hardcoded_posts, estimate_initial_params, time_error_margin, error_method):
+def save_results(base_filename, metrics, avg_metrics, input_sim_post, observed_list, observing_time, subreddit, min_node_quality, max_graph_size, min_weight, testing_start_month, testing_start_year, testing_len, training_start_month, training_start_year, training_len, edge_weight_method, include_hardcoded_posts, estimate_initial_params, time_error_margin, error_method):
 	#given a base filename, convert to complete output filename
 	filename = base_filename + "_results.csv"
 
 	#dump metrics dict to file, enforcing a semi-meaningful order
-	fields = ["post_id", "param_source", "time_observed", "true_comment_count", "observed_comment_count", "simulated_comment_count", "true_root_comments", "sim_root_comments", "true_depth", "true_breadth", "simulated_depth", "simulated_breadth", "f1", "precision", "recall", "true_pos", "false_pos", "false_neg", "dist", "remove_count", "remove_time", "insert_count", "insert_time", "update_count", "update_time", "match_count", "disconnected"]
+	fields = ["post_id", "param_source", "observing_by_time", "time_observed", "observed_comment_count", "true_comment_count", "simulated_comment_count", "true_root_comments", "sim_root_comments", "true_depth", "true_breadth", "simulated_depth", "simulated_breadth", "f1", "precision", "recall", "true_pos", "false_pos", "false_neg", "dist", "remove_count", "remove_time", "insert_count", "insert_time", "update_count", "update_time", "match_count", "disconnected"]
+	if observing_time == False:
+		fields.insert(5, "max_observed_comments")
 	file_utils.save_csv(metrics, filename, fields)
 
 	#dump average metrics after that
 	with open(filename, 'a') as file:
 		file.write("\nAverage by time observed\n")		#header/label
 	#convert avg metrics from nested dict to list of dict
-	avg_metrics = [avg_metrics[time] for time in avg_metrics.keys()]
+	avg_metrics = [avg_metrics[obs] for obs in avg_metrics.keys()]
 	#remove a couple unneeded fields for this dump
 	fields.remove("post_id")
 	fields.remove("disconnected")
 	fields.remove("param_source")
+	fields.remove("observing_by_time")
 	#save avg metrics
 	file_utils.save_csv(avg_metrics, filename, fields, file_mode='a')
 	
@@ -1429,7 +1494,8 @@ def save_results(base_filename, metrics, avg_metrics, input_sim_post, time_obser
 	with open(filename, "a") as file:
 		file.write("\nSettings\n")
 		file.write("sim_post,%s\n" % input_sim_post)
-		file.write("time_observed,%s\n" % time_observed)
+		file.write("observing,%s\n" % ("time" if observing_time else "comments"))
+		file.write("observed_list,%s\n" % observed_list)
 		file.write("subreddit,%s\n" % subreddit)
 		file.write("min_node_quality,%s\n" % min_node_quality)
 		file.write("max_graph_size,%s\n" % max_graph_size)

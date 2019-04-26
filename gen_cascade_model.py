@@ -15,7 +15,7 @@ from collections import defaultdict
 print("")
 
 #parse all command-line arguments
-subreddit, input_sim_post, time_observed_list, outfile, max_nodes, min_node_quality, estimate_initial_params, normalize_parameters, batch, sample_num, testing_start_month, testing_start_year, testing_len, training_start_month, training_start_year, training_len, weight_method, top_n, weight_threshold, include_default_posts, time_error_margin, error_method, sanity_check, size_filter, get_training_stats, verbose = functions_gen_cascade_model.parse_command_args()
+subreddit, input_sim_post, observing_time, observed_list, outfile, max_nodes, min_node_quality, estimate_initial_params, normalize_parameters, batch, sample_num, testing_start_month, testing_start_year, testing_len, training_start_month, training_start_year, training_len, weight_method, top_n, weight_threshold, include_default_posts, time_error_margin, error_method, sanity_check, size_filter, get_training_stats, verbose = functions_gen_cascade_model.parse_command_args()
 
 #hackery: declare a special print function for verbose output
 if verbose:
@@ -87,11 +87,11 @@ for sim_post_id, sim_post in test_posts.items():
 			disconnected_count += 1
 
 	#use the same inferred params for all the time_observed values
-	for time_observed in time_observed_list:
+	for observed in observed_list:
 
 		#REFINE PARAMS - for partial observed trees
 		if not sanity_check:
-			partial_fit_params = fit_partial_cascade.fit_partial_cascade(sim_post, test_cascades[sim_post_id], time_observed, inferred_params, verbose=(verbose if batch==False else False))
+			partial_fit_params = fit_partial_cascade.fit_partial_cascade(sim_post, test_cascades[sim_post_id], observed, observing_time, inferred_params, verbose=(verbose if batch==False else False))
 			if batch == False: vprint("Refined params: ", partial_fit_params, "\n")
 
 		#which params are we using for simulation?
@@ -110,18 +110,18 @@ for sim_post_id, sim_post in test_posts.items():
 			sim_params = partial_fit_params			#refined params from partial fit
 
 		#SIMULATE COMMENT TREE
-		sim_tree, observed_count, simulated_count = functions_gen_cascade_model.simulate_comment_tree(sim_post, sim_params, subreddit, test_cascades[sim_post_id], time_observed, not batch)
+		sim_tree, observed_count, observed_time, simulated_count = functions_gen_cascade_model.simulate_comment_tree(sim_params, subreddit, test_cascades[sim_post_id], observed, observing_time, not batch)
 
 		#EVAL
 
 		#get time-shifted ground-truth cascade
-		true_cascade, true_comment_count = functions_gen_cascade_model.filter_comment_tree(sim_post, test_cascades[sim_post_id])
+		true_cascade, true_comment_count = functions_gen_cascade_model.filter_comment_tree(test_cascades[sim_post_id])
 
 		#compute tree edit distance between ground-truth and simulated cascades
-		eval_res = functions_gen_cascade_model.eval_trees(sim_post_id, sim_tree, true_cascade, simulated_count, observed_count, true_comment_count, time_observed, time_error_margin, error_method, disconnected)
+		eval_res = functions_gen_cascade_model.eval_trees(sim_post_id, sim_tree, true_cascade, simulated_count, observed_count, true_comment_count, observed_time, observing_time, time_error_margin, error_method, disconnected, (observed if observing_time==False else False))
 		#add a column indicating where the params for this sim came from
 		if not sanity_check:
-			if time_observed == 0:
+			if observed == 0:
 				eval_res['param_source'] = "infer"
 			else:
 				eval_res['param_source'] = "infer+observed_fit"
@@ -156,9 +156,9 @@ for sim_post_id, sim_post in test_posts.items():
 		#aggregate metrics for average later
 		if batch:
 			for metric, value in eval_res.items():
-				if metric == "post_id" or metric == "disconnected" or metric == "param_source": 
+				if metric == "post_id" or metric == "disconnected" or metric == "param_source" or metric == "observing_by_time":
 					continue
-				avg_metrics[time_observed][metric] += value
+				avg_metrics[observed][metric] += value
 
 
 	#counter and periodic prints
@@ -170,7 +170,8 @@ for sim_post_id, sim_post in test_posts.items():
 if batch or len(time_observed_list) > 1:
 	print("\nAll done\n")
 	vprint("Number of posts: ", len(test_posts))
-	vprint("Time Observed: ", time_observed_list)
+	vprint("Observing: ", "time" if observing_time else "comments")
+	vprint("Observed: ", observed_list)
 	vprint("Source subreddit: ", subreddit)
 	if min_node_quality != -1:
 		vprint("Minimum node quality: ", min_node_quality)
@@ -189,4 +190,4 @@ if batch:
 			avg_metrics[time_observed][metric] /= len(test_posts)
 
 #save metrics + settings to output file
-functions_gen_cascade_model.save_results(outfile, all_metrics, avg_metrics, input_sim_post, time_observed_list, subreddit, min_node_quality, max_nodes, weight_threshold, testing_start_month, testing_start_year, testing_len, training_start_month, training_start_year, training_len, weight_method, include_default_posts, estimate_initial_params, time_error_margin, error_method)
+functions_gen_cascade_model.save_results(outfile, all_metrics, avg_metrics, input_sim_post, observed_list, observing_time, subreddit, min_node_quality, max_nodes, weight_threshold, testing_start_month, testing_start_year, testing_len, training_start_month, training_start_year, training_len, weight_method, include_default_posts, estimate_initial_params, time_error_margin, error_method)
