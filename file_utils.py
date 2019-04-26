@@ -10,6 +10,7 @@ import tarfile
 import csv
 import itertools
 import sys
+from itertools import zip_longest
 
 DISPLAY = False
 
@@ -151,3 +152,26 @@ def dict_to_csv(data, fields, filename):
 			row.update(val)
 			w.writerow(row)
 #end dict_to_csv
+
+#given multiple dictionaries (potentially of different lengths),
+#output them all to the same csv file, where each dict is 2 columns
+#fields and dict_list need to be in the same order! (two fields per dict)
+def multi_dict_to_csv(filename, fields, dict_list):
+	#insert a blank column between every two fields
+	fields = [x for y in (fields[i:i+2] + [''] * (i < len(fields) - 1) for i in range(0, len(fields), 2)) for x in y]
+
+	#sort each dictionary
+	zip_list = [sorted(d.items()) for d in dict_list]
+
+	with open(filename, 'w') as f:
+		writer = csv.writer(f)
+		writer.writerow(fields)
+		for row_items in zip_longest(*zip_list):
+			row = []
+			for pair in row_items:
+				if pair is not None:
+					row += [pair[0], pair[1], '']		#empty column after each dict pair
+				else:
+					row += ['', '', '']
+			writer.writerow(row)
+#end multi_dict_to_csv
