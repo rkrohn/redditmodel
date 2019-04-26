@@ -65,7 +65,7 @@ def parse_command_args():
 
 	#required arguments (still with -flags, because clearer that way, and don't want to impose an order)
 	parser.add_argument("-s", "--sub", dest="subreddit", required=True, help="subreddit to process")
-	parser.add_argument("-o", "--out", dest="outfile", required=True, help="output filename")
+	parser.add_argument("-o", "--out", dest="outfile", required=True, help="base output filename")
 	#must pick one of four processing options: a single id, random, all, or sample of size n
 	proc_group = parser.add_mutually_exclusive_group(required=True)
 	proc_group.add_argument("-id", dest="sim_post", default=None,  help="post id for single-processing")
@@ -1297,7 +1297,10 @@ def eval_trees(post_id, sim_tree, true_cascade, simulated_comment_count, observe
 #save all sim results to csv file
 #one row per simulated post/time pair, with a bunch of data in it
 #then, at the bottom, all the settings/arguments, for tracking purposes
-def save_results(filename, metrics, avg_metrics, input_sim_post, time_observed, subreddit, min_node_quality, max_graph_size, min_weight, testing_start_month, testing_start_year, testing_len, training_start_month, training_start_year, training_len, edge_weight_method, include_hardcoded_posts, estimate_initial_params, time_error_margin, error_method):
+def save_results(base_filename, metrics, avg_metrics, input_sim_post, time_observed, subreddit, min_node_quality, max_graph_size, min_weight, testing_start_month, testing_start_year, testing_len, training_start_month, training_start_year, training_len, edge_weight_method, include_hardcoded_posts, estimate_initial_params, time_error_margin, error_method):
+	#given a base filename, convert to complete output filename
+	filename = base_filename + "_results.csv"
+
 	#dump metrics dict to file, enforcing a semi-meaningful order
 	fields = ["post_id", "param_source", "time_observed", "true_comment_count", "observed_comment_count", "simulated_comment_count", "true_root_comments", "sim_root_comments", "true_depth", "true_breadth", "simulated_depth", "simulated_breadth", "f1", "precision", "recall", "true_pos", "false_pos", "false_neg", "dist", "remove_count", "remove_time", "insert_count", "insert_time", "update_count", "update_time", "match_count", "disconnected"]
 	file_utils.save_csv(metrics, filename, fields)
