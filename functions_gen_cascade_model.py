@@ -33,9 +33,9 @@ fitted_params_filepath = "reddit_data/%s/%s_post_params_%d_%d.pkl"
 #reconstructed cascades for (sub, sub, year, month) - dictionary of post id -> cascade dict, with "time", "num_comments", and "replies", where "replies" is nested list of reply objects
 cascades_filepath = "reddit_data/%s/%s_cascades_%d_%d.pkl"
 
-#filepath for random test samples, determined by subreddit, number of posts, testing start (year-month), testing length, and min number of comments
+#filepath for random test samples, determined by subreddit, subreddit, number of posts, testing start (year-month), testing length, and min number of comments
 #(save these to files so you can have repeated runs of the same random set)
-random_sample_list_filepath = "sim_files/%s_%d_test_keys_list_start%d-%d_%dmonths_filter%d.pkl"
+random_sample_list_filepath = "reddit_data/%s/%s_%d_test_keys_list_start%d-%d_%dmonths_filter%d.pkl"
 
 #filepaths of output/temporary files - used to pass graph to C++ node2vec for processing
 temp_graph_filepath = "sim_files/graph_%s.txt"			#updated graph for this sim run
@@ -664,14 +664,14 @@ def get_test_post_set(input_sim_post, batch_process, size_filter, sample_num, po
 	#if sampling, choose random sample of posts
 	elif sample_num != False:		
 		#if stored random sample exists, load that
-		if file_utils.verify_file(random_sample_list_filepath % (subreddit, sample_num, testing_start_year, testing_start_month, testing_len, (size_filter if size_filter != False else 0))):
+		if file_utils.verify_file(random_sample_list_filepath % (subreddit, subreddit, sample_num, testing_start_year, testing_start_month, testing_len, (size_filter if size_filter != False else 0))):
 			vprint("Loading cached sample simulation post set")
-			keys = file_utils.load_pickle(random_sample_list_filepath % (subreddit, sample_num, testing_start_year, testing_start_month, testing_len, (size_filter if size_filter != False else 0)))
+			keys = file_utils.load_pickle(random_sample_list_filepath % (subreddit, subreddit, sample_num, testing_start_year, testing_start_month, testing_len, (size_filter if size_filter != False else 0)))
 		#no existing sample file, pick random post id set, and dump list to pickle
 		else:
 			vprint("Sampling %d random posts (from %d) for simulation set" % (sample_num, len(posts.keys())))
 			keys = random.sample(list(posts.keys()), sample_num)
-			file_utils.save_pickle(keys, random_sample_list_filepath % (subreddit, sample_num, testing_start_year, testing_start_month, testing_len, (size_filter if size_filter != False else 0)))
+			file_utils.save_pickle(keys, random_sample_list_filepath % (subreddit, subreddit, sample_num, testing_start_year, testing_start_month, testing_len, (size_filter if size_filter != False else 0)))
 		#filter posts to match keys list
 		posts = filter_dict_by_list(posts, keys)
 	#if single id, make sure given post id is in the dataset
