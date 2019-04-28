@@ -43,7 +43,7 @@ temp_params_filepath = "sim_files/in_params_%s.txt"		#temporary, filtered params
 output_params_filepath = "sim_files/out_params_%s.txt"		#output params from node2vec
 
 #output filepaths
-training_stats_filepath = "sim_results/post_set_stats_%s_%d_%d_(%dmonths).csv"		#training set stats (subreddit, year, month, num_months)
+stats_filepath = "sim_results/post_set_stats_%s_%d-%d_(%dmonths)_%d_posts.csv"		#post set stats (subreddit, year, month, num_months, num_posts)
 
 #hardcoded params for failed fit cascades
 #only used when fit/estimation fails and these posts are still included in graph
@@ -116,6 +116,8 @@ def parse_command_args():
 	parser.add_argument("-sf", "--size_filter", dest="size_filter", default=False, help="minimum cascade size for simulation test set")
 	parser.add_argument("--train_stats", dest="training_stats", action="store_true", help="output statistics for training set")
 	parser.set_defaults(training_stats=False)
+	parser.add_argument("--test_stats", dest="testing_stats", action="store_true", help="output statistics for testing set")
+	parser.set_defaults(testing_stats=False)
 
 	args = parser.parse_args()		#parse the args (magic!)
 
@@ -155,6 +157,7 @@ def parse_command_args():
 	sanity_check = args.sanity_check
 	size_filter = int(args.size_filter) if args.size_filter != False else False
 	training_stats = args.training_stats
+	testing_stats = args.testing_stats
 	if top_n != False:
 		top_n = int(top_n)
 	weight_threshold = args.weight_threshold
@@ -250,7 +253,7 @@ def parse_command_args():
 	vprint("")
 
 	#return all arguments
-	return subreddit, sim_post, observing_time, observed_list, outfile, max_nodes, min_node_quality, estimate_initial_params, normalize_parameters, batch, sample_num, testing_start_month, testing_start_year, testing_len, training_start_month, training_start_year, training_len, weight_method, top_n, weight_threshold, include_default_posts, time_error_margin, error_method, sanity_check, size_filter, training_stats, verbose
+	return subreddit, sim_post, observing_time, observed_list, outfile, max_nodes, min_node_quality, estimate_initial_params, normalize_parameters, batch, sample_num, testing_start_month, testing_start_year, testing_len, training_start_month, training_start_year, training_len, weight_method, top_n, weight_threshold, include_default_posts, time_error_margin, error_method, sanity_check, size_filter, training_stats, testing_stats, verbose
 #end parse_command_args
 
 
@@ -686,9 +689,9 @@ def get_test_post_set(input_sim_post, batch_process, size_filter, sample_num, po
 
 #for a given set of processed posts and reconstructed cascades, 
 #compute and output some stats on the post set
-def output_post_set_stats(posts, cascades, subreddit, year, month, num_months):
+def output_post_set_stats(cascades, subreddit, year, month, num_months):
 	#do we already have a stats file for this subreddit set? if so, skip
-	if file_utils.verify_file(training_stats_filepath % (subreddit, year, month, num_months)):
+	if file_utils.verify_file(stats_filepath % (subreddit, year, month, num_months, len(cascades))):
 		vprint("Training data stats already exist.")
 		return
 
@@ -732,7 +735,7 @@ def output_post_set_stats(posts, cascades, subreddit, year, month, num_months):
 		median_observed[percent] = statistics.median(observed_percents[percent])
 
 	#write all to output
-	file_utils.multi_dict_to_csv(training_stats_filepath % (subreddit, year, month, num_months), ["number_of_comments", "number_of_cascades", "lifetime(minutes)", "number_of_cascades", "percent_lifetime", "mean_comments_observed", "percent_lifetime", "median_comments_observed"], [cascade_sizes, lifetime_dist, mean_observed, median_observed])
+	file_utils.multi_dict_to_csv(stats_filepath % (subreddit, year, month, num_months, len(cascades)), ["number_of_comments", "number_of_cascades", "lifetime(minutes)", "number_of_cascades", "percent_lifetime", "mean_comments_observed", "percent_lifetime", "median_comments_observed"], [cascade_sizes, lifetime_dist, mean_observed, median_observed])
 #end output_post_set_stats
 
 

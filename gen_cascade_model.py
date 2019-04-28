@@ -15,7 +15,7 @@ from collections import defaultdict
 print("")
 
 #parse all command-line arguments
-subreddit, input_sim_post, observing_time, observed_list, outfile, max_nodes, min_node_quality, estimate_initial_params, normalize_parameters, batch, sample_num, testing_start_month, testing_start_year, testing_len, training_start_month, training_start_year, training_len, weight_method, top_n, weight_threshold, include_default_posts, time_error_margin, error_method, sanity_check, size_filter, get_training_stats, verbose = functions_gen_cascade_model.parse_command_args()
+subreddit, input_sim_post, observing_time, observed_list, outfile, max_nodes, min_node_quality, estimate_initial_params, normalize_parameters, batch, sample_num, testing_start_month, testing_start_year, testing_len, training_start_month, training_start_year, training_len, weight_method, top_n, weight_threshold, include_default_posts, time_error_margin, error_method, sanity_check, size_filter, get_training_stats, get_testing_stats, verbose = functions_gen_cascade_model.parse_command_args()
 
 #hackery: declare a special print function for verbose output
 if verbose:
@@ -41,7 +41,7 @@ if not sanity_check:
 #if want training data stats, get those now
 if get_training_stats:
 	vprint("Computing training data stats")
-	functions_gen_cascade_model.output_post_set_stats(train_posts, train_cascades, subreddit, training_start_year, training_start_month, training_len)
+	functions_gen_cascade_model.output_post_set_stats(train_cascades, subreddit, training_start_year, training_start_month, training_len)
 
 vprint("\nLoading processed testing data")
 #load pre-processed posts and their reconstructed cascades for testing period (no params here!)
@@ -57,6 +57,11 @@ test_posts = functions_gen_cascade_model.get_test_post_set(input_sim_post, batch
 #reduce cascades to match this set
 if len(test_posts) != len(test_cascades):
 	test_cascades = functions_gen_cascade_model.filter_dict_by_list(test_cascades, list(test_posts.keys()))
+
+#if want testing data stats, get those now
+if get_testing_stats:
+	vprint("Computing testing data stats")
+	functions_gen_cascade_model.output_post_set_stats(test_cascades, subreddit, testing_start_year, testing_start_month, testing_len)
 
 #build base graph for training set - will add infer posts later
 if not sanity_check:
