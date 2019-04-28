@@ -1,13 +1,14 @@
 from fit_weibull import *
 from fit_lognormal import *
 from fit_cascade_gen_model import *
+import functions_gen_cascade_model
 
 #given a single cascade and associated comments, and an observed time, fit both the root-comment Weibull and deeper-comment lognormal distributions for the observed comments
 #also, estimate the branching factor
 #does NOT return param quality, because sometimes it doesn't fit at all - and don't need it for sim from partial
-#observed time given in hours
+#observed time given in hours, observed comments is just an integer count
 #param_guess = set of initial params to inform fit process (generally, inferred from post graph)
-def fit_partial_cascade(post, cascade, observed, observing_time, param_guess=False, verbose = False):
+def fit_partial_cascade(cascade, observed, observing_time, param_guess=False, verbose = False):
 
     #hackery: declare a special print function for verbose output
     global vprint
@@ -21,34 +22,21 @@ def fit_partial_cascade(post, cascade, observed, observing_time, param_guess=Fal
     else:   
         vprint = lambda *a: None      # do-nothing function
 
+    #filter cascade to observed time/comments, but leave timestamps unchanged (UTC seconds)
+    if observing_time:
+    	filtered_cascade, observed_count = functions_gen_cascade_model.filter_comment_tree(cascade, observed*60, convert_times=False)
+    else:
+    	filtered_cascade, observed_count, observing_time = functions_gen_cascade_model.filter_comment_tree_by_num_comments(cascade, observed, convert_times=False)
+    #use this filtered cascade to fit from
+
     #fitting weibull to root comment times, so get list of those
-    root_comment_times = get_root_comment_times(cascade)
+    root_comment_times = get_root_comment_times(filtered_cascade)
     if root_comment_times == False:
         vprint("Invalid comment times, skipping this cascade.")
         return False
     
     #fitting log-normal to all other comment times, so get list of those
-    other_comment_times = get_other_comment_times(cascade)
-
-    #filter comment lists to only those we've observed for fit process
-    #if observing based on time, filter each list separately
-    if observing_time:
-        root_comment_times = [time for time in root_comment_times if time <= observed * 60.0]
-        other_comment_times = [time for time in other_comment_times if time <= observed * 60.0]
-    #if observing only the first N comments, need to consider root and other comments together
-    else:
-        #get list of ALL comments and root/other identifier
-        all_comment_times = [(time, "root") for time in root_comment_times]
-        all_comment_times += [(time, "other") for time in other_comment_times]
-
-        #sort this list by time
-        all_comment_times = sorted(all_comment_times, key=lambda x: x[0])
-        #pull just the observed comments
-        observed_comments = all_comment_times[:observed]
-
-        #filter root/other lists to contain only those first n comments
-        root_comment_times = root_comment_times[:sum(1 for comment in observed_comments if comment[1] == "root")]
-        other_comment_times = other_comment_times[:sum(1 for comment in observed_comments if comment[1] == "other")]
+    other_comment_times = get_other_comment_times(filtered_cascade)
 
     #how many comments have we observed?
     observed_count = len(root_comment_times) + len(other_comment_times)
