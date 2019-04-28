@@ -75,9 +75,6 @@ def parse_command_args():
 	proc_group.add_argument("-r", "--rand", dest="sim_post", action="store_const", const="random", help="choose a random post from the subreddit to simulate")
 	proc_group.add_argument("-a", "--all", dest="sim_post", action="store_const", const="all", help="simulate all posts in the subreddit")
 	proc_group.add_argument("-n", "--n_sample", dest="sim_post", default=100, help="number of posts to test, taken as random sample from testing period")
-	#must provide year and month for start of testing data set
-	parser.add_argument("-y", "--year", dest="testing_start_year", required=True, help="year to use for test set")
-	parser.add_argument("-m", "--month", dest="testing_start_month", required=True, help="month to use for test set")
 	#must pick an edge weight computation method: cosine (based on tf-idf) or jaccard
 	weight_group = parser.add_mutually_exclusive_group(required=True)
 	weight_group.add_argument("-j", "--jaccard", dest="weight_method", action='store_const', const="jaccard", help="compute edge weight between pairs using jaccard index")
@@ -90,6 +87,10 @@ def parse_command_args():
 	observed_group = parser.add_mutually_exclusive_group(required=False)
 	observed_group.add_argument("-t", dest="time_observed", default=False, help="time of post observation, in hours", nargs='+')
 	observed_group.add_argument("-nco", "--num_comments_observed", dest="num_comments_observed", default=False, help="number of comments observed", nargs='+')
+
+	#must provide year and month for start of testing data set - unless running off crypto, cve, or cyber
+	parser.add_argument("-y", "--year", dest="testing_start_year", default=False, help="year to use for test set")
+	parser.add_argument("-m", "--month", dest="testing_start_month", default=False, help="month to use for test set")
 
 	#optional args
 	parser.add_argument("-g", "--graph", dest="max_nodes", default=False, help="max nodes in post graph for parameter infer")
@@ -120,6 +121,10 @@ def parse_command_args():
 	parser.set_defaults(testing_stats=False)
 
 	args = parser.parse_args()		#parse the args (magic!)
+
+	#must provide year and month for start of testing data set - unless running off crypto, cve, or cyber
+	if not (args.testing_start_month and args.testing_start_year) and args.subreddit != "cve" and args.subreddit != "crypto" and args.subreddit != "cyber":
+		parser.error('Must specify year and month for start of testing period, -m and -y')
 
 	#make sure at least one edge-limit option was chosen
 	if not (args.top_n or args.weight_threshold):
@@ -192,6 +197,15 @@ def parse_command_args():
 		print("No training data loaded for sanity check mode - cannot output training data stats.")
 		training_stats = False
 
+	#if running socsim data, set that flag
+	if subreddit == "cve" or subreddit == "cyber" or subreddit == "crypto":
+		socsim_data = True
+		#and set month/year to something for when it shows up in filenames
+		training_start_month = 0
+		training_start_year = 0
+		training_len = 0
+		testing_len = 0
+
 	#compute start of training period for easy use later
 	training_start_month, training_start_year = monthdelta(testing_start_month, testing_start_year, -training_len)
 
@@ -253,7 +267,7 @@ def parse_command_args():
 	vprint("")
 
 	#return all arguments
-	return subreddit, sim_post, observing_time, observed_list, outfile, max_nodes, min_node_quality, estimate_initial_params, normalize_parameters, batch, sample_num, testing_start_month, testing_start_year, testing_len, training_start_month, training_start_year, training_len, weight_method, top_n, weight_threshold, include_default_posts, time_error_margin, error_method, sanity_check, size_filter, training_stats, testing_stats, verbose
+	return subreddit, sim_post, observing_time, observed_list, outfile, max_nodes, min_node_quality, estimate_initial_params, normalize_parameters, batch, sample_num, testing_start_month, testing_start_year, testing_len, training_start_month, training_start_year, training_len, weight_method, top_n, weight_threshold, include_default_posts, time_error_margin, error_method, sanity_check, size_filter, training_stats, testing_stats, socsim_data, verbose
 #end parse_command_args
 
 
@@ -410,6 +424,16 @@ def fit_posts(subreddit, month, year, posts):
 	#fit parameters to each cascade
 	vprint("Fitting %d cascades for %s %d-%d" % (len(cascades), subreddit, month, year))
 
+	params_out = fit_posts_from_cascades(cascades)
+
+	file_utils.save_pickle(params_out, fitted_params_filepath % (subreddit, subreddit, year, month))
+	
+	return params_out		#return params + fail list in dict
+#end fit_posts
+
+
+#given a set of cascades, fit parameters for these posts and return result
+def fit_posts_from_cascades(cascades):
 	cascade_params = {}		#build dict of post id -> 6 fitted params + quality
 	failed_fit_posts = []	#list of posts that failed to fit
 	post_count = 0
@@ -469,12 +493,11 @@ def fit_posts(subreddit, month, year, posts):
 	if partial_count != 0:
 		vprint("   partial-succeed average cascade size: %d" % (partial_size/(partial_count)))
 
-	#save both fitted params and list of failed fits to the same file in a wrapping dictionary
+	#wrap both fitted params and list of failed fits in a dictionary
 	params_out = {"params_dict": cascade_params, "failed_fit_list": failed_fit_posts}
-	file_utils.save_pickle(params_out, fitted_params_filepath % (subreddit, subreddit, year, month))
-	
-	return params_out		#return params + fail list in dict
-#end fit_posts
+
+	return params_out
+#end fit_posts_from_cascades	
 
 
 #given subreddit, month, year and loaded posts, load cascades associated with those posts
@@ -490,7 +513,7 @@ def get_cascades(subreddit, month, year, posts):
 		#load comments associated with this month of posts
 		comments = load_comments(subreddit, month, year, posts)
 		#reconstruct the cascades
-		cascades = build_cascades(subreddit, month, year, posts, comments)
+		cascades = build_and_save_cascades(subreddit, month, year, posts, comments)
 
 	return cascades
 #end get_cascades
@@ -564,14 +587,27 @@ def load_comments(subreddit, post_month, post_year, posts):
 
 #given a subreddit, post month-year, dict of posts and dict of relevant comments, 
 #reconstruct the post/comment (cascade) structure
+#heavy-lifting done in build_cascades, this just handles the load/save
+def build_and_save_cascades(subreddit, month, year, posts, comments):
+	vprint("Extracting post/comment structure for %d %s %d-%d posts and %d comments" % (len(posts), subreddit, month, year, len(comments)))
+
+	cascades = build_cascades(posts, comments)
+
+	#save cascades for later loading
+	file_utils.save_pickle(cascades, cascades_filepath % (subreddit, subreddit, year, month))
+
+	return cascades
+#end build_and_save_cascades
+
+
+#given a dict of posts and dict of relevant comments, 
+#reconstruct the post/comment (cascade) structure
 #store cascades in the following way using a dictionary
 #	post id -> post object
 # 	post/comment replies field -> list of direct replies
 #	post/comment time field -> create time of object as utc timestamp
 #posts also have comment_count_total and comment_count_direct 
-def build_cascades(subreddit, month, year, posts, comments):
-
-	vprint("Extracting post/comment structure for %d %s %d-%d posts and %d comments" % (len(posts), subreddit, month, year, len(comments)))
+def build_cascades(posts, comments):
 
 	#create dictionary of post id -> new post object to store cascades
 	cascades = {key:{'id':key, 'time':value['time'], 'replies':list(), 'comment_count_direct':0, 'comment_count_total':0} for key, value in posts.items()}
@@ -635,9 +671,6 @@ def build_cascades(subreddit, month, year, posts, comments):
 
 	vprint("Built %d cascades with %d comments" % (len(cascades), len(cascade_comments)))
 	vprint("   Removed %d incomplete cascades (%d associated comments)" % (len(fail_cascades), len(fail_comments)))	
-
-	#save cascades for later loading
-	file_utils.save_pickle(cascades, cascades_filepath % (subreddit, subreddit, year, month))
 
 	return cascades
 #end build_cascades

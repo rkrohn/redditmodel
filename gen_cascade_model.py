@@ -6,6 +6,7 @@
 
 import file_utils
 import functions_gen_cascade_model
+import socsim_data_functions_gen_cascade_model
 import cascade_manip
 import fit_partial_cascade
 
@@ -15,7 +16,7 @@ from collections import defaultdict
 print("")
 
 #parse all command-line arguments
-subreddit, input_sim_post, observing_time, observed_list, outfile, max_nodes, min_node_quality, estimate_initial_params, normalize_parameters, batch, sample_num, testing_start_month, testing_start_year, testing_len, training_start_month, training_start_year, training_len, weight_method, top_n, weight_threshold, include_default_posts, time_error_margin, error_method, sanity_check, size_filter, get_training_stats, get_testing_stats, verbose = functions_gen_cascade_model.parse_command_args()
+subreddit, input_sim_post, observing_time, observed_list, outfile, max_nodes, min_node_quality, estimate_initial_params, normalize_parameters, batch, sample_num, testing_start_month, testing_start_year, testing_len, training_start_month, training_start_year, training_len, weight_method, top_n, weight_threshold, include_default_posts, time_error_margin, error_method, sanity_check, size_filter, get_training_stats, get_testing_stats, socsim_data, verbose = functions_gen_cascade_model.parse_command_args()
 
 #hackery: declare a special print function for verbose output
 if verbose:
@@ -33,23 +34,26 @@ file_utils.verify_dir("sim_files")
 #ensure data directory for this subreddit exists - for saving posts, cascades, params, etc
 file_utils.verify_dir("reddit_data/%s" % subreddit)
 
-#load pre-processed posts and their fitted params for training period
-if not sanity_check:
-	vprint("Loading processed training data")
-	train_posts, train_cascades, train_params, train_fit_fail_list = functions_gen_cascade_model.load_processed_posts(subreddit, training_start_month, training_start_year, training_len, load_params=True, load_cascades=True)
+#if using socsim data, special load process (no time-defined sets)
+if socsim_data:
+	socsim_data_functions_gen_cascade_model.define_vprint(verbose)		#define vprint for that function class\
+	#load all the training and testing data for this domain
+	train_posts, train_cascades, train_params, train_fit_fail_list, test_posts, test_cascades, test_params, test_fit_fail_list = socsim_data_functions_gen_cascade_model.load_data(subreddit)
 
-#if want training data stats, get those now
-if get_training_stats:
-	vprint("Computing training data stats")
-	functions_gen_cascade_model.output_post_set_stats(train_cascades, subreddit, training_start_year, training_start_month, training_len)
-
-vprint("\nLoading processed testing data")
-#load pre-processed posts and their reconstructed cascades for testing period (no params here!)
-if not sanity_check:
-	test_posts, test_cascades = functions_gen_cascade_model.load_processed_posts(subreddit, testing_start_month, testing_start_year, testing_len, load_cascades=True)
-#if simming from fitted params, load testing params
+#otherwise, standard data load (use month-year and lengths to define training and testing sets)
 else:
-	test_posts, test_cascades, test_params, test_fit_fail_list = functions_gen_cascade_model.load_processed_posts(subreddit, testing_start_month, testing_start_year, testing_len, load_params=True, load_cascades=True)
+	#load pre-processed posts and their fitted params for training period
+	if not sanity_check:
+		vprint("Loading processed training data")
+		train_posts, train_cascades, train_params, train_fit_fail_list = functions_gen_cascade_model.load_processed_posts(subreddit, training_start_month, training_start_year, training_len, load_params=True, load_cascades=True)
+
+	vprint("\nLoading processed testing data")
+	#load pre-processed posts and their reconstructed cascades for testing period (no params here!)
+	if not sanity_check:
+		test_posts, test_cascades = functions_gen_cascade_model.load_processed_posts(subreddit, testing_start_month, testing_start_year, testing_len, load_cascades=True)
+	#if simming from fitted params, load testing params
+	else:
+		test_posts, test_cascades, test_params, test_fit_fail_list = functions_gen_cascade_model.load_processed_posts(subreddit, testing_start_month, testing_start_year, testing_len, load_params=True, load_cascades=True)
 
 #ensure post id is in dataset (and filter test_posts set down to processing group only)
 vprint("")
@@ -58,6 +62,10 @@ test_posts = functions_gen_cascade_model.get_test_post_set(input_sim_post, batch
 if len(test_posts) != len(test_cascades):
 	test_cascades = functions_gen_cascade_model.filter_dict_by_list(test_cascades, list(test_posts.keys()))
 
+#if want training data stats, get those now
+if get_training_stats:
+	vprint("Computing training data stats")
+	functions_gen_cascade_model.output_post_set_stats(train_cascades, subreddit, training_start_year, training_start_month, training_len)
 #if want testing data stats, get those now
 if get_testing_stats:
 	vprint("Computing testing data stats")
