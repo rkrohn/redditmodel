@@ -1393,13 +1393,15 @@ def filter_comment_tree_by_num_comments(cascade, num_observed, convert_times=Tru
 	#pick this to (hopefully) prevent floating-point sadness
 	if num_observed < len(all_comment_times):
 		time_observed = (all_comment_times[num_observed] + observed_comments[-1]) / 2.0
-	#if no unobserved comments, just use time of last observed comment + 1 (again, prevent float sadness)
-	else:
+	#if no unobserved comments (but at least one observed), just use time of last observed comment + 1 (again, prevent float sadness)
+	elif len(observed_comments) != 0:
 		time_observed = observed_comments[-1] + 1
+	#no comments at all, time_observed is 0
+	else:		
+		time_observed = 0
 
 	#filter tree based on this observation time (determined by # of comments)
 	observed_tree, observed_count = filter_comment_tree(cascade, time_observed, convert_times)
-
 
 	#verify that the tree size matches
 	if observed_count != len(observed_comments) or observed_count > num_observed:
