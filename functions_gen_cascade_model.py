@@ -905,6 +905,7 @@ def filter_post_set(params, default_params_list, min_node_quality, include_defau
 	return graph_post_ids
 #end filter_post_set
 
+
 #return correct edge weight computation function based on mode
 def get_edge_weight_method(weight_method, display=True):
 	#chose edge computation method, store relevant function in variable for easy no-if calling later
@@ -963,6 +964,7 @@ def remove_low_edge(graph, node):
 	graph[node]['weights'].pop(0)
 	graph[node]['neighbors'].pop(0)
 #end remove_low_edge
+
 
 #for a given post, infer parameters using post graph
 #parameters:
@@ -1302,7 +1304,6 @@ def load_inferred_params(filename, min_params=False, max_params=False, display=F
 def simulate_comment_tree(sim_params, group, sim_cascade, observed, observing_time, display=False):
 	if display:
 		vprint("\nSimulating comment tree")
-		vprint("Post created at %d" % sim_post['time'])
 
 	#simulate tree structure + comment times!	
 	
@@ -1340,15 +1341,17 @@ def simulate_comment_tree(sim_params, group, sim_cascade, observed, observing_ti
 #and convert relative comment times to minutes
 #time_observed given in minutes, cascade times in seconds
 #if time_observed == False, just time shift and return that
-def filter_comment_tree(cascade, time_observed=False):
+#if convert_times == False, do not shift times relative to root or convert to minutes (leave times alone!)
+def filter_comment_tree(cascade, time_observed=False, convert_times=True):
 	#build new list/structure of post comments - offset times by post time
 	observed_tree = deepcopy(cascade)	#start with given, modify from there
 
 	#grab post time to use as offset
 	root_time = cascade['time']
 
-	#update root
-	observed_tree['time'] = 0		#post at time 0
+	#update root, if required
+	if convert_times:
+		observed_tree['time'] = 0		#post at time 0
 
 	#traverse the tree, removing unovserved comments and offsetting times
 	comments_to_visit = [] + [(observed_tree, reply) for reply in observed_tree['replies']]	#init queue to root replies
@@ -1359,8 +1362,9 @@ def filter_comment_tree(cascade, time_observed=False):
 		if time_observed != False and curr['time'] - root_time > time_observed * 60:
 			parent['replies'].remove(curr)
 			continue
-		#observed comment time, shift/convert and add replies to queue
-		curr['time'] = (curr['time'] - root_time) / 60.0
+		#observed comment time, shift/convert if required and add replies to queue
+		if convert_times:
+			curr['time'] = (curr['time'] - root_time) / 60.0
 		observed_count += 1
 		comments_to_visit.extend([(curr, reply) for reply in curr['replies']])
 
@@ -1373,8 +1377,8 @@ def filter_comment_tree(cascade, time_observed=False):
 #filter tree to only the comments we have observed, offset comment times by root time,
 #and convert relative comment times to minutes
 #cascade times given in seconds
-#if num_observed == False, just time shift and return that
-def filter_comment_tree_by_num_comments(cascade, num_observed=0):
+#if convert_times == False, do not shift times relative to root or convert to minutes (leave times alone!)
+def filter_comment_tree_by_num_comments(cascade, num_observed, convert_times=True):
 	#get sorted list of ALL comment times, in minutes
 	all_comment_times = get_list_of_comment_times(cascade)
 	#pull just the observed comments
@@ -1390,12 +1394,12 @@ def filter_comment_tree_by_num_comments(cascade, num_observed=0):
 	else:
 		time_observed = observed_comments[-1] + 1
 
-	#filter tree based on this determine observation time
-	observed_tree, observed_count = filter_comment_tree(cascade, time_observed)
+	#filter tree based on this observation time (determined by # of comments)
+	observed_tree, observed_count = filter_comment_tree(cascade, time_observed, convert_times)
 
 
 	#verify that the tree size matches
-	if observed_count != len(observed_comments):
+	if observed_count != len(observed_comments) or observed_count > num_observed:
 		print("Error filtering comment tree by number of observed comments. Exiting.")
 		print("all", all_comment_times)
 		print("observed comments list", observed_comments)
