@@ -11,6 +11,7 @@ import csv
 import itertools
 import sys
 from itertools import zip_longest
+import pandas as pd
 
 DISPLAY = False
 
@@ -175,3 +176,9 @@ def multi_dict_to_csv(filename, fields, dict_list):
 					row += ['', '', '']
 			writer.writerow(row)
 #end multi_dict_to_csv
+
+#given a filename, load the parquet file into a pandas dataframe
+def load_parquet(filename):
+	df = pd.read_parquet(filename, engine='pyarrow')
+	return df
+#end load_parquet
