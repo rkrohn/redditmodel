@@ -705,7 +705,11 @@ def get_test_post_set(input_sim_post, batch_process, size_filter, sample_num, po
 		#no existing sample file, pick random post id set, and dump list to pickle
 		else:
 			vprint("Sampling %d random posts (from %d) for simulation set" % (sample_num, len(posts.keys())))
-			keys = random.sample(list(posts.keys()), sample_num)
+			if sample_num <= len(posts.keys()):
+				keys = random.sample(list(posts.keys()), sample_num)
+			else:
+				vprint("Set smaller than sample, using entire set")
+				keys = list(posts.keys())
 			file_utils.save_pickle(keys, random_sample_list_filepath % (subreddit, subreddit, sample_num, testing_start_year, testing_start_month, testing_len, (size_filter if size_filter != False else 0)))
 		#filter posts to match keys list
 		posts = filter_dict_by_list(posts, keys)
