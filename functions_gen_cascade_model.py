@@ -779,7 +779,7 @@ def output_post_set_stats(cascades, subreddit, year, month, num_months):
 
 
 #given a single cascade, get a list of all comment times in minutes, relative to root time
-def get_list_of_comment_times(cascade):
+def get_list_of_comment_times(cascade, to_minutes=True):
 	comment_times = []		#list of all comment times
 
 	root_time = cascade['time']     #get post time in seconds to use as offset
@@ -796,10 +796,12 @@ def get_list_of_comment_times(cascade):
 				comment_times.append(comment['time'] - root_time)   #offset by parent time, still in seconds
 			nodes_to_visit.append(comment)    #add reply to processing queue
 
-	#sort and convert comment times (all in minutes from root post)
-	comment_times = sorted([time / 60.0 for time in comment_times])
+	#convert comment times - all in minutes from root post - if desired
+	if to_minutes:
+		comment_times = [time / 60.0 for time in comment_times]
 
-	return comment_times
+	#return sorted list of times
+	return sorted(comment_times)
 #end get_list_of_comment_times
 
 
