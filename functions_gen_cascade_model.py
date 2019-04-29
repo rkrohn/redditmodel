@@ -205,6 +205,8 @@ def parse_command_args():
 		training_start_year = 0
 		training_len = 0
 		testing_len = 0
+	else:
+		socsim_data = False
 
 	#compute start of training period for easy use later
 	training_start_month, training_start_year = monthdelta(testing_start_month, testing_start_year, -training_len)
