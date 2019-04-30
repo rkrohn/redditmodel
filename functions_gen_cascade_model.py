@@ -1373,12 +1373,13 @@ def simulate_comment_tree(sim_params, group, sim_cascade, observed, observing_ti
 	else:
 		sim_root, all_times = sim_tree.simulate_comment_tree(sim_params)
 		observed_count = 0
+		time_observed = 0
 
 	if display:
 		vprint("Generated %d total comments for post (including %d observed)" % (len(all_times), observed_count))
 		vprint("   %d actual\n" % sim_cascade['comment_count_total'])
 
-	#return simulated tree, observed comment count, and simulated comment count (counts for output/eval)
+	#return simulated tree, observed comment count, time_observed, and simulated comment count (counts for output/eval)
 	return sim_root, observed_count, time_observed, len(all_times)
 #end simulate_comment_tree
 
