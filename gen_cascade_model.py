@@ -131,7 +131,7 @@ for sim_post_id, sim_post in test_posts.items():
 		true_cascade, true_comment_count = functions_gen_cascade_model.filter_comment_tree(test_cascades[sim_post_id])
 
 		#compute tree edit distance between ground-truth and simulated cascades
-		eval_res = functions_gen_cascade_model.eval_trees(sim_post_id, sim_tree, true_cascade, simulated_count, observed_count, true_comment_count, observed_time, observing_time, time_error_margin, error_method, disconnected, (observed if observing_time==False else False))
+		eval_res = functions_gen_cascade_model.eval_trees(sim_post_id, sim_tree, true_cascade, simulated_count, observed_count, true_comment_count, observed_time, observing_time, time_error_margin, error_method, disconnected, (observed if observing_time==False else None))
 		#add a column indicating where the params for this sim came from
 		if not sanity_check:
 			if observed == 0:
@@ -158,18 +158,11 @@ for sim_post_id, sim_post in test_posts.items():
 			vprint("   insert: ", eval_res['insert_count'], " ", eval_res['insert_time'])
 			vprint("   remove: ", eval_res['remove_count'], " ", eval_res['remove_time'])
 			vprint("   match: ", eval_res['match_count'])
-			vprint("Accuracy measures:")
-			vprint("   true pos: ", eval_res['true_pos'])
-			vprint("   false pos: ", eval_res['false_pos'])
-			vprint("   false neg: ", eval_res['false_neg'])
-			vprint("   precision: ", eval_res['precision'])
-			vprint("   recall: ", eval_res['recall'])
-			vprint("   f1 score: ", eval_res['f1'])
 
 		#aggregate metrics for average later
 		if batch:
 			for metric, value in eval_res.items():
-				if metric == "post_id" or metric == "disconnected" or metric == "param_source" or metric == "observing_by_time":
+				if metric == "post_id" or metric == "disconnected" or metric == "param_source" or metric == "observing_by":
 					continue
 				avg_metrics[observed][metric] += value
 
