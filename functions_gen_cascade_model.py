@@ -209,7 +209,11 @@ def parse_command_args():
 		socsim_data = False
 
 	#compute start of training period for easy use later
-	training_start_month, training_start_year = monthdelta(testing_start_month, testing_start_year, -training_len)
+	if socsim_data:
+		training_start_month = 0
+		training_start_year = 0
+	else:
+		training_start_month, training_start_year = monthdelta(testing_start_month, testing_start_year, -training_len)
 
 	#hackery: declare a special print function for verbose output
 	#make it global here for all the other functions to use
@@ -522,15 +526,14 @@ def get_cascades(subreddit, month, year, posts):
 
 
 #filter one dictionary based on list of keys
-#returns modified dictionary
+#returns new, filtered dictionary
 #if num_deleted=True, also return number of items removed
 def filter_dict_by_list(dict_to_filter, keep_list, num_deleted=False):
-	del_keys = set([key for key in dict_to_filter.keys() if key not in keep_list])
-	for key in del_keys:
-		dict_to_filter.pop(key, None)
+	#new dictionary containing only the keys we care about
+	updated_dict = { key: dict_to_filter[key] for key in keep_list if key in dict_to_filter }
 
-	if num_deleted: return dict_to_filter, len(del_keys)
-	return dict_to_filter
+	if num_deleted: return updated_dict, len(dict_to_filter) - len(updated_dict)
+	return updated_dict
 #end filter_dict_by_list
 
 
