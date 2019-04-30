@@ -1492,6 +1492,12 @@ def eval_trees(post_id, sim_tree, true_cascade, simulated_comment_count, observe
 	eval_res['sim_root_comments'] = len(sim_tree['replies'])
 	#can get other = total - root in post-processing
 
+	#normalize the tree edit distance in a couple different ways - even though it's not perfect
+	#divide by true comment count
+	eval_res['norm_dist'] = eval_res['dist'] / eval_res['true_comment_count']	
+	#divide by number of unobserved comments
+	eval_res['norm_dist_exclude_observed'] = eval_res['dist'] / (eval_res['true_comment_count'] - eval_res['observed_comment_count'])
+
 	return eval_res
 #end eval_trees
 
@@ -1505,7 +1511,7 @@ def save_results(base_filename, metrics, avg_metrics, input_sim_post, observed_l
 	filename = base_filename + "_results.csv"
 
 	#dump metrics dict to file, enforcing a semi-meaningful order
-	fields = ["post_id", "param_source", "observing_by", "time_observed", "observed_comment_count", "true_comment_count", "simulated_comment_count", "true_root_comments", "sim_root_comments", "true_depth", "true_breadth", "simulated_depth", "simulated_breadth", "dist", "remove_count", "remove_time", "insert_count", "insert_time", "update_count", "update_time", "match_count", "disconnected"]
+	fields = ["post_id", "param_source", "observing_by", "time_observed", "observed_comment_count", "true_comment_count", "simulated_comment_count", "true_root_comments", "sim_root_comments", "true_depth", "true_breadth", "simulated_depth", "simulated_breadth", "dist", "norm_dist", "norm_dist_exclude_observed", "remove_count", "remove_time", "insert_count", "insert_time", "update_count", "update_time", "match_count", "disconnected"]
 	if observing_time == False:
 		fields.insert(5, "max_observed_comments")
 	file_utils.save_csv(metrics, filename, fields)
