@@ -1465,7 +1465,7 @@ def filter_comment_tree_by_num_comments(cascade, num_observed, convert_times=Tru
 		print("observed tree", observed_tree)
 		exit(0)
 
-	return observed_tree, observed_count, time_observed
+	return observed_tree, observed_count, time_observed / 3600.0
 #end filter_comment_tree_by_num_comments
 
 
