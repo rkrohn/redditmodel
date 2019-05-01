@@ -100,7 +100,20 @@ def load_all_data(domain):
 	if file_utils.verify_file(fitted_params_filepath % (domain, domain)):
 		params_data = file_utils.load_pickle(fitted_params_filepath % (domain, domain))
 		vprint("   Loaded %d fitted params (%d failed fit)" % (len(params_data['params_dict']), len(params_data['failed_fit_list'])))
-	#if params file doesn't exist, create it - loading in the process
+
+		#see if there are any posts that we can fit and add to the loaded set
+		if len(params_data['params_dict']) + len(params_data['failed_fit_list']) != len(cascades):
+			#small set of cascades to fit
+			cascades_to_fit = {cascade_id: cascade_obj for cascade_id, cascade_obj in cascades.items() if cascade_id not in params_data['params_dict'] and cascade_id not in params_data['failed_fit_list']}
+			vprint("Fitting %d cascades for %s" % (len(cascades_to_fit), domain))
+			#fit these missing cascades
+			update_params_out = functions_gen_cascade_model.fit_posts_from_cascades(cascades_to_fit)
+			#add to loaded params
+			params_data['params_dict'].update(update_params_out['params_dict'])
+			params_data['failed_fit_list'].extend(update_params_out['failed_fit_list'])
+			#save updated file
+			file_utils.save_pickle(params_data, fitted_params_filepath % (domain, domain))
+		#if params file doesn't exist, create it - loading in the process
 	else:
 		vprint("   Fitted params file doesn't exist, creating now")
 		params_data = fit_posts(domain, cascades)
