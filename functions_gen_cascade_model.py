@@ -1473,12 +1473,12 @@ def filter_comment_tree_by_num_comments(cascade, num_observed, convert_times=Tru
 #given simulated and ground-truth cascades, compute the accuracy and precision of the simulation
 #both trees given as dictionary-nested structure (returned from simulate_comment_tree and convert_comment_tree)
 #return eval results in a metric-coded dictionary
-def eval_trees(post_id, sim_tree, true_cascade, simulated_comment_count, observed_comment_count, true_comment_count, true_virality, time_observed, observing_time, time_error_margin, error_method, disconnected, max_observed_comment_count=None):
+def eval_trees(post_id, sim_cascade, true_cascade, simulated_comment_count, observed_comment_count, true_comment_count, true_virality, time_observed, observing_time, time_error_margin, error_method, disconnected, max_observed_comment_count=None):
 	#get edit distance stats for sim vs truth
-	eval_res = tree_edit_distance.compare_trees(sim_tree, true_cascade, error_method, time_error_margin)
+	eval_res = tree_edit_distance.compare_trees(sim_cascade, true_cascade, error_method, time_error_margin)
 
 	#compute structural virality of sim cascade
-	sim_virality = get_structural_virality(sim_tree)
+	sim_virality = get_structural_virality(sim_cascade)
 
 	#add more data fields to the results dictionary
 	eval_res['post_id'] = post_id
@@ -1493,7 +1493,7 @@ def eval_trees(post_id, sim_tree, true_cascade, simulated_comment_count, observe
 
 	#breakdown of comment counts - root level comments for both true and sim cascades
 	eval_res['true_root_comments'] = true_cascade['comment_count_direct']
-	eval_res['sim_root_comments'] = len(sim_tree['replies'])
+	eval_res['sim_root_comments'] = len(sim_cascade['replies'])
 	#can get other = total - root in post-processing
 
 	#normalize the tree edit distance in a couple different ways - even though it's not perfect
