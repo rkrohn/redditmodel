@@ -153,6 +153,7 @@ def process_posts(domain):
 		#check for good post, fail and error if something is amiss
 		if post_object['title_m'] is None or post_object['created_utc'] is None or post_object['author_h'] is None:
 			print("Skipping invalid post %s" % post_id)
+			continue
 
 		#build new post dict
 		post = {}
