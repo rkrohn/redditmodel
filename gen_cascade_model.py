@@ -99,6 +99,11 @@ for sim_post_id, sim_post in test_posts.items():
 		if disconnected:
 			disconnected_count += 1
 
+	#get time-shifted ground-truth cascade (same for all observation periods)
+	true_cascade, true_comment_count = functions_gen_cascade_model.filter_comment_tree(test_cascades[sim_post_id])
+	#and compute the structural virality of this cascade
+	true_structural_virality = functions_gen_cascade_model.get_structural_virality(true_cascade)
+
 	#use the same inferred params for all the time_observed values
 	for observed in observed_list:
 
@@ -127,11 +132,13 @@ for sim_post_id, sim_post in test_posts.items():
 
 		#EVAL
 
-		#get time-shifted ground-truth cascade
-		true_cascade, true_comment_count = functions_gen_cascade_model.filter_comment_tree(test_cascades[sim_post_id])
+		#already got ground-truth cascade above
+
+		#get sim cascade as networkx graph
+		#sim_graph = functions_gen_cascade_model.cascade_to_graph(sim_tree)
 
 		#compute tree edit distance between ground-truth and simulated cascades
-		eval_res = functions_gen_cascade_model.eval_trees(sim_post_id, sim_tree, true_cascade, simulated_count, observed_count, true_comment_count, observed_time, observing_time, time_error_margin, error_method, disconnected, (observed if observing_time==False else None))
+		eval_res = functions_gen_cascade_model.eval_trees(sim_post_id, sim_tree, true_cascade, simulated_count, observed_count, true_comment_count, true_structural_virality, observed_time, observing_time, time_error_margin, error_method, disconnected, (observed if observing_time==False else None))
 		#add a column indicating where the params for this sim came from
 		if not sanity_check:
 			if observed == 0:

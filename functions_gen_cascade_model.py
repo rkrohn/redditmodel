@@ -19,6 +19,7 @@ import itertools
 import bisect
 from copy import deepcopy
 import statistics
+import networkx as nx
 
 #filepaths of data and pre-processed files - keeping everything in the same spot, for sanity/simplicity
 
@@ -1472,9 +1473,12 @@ def filter_comment_tree_by_num_comments(cascade, num_observed, convert_times=Tru
 #given simulated and ground-truth cascades, compute the accuracy and precision of the simulation
 #both trees given as dictionary-nested structure (returned from simulate_comment_tree and convert_comment_tree)
 #return eval results in a metric-coded dictionary
-def eval_trees(post_id, sim_tree, true_cascade, simulated_comment_count, observed_comment_count, true_comment_count, time_observed, observing_time, time_error_margin, error_method, disconnected, max_observed_comment_count=None):
+def eval_trees(post_id, sim_tree, true_cascade, simulated_comment_count, observed_comment_count, true_comment_count, true_virality, time_observed, observing_time, time_error_margin, error_method, disconnected, max_observed_comment_count=None):
 	#get edit distance stats for sim vs truth
 	eval_res = tree_edit_distance.compare_trees(sim_tree, true_cascade, error_method, time_error_margin)
+
+	#compute structural virality of sim cascade
+	sim_virality = get_structural_virality(sim_tree)
 
 	#add more data fields to the results dictionary
 	eval_res['post_id'] = post_id
@@ -1498,9 +1502,47 @@ def eval_trees(post_id, sim_tree, true_cascade, simulated_comment_count, observe
 	#divide by number of unobserved comments
 	eval_res['norm_dist_exclude_observed'] = eval_res['dist'] / (eval_res['true_comment_count'] - eval_res['observed_comment_count'])
 
+	#structural virality
+	eval_res['true_structural_virality'] = true_virality
+	eval_res['sim_structural_virality'] = sim_virality
+
 	return eval_res
 #end eval_trees
 
+#given a cascade tree (true or simulated), compute the structural virality
+def get_structural_virality(cascade):
+	#get cascade as an undirected networkx graph
+	graph = cascade_to_graph(cascade)
+
+	#compute structural virality
+	n = nx.number_of_nodes(graph)
+	struct_virality = nx.wiener_index(graph) * 2 / (n * (n - 1))
+
+	return struct_virality
+#end get_structural_virality
+
+
+#given a cascade (nested dict structure), convert it to a networkx graph
+def cascade_to_graph(cascade):
+	#build list of edges in graph
+	edges = []    #list of edges (list of tuples)
+
+	#init queue to root, will process nodes as they are removed from the queue
+	nodes_to_visit = [cascade]
+	while len(nodes_to_visit) != 0:
+		node = nodes_to_visit.pop(0)    #grab current comment
+		#add edges between this node and all children to edge list
+		#also add children to processing queue
+		for comment in node['replies']:
+			edges.append((node['id'], comment['id']))	#edge as tuple
+			nodes_to_visit.append(comment)    #add reply comment to processing queue
+
+	#use edgelist to build a graph
+	G=nx.Graph()		#new graph
+	G.add_edges_from(edges)
+
+	return G 		#return the graph
+#end cascade_to_graph
 
 
 #save all sim results to csv file
@@ -1511,7 +1553,7 @@ def save_results(base_filename, metrics, avg_metrics, input_sim_post, observed_l
 	filename = base_filename + "_results.csv"
 
 	#dump metrics dict to file, enforcing a semi-meaningful order
-	fields = ["post_id", "param_source", "observing_by", "time_observed", "observed_comment_count", "true_comment_count", "simulated_comment_count", "true_root_comments", "sim_root_comments", "true_depth", "true_breadth", "simulated_depth", "simulated_breadth", "dist", "norm_dist", "norm_dist_exclude_observed", "remove_count", "remove_time", "insert_count", "insert_time", "update_count", "update_time", "match_count", "disconnected"]
+	fields = ["post_id", "param_source", "observing_by", "time_observed", "observed_comment_count", "true_comment_count", "simulated_comment_count", "true_root_comments", "sim_root_comments", "true_depth", "true_breadth", "simulated_depth", "simulated_breadth", "true_structural_virality", "sim_structural_virality", "dist", "norm_dist", "norm_dist_exclude_observed", "remove_count", "remove_time", "insert_count", "insert_time", "update_count", "update_time", "match_count", "disconnected"]
 	if observing_time == False:
 		fields.insert(5, "max_observed_comments")
 	file_utils.save_csv(metrics, filename, fields)
