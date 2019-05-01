@@ -1516,7 +1516,12 @@ def get_structural_virality(cascade):
 
 	#compute structural virality
 	n = nx.number_of_nodes(graph)
-	struct_virality = nx.wiener_index(graph) * 2 / (n * (n - 1))
+	#at least one comment, calculate
+	if n > 1:
+		struct_virality = nx.wiener_index(graph) * 2 / (n * (n - 1))
+	#no comments, set to 0 (wiener index would be 0, but then divide by 0 so hardcode)
+	else:
+		struct_virality = 0.0
 
 	return struct_virality
 #end get_structural_virality
@@ -1540,6 +1545,10 @@ def cascade_to_graph(cascade):
 	#use edgelist to build a graph
 	G=nx.Graph()		#new graph
 	G.add_edges_from(edges)
+
+	#if no edges (ie, no comments), add a root
+	if len(edges) == 0:
+		G.add_node(0)
 
 	return G 		#return the graph
 #end cascade_to_graph
