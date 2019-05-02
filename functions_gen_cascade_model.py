@@ -1390,9 +1390,9 @@ def simulate_comment_tree(sim_params, group, sim_cascade, observed, observing_ti
 #and convert relative comment times to minutes
 #time_observed given in minutes, unless observed_seconds is true
 #cascade comment times always in seconds
-#if time_observed == False, just time shift and return that
+#if time_observed == None, just time shift and return that
 #if convert_times == False, do not shift times relative to root or convert to minutes (leave times alone!)
-def filter_comment_tree(cascade, time_observed=False, convert_times=True, observed_seconds=False):
+def filter_comment_tree(cascade, time_observed=None, convert_times=True, observed_seconds=False):
 	#build new list/structure of post comments - offset times by post time
 	observed_tree = deepcopy(cascade)	#start with given, modify from there
 
@@ -1409,7 +1409,7 @@ def filter_comment_tree(cascade, time_observed=False, convert_times=True, observ
 	while len(comments_to_visit) != 0:
 		parent, curr = comments_to_visit.pop()		#get current comment
 		#check time, delete if not within observed window
-		if time_observed != False and ((observed_seconds and curr['time'] - root_time > time_observed) or (observed_seconds == False and curr['time'] - root_time > time_observed * 60)):
+		if time_observed is not None and ((observed_seconds and curr['time'] - root_time > time_observed) or (observed_seconds == False and curr['time'] - root_time > time_observed * 60)):
 			parent['replies'].remove(curr)
 			continue
 		#observed comment time, shift/convert if required and add replies to queue
@@ -1434,18 +1434,26 @@ def filter_comment_tree_by_num_comments(cascade, num_observed, convert_times=Tru
 	#pull just the observed comments
 	observed_comments = all_comment_times[:num_observed]
 
-	#what is the observation time corresponding to this set of observed comments?
-	#use time of the first comment that we didn't observe (if such a thing exists),
-	#averaged with the last time we did observe (midpoint between two)
-	#pick this to (hopefully) prevent floating-point sadness
-	if num_observed < len(all_comment_times):
-		time_observed = (all_comment_times[num_observed] + observed_comments[-1]) / 2.0
-	#if no unobserved comments (but at least one observed), just use time of last observed comment + 1 (again, prevent float sadness)
-	elif len(observed_comments) != 0:
-		time_observed = observed_comments[-1] + 1
-	#no comments at all, time_observed is 0
-	else:		
-		time_observed = 0
+	try:
+		#what is the observation time corresponding to this set of observed comments?
+		#no observed comments at all, time_observed is 0
+		if len(observed_comments) == 0:		
+			time_observed = 0
+		#if no unobserved comments (but at least one observed), just use time of last observed comment + 1 (again, prevent float sadness)
+		elif len(observed_comments) == len(all_comment_times) and len(observed_comments) != 0:
+			time_observed = observed_comments[-1] + 1
+		#observed some, but not all comments
+		#use time of the first comment that we didn't observe (if such a thing exists),
+		#averaged with the last time we did observe (midpoint between two)
+		#pick this to (hopefully) prevent floating-point sadness
+		elif num_observed < len(all_comment_times):
+			time_observed = (all_comment_times[num_observed] + observed_comments[-1]) / 2.0
+	except Exception as e:
+		print(e)
+		print(num_observed)
+		print(all_comment_times)
+		print(observed_comments)
+		exit(0)	
 
 	#what is the expected observed count based on this time? 
 	#could be a little more than num_observed, if multiple comments at the same time
