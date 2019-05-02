@@ -1506,8 +1506,74 @@ def eval_trees(post_id, sim_cascade, true_cascade, simulated_comment_count, obse
 	eval_res['true_structural_virality'] = true_virality
 	eval_res['sim_structural_virality'] = sim_virality
 
+	#mean error per distance layer (both min and max)
+	eval_res['MEPDL_min'], eval_res['MEPDL_max'] = mean_error_per_distance_layer(true_cascade, sim_cascade)
+	
+
 	return eval_res
 #end eval_trees
+
+
+#given a cascade (nested dict format), count the number of nodes on each level
+#return as a dictionary of depth -> node count
+#also find (and return) the min and max depths of the tree
+def count_nodes_per_level(cascade):
+    depth_counts = defaultdict(int)     #dictionary for depth counts
+    depth_counts[1] = 1			#root on level 1, all by itself
+
+    #min/max depths
+    min_leaf_level = 1		#default for tree with only root is 1
+    max_leaf_level = -1
+
+	#init processing queue to direct post replies (on level 2)
+    nodes_to_visit = [(reply, 2) for reply in cascade['replies']]	#(node, depth)  
+    while len(nodes_to_visit) != 0:     #BFS
+        curr, depth = nodes_to_visit.pop(0)    #grab current comment and depth
+        depth_counts[depth] += 1		#update count for this depth
+        #add this comment's replies to processing queue
+        nodes_to_visit.extend([(reply, depth+1) for reply in curr['replies']])
+
+        #track lowest and highest leaves
+        if len(curr['replies']) == 0:	#if this node is a leaf
+        	if depth < min_leaf_level or min_leaf_level == 1:
+        		min_leaf_level = depth
+        	if depth > max_leaf_level:
+        		max_leaf_level = depth
+
+    return depth_counts, min_leaf_level, max_leaf_level
+#end count_nodes_per_level
+
+
+#given two cascades (true and sim), compute the mean error per distance layer between them
+#compute both min and max, based on min and max depths of trees
+def mean_error_per_distance_layer(true_cascade, sim_cascade):	
+	#first, compute by-level counts for both trees
+	true_by_level, true_min_depth, true_max_depth = count_nodes_per_level(true_cascade)
+	sim_by_level, sim_min_depth, sim_max_depth = count_nodes_per_level(sim_cascade)
+
+	#use min/max across both trees for computation
+	min_depth = min(true_min_depth, sim_min_depth)
+	max_depth = max(true_max_depth, sim_max_depth)
+
+	#compute differences for all levels of trees
+	level_diffs = {}
+	#sum for both min and max depths
+	err_max = 0
+	err_min = 0
+	#loop all levels, but only sum some of them for err_min
+	for level in range(1, max_depth+1):
+		level_diffs[level] = abs(true_by_level[level] - sim_by_level[level])	#compute diff at this level
+		err_max += level_diffs[level]		#always add to sum for err_max
+		if level <= min_depth:
+			err_min += level_diffs[level]		#only add to sum for err-min if level <= min_depth
+
+	#divide error summations by corresponding depth
+	err_max /= max_depth
+	err_min /= min_depth
+
+	return err_min, err_max	
+#end mean_error_per_distance_layer
+
 
 #given a cascade tree (true or simulated), compute the structural virality
 def get_structural_virality(cascade):
@@ -1562,7 +1628,7 @@ def save_results(base_filename, metrics, avg_metrics, input_sim_post, observed_l
 	filename = base_filename + "_results.csv"
 
 	#dump metrics dict to file, enforcing a semi-meaningful order
-	fields = ["post_id", "param_source", "observing_by", "time_observed", "observed_comment_count", "true_comment_count", "simulated_comment_count", "true_root_comments", "sim_root_comments", "true_depth", "true_breadth", "simulated_depth", "simulated_breadth", "true_structural_virality", "sim_structural_virality", "dist", "norm_dist", "norm_dist_exclude_observed", "remove_count", "remove_time", "insert_count", "insert_time", "update_count", "update_time", "match_count", "disconnected"]
+	fields = ["post_id", "param_source", "observing_by", "time_observed", "observed_comment_count", "true_comment_count", "simulated_comment_count", "true_root_comments", "sim_root_comments", "true_depth", "true_breadth", "simulated_depth", "simulated_breadth", "true_structural_virality", "sim_structural_virality", "dist", "norm_dist", "norm_dist_exclude_observed", "MEPDL_min", "MEPDL_max", "remove_count", "remove_time", "insert_count", "insert_time", "update_count", "update_time", "match_count", "disconnected"]
 	if observing_time == False:
 		fields.insert(5, "max_observed_comments")
 	file_utils.save_csv(metrics, filename, fields)
