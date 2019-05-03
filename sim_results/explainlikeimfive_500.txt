@@ -1,0 +1,65 @@
+
+Sim Post: sample 500
+Comments Observed: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 12, 15, 17, 20, 25, 30, 35, 40]
+Output: sim_results/explainlikeimfive_500
+Source subreddit: explainlikeimfive
+Minimum node quality: False
+Max graph size: 500
+Max edges per node: 25
+Minimum edge weight: 0.1
+No param normalization for infer step
+Testing Period: 9-2016 (1 month)
+Training Period: 8-2016 (1 month)
+Using Jaccard index to compute graph edge weights
+Ignoring posts with hardcoded default parameters
+Using topological error for tree evaluation (ignoring comment times)
+Only simulating cascades with true size greater than or equal to 20
+
+Loading processed training data
+Loading 8-2016
+Deleted 6 posts without cascades
+Deleted 1 posts without params
+Loaded 18610 posts 
+   18611 cascades
+   5712 fitted params, 12898 failed fit
+
+Loading processed testing data
+Loading 9-2016
+Deleted 6 posts without cascades
+Loaded 18072 posts 
+   18072 cascades
+
+Filtered to 570 posts with >= 20 comments
+Sampling 500 random posts (from 570) for simulation set
+
+Building param graph for 18610 posts
+Using 5712 posts for graph
+
+Sampling graph to 500 nodes
+Using jaccard index for edge weight
+   100000 pairs
+Graph contains 498 nodes and 8831 unique edges (11824 edge entries)
+  max degree: 136
+  min degree: 1
+
+Processing 500 posts
+   finished 50 posts (0 disconnected)
+   finished 100 posts (0 disconnected)
+   finished 150 posts (0 disconnected)
+   finished 200 posts (0 disconnected)
+   finished 250 posts (0 disconnected)
+   finished 300 posts (0 disconnected)
+   finished 350 posts (0 disconnected)
+   finished 400 posts (1 disconnected)
+   finished 450 posts (1 disconnected)
+   finished 500 posts (2 disconnected)
+
+All done
+
+Number of posts: 500
+Observing: comments
+Observed: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 12, 15, 17, 20, 25, 30, 35, 40]
+Source subreddit: explainlikeimfive
+Minimum node quality: False
+Max graph size: 500
+

@@ -1,0 +1,60 @@
+
+Sim Post: sample 500
+Comments Observed: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 12, 15, 17, 20, 25, 30, 53, 40]
+Output: sim_results/nottheonion_500
+Source subreddit: nottheonion
+Minimum node quality: False
+Max graph size: 500
+Max edges per node: 25
+Minimum edge weight: 0.1
+No param normalization for infer step
+Testing Period: 9-2016 (1 month)
+Training Period: 8-2016 (1 month)
+Using Jaccard index to compute graph edge weights
+Ignoring posts with hardcoded default parameters
+Using topological error for tree evaluation (ignoring comment times)
+Only simulating cascades with true size greater than or equal to 20
+
+Loading processed training data
+Loading 8-2016
+Deleted 3 posts without cascades
+Loaded 6496 posts 
+   6496 cascades
+   1196 fitted params, 5300 failed fit
+
+Loading processed testing data
+Loading 9-2016
+Deleted 4 posts without cascades
+Loaded 6169 posts 
+   6169 cascades
+
+Filtered to 333 posts with >= 20 comments
+Loading cached sample simulation post set
+
+Building param graph for 6496 posts
+Using 1196 posts for graph
+
+Sampling graph to 500 nodes
+Using jaccard index for edge weight
+   100000 pairs
+Graph contains 452 nodes and 3302 unique edges (5010 edge entries)
+  max degree: 106
+  min degree: 1
+
+Processing 333 posts
+   finished 50 posts (5 disconnected)
+   finished 100 posts (11 disconnected)
+   finished 150 posts (16 disconnected)
+   finished 200 posts (21 disconnected)
+   finished 250 posts (27 disconnected)
+   finished 300 posts (30 disconnected)
+
+All done
+
+Number of posts: 333
+Observing: comments
+Observed: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 12, 15, 17, 20, 25, 30, 53, 40]
+Source subreddit: nottheonion
+Minimum node quality: False
+Max graph size: 500
+

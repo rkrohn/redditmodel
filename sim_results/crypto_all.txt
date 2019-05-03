@@ -1,0 +1,71 @@
+
+Sim Post: all
+Comments Observed: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+Output: sim_results/crypto_all
+Source subreddit: crypto
+Minimum node quality: False
+Max graph size: 500
+Max edges per node: 25
+Minimum edge weight: 0.5
+No param normalization for infer step
+Testing Period: 9-2016 (0 month)
+Training Period: 0-0 (0 month)
+Using Jaccard index to compute graph edge weights
+Ignoring posts with hardcoded default parameters
+Using topological error for tree evaluation (ignoring comment times)
+
+Loading crypto
+   Loaded 299436 posts
+   Loaded 299436 cascades
+   Loaded 149505 fitted params (149930 failed fit)
+Fitting 1 cascades for crypto
+Fitted params for a total of 0 cascades
+   skipped 1 cascades with negative comment times
+   0 cascades failed fit process
+   0 cascades succeeded fit process
+   0 cascades partially-succeeded fit process (some missing params)
+      0 cascades failed weibull fit
+   Deleted 1 posts without params
+   Deleted 0 params without posts
+Loaded 299435 posts 
+   299436 cascades
+   149505 fitted params, 149930 failed fit
+Loaded 10000 training and 500 testing post ids
+Filtered training data to 10000 posts, 10000 cascades, and 4820 params
+   5180 failed fit posts
+Filtered testing data to 500 posts, 500 cascades, and 196 params
+   304 failed fit posts
+
+Processing all 500 posts in test set
+
+Building param graph for 10000 posts
+Using 4820 posts for graph
+
+Sampling graph to 500 nodes
+Using jaccard index for edge weight
+   100000 pairs
+Graph contains 94 nodes and 777 unique edges (1129 edge entries)
+  max degree: 42
+  min degree: 1
+
+Processing 500 posts
+   finished 50 posts (41 disconnected)
+   finished 100 posts (76 disconnected)
+   finished 150 posts (118 disconnected)
+   finished 200 posts (155 disconnected)
+   finished 250 posts (198 disconnected)
+   finished 300 posts (239 disconnected)
+   finished 350 posts (270 disconnected)
+   finished 400 posts (309 disconnected)
+   finished 450 posts (349 disconnected)
+   finished 500 posts (391 disconnected)
+
+All done
+
+Number of posts: 500
+Observing: comments
+Observed: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+Source subreddit: crypto
+Minimum node quality: False
+Max graph size: 500
+

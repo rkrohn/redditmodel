@@ -1,0 +1,132 @@
+
+Sim Post: sample 500
+Comments Observed: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 12, 15, 17, 20, 25, 30, 53, 40]
+Output: sim_results/changemyview_500
+Source subreddit: changemyview
+Minimum node quality: False
+Max graph size: 500
+Max edges per node: 25
+Minimum edge weight: 0.1
+No param normalization for infer step
+Testing Period: 9-2016 (1 month)
+Training Period: 8-2016 (1 month)
+Using Jaccard index to compute graph edge weights
+Ignoring posts with hardcoded default parameters
+Using topological error for tree evaluation (ignoring comment times)
+Only simulating cascades with true size greater than or equal to 20
+
+Loading processed training data
+Loading 8-2016
+   Processed posts file doesn't exist, creating now
+   Fitted params file doesn't exist, creating now
+Reconstructing cascades for changemyview 8-2016
+Found 36 (of 55922) relevant comments in /data/datasets/reddit_discussions/changemyview/changemyview_2016discussions_comments_2016_10.tsv
+Found 17 (of 59780) relevant comments in /data/datasets/reddit_discussions/changemyview/changemyview_2016discussions_comments_2016_11.tsv
+Found 22 (of 61507) relevant comments in /data/datasets/reddit_discussions/changemyview/changemyview_2016discussions_comments_2016_12.tsv
+Found 61554 (of 62834) relevant comments in /data/datasets/reddit_discussions/changemyview/changemyview_2016discussions_comments_2016_8.tsv
+Found 1000 (of 52849) relevant comments in /data/datasets/reddit_discussions/changemyview/changemyview_2016discussions_comments_2016_9.tsv
+Found 0 (of 15) relevant comments in /data/datasets/reddit_discussions/changemyview/changemyview_2016discussions_comments_2017_1.tsv
+Found 0 (of 7) relevant comments in /data/datasets/reddit_discussions/changemyview/changemyview_2016discussions_comments_2017_10.tsv
+Found 0 (of 3) relevant comments in /data/datasets/reddit_discussions/changemyview/changemyview_2016discussions_comments_2017_11.tsv
+Found 0 (of 6) relevant comments in /data/datasets/reddit_discussions/changemyview/changemyview_2016discussions_comments_2017_12.tsv
+Found 4 (of 104) relevant comments in /data/datasets/reddit_discussions/changemyview/changemyview_2016discussions_comments_2017_2.tsv
+Found 0 (of 17) relevant comments in /data/datasets/reddit_discussions/changemyview/changemyview_2016discussions_comments_2017_3.tsv
+Found 0 (of 25) relevant comments in /data/datasets/reddit_discussions/changemyview/changemyview_2016discussions_comments_2017_4.tsv
+Found 0 (of 0) relevant comments in /data/datasets/reddit_discussions/changemyview/changemyview_2016discussions_comments_2017_5.tsv
+Found 0 (of 1) relevant comments in /data/datasets/reddit_discussions/changemyview/changemyview_2016discussions_comments_2017_6.tsv
+Found 0 (of 7) relevant comments in /data/datasets/reddit_discussions/changemyview/changemyview_2016discussions_comments_2017_7.tsv
+Found 0 (of 8) relevant comments in /data/datasets/reddit_discussions/changemyview/changemyview_2016discussions_comments_2017_9.tsv
+Found 0 (of 0) relevant comments in /data/datasets/reddit_discussions/changemyview/changemyview_2016discussions_comments_2018_1.tsv
+Found 0 (of 0) relevant comments in /data/datasets/reddit_discussions/changemyview/changemyview_2016discussions_comments_2018_2.tsv
+Found 0 (of 0) relevant comments in /data/datasets/reddit_discussions/changemyview/changemyview_2016discussions_comments_2018_3.tsv
+Found 0 (of 0) relevant comments in /data/datasets/reddit_discussions/changemyview/changemyview_2016discussions_comments_2018_4.tsv
+Found 0 (of 0) relevant comments in /data/datasets/reddit_discussions/changemyview/changemyview_2016discussions_comments_2018_5.tsv
+Found 0 (of 0) relevant comments in /data/datasets/reddit_discussions/changemyview/changemyview_2016discussions_comments_2018_6.tsv
+Found 0 (of 0) relevant comments in /data/datasets/reddit_discussions/changemyview/changemyview_2016discussions_comments_2018_8.tsv
+Total of 62633 comments for 8-2016 posts (of 293085 scanned)
+Extracting post/comment structure for 1397 changemyview 8-2016 posts and 62633 comments
+Built 1396 cascades with 62608 comments
+   Removed 1 incomplete cascades (25 associated comments)
+Fitting 1396 cascades for changemyview 8-2016
+Fitted params for a total of 816 cascades
+   skipped 0 cascades with negative comment times
+   580 cascades failed fit process
+   fail average cascade size: 0
+   583 cascades succeeded fit process
+   succeed average cascade size: 88
+   233 cascades partially-succeeded fit process (some missing params)
+      227 cascades failed weibull fit
+   partial-succeed average cascade size: 45
+Deleted 1 posts without cascades
+Loaded 1396 posts 
+   1396 cascades
+   816 fitted params, 580 failed fit
+
+Loading processed testing data
+Loading 9-2016
+   Processed posts file doesn't exist, creating now
+Reconstructing cascades for changemyview 9-2016
+Found 1138 (of 55922) relevant comments in /data/datasets/reddit_discussions/changemyview/changemyview_2016discussions_comments_2016_10.tsv
+Found 54 (of 59780) relevant comments in /data/datasets/reddit_discussions/changemyview/changemyview_2016discussions_comments_2016_11.tsv
+Found 32 (of 61507) relevant comments in /data/datasets/reddit_discussions/changemyview/changemyview_2016discussions_comments_2016_12.tsv
+Found 51707 (of 52849) relevant comments in /data/datasets/reddit_discussions/changemyview/changemyview_2016discussions_comments_2016_9.tsv
+Found 0 (of 15) relevant comments in /data/datasets/reddit_discussions/changemyview/changemyview_2016discussions_comments_2017_1.tsv
+Found 0 (of 7) relevant comments in /data/datasets/reddit_discussions/changemyview/changemyview_2016discussions_comments_2017_10.tsv
+Found 0 (of 3) relevant comments in /data/datasets/reddit_discussions/changemyview/changemyview_2016discussions_comments_2017_11.tsv
+Found 0 (of 6) relevant comments in /data/datasets/reddit_discussions/changemyview/changemyview_2016discussions_comments_2017_12.tsv
+Found 5 (of 104) relevant comments in /data/datasets/reddit_discussions/changemyview/changemyview_2016discussions_comments_2017_2.tsv
+Found 0 (of 17) relevant comments in /data/datasets/reddit_discussions/changemyview/changemyview_2016discussions_comments_2017_3.tsv
+Found 0 (of 25) relevant comments in /data/datasets/reddit_discussions/changemyview/changemyview_2016discussions_comments_2017_4.tsv
+Found 0 (of 0) relevant comments in /data/datasets/reddit_discussions/changemyview/changemyview_2016discussions_comments_2017_5.tsv
+Found 0 (of 1) relevant comments in /data/datasets/reddit_discussions/changemyview/changemyview_2016discussions_comments_2017_6.tsv
+Found 0 (of 7) relevant comments in /data/datasets/reddit_discussions/changemyview/changemyview_2016discussions_comments_2017_7.tsv
+Found 0 (of 8) relevant comments in /data/datasets/reddit_discussions/changemyview/changemyview_2016discussions_comments_2017_9.tsv
+Found 0 (of 0) relevant comments in /data/datasets/reddit_discussions/changemyview/changemyview_2016discussions_comments_2018_1.tsv
+Found 0 (of 0) relevant comments in /data/datasets/reddit_discussions/changemyview/changemyview_2016discussions_comments_2018_2.tsv
+Found 0 (of 0) relevant comments in /data/datasets/reddit_discussions/changemyview/changemyview_2016discussions_comments_2018_3.tsv
+Found 0 (of 0) relevant comments in /data/datasets/reddit_discussions/changemyview/changemyview_2016discussions_comments_2018_4.tsv
+Found 0 (of 0) relevant comments in /data/datasets/reddit_discussions/changemyview/changemyview_2016discussions_comments_2018_5.tsv
+Found 0 (of 0) relevant comments in /data/datasets/reddit_discussions/changemyview/changemyview_2016discussions_comments_2018_6.tsv
+Found 0 (of 0) relevant comments in /data/datasets/reddit_discussions/changemyview/changemyview_2016discussions_comments_2018_8.tsv
+Total of 52936 comments for 9-2016 posts (of 230251 scanned)
+Extracting post/comment structure for 1318 changemyview 9-2016 posts and 52936 comments
+Built 1314 cascades with 50906 comments
+   Removed 4 incomplete cascades (2030 associated comments)
+Deleted 4 posts without cascades
+Loaded 1314 posts 
+   1314 cascades
+
+Filtered to 583 posts with >= 20 comments
+Sampling 500 random posts (from 583) for simulation set
+
+Building param graph for 1396 posts
+Using 816 posts for graph
+
+Sampling graph to 500 nodes
+Using jaccard index for edge weight
+   100000 pairs
+Graph contains 497 nodes and 9185 unique edges (12197 edge entries)
+  max degree: 127
+  min degree: 4
+
+Processing 500 posts
+   finished 50 posts (0 disconnected)
+   finished 100 posts (1 disconnected)
+   finished 150 posts (1 disconnected)
+   finished 200 posts (1 disconnected)
+   finished 250 posts (1 disconnected)
+   finished 300 posts (2 disconnected)
+   finished 350 posts (3 disconnected)
+   finished 400 posts (3 disconnected)
+   finished 450 posts (3 disconnected)
+   finished 500 posts (3 disconnected)
+
+All done
+
+Number of posts: 500
+Observing: comments
+Observed: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 12, 15, 17, 20, 25, 30, 53, 40]
+Source subreddit: changemyview
+Minimum node quality: False
+Max graph size: 500
+

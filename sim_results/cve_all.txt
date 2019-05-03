@@ -1,0 +1,62 @@
+
+Sim Post: all
+Comments Observed: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+Output: sim_results/cve_all
+Source subreddit: cve
+Minimum node quality: False
+Max graph size: 500
+Max edges per node: 25
+Minimum edge weight: 0.5
+No param normalization for infer step
+Testing Period: 9-2016 (0 month)
+Training Period: 0-0 (0 month)
+Using Jaccard index to compute graph edge weights
+Ignoring posts with hardcoded default parameters
+Using topological error for tree evaluation (ignoring comment times)
+
+Loading cve
+   Loaded 3411 posts
+   Loaded 3411 cascades
+   Loaded 1766 fitted params (1645 failed fit)
+Loaded 3411 posts 
+   3411 cascades
+   1766 fitted params, 1645 failed fit
+Loaded 1114 training and 500 testing post ids
+Filtered training data to 1114 posts, 1114 cascades, and 996 params
+   118 failed fit posts
+Filtered testing data to 500 posts, 500 cascades, and 449 params
+   51 failed fit posts
+
+Processing all 500 posts in test set
+
+Building param graph for 1114 posts
+Using 996 posts for graph
+
+Sampling graph to 500 nodes
+Using jaccard index for edge weight
+   100000 pairs
+Graph contains 86 nodes and 461 unique edges (847 edge entries)
+  max degree: 28
+  min degree: 1
+
+Processing 500 posts
+   finished 50 posts (46 disconnected)
+   finished 100 posts (89 disconnected)
+   finished 150 posts (134 disconnected)
+   finished 200 posts (179 disconnected)
+   finished 250 posts (224 disconnected)
+   finished 300 posts (271 disconnected)
+   finished 350 posts (319 disconnected)
+   finished 400 posts (367 disconnected)
+   finished 450 posts (414 disconnected)
+   finished 500 posts (459 disconnected)
+
+All done
+
+Number of posts: 500
+Observing: comments
+Observed: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+Source subreddit: cve
+Minimum node quality: False
+Max graph size: 500
+
