@@ -16,7 +16,7 @@ from collections import defaultdict
 print("")
 
 #parse all command-line arguments
-subreddit, input_sim_post, observing_time, observed_list, outfile, max_nodes, min_node_quality, estimate_initial_params, normalize_parameters, batch, sample_num, testing_start_month, testing_start_year, testing_len, training_start_month, training_start_year, training_len, weight_method, top_n, weight_threshold, include_default_posts, time_error_margin, error_method, sanity_check, size_filter, get_training_stats, get_testing_stats, socsim_data, verbose = functions_gen_cascade_model.parse_command_args()
+subreddit, input_sim_post, observing_time, observed_list, outfile, max_nodes, min_node_quality, estimate_initial_params, normalize_parameters, batch, sample_num, testing_start_month, testing_start_year, testing_len, training_start_month, training_start_year, training_len, weight_method, top_n, weight_threshold, include_default_posts, time_error_margin, error_method, sanity_check, min_size, max_size, get_training_stats, get_testing_stats, socsim_data, verbose = functions_gen_cascade_model.parse_command_args()
 
 #hackery: declare a special print function for verbose output
 if verbose:
@@ -57,7 +57,7 @@ else:
 
 #ensure post id is in dataset (and filter test_posts set down to processing group only)
 vprint("")
-test_posts = functions_gen_cascade_model.get_test_post_set(input_sim_post, batch, size_filter, sample_num, test_posts, test_cascades, subreddit, testing_start_month, testing_start_year, testing_len)
+test_posts = functions_gen_cascade_model.get_test_post_set(input_sim_post, batch, min_size, max_size, sample_num, test_posts, test_cascades, subreddit, testing_start_month, testing_start_year, testing_len)
 #reduce cascades to match this set
 if len(test_posts) != len(test_cascades):
 	test_cascades = functions_gen_cascade_model.filter_dict_by_list(test_cascades, list(test_posts.keys()))
@@ -203,4 +203,4 @@ if batch:
 			avg_metrics[time_observed][metric] /= len(test_posts)
 
 #save metrics + settings to output file
-functions_gen_cascade_model.save_results(outfile, all_metrics, avg_metrics, input_sim_post, observed_list, observing_time, subreddit, min_node_quality, max_nodes, weight_threshold, testing_start_month, testing_start_year, testing_len, training_start_month, training_start_year, training_len, weight_method, include_default_posts, estimate_initial_params, time_error_margin, error_method)
+functions_gen_cascade_model.save_results(outfile, all_metrics, avg_metrics, input_sim_post, sample_num, observed_list, observing_time, subreddit, min_node_quality, max_nodes, weight_threshold, testing_start_month, testing_start_year, testing_len, training_start_month, training_start_year, training_len, weight_method, include_default_posts, estimate_initial_params, time_error_margin, error_method, min_size, max_size)

@@ -34,9 +34,9 @@ fitted_params_filepath = "reddit_data/%s/%s_post_params_%d_%d.pkl"
 #reconstructed cascades for (sub, sub, year, month) - dictionary of post id -> cascade dict, with "time", "num_comments", and "replies", where "replies" is nested list of reply objects
 cascades_filepath = "reddit_data/%s/%s_cascades_%d_%d.pkl"
 
-#filepath for random test samples, determined by subreddit, subreddit, number of posts, testing start (year-month), testing length, and min number of comments
+#filepath for random test samples, determined by subreddit, subreddit, number of posts, testing start (year-month), testing length, and tree size requirements
 #(save these to files so you can have repeated runs of the same random set)
-random_sample_list_filepath = "reddit_data/%s/%s_%d_test_keys_list_start%d-%d_%dmonths_filter%d.pkl"
+random_sample_list_filepath = "reddit_data/%s/%s_%d_test_keys_list_start%d-%d_%dmonths_filter%s-%s.pkl"
 
 #filepaths of output/temporary files - used to pass graph to C++ node2vec for processing
 temp_graph_filepath = "sim_files/graph_%s.txt"			#updated graph for this sim run
@@ -75,7 +75,7 @@ def parse_command_args():
 	proc_group.add_argument("-id", dest="sim_post", default=None,  help="post id for single-processing")
 	proc_group.add_argument("-r", "--rand", dest="sim_post", action="store_const", const="random", help="choose a random post from the subreddit to simulate")
 	proc_group.add_argument("-a", "--all", dest="sim_post", action="store_const", const="all", help="simulate all posts in the subreddit")
-	proc_group.add_argument("-n", "--n_sample", dest="sim_post", default=100, help="number of posts to test, taken as random sample from testing period")
+	proc_group.add_argument("-n", "--n_sample", dest="sim_post", default=None, help="number of posts to test, taken as random sample from testing period")
 	#must pick an edge weight computation method: cosine (based on tf-idf) or jaccard
 	weight_group = parser.add_mutually_exclusive_group(required=True)
 	weight_group.add_argument("-j", "--jaccard", dest="weight_method", action='store_const', const="jaccard", help="compute edge weight between pairs using jaccard index")
@@ -113,9 +113,10 @@ def parse_command_args():
 	parser.set_defaults(normalize_parameters=False)
 	parser.add_argument("--sanity", dest="sanity_check", action="store_true", help="sanity check: simulate from fitted params instead of inferring")
 	parser.set_defaults(sanity_check=False)
-	#can also layer in a size filter: only simulate cascades above a certain size 
+	#can also layer in a size filter: only simulate cascades within a size range (or meeting some min/max size)
 	#(filter applied before sample/rand)
-	parser.add_argument("-sf", "--size_filter", dest="size_filter", default=False, help="minimum cascade size for simulation test set")
+	parser.add_argument("-min", "--min_size", dest="min_size", default=None, help="minimum cascade size for simulation test set")
+	parser.add_argument("-max", "--max_size", dest="max_size", default=None, help="maximum cascade size for simulation test set")
 	parser.add_argument("--train_stats", dest="training_stats", action="store_true", help="output statistics for training set")
 	parser.set_defaults(training_stats=False)
 	parser.add_argument("--test_stats", dest="testing_stats", action="store_true", help="output statistics for testing set")
@@ -161,7 +162,8 @@ def parse_command_args():
 	topological_error = args.topological_error
 	normalize_parameters = args.normalize_parameters
 	sanity_check = args.sanity_check
-	size_filter = int(args.size_filter) if args.size_filter != False else False
+	min_size = int(args.min_size) if args.min_size is not None else None
+	max_size = int(args.max_size) if args.max_size is not None else None
 	training_stats = args.training_stats
 	testing_stats = args.testing_stats
 	if top_n != False:
@@ -267,14 +269,18 @@ def parse_command_args():
 	else:
 		vprint("Using error margin increasing by level")
 		vprint("   Allowable eval time error: ", time_error_margin)
-	if size_filter != False:
-		vprint("Only simulating cascades with true size greater than or equal to %d" % size_filter)
+	if min_size is not None and max_size is not None:
+		vprint("Only simulating cascades with true size between %d and %d comments (inclusive)" % (min_size, max_size))
+	elif min_size is not None:
+		vprint("Only simulating cascades with true size greater than or equal to %d" % min_size)
+	elif max_size is not None:
+		vprint("Only simulating cascades with true size less than or equal to %d" % max_size)
 	if sanity_check:
 		vprint("Simulating from fitted params, skipping graph/infer/refine steps")
 	vprint("")
 
 	#return all arguments
-	return subreddit, sim_post, observing_time, observed_list, outfile, max_nodes, min_node_quality, estimate_initial_params, normalize_parameters, batch, sample_num, testing_start_month, testing_start_year, testing_len, training_start_month, training_start_year, training_len, weight_method, top_n, weight_threshold, include_default_posts, time_error_margin, error_method, sanity_check, size_filter, training_stats, testing_stats, socsim_data, verbose
+	return subreddit, sim_post, observing_time, observed_list, outfile, max_nodes, min_node_quality, estimate_initial_params, normalize_parameters, batch, sample_num, testing_start_month, testing_start_year, testing_len, training_start_month, training_start_year, training_len, weight_method, top_n, weight_threshold, include_default_posts, time_error_margin, error_method, sanity_check, min_size, max_size, training_stats, testing_stats, socsim_data, verbose
 #end parse_command_args
 
 
@@ -686,12 +692,17 @@ def build_cascades(posts, comments):
 #given a post id, boolean mode flags, and dictionary of posts, ensure post is in this set
 #if running in sample mode, pick the sample
 #returns modified post dictionary that contains only the posts to be tested
-def get_test_post_set(input_sim_post, batch_process, size_filter, sample_num, posts, cascades, subreddit, testing_start_month, testing_start_year, testing_len):
+def get_test_post_set(input_sim_post, batch_process, min_size, max_size, sample_num, posts, cascades, subreddit, testing_start_month, testing_start_year, testing_len):
 	#apply min-size filter before anything else
-	if size_filter != False:
-		keys = [post_id for post_id in cascades if cascades[post_id]['comment_count_total'] >= size_filter]
+	if min_size != None:
+		keys = [post_id for post_id in cascades if cascades[post_id]['comment_count_total'] >= min_size]
 		posts = filter_dict_by_list(posts, keys)
-		vprint("Filtered to %d posts with >= %d comments" % (len(keys), size_filter))
+		vprint("Filtered to %d posts with >= %d comments" % (len(posts), min_size))
+	#and the max-size filter:
+	if max_size != None:
+		keys = [post_id for post_id in cascades if cascades[post_id]['comment_count_total'] <= max_size]
+		posts = filter_dict_by_list(posts, keys)
+		vprint("Filtered to %d posts with <= %d comments" % (len(posts), max_size))
 
 	#if processing all posts in test set, return list of ids
 	if input_sim_post == "all":		
@@ -704,9 +715,10 @@ def get_test_post_set(input_sim_post, batch_process, size_filter, sample_num, po
 	#if sampling, choose random sample of posts
 	elif sample_num != False:		
 		#if stored random sample exists, load that
-		if file_utils.verify_file(random_sample_list_filepath % (subreddit, subreddit, sample_num, testing_start_year, testing_start_month, testing_len, (size_filter if size_filter != False else 0))):
+		curr_filepath = random_sample_list_filepath % (subreddit, subreddit, sample_num, testing_start_year, testing_start_month, testing_len, (min_size if min_size is not None else 0), (max_size if max_size is not None else "inf"))
+		if file_utils.verify_file(curr_filepath):
 			vprint("Loading cached sample simulation post set")
-			keys = file_utils.load_pickle(random_sample_list_filepath % (subreddit, subreddit, sample_num, testing_start_year, testing_start_month, testing_len, (size_filter if size_filter != False else 0)))
+			keys = file_utils.load_pickle(curr_filepath)
 		#no existing sample file, pick random post id set, and dump list to pickle
 		else:
 			vprint("Sampling %d random posts (from %d) for simulation set" % (sample_num, len(posts.keys())))
@@ -715,7 +727,7 @@ def get_test_post_set(input_sim_post, batch_process, size_filter, sample_num, po
 			else:
 				vprint("Set smaller than sample, using entire set")
 				keys = list(posts.keys())
-			file_utils.save_pickle(keys, random_sample_list_filepath % (subreddit, subreddit, sample_num, testing_start_year, testing_start_month, testing_len, (size_filter if size_filter != False else 0)))
+			file_utils.save_pickle(keys, curr_filepath)
 		#filter posts to match keys list
 		posts = filter_dict_by_list(posts, keys)
 	#if single id, make sure given post id is in the dataset
@@ -1632,7 +1644,7 @@ def cascade_to_graph(cascade):
 #save all sim results to csv file
 #one row per simulated post/time pair, with a bunch of data in it
 #then, at the bottom, all the settings/arguments, for tracking purposes
-def save_results(base_filename, metrics, avg_metrics, input_sim_post, observed_list, observing_time, subreddit, min_node_quality, max_graph_size, min_weight, testing_start_month, testing_start_year, testing_len, training_start_month, training_start_year, training_len, edge_weight_method, include_hardcoded_posts, estimate_initial_params, time_error_margin, error_method):
+def save_results(base_filename, metrics, avg_metrics, input_sim_post, sample_num, observed_list, observing_time, subreddit, min_node_quality, max_graph_size, min_weight, testing_start_month, testing_start_year, testing_len, training_start_month, training_start_year, training_len, edge_weight_method, include_hardcoded_posts, estimate_initial_params, time_error_margin, error_method, min_size, max_size):
 	#given a base filename, convert to complete output filename
 	filename = base_filename + "_results.csv"
 
@@ -1658,7 +1670,7 @@ def save_results(base_filename, metrics, avg_metrics, input_sim_post, observed_l
 	#append arguments/settings to the end
 	with open(filename, "a") as file:
 		file.write("\nSettings\n")
-		file.write("sim_post,%s\n" % input_sim_post)
+		file.write("sim_post,%s%s\n" % (input_sim_post, (sample_num if sample_num != False else "")))
 		file.write("observing,%s\n" % ("time" if observing_time else "comments"))
 		file.write("observed_list,%s\n" % observed_list)
 		file.write("subreddit,%s\n" % subreddit)
@@ -1674,6 +1686,8 @@ def save_results(base_filename, metrics, avg_metrics, input_sim_post, observed_l
 		file.write("estimate_initial_params,%s\n" % estimate_initial_params)
 		file.write("allowable time error,%s\n" % time_error_margin)
 		file.write("time error method,%s\n" % error_method)
+		file.write("minimum comments,%s\n" % (min_size if min_size is not None else "none"))
+		file.write("maximum comments,%s\n" % (max_size if max_size is not None else "none"))
 
 	return
 #end save_results
