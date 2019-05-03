@@ -560,7 +560,8 @@ def load_comments(subreddit, post_month, post_year, posts):
 			continue
 
 		#load this file's comments
-		month_comments_df = pd.read_csv(file, sep='\t')
+		vprint("Loading comments from %s" % file)
+		month_comments_df = pd.read_csv(file, sep='\t', engine='python')
 
 		#convert to our nested dictionary structure, filtering out irrelevant comments along the way
 		month_comments = {}			#comment id-> dict with link_id, parent_id, and time
@@ -584,7 +585,7 @@ def load_comments(subreddit, post_month, post_year, posts):
 		#add month comments to overall list
 		comments.update(month_comments)
 		scanned_count += len(month_comments_df)
-		vprint("Found %d (of %d) relevant comments in %s" % (len(month_comments), len(month_comments_df), file))
+		vprint("Found %d (of %d) relevant comments" % (len(month_comments), len(month_comments_df)))
 
 	vprint("Total of %d comments for %d-%d posts (of %d scanned)" % (len(comments), post_month, post_year, scanned_count))
 	return comments
