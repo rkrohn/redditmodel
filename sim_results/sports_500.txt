@@ -1,0 +1,30 @@
+
+Sim Post: sample 500
+Comments Observed: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 12, 15, 17, 20, 25, 30, 53, 40]
+Output: sim_results/sports_500
+Source subreddit: sports
+Minimum node quality: False
+Max graph size: 500
+Max edges per node: 25
+Minimum edge weight: 0.1
+No param normalization for infer step
+Testing Period: 9-2016 (1 month)
+Training Period: 8-2016 (1 month)
+Using Jaccard index to compute graph edge weights
+Ignoring posts with hardcoded default parameters
+Using topological error for tree evaluation (ignoring comment times)
+Only simulating cascades with true size greater than or equal to 20
+
+Loading processed training data
+Loading 8-2016
+   Processed posts file doesn't exist, creating now
+Invalid post, exiting
+ _id            5c5edfd2d3444b373ca90da7
+author                         Izzy0071
+created_utc                  1471398884
+id                               4y35iy
+selftext              Hi guys and girls
+subreddit                           NaN
+title                               NaN
+name                                NaN
+Name: 4935, dtype: object

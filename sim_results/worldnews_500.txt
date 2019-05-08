@@ -1,0 +1,144 @@
+
+Sim Post: sample 500
+Comments Observed: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 12, 15, 17, 20, 25, 30, 53, 40]
+Output: sim_results/worldnews_500
+Source subreddit: worldnews
+Minimum node quality: False
+Max graph size: 500
+Max edges per node: 25
+Minimum edge weight: 0.1
+No param normalization for infer step
+Testing Period: 9-2016 (1 month)
+Training Period: 8-2016 (1 month)
+Using Jaccard index to compute graph edge weights
+Ignoring posts with hardcoded default parameters
+Using topological error for tree evaluation (ignoring comment times)
+Only simulating cascades with true size greater than or equal to 20
+
+Loading processed training data
+Loading 8-2016
+   Fitted params file doesn't exist, creating now
+Reconstructing cascades for worldnews 8-2016
+Loading comments from /data/datasets/reddit_discussions/worldnews/worldnews_2016discussions_comments_2016_10.tsv
+Found 95 (of 603108) relevant comments
+Loading comments from /data/datasets/reddit_discussions/worldnews/worldnews_2016discussions_comments_2016_11.tsv
+Found 71 (of 620736) relevant comments
+Loading comments from /data/datasets/reddit_discussions/worldnews/worldnews_2016discussions_comments_2016_12.tsv
+Found 34 (of 766347) relevant comments
+Loading comments from /data/datasets/reddit_discussions/worldnews/worldnews_2016discussions_comments_2016_8.tsv
+Found 658607 (of 677180) relevant comments
+Loading comments from /data/datasets/reddit_discussions/worldnews/worldnews_2016discussions_comments_2016_9.tsv
+Found 7328 (of 602511) relevant comments
+Loading comments from /data/datasets/reddit_discussions/worldnews/worldnews_2016discussions_comments_2017_1.tsv
+Found 39 (of 16295) relevant comments
+Loading comments from /data/datasets/reddit_discussions/worldnews/worldnews_2016discussions_comments_2017_2.tsv
+Found 6 (of 294) relevant comments
+Loading comments from /data/datasets/reddit_discussions/worldnews/worldnews_2016discussions_comments_2017_3.tsv
+Found 0 (of 157) relevant comments
+Loading comments from /data/datasets/reddit_discussions/worldnews/worldnews_2016discussions_comments_2017_4.tsv
+Found 0 (of 136) relevant comments
+Loading comments from /data/datasets/reddit_discussions/worldnews/worldnews_2016discussions_comments_2017_5.tsv
+Found 0 (of 108) relevant comments
+Loading comments from /data/datasets/reddit_discussions/worldnews/worldnews_2016discussions_comments_2017_6.tsv
+Found 0 (of 36) relevant comments
+Loading comments from /data/datasets/reddit_discussions/worldnews/worldnews_2016discussions_comments_2018_5.tsv
+Found 0 (of 3) relevant comments
+Total of 666180 comments for 8-2016 posts (of 3286911 scanned)
+Extracting post/comment structure for 29025 worldnews 8-2016 posts and 666180 comments
+Built 28982 cascades with 621073 comments
+   Removed 43 incomplete cascades (45107 associated comments)
+Fitting 28982 cascades for worldnews 8-2016
+Fitted 2500 cascades (1942 failed)
+Fitted 5000 cascades (3891 failed)
+Fitted 7500 cascades (5815 failed)
+Fitted 10000 cascades (7789 failed)
+Fitted 12500 cascades (9755 failed)
+Fitted 15000 cascades (11702 failed)
+Fitted 17500 cascades (13605 failed)
+Fitted 20000 cascades (15586 failed)
+Fitted 22500 cascades (17609 failed)
+Fitted 25000 cascades (19658 failed)
+Fitted 27500 cascades (21686 failed)
+Fitted params for a total of 6112 cascades
+   skipped 2 cascades with negative comment times
+   22868 cascades failed fit process
+   fail average cascade size: 0
+   2141 cascades succeeded fit process
+   succeed average cascade size: 246
+   3971 cascades partially-succeeded fit process (some missing params)
+      3727 cascades failed weibull fit
+   partial-succeed average cascade size: 19
+Deleted 43 posts without cascades
+Deleted 2 posts without params
+Loaded 28980 posts 
+   28982 cascades
+   6112 fitted params, 22868 failed fit
+
+Loading processed testing data
+Loading 9-2016
+   Processed posts file doesn't exist, creating now
+Reconstructing cascades for worldnews 9-2016
+Loading comments from /data/datasets/reddit_discussions/worldnews/worldnews_2016discussions_comments_2016_10.tsv
+Found 8018 (of 603108) relevant comments
+Loading comments from /data/datasets/reddit_discussions/worldnews/worldnews_2016discussions_comments_2016_11.tsv
+Found 245 (of 620736) relevant comments
+Loading comments from /data/datasets/reddit_discussions/worldnews/worldnews_2016discussions_comments_2016_12.tsv
+Found 120 (of 766347) relevant comments
+Loading comments from /data/datasets/reddit_discussions/worldnews/worldnews_2016discussions_comments_2016_9.tsv
+Found 594481 (of 602511) relevant comments
+Loading comments from /data/datasets/reddit_discussions/worldnews/worldnews_2016discussions_comments_2017_1.tsv
+Found 98 (of 16295) relevant comments
+Loading comments from /data/datasets/reddit_discussions/worldnews/worldnews_2016discussions_comments_2017_2.tsv
+Found 43 (of 294) relevant comments
+Loading comments from /data/datasets/reddit_discussions/worldnews/worldnews_2016discussions_comments_2017_3.tsv
+Found 8 (of 157) relevant comments
+Loading comments from /data/datasets/reddit_discussions/worldnews/worldnews_2016discussions_comments_2017_4.tsv
+Found 0 (of 136) relevant comments
+Loading comments from /data/datasets/reddit_discussions/worldnews/worldnews_2016discussions_comments_2017_5.tsv
+Found 0 (of 108) relevant comments
+Loading comments from /data/datasets/reddit_discussions/worldnews/worldnews_2016discussions_comments_2017_6.tsv
+Found 0 (of 36) relevant comments
+Loading comments from /data/datasets/reddit_discussions/worldnews/worldnews_2016discussions_comments_2018_5.tsv
+Found 0 (of 3) relevant comments
+Total of 603013 comments for 9-2016 posts (of 2609731 scanned)
+Extracting post/comment structure for 24657 worldnews 9-2016 posts and 603013 comments
+Built 24614 cascades with 536282 comments
+   Removed 43 incomplete cascades (66731 associated comments)
+Deleted 43 posts without cascades
+Loaded 24614 posts 
+   24614 cascades
+
+Filtered to 1844 posts with >= 20 comments
+Sampling 500 random posts (from 1844) for simulation set
+
+Building param graph for 28980 posts
+Using 6112 posts for graph
+
+Sampling graph to 500 nodes
+Using jaccard index for edge weight
+   100000 pairs
+Graph contains 461 nodes and 2874 unique edges (4661 edge entries)
+  max degree: 78
+  min degree: 1
+
+Processing 500 posts
+   finished 50 posts (4 disconnected)
+   finished 100 posts (8 disconnected)
+   finished 150 posts (10 disconnected)
+   finished 200 posts (16 disconnected)
+   finished 250 posts (18 disconnected)
+   finished 300 posts (22 disconnected)
+   finished 350 posts (26 disconnected)
+   finished 400 posts (31 disconnected)
+   finished 450 posts (35 disconnected)
+   finished 500 posts (39 disconnected)
+
+All done
+
+Number of posts: 500
+Observing: comments
+Observed: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 12, 15, 17, 20, 25, 30, 53, 40]
+Source subreddit: worldnews
+Minimum node quality: False
+Max graph size: 500
+

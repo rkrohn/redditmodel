@@ -1,0 +1,141 @@
+
+Sim Post: sample 500
+Comments Observed: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 12, 15, 17, 20, 25, 30, 53, 40]
+Output: sim_results/aww_500
+Source subreddit: aww
+Minimum node quality: False
+Max graph size: 500
+Max edges per node: 25
+Minimum edge weight: 0.1
+No param normalization for infer step
+Testing Period: 9-2016 (1 month)
+Training Period: 8-2016 (1 month)
+Using Jaccard index to compute graph edge weights
+Ignoring posts with hardcoded default parameters
+Using topological error for tree evaluation (ignoring comment times)
+Only simulating cascades with true size greater than or equal to 20
+
+Loading processed training data
+Loading 8-2016
+   Processed posts file doesn't exist, creating now
+   Fitted params file doesn't exist, creating now
+Reconstructing cascades for aww 8-2016
+Loading comments from /data/datasets/reddit_discussions/aww/aww_2016discussions_comments_2016_10.tsv
+Found 90 (of 176540) relevant comments
+Loading comments from /data/datasets/reddit_discussions/aww/aww_2016discussions_comments_2016_11.tsv
+Found 47 (of 188960) relevant comments
+Loading comments from /data/datasets/reddit_discussions/aww/aww_2016discussions_comments_2016_12.tsv
+Found 34 (of 207593) relevant comments
+Loading comments from /data/datasets/reddit_discussions/aww/aww_2016discussions_comments_2016_8.tsv
+Found 165308 (of 167736) relevant comments
+Loading comments from /data/datasets/reddit_discussions/aww/aww_2016discussions_comments_2016_9.tsv
+Found 2829 (of 176505) relevant comments
+Loading comments from /data/datasets/reddit_discussions/aww/aww_2016discussions_comments_2017_1.tsv
+Found 46 (of 2289) relevant comments
+Loading comments from /data/datasets/reddit_discussions/aww/aww_2016discussions_comments_2017_2.tsv
+Found 20 (of 238) relevant comments
+Loading comments from /data/datasets/reddit_discussions/aww/aww_2016discussions_comments_2017_3.tsv
+Found 0 (of 155) relevant comments
+Loading comments from /data/datasets/reddit_discussions/aww/aww_2016discussions_comments_2017_4.tsv
+Found 0 (of 112) relevant comments
+Loading comments from /data/datasets/reddit_discussions/aww/aww_2016discussions_comments_2017_5.tsv
+Found 0 (of 67) relevant comments
+Loading comments from /data/datasets/reddit_discussions/aww/aww_2016discussions_comments_2017_6.tsv
+Found 0 (of 12) relevant comments
+Total of 168374 comments for 8-2016 posts (of 920207 scanned)
+Extracting post/comment structure for 31486 aww 8-2016 posts and 168374 comments
+Built 31484 cascades with 167660 comments
+   Removed 2 incomplete cascades (714 associated comments)
+Fitting 31484 cascades for aww 8-2016
+Fitted 2500 cascades (2076 failed)
+Fitted 5000 cascades (4124 failed)
+Fitted 7500 cascades (6220 failed)
+Fitted 10000 cascades (8277 failed)
+Fitted 12500 cascades (10358 failed)
+Fitted 15000 cascades (12401 failed)
+Fitted 17500 cascades (14434 failed)
+Fitted 20000 cascades (16478 failed)
+Fitted 22500 cascades (18556 failed)
+Fitted 25000 cascades (20599 failed)
+Fitted 27500 cascades (22682 failed)
+Fitted 30000 cascades (24738 failed)
+Fitted params for a total of 5517 cascades
+   skipped 0 cascades with negative comment times
+   25967 cascades failed fit process
+   fail average cascade size: 0
+   1318 cascades succeeded fit process
+   succeed average cascade size: 92
+   4199 cascades partially-succeeded fit process (some missing params)
+      3851 cascades failed weibull fit
+   partial-succeed average cascade size: 7
+Deleted 2 posts without cascades
+Loaded 31484 posts 
+   31484 cascades
+   5517 fitted params, 25967 failed fit
+
+Loading processed testing data
+Loading 9-2016
+   Processed posts file doesn't exist, creating now
+Reconstructing cascades for aww 9-2016
+Loading comments from /data/datasets/reddit_discussions/aww/aww_2016discussions_comments_2016_10.tsv
+Found 1919 (of 176540) relevant comments
+Loading comments from /data/datasets/reddit_discussions/aww/aww_2016discussions_comments_2016_11.tsv
+Found 73 (of 188960) relevant comments
+Loading comments from /data/datasets/reddit_discussions/aww/aww_2016discussions_comments_2016_12.tsv
+Found 55 (of 207593) relevant comments
+Loading comments from /data/datasets/reddit_discussions/aww/aww_2016discussions_comments_2016_9.tsv
+Found 173500 (of 176505) relevant comments
+Loading comments from /data/datasets/reddit_discussions/aww/aww_2016discussions_comments_2017_1.tsv
+Found 43 (of 2289) relevant comments
+Loading comments from /data/datasets/reddit_discussions/aww/aww_2016discussions_comments_2017_2.tsv
+Found 37 (of 238) relevant comments
+Loading comments from /data/datasets/reddit_discussions/aww/aww_2016discussions_comments_2017_3.tsv
+Found 19 (of 155) relevant comments
+Loading comments from /data/datasets/reddit_discussions/aww/aww_2016discussions_comments_2017_4.tsv
+Found 0 (of 112) relevant comments
+Loading comments from /data/datasets/reddit_discussions/aww/aww_2016discussions_comments_2017_5.tsv
+Found 0 (of 67) relevant comments
+Loading comments from /data/datasets/reddit_discussions/aww/aww_2016discussions_comments_2017_6.tsv
+Found 0 (of 12) relevant comments
+Total of 175646 comments for 9-2016 posts (of 752471 scanned)
+Extracting post/comment structure for 31023 aww 9-2016 posts and 175646 comments
+Built 31019 cascades with 172849 comments
+   Removed 4 incomplete cascades (2797 associated comments)
+Deleted 4 posts without cascades
+Loaded 31019 posts 
+   31019 cascades
+
+Filtered to 1009 posts with >= 20 comments
+Sampling 500 random posts (from 1009) for simulation set
+
+Building param graph for 31484 posts
+Using 5517 posts for graph
+
+Sampling graph to 500 nodes
+Using jaccard index for edge weight
+   100000 pairs
+Graph contains 480 nodes and 5838 unique edges (9228 edge entries)
+  max degree: 74
+  min degree: 1
+
+Processing 500 posts
+   finished 50 posts (1 disconnected)
+   finished 100 posts (2 disconnected)
+   finished 150 posts (3 disconnected)
+   finished 200 posts (4 disconnected)
+   finished 250 posts (5 disconnected)
+   finished 300 posts (8 disconnected)
+   finished 350 posts (11 disconnected)
+   finished 400 posts (12 disconnected)
+   finished 450 posts (13 disconnected)
+   finished 500 posts (14 disconnected)
+
+All done
+
+Number of posts: 500
+Observing: comments
+Observed: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 12, 15, 17, 20, 25, 30, 53, 40]
+Source subreddit: aww
+Minimum node quality: False
+Max graph size: 500
+

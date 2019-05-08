@@ -1,0 +1,127 @@
+
+Sim Post: sample 500
+Comments Observed: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 12, 15, 17, 20, 25, 30, 53, 40]
+Output: sim_results/science_500
+Source subreddit: science
+Minimum node quality: False
+Max graph size: 500
+Max edges per node: 25
+Minimum edge weight: 0.1
+No param normalization for infer step
+Testing Period: 9-2016 (1 month)
+Training Period: 8-2016 (1 month)
+Using Jaccard index to compute graph edge weights
+Ignoring posts with hardcoded default parameters
+Using topological error for tree evaluation (ignoring comment times)
+Only simulating cascades with true size greater than or equal to 20
+
+Loading processed training data
+Loading 8-2016
+   Processed posts file doesn't exist, creating now
+   Fitted params file doesn't exist, creating now
+Reconstructing cascades for science 8-2016
+Loading comments from /data/datasets/reddit_discussions/science/science_2016discussions_comments_2016_10.tsv
+Found 17 (of 72090) relevant comments
+Loading comments from /data/datasets/reddit_discussions/science/science_2016discussions_comments_2016_11.tsv
+Found 7 (of 82344) relevant comments
+Loading comments from /data/datasets/reddit_discussions/science/science_2016discussions_comments_2016_12.tsv
+Found 53 (of 90411) relevant comments
+Loading comments from /data/datasets/reddit_discussions/science/science_2016discussions_comments_2016_8.tsv
+Found 94092 (of 95081) relevant comments
+Loading comments from /data/datasets/reddit_discussions/science/science_2016discussions_comments_2016_9.tsv
+Found 1936 (of 88107) relevant comments
+Loading comments from /data/datasets/reddit_discussions/science/science_2016discussions_comments_2017_1.tsv
+Found 23 (of 1131) relevant comments
+Loading comments from /data/datasets/reddit_discussions/science/science_2016discussions_comments_2017_2.tsv
+Found 6 (of 85) relevant comments
+Loading comments from /data/datasets/reddit_discussions/science/science_2016discussions_comments_2017_3.tsv
+Found 0 (of 91) relevant comments
+Loading comments from /data/datasets/reddit_discussions/science/science_2016discussions_comments_2017_4.tsv
+Found 0 (of 22) relevant comments
+Loading comments from /data/datasets/reddit_discussions/science/science_2016discussions_comments_2017_5.tsv
+Found 0 (of 28) relevant comments
+Loading comments from /data/datasets/reddit_discussions/science/science_2016discussions_comments_2017_6.tsv
+Found 0 (of 5) relevant comments
+Total of 96134 comments for 8-2016 posts (of 429395 scanned)
+Extracting post/comment structure for 5082 science 8-2016 posts and 96134 comments
+Built 5079 cascades with 91565 comments
+   Removed 3 incomplete cascades (4569 associated comments)
+Fitting 5079 cascades for science 8-2016
+Fitted 2500 cascades (1995 failed)
+Fitted 5000 cascades (3948 failed)
+Fitted params for a total of 1072 cascades
+   skipped 0 cascades with negative comment times
+   4007 cascades failed fit process
+   fail average cascade size: 0
+   399 cascades succeeded fit process
+   succeed average cascade size: 197
+   673 cascades partially-succeeded fit process (some missing params)
+      591 cascades failed weibull fit
+   partial-succeed average cascade size: 14
+Deleted 3 posts without cascades
+Loaded 5079 posts 
+   5079 cascades
+   1072 fitted params, 4007 failed fit
+
+Loading processed testing data
+Loading 9-2016
+   Processed posts file doesn't exist, creating now
+Reconstructing cascades for science 9-2016
+Loading comments from /data/datasets/reddit_discussions/science/science_2016discussions_comments_2016_10.tsv
+Found 585 (of 72090) relevant comments
+Loading comments from /data/datasets/reddit_discussions/science/science_2016discussions_comments_2016_11.tsv
+Found 16 (of 82344) relevant comments
+Loading comments from /data/datasets/reddit_discussions/science/science_2016discussions_comments_2016_12.tsv
+Found 14 (of 90411) relevant comments
+Loading comments from /data/datasets/reddit_discussions/science/science_2016discussions_comments_2016_9.tsv
+Found 86099 (of 88107) relevant comments
+Loading comments from /data/datasets/reddit_discussions/science/science_2016discussions_comments_2017_1.tsv
+Found 8 (of 1131) relevant comments
+Loading comments from /data/datasets/reddit_discussions/science/science_2016discussions_comments_2017_2.tsv
+Found 4 (of 85) relevant comments
+Loading comments from /data/datasets/reddit_discussions/science/science_2016discussions_comments_2017_3.tsv
+Found 2 (of 91) relevant comments
+Loading comments from /data/datasets/reddit_discussions/science/science_2016discussions_comments_2017_4.tsv
+Found 0 (of 22) relevant comments
+Loading comments from /data/datasets/reddit_discussions/science/science_2016discussions_comments_2017_5.tsv
+Found 0 (of 28) relevant comments
+Loading comments from /data/datasets/reddit_discussions/science/science_2016discussions_comments_2017_6.tsv
+Found 0 (of 5) relevant comments
+Total of 86728 comments for 9-2016 posts (of 334314 scanned)
+Extracting post/comment structure for 4309 science 9-2016 posts and 86728 comments
+Built 4308 cascades with 86597 comments
+   Removed 1 incomplete cascades (131 associated comments)
+Deleted 1 posts without cascades
+Loaded 4308 posts 
+   4308 cascades
+
+Filtered to 264 posts with >= 20 comments
+Sampling 500 random posts (from 264) for simulation set
+Set smaller than sample, using entire set
+
+Building param graph for 5079 posts
+Using 1072 posts for graph
+
+Sampling graph to 500 nodes
+Using jaccard index for edge weight
+   100000 pairs
+Graph contains 479 nodes and 5511 unique edges (8045 edge entries)
+  max degree: 129
+  min degree: 1
+
+Processing 264 posts
+   finished 50 posts (2 disconnected)
+   finished 100 posts (2 disconnected)
+   finished 150 posts (2 disconnected)
+   finished 200 posts (4 disconnected)
+   finished 250 posts (7 disconnected)
+
+All done
+
+Number of posts: 264
+Observing: comments
+Observed: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 12, 15, 17, 20, 25, 30, 53, 40]
+Source subreddit: science
+Minimum node quality: False
+Max graph size: 500
+

@@ -1,0 +1,213 @@
+
+Sim Post: sample 500
+Comments Observed: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 12, 15, 17, 20, 25, 30, 53, 40]
+Output: sim_results/Showerthoughts_500
+Source subreddit: Showerthoughts
+Minimum node quality: False
+Max graph size: 500
+Max edges per node: 25
+Minimum edge weight: 0.1
+No param normalization for infer step
+Testing Period: 9-2016 (1 month)
+Training Period: 8-2016 (1 month)
+Using Jaccard index to compute graph edge weights
+Ignoring posts with hardcoded default parameters
+Using topological error for tree evaluation (ignoring comment times)
+Only simulating cascades with true size greater than or equal to 20
+
+Loading processed training data
+Loading 8-2016
+   Processed posts file doesn't exist, creating now
+   Fitted params file doesn't exist, creating now
+Reconstructing cascades for Showerthoughts 8-2016
+Loading comments from /data/datasets/reddit_discussions/Showerthoughts/Showerthoughts_2016discussions_comments_2016_10.tsv
+Found 99 (of 329161) relevant comments
+Loading comments from /data/datasets/reddit_discussions/Showerthoughts/Showerthoughts_2016discussions_comments_2016_11.tsv
+Found 86 (of 309749) relevant comments
+Loading comments from /data/datasets/reddit_discussions/Showerthoughts/Showerthoughts_2016discussions_comments_2016_12.tsv
+Found 81 (of 319072) relevant comments
+Loading comments from /data/datasets/reddit_discussions/Showerthoughts/Showerthoughts_2016discussions_comments_2016_8.tsv
+Found 322540 (of 327452) relevant comments
+Loading comments from /data/datasets/reddit_discussions/Showerthoughts/Showerthoughts_2016discussions_comments_2016_9.tsv
+Found 4221 (of 328409) relevant comments
+Loading comments from /data/datasets/reddit_discussions/Showerthoughts/Showerthoughts_2016discussions_comments_2017_1.tsv
+Found 71 (of 4260) relevant comments
+Loading comments from /data/datasets/reddit_discussions/Showerthoughts/Showerthoughts_2016discussions_comments_2017_10.tsv
+Found 2 (of 3) relevant comments
+Loading comments from /data/datasets/reddit_discussions/Showerthoughts/Showerthoughts_2016discussions_comments_2017_11.tsv
+Found 0 (of 3) relevant comments
+Loading comments from /data/datasets/reddit_discussions/Showerthoughts/Showerthoughts_2016discussions_comments_2017_12.tsv
+Found 0 (of 7) relevant comments
+Loading comments from /data/datasets/reddit_discussions/Showerthoughts/Showerthoughts_2016discussions_comments_2017_2.tsv
+Found 25 (of 420) relevant comments
+Loading comments from /data/datasets/reddit_discussions/Showerthoughts/Showerthoughts_2016discussions_comments_2017_3.tsv
+Found 0 (of 337) relevant comments
+Loading comments from /data/datasets/reddit_discussions/Showerthoughts/Showerthoughts_2016discussions_comments_2017_4.tsv
+Found 0 (of 192) relevant comments
+Loading comments from /data/datasets/reddit_discussions/Showerthoughts/Showerthoughts_2016discussions_comments_2017_5.tsv
+Found 0 (of 135) relevant comments
+Loading comments from /data/datasets/reddit_discussions/Showerthoughts/Showerthoughts_2016discussions_comments_2017_6.tsv
+Found 0 (of 25) relevant comments
+Loading comments from /data/datasets/reddit_discussions/Showerthoughts/Showerthoughts_2016discussions_comments_2017_7.tsv
+Found 0 (of 3) relevant comments
+Loading comments from /data/datasets/reddit_discussions/Showerthoughts/Showerthoughts_2016discussions_comments_2017_8.tsv
+Found 0 (of 5) relevant comments
+Loading comments from /data/datasets/reddit_discussions/Showerthoughts/Showerthoughts_2016discussions_comments_2017_9.tsv
+Found 0 (of 9) relevant comments
+Loading comments from /data/datasets/reddit_discussions/Showerthoughts/Showerthoughts_2016discussions_comments_2018_1.tsv
+Found 0 (of 1) relevant comments
+Loading comments from /data/datasets/reddit_discussions/Showerthoughts/Showerthoughts_2016discussions_comments_2018_10.tsv
+Found 0 (of 3) relevant comments
+Loading comments from /data/datasets/reddit_discussions/Showerthoughts/Showerthoughts_2016discussions_comments_2018_2.tsv
+Found 0 (of 6) relevant comments
+Loading comments from /data/datasets/reddit_discussions/Showerthoughts/Showerthoughts_2016discussions_comments_2018_3.tsv
+Found 0 (of 2) relevant comments
+Loading comments from /data/datasets/reddit_discussions/Showerthoughts/Showerthoughts_2016discussions_comments_2018_4.tsv
+Found 0 (of 5) relevant comments
+Loading comments from /data/datasets/reddit_discussions/Showerthoughts/Showerthoughts_2016discussions_comments_2018_5.tsv
+Found 0 (of 3) relevant comments
+Loading comments from /data/datasets/reddit_discussions/Showerthoughts/Showerthoughts_2016discussions_comments_2018_6.tsv
+Found 1 (of 11) relevant comments
+Loading comments from /data/datasets/reddit_discussions/Showerthoughts/Showerthoughts_2016discussions_comments_2018_7.tsv
+Found 0 (of 7) relevant comments
+Loading comments from /data/datasets/reddit_discussions/Showerthoughts/Showerthoughts_2016discussions_comments_2018_8.tsv
+Found 0 (of 0) relevant comments
+Loading comments from /data/datasets/reddit_discussions/Showerthoughts/Showerthoughts_2016discussions_comments_2018_9.tsv
+Found 1 (of 1) relevant comments
+Total of 327127 comments for 8-2016 posts (of 1619281 scanned)
+Extracting post/comment structure for 52056 Showerthoughts 8-2016 posts and 327127 comments
+Built 52047 cascades with 321168 comments
+   Removed 9 incomplete cascades (5959 associated comments)
+Fitting 52047 cascades for Showerthoughts 8-2016
+Fitted 2500 cascades (1804 failed)
+Fitted 5000 cascades (3577 failed)
+Fitted 7500 cascades (5318 failed)
+Fitted 10000 cascades (7074 failed)
+Fitted 12500 cascades (8807 failed)
+Fitted 15000 cascades (10622 failed)
+Fitted 17500 cascades (12387 failed)
+Fitted 20000 cascades (14211 failed)
+Fitted 22500 cascades (15957 failed)
+Fitted 25000 cascades (17709 failed)
+Fitted 27500 cascades (19436 failed)
+Fitted 30000 cascades (21235 failed)
+Fitted 32500 cascades (23022 failed)
+Fitted 35000 cascades (24753 failed)
+Fitted 37500 cascades (26479 failed)
+Fitted 40000 cascades (28279 failed)
+Fitted 42500 cascades (30039 failed)
+Fitted 45000 cascades (31837 failed)
+Fitted 47500 cascades (33572 failed)
+Fitted 50000 cascades (35363 failed)
+Fitted params for a total of 15191 cascades
+   skipped 0 cascades with negative comment times
+   36856 cascades failed fit process
+   fail average cascade size: 0
+   2765 cascades succeeded fit process
+   succeed average cascade size: 73
+   12426 cascades partially-succeeded fit process (some missing params)
+      11700 cascades failed weibull fit
+   partial-succeed average cascade size: 7
+Deleted 9 posts without cascades
+Loaded 52047 posts 
+   52047 cascades
+   15191 fitted params, 36856 failed fit
+
+Loading processed testing data
+Loading 9-2016
+   Processed posts file doesn't exist, creating now
+Reconstructing cascades for Showerthoughts 9-2016
+Loading comments from /data/datasets/reddit_discussions/Showerthoughts/Showerthoughts_2016discussions_comments_2016_10.tsv
+Found 4290 (of 329161) relevant comments
+Loading comments from /data/datasets/reddit_discussions/Showerthoughts/Showerthoughts_2016discussions_comments_2016_11.tsv
+Found 203 (of 309749) relevant comments
+Loading comments from /data/datasets/reddit_discussions/Showerthoughts/Showerthoughts_2016discussions_comments_2016_12.tsv
+Found 126 (of 319072) relevant comments
+Loading comments from /data/datasets/reddit_discussions/Showerthoughts/Showerthoughts_2016discussions_comments_2016_9.tsv
+Found 323783 (of 328409) relevant comments
+Loading comments from /data/datasets/reddit_discussions/Showerthoughts/Showerthoughts_2016discussions_comments_2017_1.tsv
+Found 63 (of 4260) relevant comments
+Loading comments from /data/datasets/reddit_discussions/Showerthoughts/Showerthoughts_2016discussions_comments_2017_10.tsv
+Found 0 (of 3) relevant comments
+Loading comments from /data/datasets/reddit_discussions/Showerthoughts/Showerthoughts_2016discussions_comments_2017_11.tsv
+Found 1 (of 3) relevant comments
+Loading comments from /data/datasets/reddit_discussions/Showerthoughts/Showerthoughts_2016discussions_comments_2017_12.tsv
+Found 0 (of 7) relevant comments
+Loading comments from /data/datasets/reddit_discussions/Showerthoughts/Showerthoughts_2016discussions_comments_2017_2.tsv
+Found 57 (of 420) relevant comments
+Loading comments from /data/datasets/reddit_discussions/Showerthoughts/Showerthoughts_2016discussions_comments_2017_3.tsv
+Found 20 (of 337) relevant comments
+Loading comments from /data/datasets/reddit_discussions/Showerthoughts/Showerthoughts_2016discussions_comments_2017_4.tsv
+Found 0 (of 192) relevant comments
+Loading comments from /data/datasets/reddit_discussions/Showerthoughts/Showerthoughts_2016discussions_comments_2017_5.tsv
+Found 0 (of 135) relevant comments
+Loading comments from /data/datasets/reddit_discussions/Showerthoughts/Showerthoughts_2016discussions_comments_2017_6.tsv
+Found 0 (of 25) relevant comments
+Loading comments from /data/datasets/reddit_discussions/Showerthoughts/Showerthoughts_2016discussions_comments_2017_7.tsv
+Found 0 (of 3) relevant comments
+Loading comments from /data/datasets/reddit_discussions/Showerthoughts/Showerthoughts_2016discussions_comments_2017_8.tsv
+Found 0 (of 5) relevant comments
+Loading comments from /data/datasets/reddit_discussions/Showerthoughts/Showerthoughts_2016discussions_comments_2017_9.tsv
+Found 0 (of 9) relevant comments
+Loading comments from /data/datasets/reddit_discussions/Showerthoughts/Showerthoughts_2016discussions_comments_2018_1.tsv
+Found 0 (of 1) relevant comments
+Loading comments from /data/datasets/reddit_discussions/Showerthoughts/Showerthoughts_2016discussions_comments_2018_10.tsv
+Found 0 (of 3) relevant comments
+Loading comments from /data/datasets/reddit_discussions/Showerthoughts/Showerthoughts_2016discussions_comments_2018_2.tsv
+Found 1 (of 6) relevant comments
+Loading comments from /data/datasets/reddit_discussions/Showerthoughts/Showerthoughts_2016discussions_comments_2018_3.tsv
+Found 0 (of 2) relevant comments
+Loading comments from /data/datasets/reddit_discussions/Showerthoughts/Showerthoughts_2016discussions_comments_2018_4.tsv
+Found 1 (of 5) relevant comments
+Loading comments from /data/datasets/reddit_discussions/Showerthoughts/Showerthoughts_2016discussions_comments_2018_5.tsv
+Found 0 (of 3) relevant comments
+Loading comments from /data/datasets/reddit_discussions/Showerthoughts/Showerthoughts_2016discussions_comments_2018_6.tsv
+Found 2 (of 11) relevant comments
+Loading comments from /data/datasets/reddit_discussions/Showerthoughts/Showerthoughts_2016discussions_comments_2018_7.tsv
+Found 1 (of 7) relevant comments
+Loading comments from /data/datasets/reddit_discussions/Showerthoughts/Showerthoughts_2016discussions_comments_2018_8.tsv
+Found 0 (of 0) relevant comments
+Loading comments from /data/datasets/reddit_discussions/Showerthoughts/Showerthoughts_2016discussions_comments_2018_9.tsv
+Found 0 (of 1) relevant comments
+Total of 328548 comments for 9-2016 posts (of 1291829 scanned)
+Extracting post/comment structure for 52186 Showerthoughts 9-2016 posts and 328548 comments
+Built 52178 cascades with 323383 comments
+   Removed 8 incomplete cascades (5165 associated comments)
+Deleted 8 posts without cascades
+Loaded 52178 posts 
+   52178 cascades
+
+Filtered to 1393 posts with >= 20 comments
+Sampling 500 random posts (from 1393) for simulation set
+
+Building param graph for 52047 posts
+Using 15191 posts for graph
+
+Sampling graph to 500 nodes
+Using jaccard index for edge weight
+   100000 pairs
+Graph contains 491 nodes and 6899 unique edges (9835 edge entries)
+  max degree: 132
+  min degree: 1
+
+Processing 500 posts
+   finished 50 posts (0 disconnected)
+   finished 100 posts (1 disconnected)
+   finished 150 posts (1 disconnected)
+   finished 200 posts (1 disconnected)
+   finished 250 posts (1 disconnected)
+   finished 300 posts (1 disconnected)
+   finished 350 posts (1 disconnected)
+   finished 400 posts (1 disconnected)
+   finished 450 posts (1 disconnected)
+   finished 500 posts (1 disconnected)
+
+All done
+
+Number of posts: 500
+Observing: comments
+Observed: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 12, 15, 17, 20, 25, 30, 53, 40]
+Source subreddit: Showerthoughts
+Minimum node quality: False
+Max graph size: 500
+
