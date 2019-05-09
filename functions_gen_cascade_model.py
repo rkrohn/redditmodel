@@ -116,7 +116,7 @@ def parse_command_args():
 	#can also layer in a size filter: only simulate cascades within a size range (or meeting some min/max size)
 	#(filter applied before sample/rand)
 	parser.add_argument("-min", "--min_size", dest="min_size", default=None, help="minimum cascade size for simulation test set")
-	parser.add_argument("-max", "--max_size", dest="max_size", default=None, help="maximum cascade size for simulation test set")
+	parser.add_argument("-max", "--max_size", dest="max_size", default=None, help="maximum cascade size for simulation test set (exclusive)")
 	parser.add_argument("--train_stats", dest="training_stats", action="store_true", help="output statistics for training set")
 	parser.set_defaults(training_stats=False)
 	parser.add_argument("--test_stats", dest="testing_stats", action="store_true", help="output statistics for testing set")
@@ -700,7 +700,7 @@ def get_test_post_set(input_sim_post, batch_process, min_size, max_size, sample_
 		vprint("Filtered to %d posts with >= %d comments" % (len(posts), min_size))
 	#and the max-size filter:
 	if max_size != None:
-		keys = [post_id for post_id in cascades if cascades[post_id]['comment_count_total'] <= max_size]
+		keys = [post_id for post_id in cascades if cascades[post_id]['comment_count_total'] < max_size]
 		posts = filter_dict_by_list(posts, keys)
 		vprint("Filtered to %d posts with <= %d comments" % (len(posts), max_size))
 
