@@ -18,13 +18,108 @@ Only simulating cascades with true size greater than or equal to 20
 Loading processed training data
 Loading 8-2016
    Processed posts file doesn't exist, creating now
-Invalid post, exiting
- _id            5c5edfd2d3444b373ca90da7
-author                         Izzy0071
-created_utc                  1471398884
-id                               4y35iy
-selftext              Hi guys and girls
-subreddit                           NaN
-title                               NaN
-name                                NaN
-Name: 4935, dtype: object
+   Fitted params file doesn't exist, creating now
+Reconstructing cascades for sports 8-2016
+Loading comments from /data/datasets/reddit_discussions/sports/sports_2016discussions_comments_2016_10.tsv
+Found 16 (of 59225) relevant comments
+Loading comments from /data/datasets/reddit_discussions/sports/sports_2016discussions_comments_2016_11.tsv
+Found 6 (of 59673) relevant comments
+Loading comments from /data/datasets/reddit_discussions/sports/sports_2016discussions_comments_2016_12.tsv
+Found 5 (of 60669) relevant comments
+Loading comments from /data/datasets/reddit_discussions/sports/sports_2016discussions_comments_2016_8.tsv
+Found 78076 (of 78865) relevant comments
+Loading comments from /data/datasets/reddit_discussions/sports/sports_2016discussions_comments_2016_9.tsv
+Found 1153 (of 59600) relevant comments
+Loading comments from /data/datasets/reddit_discussions/sports/sports_2016discussions_comments_2017_1.tsv
+Found 3 (of 710) relevant comments
+Loading comments from /data/datasets/reddit_discussions/sports/sports_2016discussions_comments_2017_2.tsv
+Found 2 (of 30) relevant comments
+Loading comments from /data/datasets/reddit_discussions/sports/sports_2016discussions_comments_2017_3.tsv
+Found 0 (of 23) relevant comments
+Loading comments from /data/datasets/reddit_discussions/sports/sports_2016discussions_comments_2017_4.tsv
+Found 0 (of 13) relevant comments
+Loading comments from /data/datasets/reddit_discussions/sports/sports_2016discussions_comments_2017_5.tsv
+Found 0 (of 3) relevant comments
+Loading comments from /data/datasets/reddit_discussions/sports/sports_2016discussions_comments_2017_6.tsv
+Found 0 (of 3) relevant comments
+Total of 79261 comments for 8-2016 posts (of 318814 scanned)
+Extracting post/comment structure for 9045 sports 8-2016 posts and 79261 comments
+Built 9044 cascades with 77368 comments
+   Removed 1 incomplete cascades (1893 associated comments)
+Fitting 9044 cascades for sports 8-2016
+Fitted 2500 cascades (2252 failed)
+Fitted 5000 cascades (4462 failed)
+Fitted 7500 cascades (6687 failed)
+Fitted params for a total of 936 cascades
+   skipped 0 cascades with negative comment times
+   8108 cascades failed fit process
+   fail average cascade size: 0
+   387 cascades succeeded fit process
+   succeed average cascade size: 181
+   549 cascades partially-succeeded fit process (some missing params)
+      496 cascades failed weibull fit
+   partial-succeed average cascade size: 8
+Deleted 1 posts without cascades
+Loaded 9044 posts 
+   9044 cascades
+   936 fitted params, 8108 failed fit
+
+Loading processed testing data
+Loading 9-2016
+   Processed posts file doesn't exist, creating now
+Reconstructing cascades for sports 9-2016
+Loading comments from /data/datasets/reddit_discussions/sports/sports_2016discussions_comments_2016_10.tsv
+Found 774 (of 59225) relevant comments
+Loading comments from /data/datasets/reddit_discussions/sports/sports_2016discussions_comments_2016_11.tsv
+Found 9 (of 59673) relevant comments
+Loading comments from /data/datasets/reddit_discussions/sports/sports_2016discussions_comments_2016_12.tsv
+Found 18 (of 60669) relevant comments
+Loading comments from /data/datasets/reddit_discussions/sports/sports_2016discussions_comments_2016_9.tsv
+Found 58415 (of 59600) relevant comments
+Loading comments from /data/datasets/reddit_discussions/sports/sports_2016discussions_comments_2017_1.tsv
+Found 7 (of 710) relevant comments
+Loading comments from /data/datasets/reddit_discussions/sports/sports_2016discussions_comments_2017_2.tsv
+Found 7 (of 30) relevant comments
+Loading comments from /data/datasets/reddit_discussions/sports/sports_2016discussions_comments_2017_3.tsv
+Found 1 (of 23) relevant comments
+Loading comments from /data/datasets/reddit_discussions/sports/sports_2016discussions_comments_2017_4.tsv
+Found 0 (of 13) relevant comments
+Loading comments from /data/datasets/reddit_discussions/sports/sports_2016discussions_comments_2017_5.tsv
+Found 0 (of 3) relevant comments
+Loading comments from /data/datasets/reddit_discussions/sports/sports_2016discussions_comments_2017_6.tsv
+Found 0 (of 3) relevant comments
+Total of 59231 comments for 9-2016 posts (of 239949 scanned)
+Extracting post/comment structure for 7598 sports 9-2016 posts and 59231 comments
+Built 7598 cascades with 59231 comments
+   Removed 0 incomplete cascades (0 associated comments)
+Loaded 7598 posts 
+   7598 cascades
+
+Filtered to 194 posts with >= 20 comments
+Sampling 500 random posts (from 194) for simulation set
+Set smaller than sample, using entire set
+
+Building param graph for 9044 posts
+Using 936 posts for graph
+
+Sampling graph to 500 nodes
+Using jaccard index for edge weight
+   100000 pairs
+Graph contains 479 nodes and 4481 unique edges (7086 edge entries)
+  max degree: 80
+  min degree: 1
+
+Processing 194 posts
+   finished 50 posts (5 disconnected)
+   finished 100 posts (11 disconnected)
+   finished 150 posts (16 disconnected)
+
+All done
+
+Number of posts: 194
+Observing: comments
+Observed: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 12, 15, 17, 20, 25, 30, 53, 40]
+Source subreddit: sports
+Minimum node quality: False
+Max graph size: 500
+
