@@ -38,6 +38,12 @@ cascades_filepath = "reddit_data/%s/%s_cascades_%d_%d.pkl"
 #(save these to files so you can have repeated runs of the same random set)
 random_sample_list_filepath = "reddit_data/%s/%s_%d_test_keys_list_start%d-%d_%dmonths_filter%s-%s.pkl"
 
+#filepath for cached base graph builds
+#determined by: subreddit, training_start_year, training_start_month, training_len, 
+#	include_default_posts, max_nodes, min_node_quality, weight_method, min_weight, and top_n
+#(yes, it's a mess)
+base_graph_filepath = "reddit_data/%s/base_graph_%d-%dstart_(%dmonths)_default_posts_%s_%dnodes_%.1fminquality_%s_%.1fminedgeweight_%dtopn.pkl"
+
 #filepaths of output/temporary files - used to pass graph to C++ node2vec for processing
 temp_graph_filepath = "sim_files/graph_%s.txt"			#updated graph for this sim run
 temp_params_filepath = "sim_files/in_params_%s.txt"		#temporary, filtered params for sim run (if sampled graph)
@@ -843,6 +849,12 @@ def get_lifetime_percent_comment_counts(comment_times, lifetime_percents):
 #end get_lifetime_percent_comment_counts
 
 
+#tiny defaultdict declaration helper function, so we can pickle the dict of lists
+def ddlist():
+    return defaultdict(list)
+#end ddlist
+
+
 #given a set of processed posts, and graph build settings, "build" the post parameter graph
 #but don't actually build it, just create and return an adjacency list
 #(adjacency list may contain duplicate edges at this point, but we'll deal with that later)
@@ -857,7 +869,16 @@ def get_lifetime_percent_comment_counts(comment_times, lifetime_percents):
 #if include_default_posts = True, include posts with hardcoded default params in graph (otherwise, leave out)
 #if min_node_quality != False, only include nodes with param fit quality >= threshold in graph build
 #include_default_posts overrides min_node_quality - all default posts thrown out regardless of default quality setting
-def build_base_graph(posts, params, default_params_list, include_default_posts, max_nodes, min_node_quality, weight_method, min_weight, top_n):
+def build_base_graph(posts, params, default_params_list, subreddit, training_start_year, training_start_month, training_len, include_default_posts, max_nodes, min_node_quality, weight_method, min_weight, top_n):
+	#first, check if we've cached this graph before
+	curr_filepath = base_graph_filepath % (subreddit, training_start_year, training_start_month, training_len, include_default_posts, max_nodes, min_node_quality, weight_method, min_weight, top_n)
+	#have graph, load and return
+	if file_utils.verify_file(curr_filepath):
+		vprint("Loading base graph from file")
+		loaded_graph = file_utils.load_pickle(curr_filepath)
+		#return edgelist (may contain duplicates), and list of post ids considered for graph (may not all actually be in graph)
+		return loaded_graph['graph'], loaded_graph['graph_post_ids']
+	#no graph, build as usual, save at the end
 
 	vprint("\nBuilding param graph for %d posts" % len(posts))
 	
@@ -884,7 +905,7 @@ def build_base_graph(posts, params, default_params_list, include_default_posts, 
 	#store graph as adjacency list dictionary, where node -> dict['weights'],['neighbors'] -> sorted lists
 	#   maintain two parallel sorted lists, one of edge weights and one of connected nodes
 	#	keep weight list sorted to easily maintain the topn requirement, if required
-	graph = defaultdict(lambda: defaultdict(list))
+	graph = defaultdict(ddlist)
 	pair_count = 0
 
 	#loop all post-pairs and determine weight of edge, if any, between them
@@ -946,6 +967,11 @@ def build_base_graph(posts, params, default_params_list, include_default_posts, 
 	vprint("Graph contains %d nodes and %d unique edges (%d edge entries)" % (len(graph), len(graph_edges), edge_total))
 	vprint("  max degree: %d" % max_degree)
 	vprint("  min degree: %d" % min_degree)
+
+	#save graph before we return, bundled up in a dictionary
+	vprint("Saving graph to %s"  % curr_filepath)
+	save_data = {'graph': graph, 'graph_post_ids': graph_post_ids}
+	file_utils.save_pickle(save_data, curr_filepath)
 
 	return graph, graph_post_ids 		#return edgelist (may contain duplicates), and list of post ids considered for graph (may not all actually be in graph)
 #end build_graph

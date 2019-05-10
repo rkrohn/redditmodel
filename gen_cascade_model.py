@@ -73,7 +73,7 @@ if get_testing_stats:
 
 #build base graph for training set - will add infer posts later
 if not sanity_check:
-	base_graph, graph_post_ids = functions_gen_cascade_model.build_base_graph(train_posts, train_params, train_fit_fail_list, include_default_posts, max_nodes, min_node_quality, weight_method, weight_threshold, top_n)
+	base_graph, graph_post_ids = functions_gen_cascade_model.build_base_graph(train_posts, train_params, train_fit_fail_list, subreddit, training_start_year, training_start_month, training_len, include_default_posts, max_nodes, min_node_quality, weight_method, weight_threshold, top_n)
 vprint("")
 
 all_metrics = []		#keep all metrics, separate for each post/observed time run, dump them all at the end
