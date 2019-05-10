@@ -42,7 +42,7 @@ random_sample_list_filepath = "reddit_data/%s/%s_%d_test_keys_list_start%d-%d_%d
 #determined by: subreddit, training_start_year, training_start_month, training_len, 
 #	include_default_posts, max_nodes, min_node_quality, weight_method, min_weight, and top_n
 #(yes, it's a mess)
-base_graph_filepath = "reddit_data/%s/base_graph_%d-%dstart_(%dmonths)_default_posts_%s_%dnodes_%.1fminquality_%s_%.1fminedgeweight_%dtopn.pkl"
+base_graph_filepath = "reddit_data/%s/base_graph_%d-%dstart_(%dmonths)_default_posts_%s_%snodes_%.1fminquality_%s_%.1fminedgeweight_%dtopn.pkl"
 
 #filepaths of output/temporary files - used to pass graph to C++ node2vec for processing
 temp_graph_filepath = "sim_files/graph_%s.txt"			#updated graph for this sim run
@@ -871,11 +871,12 @@ def ddlist():
 #include_default_posts overrides min_node_quality - all default posts thrown out regardless of default quality setting
 def build_base_graph(posts, params, default_params_list, subreddit, training_start_year, training_start_month, training_len, include_default_posts, max_nodes, min_node_quality, weight_method, min_weight, top_n):
 	#first, check if we've cached this graph before
-	curr_filepath = base_graph_filepath % (subreddit, training_start_year, training_start_month, training_len, include_default_posts, max_nodes, min_node_quality, weight_method, min_weight, top_n)
+	curr_filepath = base_graph_filepath % (subreddit, training_start_year, training_start_month, training_len, include_default_posts, (max_nodes if max_nodes != False else "all_"), min_node_quality, weight_method, min_weight, top_n)
 	#have graph, load and return
 	if file_utils.verify_file(curr_filepath):
 		vprint("Loading base graph from file")
 		loaded_graph = file_utils.load_pickle(curr_filepath)
+		vprint("Graph contains %d nodes and %d unique edges" % (len(loaded_graph['graph']), len(loaded_graph['graph_post_ids'])))
 		#return edgelist (may contain duplicates), and list of post ids considered for graph (may not all actually be in graph)
 		return loaded_graph['graph'], loaded_graph['graph_post_ids']
 	#no graph, build as usual, save at the end
