@@ -1,0 +1,175 @@
+
+Sim Post: all
+Comments Observed: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 12, 15, 17, 20, 25, 30, 40, 50, 60, 70, 80, 100]
+Output: sim_results/nottheonion_full_graph_all_0-20
+Source subreddit: nottheonion
+Minimum node quality: False
+Max graph size: False
+Max edges per node: 30
+Minimum edge weight: 0.4
+No param normalization for infer step
+Testing Period: 9-2016 (1 month)
+Training Period: 8-2016 (1 month)
+Using Jaccard index to compute graph edge weights
+Ignoring posts with hardcoded default parameters
+Using topological error for tree evaluation (ignoring comment times)
+Only simulating cascades with true size between 0 and 20 comments (inclusive)
+
+Loading processed training data
+Loading 8-2016
+Deleted 3 posts without cascades
+Loaded 6496 posts 
+   6496 cascades
+   1196 fitted params, 5300 failed fit
+
+Loading processed testing data
+Loading 9-2016
+Deleted 4 posts without cascades
+Loaded 6169 posts 
+   6169 cascades
+
+Filtered to 6169 posts with >= 0 comments
+Filtered to 5836 posts with <= 20 comments
+Processing all 5836 posts in test set
+
+Building param graph for 6496 posts
+Using 1196 posts for graph
+Using jaccard index for edge weight
+   100000 pairs
+   200000 pairs
+   300000 pairs
+   400000 pairs
+   500000 pairs
+   600000 pairs
+   700000 pairs
+Graph contains 560 nodes and 5229 unique edges (6205 edge entries)
+  max degree: 176
+  min degree: 1
+
+Processing 5836 posts
+   finished 50 posts (25 disconnected)
+   finished 100 posts (55 disconnected)
+   finished 150 posts (83 disconnected)
+   finished 200 posts (111 disconnected)
+   finished 250 posts (137 disconnected)
+   finished 300 posts (165 disconnected)
+   finished 350 posts (190 disconnected)
+   finished 400 posts (213 disconnected)
+   finished 450 posts (237 disconnected)
+   finished 500 posts (264 disconnected)
+   finished 550 posts (290 disconnected)
+   finished 600 posts (311 disconnected)
+   finished 650 posts (340 disconnected)
+   finished 700 posts (365 disconnected)
+   finished 750 posts (389 disconnected)
+   finished 800 posts (413 disconnected)
+   finished 850 posts (441 disconnected)
+   finished 900 posts (463 disconnected)
+   finished 950 posts (482 disconnected)
+   finished 1000 posts (505 disconnected)
+   finished 1050 posts (528 disconnected)
+   finished 1100 posts (552 disconnected)
+   finished 1150 posts (578 disconnected)
+   finished 1200 posts (605 disconnected)
+   finished 1250 posts (627 disconnected)
+   finished 1300 posts (659 disconnected)
+   finished 1350 posts (690 disconnected)
+   finished 1400 posts (712 disconnected)
+   finished 1450 posts (738 disconnected)
+   finished 1500 posts (770 disconnected)
+   finished 1550 posts (799 disconnected)
+   finished 1600 posts (821 disconnected)
+   finished 1650 posts (840 disconnected)
+   finished 1700 posts (859 disconnected)
+   finished 1750 posts (883 disconnected)
+   finished 1800 posts (906 disconnected)
+   finished 1850 posts (925 disconnected)
+   finished 1900 posts (956 disconnected)
+   finished 1950 posts (981 disconnected)
+   finished 2000 posts (1006 disconnected)
+   finished 2050 posts (1032 disconnected)
+   finished 2100 posts (1052 disconnected)
+   finished 2150 posts (1081 disconnected)
+   finished 2200 posts (1112 disconnected)
+   finished 2250 posts (1133 disconnected)
+   finished 2300 posts (1159 disconnected)
+   finished 2350 posts (1189 disconnected)
+   finished 2400 posts (1207 disconnected)
+   finished 2450 posts (1234 disconnected)
+   finished 2500 posts (1264 disconnected)
+   finished 2550 posts (1295 disconnected)
+   finished 2600 posts (1325 disconnected)
+   finished 2650 posts (1351 disconnected)
+   finished 2700 posts (1372 disconnected)
+   finished 2750 posts (1401 disconnected)
+   finished 2800 posts (1433 disconnected)
+   finished 2850 posts (1455 disconnected)
+   finished 2900 posts (1477 disconnected)
+   finished 2950 posts (1504 disconnected)
+   finished 3000 posts (1529 disconnected)
+   finished 3050 posts (1557 disconnected)
+   finished 3100 posts (1582 disconnected)
+   finished 3150 posts (1602 disconnected)
+   finished 3200 posts (1622 disconnected)
+   finished 3250 posts (1650 disconnected)
+   finished 3300 posts (1671 disconnected)
+   finished 3350 posts (1700 disconnected)
+   finished 3400 posts (1724 disconnected)
+   finished 3450 posts (1749 disconnected)
+   finished 3500 posts (1770 disconnected)
+   finished 3550 posts (1789 disconnected)
+   finished 3600 posts (1813 disconnected)
+   finished 3650 posts (1837 disconnected)
+   finished 3700 posts (1867 disconnected)
+   finished 3750 posts (1892 disconnected)
+   finished 3800 posts (1916 disconnected)
+   finished 3850 posts (1941 disconnected)
+   finished 3900 posts (1968 disconnected)
+   finished 3950 posts (1998 disconnected)
+   finished 4000 posts (2024 disconnected)
+   finished 4050 posts (2054 disconnected)
+   finished 4100 posts (2080 disconnected)
+   finished 4150 posts (2107 disconnected)
+   finished 4200 posts (2128 disconnected)
+   finished 4250 posts (2154 disconnected)
+   finished 4300 posts (2184 disconnected)
+   finished 4350 posts (2208 disconnected)
+   finished 4400 posts (2231 disconnected)
+   finished 4450 posts (2248 disconnected)
+   finished 4500 posts (2272 disconnected)
+   finished 4550 posts (2294 disconnected)
+   finished 4600 posts (2317 disconnected)
+   finished 4650 posts (2346 disconnected)
+   finished 4700 posts (2366 disconnected)
+   finished 4750 posts (2385 disconnected)
+   finished 4800 posts (2415 disconnected)
+   finished 4850 posts (2443 disconnected)
+   finished 4900 posts (2463 disconnected)
+   finished 4950 posts (2489 disconnected)
+   finished 5000 posts (2513 disconnected)
+   finished 5050 posts (2531 disconnected)
+   finished 5100 posts (2560 disconnected)
+   finished 5150 posts (2580 disconnected)
+   finished 5200 posts (2596 disconnected)
+   finished 5250 posts (2624 disconnected)
+   finished 5300 posts (2645 disconnected)
+   finished 5350 posts (2662 disconnected)
+   finished 5400 posts (2680 disconnected)
+   finished 5450 posts (2702 disconnected)
+   finished 5500 posts (2726 disconnected)
+   finished 5550 posts (2754 disconnected)
+   finished 5600 posts (2790 disconnected)
+   finished 5650 posts (2816 disconnected)
+   finished 5700 posts (2838 disconnected)
+   finished 5750 posts (2863 disconnected)
+   finished 5800 posts (2885 disconnected)
+
+All done
+
+Number of posts: 5836
+Observing: comments
+Observed: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 12, 15, 17, 20, 25, 30, 40, 50, 60, 70, 80, 100]
+Source subreddit: nottheonion
+Minimum node quality: False
+Max graph size: False
+
