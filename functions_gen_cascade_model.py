@@ -1216,7 +1216,7 @@ def graph_infer(sim_post, sim_post_id, weight_method, min_weight, base_graph, el
 		all_inferred_params = load_inferred_params(output_params_filepath % filename_id, display=display)
 	inferred_params = all_inferred_params[numeric_ids[sim_post_id]]
 
-	return inferred_params, disconnected
+	return inferred_params, disconnected, len(new_edges)
 #end graph_infer
 
 
@@ -1520,7 +1520,7 @@ def filter_comment_tree_by_num_comments(cascade, num_observed, convert_times=Tru
 #given simulated and ground-truth cascades, compute the accuracy and precision of the simulation
 #both trees given as dictionary-nested structure (returned from simulate_comment_tree and convert_comment_tree)
 #return eval results in a metric-coded dictionary
-def eval_trees(post_id, sim_cascade, true_cascade, simulated_comment_count, observed_comment_count, true_comment_count, true_virality, time_observed, observing_time, time_error_margin, error_method, disconnected, max_observed_comment_count=None):
+def eval_trees(post_id, sim_cascade, true_cascade, simulated_comment_count, observed_comment_count, true_comment_count, true_virality, time_observed, observing_time, time_error_margin, error_method, disconnected, new_edges, max_observed_comment_count=None):
 	#get edit distance stats for sim vs truth
 	eval_res = tree_edit_distance.compare_trees(sim_cascade, true_cascade, error_method, time_error_margin)
 
@@ -1533,6 +1533,7 @@ def eval_trees(post_id, sim_cascade, true_cascade, simulated_comment_count, obse
 	eval_res['true_comment_count'] = true_comment_count
 	eval_res['simulated_comment_count'] = simulated_comment_count
 	eval_res['disconnected'] = "True" if disconnected else "False"
+	eval_res['connecting_edges'] = new_edges
 	eval_res['time_observed'] = time_observed
 	eval_res['observing_by'] = "time" if observing_time else "comments"
 	if max_observed_comment_count is not None:
@@ -1675,7 +1676,7 @@ def save_results(base_filename, metrics, avg_metrics, input_sim_post, sample_num
 	filename = base_filename + "_results.csv"
 
 	#dump metrics dict to file, enforcing a semi-meaningful order
-	fields = ["post_id", "param_source", "observing_by", "time_observed", "observed_comment_count", "true_comment_count", "simulated_comment_count", "true_root_comments", "sim_root_comments", "true_depth", "true_breadth", "simulated_depth", "simulated_breadth", "true_structural_virality", "sim_structural_virality", "dist", "norm_dist", "norm_dist_exclude_observed", "MEPDL_min", "MEPDL_max", "remove_count", "remove_time", "insert_count", "insert_time", "update_count", "update_time", "match_count", "disconnected"]
+	fields = ["post_id", "param_source", "observing_by", "time_observed", "observed_comment_count", "true_comment_count", "simulated_comment_count", "true_root_comments", "sim_root_comments", "true_depth", "true_breadth", "simulated_depth", "simulated_breadth", "true_structural_virality", "sim_structural_virality", "dist", "norm_dist", "norm_dist_exclude_observed", "MEPDL_min", "MEPDL_max", "remove_count", "remove_time", "insert_count", "insert_time", "update_count", "update_time", "match_count", "disconnected", "connecting_edges"]
 	if observing_time == False:
 		fields.insert(5, "max_observed_comments")
 	file_utils.save_csv(metrics, filename, fields)

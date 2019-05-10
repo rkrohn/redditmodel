@@ -91,7 +91,7 @@ for sim_post_id, sim_post in test_posts.items():
 
 	#GRAPH INFER
 	if not sanity_check:
-		inferred_params, disconnected = functions_gen_cascade_model.graph_infer(sim_post, sim_post_id, weight_method, weight_threshold, base_graph, graph_post_ids, train_posts, train_cascades, train_params, train_fit_fail_list, top_n, estimate_initial_params, normalize_parameters, filename_id, display= not batch)
+		inferred_params, disconnected, new_edges = functions_gen_cascade_model.graph_infer(sim_post, sim_post_id, weight_method, weight_threshold, base_graph, graph_post_ids, train_posts, train_cascades, train_params, train_fit_fail_list, top_n, estimate_initial_params, normalize_parameters, filename_id, display= not batch)
 		if batch == False:
 			vprint("Inferred params: ", inferred_params, "\n")
 
@@ -138,7 +138,7 @@ for sim_post_id, sim_post in test_posts.items():
 		#sim_graph = functions_gen_cascade_model.cascade_to_graph(sim_tree)
 
 		#compute tree edit distance between ground-truth and simulated cascades
-		eval_res = functions_gen_cascade_model.eval_trees(sim_post_id, sim_tree, true_cascade, simulated_count, observed_count, true_comment_count, true_structural_virality, observed_time, observing_time, time_error_margin, error_method, disconnected, (observed if observing_time==False else None))
+		eval_res = functions_gen_cascade_model.eval_trees(sim_post_id, sim_tree, true_cascade, simulated_count, observed_count, true_comment_count, true_structural_virality, observed_time, observing_time, time_error_margin, error_method, disconnected, new_edges, (observed if observing_time==False else None))
 		#add a column indicating where the params for this sim came from
 		if not sanity_check:
 			if observed == 0:
