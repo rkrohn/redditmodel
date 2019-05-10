@@ -177,7 +177,10 @@ for sim_post_id, sim_post in test_posts.items():
 	#counter and periodic prints
 	post_count += 1
 	if batch and post_count % 50 == 0:
-		print("   finished %d posts (%d disconnected)" % (post_count, disconnected_count))
+		vprint("   finished %d posts (%d disconnected)" % (post_count, disconnected_count))
+
+#all done, print final disconnected count
+vprint("Finish simulating %d posts (%d disconnected)" % (post_count, disconnected_count))
 
 #if mode == all, print metric totals
 if batch or len(observed_list) > 1:
