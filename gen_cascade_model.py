@@ -98,6 +98,8 @@ for sim_post_id, sim_post in test_posts.items():
 		#keep count of disconnected (bad results, probably) posts
 		if disconnected:
 			disconnected_count += 1
+	else:
+		new_edges = None
 
 	#get time-shifted ground-truth cascade (same for all observation periods)
 	true_cascade, true_comment_count = functions_gen_cascade_model.filter_comment_tree(test_cascades[sim_post_id])
