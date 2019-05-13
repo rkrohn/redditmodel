@@ -1,0 +1,266 @@
+
+Sim Post: all
+Comments Observed: [0]
+Output: sim_results/test
+Source subreddit: nottheonion
+Minimum node quality: False
+Max graph size: False
+Max edges per node: 30
+Minimum edge weight: 0.4
+No param normalization for infer step
+Testing Period: 9-2016 (1 month)
+Training Period: 8-2016 (1 month)
+Using Jaccard index to compute graph edge weights
+Including posts with hardcoded default parameters
+Using topological error for tree evaluation (ignoring comment times)
+Only simulating cascades with true size between 100 and 300 comments (inclusive)
+
+Loading processed training data
+Loading 8-2016
+Deleted 3 posts without cascades
+Loaded 6496 posts 
+   6496 cascades
+   1196 fitted params, 5300 failed fit
+
+Loading processed testing data
+Loading 9-2016
+Deleted 4 posts without cascades
+Loaded 6169 posts 
+   6169 cascades
+
+Filtered to 118 posts with >= 100 comments
+Filtered to 56 posts with <= 300 comments
+Processing all 56 posts in test set
+
+Building param graph for 6496 posts
+   Including posts with default parameters
+Using 6496 posts for graph
+Using jaccard index for edge weight
+   100000 pairs
+   200000 pairs
+   300000 pairs
+   400000 pairs
+   500000 pairs
+   600000 pairs
+   700000 pairs
+   800000 pairs
+   900000 pairs
+   1000000 pairs
+   1100000 pairs
+   1200000 pairs
+   1300000 pairs
+   1400000 pairs
+   1500000 pairs
+   1600000 pairs
+   1700000 pairs
+   1800000 pairs
+   1900000 pairs
+   2000000 pairs
+   2100000 pairs
+   2200000 pairs
+   2300000 pairs
+   2400000 pairs
+   2500000 pairs
+   2600000 pairs
+   2700000 pairs
+   2800000 pairs
+   2900000 pairs
+   3000000 pairs
+   3100000 pairs
+   3200000 pairs
+   3300000 pairs
+   3400000 pairs
+   3500000 pairs
+   3600000 pairs
+   3700000 pairs
+   3800000 pairs
+   3900000 pairs
+   4000000 pairs
+   4100000 pairs
+   4200000 pairs
+   4300000 pairs
+   4400000 pairs
+   4500000 pairs
+   4600000 pairs
+   4700000 pairs
+   4800000 pairs
+   4900000 pairs
+   5000000 pairs
+   5100000 pairs
+   5200000 pairs
+   5300000 pairs
+   5400000 pairs
+   5500000 pairs
+   5600000 pairs
+   5700000 pairs
+   5800000 pairs
+   5900000 pairs
+   6000000 pairs
+   6100000 pairs
+   6200000 pairs
+   6300000 pairs
+   6400000 pairs
+   6500000 pairs
+   6600000 pairs
+   6700000 pairs
+   6800000 pairs
+   6900000 pairs
+   7000000 pairs
+   7100000 pairs
+   7200000 pairs
+   7300000 pairs
+   7400000 pairs
+   7500000 pairs
+   7600000 pairs
+   7700000 pairs
+   7800000 pairs
+   7900000 pairs
+   8000000 pairs
+   8100000 pairs
+   8200000 pairs
+   8300000 pairs
+   8400000 pairs
+   8500000 pairs
+   8600000 pairs
+   8700000 pairs
+   8800000 pairs
+   8900000 pairs
+   9000000 pairs
+   9100000 pairs
+   9200000 pairs
+   9300000 pairs
+   9400000 pairs
+   9500000 pairs
+   9600000 pairs
+   9700000 pairs
+   9800000 pairs
+   9900000 pairs
+   10000000 pairs
+   10100000 pairs
+   10200000 pairs
+   10300000 pairs
+   10400000 pairs
+   10500000 pairs
+   10600000 pairs
+   10700000 pairs
+   10800000 pairs
+   10900000 pairs
+   11000000 pairs
+   11100000 pairs
+   11200000 pairs
+   11300000 pairs
+   11400000 pairs
+   11500000 pairs
+   11600000 pairs
+   11700000 pairs
+   11800000 pairs
+   11900000 pairs
+   12000000 pairs
+   12100000 pairs
+   12200000 pairs
+   12300000 pairs
+   12400000 pairs
+   12500000 pairs
+   12600000 pairs
+   12700000 pairs
+   12800000 pairs
+   12900000 pairs
+   13000000 pairs
+   13100000 pairs
+   13200000 pairs
+   13300000 pairs
+   13400000 pairs
+   13500000 pairs
+   13600000 pairs
+   13700000 pairs
+   13800000 pairs
+   13900000 pairs
+   14000000 pairs
+   14100000 pairs
+   14200000 pairs
+   14300000 pairs
+   14400000 pairs
+   14500000 pairs
+   14600000 pairs
+   14700000 pairs
+   14800000 pairs
+   14900000 pairs
+   15000000 pairs
+   15100000 pairs
+   15200000 pairs
+   15300000 pairs
+   15400000 pairs
+   15500000 pairs
+   15600000 pairs
+   15700000 pairs
+   15800000 pairs
+   15900000 pairs
+   16000000 pairs
+   16100000 pairs
+   16200000 pairs
+   16300000 pairs
+   16400000 pairs
+   16500000 pairs
+   16600000 pairs
+   16700000 pairs
+   16800000 pairs
+   16900000 pairs
+   17000000 pairs
+   17100000 pairs
+   17200000 pairs
+   17300000 pairs
+   17400000 pairs
+   17500000 pairs
+   17600000 pairs
+   17700000 pairs
+   17800000 pairs
+   17900000 pairs
+   18000000 pairs
+   18100000 pairs
+   18200000 pairs
+   18300000 pairs
+   18400000 pairs
+   18500000 pairs
+   18600000 pairs
+   18700000 pairs
+   18800000 pairs
+   18900000 pairs
+   19000000 pairs
+   19100000 pairs
+   19200000 pairs
+   19300000 pairs
+   19400000 pairs
+   19500000 pairs
+   19600000 pairs
+   19700000 pairs
+   19800000 pairs
+   19900000 pairs
+   20000000 pairs
+   20100000 pairs
+   20200000 pairs
+   20300000 pairs
+   20400000 pairs
+   20500000 pairs
+   20600000 pairs
+   20700000 pairs
+   20800000 pairs
+   20900000 pairs
+   21000000 pairs
+Graph contains 5029 nodes and 81521 unique edges (88075 edge entries)
+  max degree: 2517
+  min degree: 1
+Saving graph to reddit_data/nottheonion/base_graph_2016-8start_(1months)_default_posts_True_all_nodes_0.0minquality_jaccard_0.4minedgeweight_30topn.pkl
+
+Processing 56 posts
+   finished 50 posts (35 disconnected)
+Finish simulating 56 posts (39 disconnected)
+
+All done
+
+Number of posts: 56
+Observing: comments
+Observed: [0]
+Source subreddit: nottheonion
+Minimum node quality: False
+Max graph size: False
+

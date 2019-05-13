@@ -1,0 +1,52 @@
+
+Sim Post: all
+Comments Observed: [0]
+Output: sim_results/3_training_with_default_no_min_weight_5adjust
+Source subreddit: nottheonion
+Minimum node quality: False
+Max graph size: False
+Max edges per node: 30
+Minimum edge weight: None
+No param normalization for infer step
+Testing Period: 9-2016 (1 month)
+Training Period: 6-2016 through 8-2016 (3 months)
+Using Jaccard index to compute graph edge weights
+Including posts with hardcoded default parameters
+Using topological error for tree evaluation (ignoring comment times)
+Only simulating cascades with true size between 100 and 300 comments (inclusive)
+
+Loading processed training data
+Loading 6-2016
+Loading 7-2016
+Loading 8-2016
+Deleted 9 posts without cascades
+Deleted 1 posts without params
+Loaded 13656 posts 
+   13657 cascades
+   3004 fitted params, 10652 failed fit
+
+Loading processed testing data
+Loading 9-2016
+Deleted 4 posts without cascades
+Loaded 6169 posts 
+   6169 cascades
+
+Filtered to 118 posts with >= 100 comments
+Filtered to 56 posts with <= 300 comments
+Processing all 56 posts in test set
+Loading base graph from file
+Graph contains 13631 nodes and 13656 unique edges
+
+Processing 56 posts
+   finished 50 posts (0 disconnected)
+Finish simulating 56 posts (0 disconnected)
+
+All done
+
+Number of posts: 56
+Observing: comments
+Observed: [0]
+Source subreddit: nottheonion
+Minimum node quality: False
+Max graph size: False
+
