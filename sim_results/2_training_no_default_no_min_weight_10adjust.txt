@@ -1,0 +1,78 @@
+
+Sim Post: all
+Comments Observed: [0]
+Output: sim_results/2_training_no_default_no_min_weight_10adjust
+Source subreddit: nottheonion
+Minimum node quality: False
+Max graph size: False
+Max edges per node: 30
+Minimum edge weight: None
+No param normalization for infer step
+Testing Period: 9-2016 (1 month)
+Training Period: 7-2016 through 8-2016 (2 months)
+Using Jaccard index to compute graph edge weights
+Ignoring posts with hardcoded default parameters
+Using topological error for tree evaluation (ignoring comment times)
+Only simulating cascades with true size between 100 and 300 comments (inclusive)
+
+Loading processed training data
+Loading 7-2016
+Loading 8-2016
+Deleted 5 posts without cascades
+Deleted 1 posts without params
+Loaded 10140 posts 
+   10141 cascades
+   2096 fitted params, 8044 failed fit
+
+Loading processed testing data
+Loading 9-2016
+Deleted 4 posts without cascades
+Loaded 6169 posts 
+   6169 cascades
+
+Filtered to 118 posts with >= 100 comments
+Filtered to 56 posts with <= 300 comments
+Processing all 56 posts in test set
+
+Building param graph for 10140 posts
+Using 2096 posts for graph
+Using jaccard index for edge weight
+   100000 pairs
+   200000 pairs
+   300000 pairs
+   400000 pairs
+   500000 pairs
+   600000 pairs
+   700000 pairs
+   800000 pairs
+   900000 pairs
+   1000000 pairs
+   1100000 pairs
+   1200000 pairs
+   1300000 pairs
+   1400000 pairs
+   1500000 pairs
+   1600000 pairs
+   1700000 pairs
+   1800000 pairs
+   1900000 pairs
+   2000000 pairs
+   2100000 pairs
+Graph contains 2095 nodes and 46192 unique edges (62252 edge entries)
+  max degree: 255
+  min degree: 1
+Saving graph to reddit_data/nottheonion/base_graph_2016-7start_(2months)_default_posts_False_all_nodes_0.0minquality_jaccard_0.0minedgeweight_30topn_no_sample.pkl
+
+Processing 56 posts
+   finished 50 posts (0 disconnected)
+Finish simulating 56 posts (0 disconnected)
+
+All done
+
+Number of posts: 56
+Observing: comments
+Observed: [0]
+Source subreddit: nottheonion
+Minimum node quality: False
+Max graph size: False
+

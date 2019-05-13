@@ -1,0 +1,286 @@
+
+Sim Post: all
+Comments Observed: [0]
+Output: sim_results/6_training_no_default_no_min_weight_10adjust_downsample3:1
+Source subreddit: nottheonion
+Minimum node quality: False
+Max graph size: False
+Max edges per node: 30
+Minimum edge weight: None
+No param normalization for infer step
+Testing Period: 9-2016 (1 month)
+Training Period: 3-2016 through 8-2016 (6 months)
+Using Jaccard index to compute graph edge weights
+Ignoring posts with hardcoded default parameters
+Using topological error for tree evaluation (ignoring comment times)
+Only simulating cascades with true size between 100 and 300 comments (inclusive)
+Downsampling base graph to 3.0:1 large:small posts, where large posts contain at least 20 comments
+
+Loading processed training data
+Loading 3-2016
+   Processed posts file doesn't exist, creating now
+   Fitted params file doesn't exist, creating now
+Reconstructing cascades for nottheonion 3-2016
+Loading comments from /data/datasets/reddit_discussions/nottheonion/nottheonion_2016discussions_comments_2016_10.tsv
+Found 0 (of 92611) relevant comments
+Loading comments from /data/datasets/reddit_discussions/nottheonion/nottheonion_2016discussions_comments_2016_11.tsv
+Found 0 (of 103379) relevant comments
+Loading comments from /data/datasets/reddit_discussions/nottheonion/nottheonion_2016discussions_comments_2016_12.tsv
+Found 0 (of 94785) relevant comments
+Loading comments from /data/datasets/reddit_discussions/nottheonion/nottheonion_2016discussions_comments_2016_3.tsv
+Found 100724 (of 108762) relevant comments
+Loading comments from /data/datasets/reddit_discussions/nottheonion/nottheonion_2016discussions_comments_2016_4.tsv
+Found 622 (of 77698) relevant comments
+Loading comments from /data/datasets/reddit_discussions/nottheonion/nottheonion_2016discussions_comments_2016_5.tsv
+Found 19 (of 86896) relevant comments
+Loading comments from /data/datasets/reddit_discussions/nottheonion/nottheonion_2016discussions_comments_2016_6.tsv
+Found 29 (of 107300) relevant comments
+Loading comments from /data/datasets/reddit_discussions/nottheonion/nottheonion_2016discussions_comments_2016_7.tsv
+Found 15 (of 100493) relevant comments
+Loading comments from /data/datasets/reddit_discussions/nottheonion/nottheonion_2016discussions_comments_2016_8.tsv
+Found 8 (of 112169) relevant comments
+Loading comments from /data/datasets/reddit_discussions/nottheonion/nottheonion_2016discussions_comments_2016_9.tsv
+Found 3 (of 110092) relevant comments
+Loading comments from /data/datasets/reddit_discussions/nottheonion/nottheonion_2016discussions_comments_2017_1.tsv
+Found 0 (of 1017) relevant comments
+Loading comments from /data/datasets/reddit_discussions/nottheonion/nottheonion_2016discussions_comments_2017_10.tsv
+Found 0 (of 0) relevant comments
+Loading comments from /data/datasets/reddit_discussions/nottheonion/nottheonion_2016discussions_comments_2017_11.tsv
+Found 0 (of 0) relevant comments
+Loading comments from /data/datasets/reddit_discussions/nottheonion/nottheonion_2016discussions_comments_2017_12.tsv
+Found 0 (of 0) relevant comments
+Loading comments from /data/datasets/reddit_discussions/nottheonion/nottheonion_2016discussions_comments_2017_2.tsv
+Found 0 (of 71) relevant comments
+Loading comments from /data/datasets/reddit_discussions/nottheonion/nottheonion_2016discussions_comments_2017_3.tsv
+Found 0 (of 18) relevant comments
+Loading comments from /data/datasets/reddit_discussions/nottheonion/nottheonion_2016discussions_comments_2017_4.tsv
+Found 0 (of 12) relevant comments
+Loading comments from /data/datasets/reddit_discussions/nottheonion/nottheonion_2016discussions_comments_2017_5.tsv
+Found 0 (of 8) relevant comments
+Loading comments from /data/datasets/reddit_discussions/nottheonion/nottheonion_2016discussions_comments_2017_6.tsv
+Found 0 (of 1) relevant comments
+Loading comments from /data/datasets/reddit_discussions/nottheonion/nottheonion_2016discussions_comments_2017_7.tsv
+Found 0 (of 30) relevant comments
+Loading comments from /data/datasets/reddit_discussions/nottheonion/nottheonion_2016discussions_comments_2017_8.tsv
+Found 0 (of 0) relevant comments
+Loading comments from /data/datasets/reddit_discussions/nottheonion/nottheonion_2016discussions_comments_2017_9.tsv
+Found 0 (of 0) relevant comments
+Loading comments from /data/datasets/reddit_discussions/nottheonion/nottheonion_2016discussions_comments_2018_1.tsv
+Found 0 (of 0) relevant comments
+Loading comments from /data/datasets/reddit_discussions/nottheonion/nottheonion_2016discussions_comments_2018_2.tsv
+Found 0 (of 0) relevant comments
+Loading comments from /data/datasets/reddit_discussions/nottheonion/nottheonion_2016discussions_comments_2018_3.tsv
+Found 0 (of 0) relevant comments
+Loading comments from /data/datasets/reddit_discussions/nottheonion/nottheonion_2016discussions_comments_2018_4.tsv
+Found 0 (of 0) relevant comments
+Loading comments from /data/datasets/reddit_discussions/nottheonion/nottheonion_2016discussions_comments_2018_5.tsv
+Found 0 (of 0) relevant comments
+Loading comments from /data/datasets/reddit_discussions/nottheonion/nottheonion_2016discussions_comments_2018_6.tsv
+Found 0 (of 0) relevant comments
+Total of 101420 comments for 3-2016 posts (of 995342 scanned)
+Extracting post/comment structure for 4395 nottheonion 3-2016 posts and 101420 comments
+Built 4385 cascades with 91041 comments
+   Removed 10 incomplete cascades (10379 associated comments)
+Fitting 4385 cascades for nottheonion 3-2016
+Fitted 2500 cascades (1802 failed)
+Fitted params for a total of 1244 cascades
+   skipped 0 cascades with negative comment times
+   3141 cascades failed fit process
+   fail average cascade size: 1
+   441 cascades succeeded fit process
+   succeed average cascade size: 169
+   803 cascades partially-succeeded fit process (some missing params)
+      716 cascades failed weibull fit
+   partial-succeed average cascade size: 15
+Loading 4-2016
+   Processed posts file doesn't exist, creating now
+   Fitted params file doesn't exist, creating now
+Reconstructing cascades for nottheonion 4-2016
+Loading comments from /data/datasets/reddit_discussions/nottheonion/nottheonion_2016discussions_comments_2016_10.tsv
+Found 0 (of 92611) relevant comments
+Loading comments from /data/datasets/reddit_discussions/nottheonion/nottheonion_2016discussions_comments_2016_11.tsv
+Found 0 (of 103379) relevant comments
+Loading comments from /data/datasets/reddit_discussions/nottheonion/nottheonion_2016discussions_comments_2016_12.tsv
+Found 0 (of 94785) relevant comments
+Loading comments from /data/datasets/reddit_discussions/nottheonion/nottheonion_2016discussions_comments_2016_4.tsv
+Found 69996 (of 77698) relevant comments
+Loading comments from /data/datasets/reddit_discussions/nottheonion/nottheonion_2016discussions_comments_2016_5.tsv
+Found 481 (of 86896) relevant comments
+Loading comments from /data/datasets/reddit_discussions/nottheonion/nottheonion_2016discussions_comments_2016_6.tsv
+Found 10 (of 107300) relevant comments
+Loading comments from /data/datasets/reddit_discussions/nottheonion/nottheonion_2016discussions_comments_2016_7.tsv
+Found 8 (of 100493) relevant comments
+Loading comments from /data/datasets/reddit_discussions/nottheonion/nottheonion_2016discussions_comments_2016_8.tsv
+Found 8 (of 112169) relevant comments
+Loading comments from /data/datasets/reddit_discussions/nottheonion/nottheonion_2016discussions_comments_2016_9.tsv
+Found 6 (of 110092) relevant comments
+Loading comments from /data/datasets/reddit_discussions/nottheonion/nottheonion_2016discussions_comments_2017_1.tsv
+Found 0 (of 1017) relevant comments
+Loading comments from /data/datasets/reddit_discussions/nottheonion/nottheonion_2016discussions_comments_2017_10.tsv
+Found 0 (of 0) relevant comments
+Loading comments from /data/datasets/reddit_discussions/nottheonion/nottheonion_2016discussions_comments_2017_11.tsv
+Found 0 (of 0) relevant comments
+Loading comments from /data/datasets/reddit_discussions/nottheonion/nottheonion_2016discussions_comments_2017_12.tsv
+Found 0 (of 0) relevant comments
+Loading comments from /data/datasets/reddit_discussions/nottheonion/nottheonion_2016discussions_comments_2017_2.tsv
+Found 0 (of 71) relevant comments
+Loading comments from /data/datasets/reddit_discussions/nottheonion/nottheonion_2016discussions_comments_2017_3.tsv
+Found 0 (of 18) relevant comments
+Loading comments from /data/datasets/reddit_discussions/nottheonion/nottheonion_2016discussions_comments_2017_4.tsv
+Found 0 (of 12) relevant comments
+Loading comments from /data/datasets/reddit_discussions/nottheonion/nottheonion_2016discussions_comments_2017_5.tsv
+Found 0 (of 8) relevant comments
+Loading comments from /data/datasets/reddit_discussions/nottheonion/nottheonion_2016discussions_comments_2017_6.tsv
+Found 0 (of 1) relevant comments
+Loading comments from /data/datasets/reddit_discussions/nottheonion/nottheonion_2016discussions_comments_2017_7.tsv
+Found 1 (of 30) relevant comments
+Loading comments from /data/datasets/reddit_discussions/nottheonion/nottheonion_2016discussions_comments_2017_8.tsv
+Found 0 (of 0) relevant comments
+Loading comments from /data/datasets/reddit_discussions/nottheonion/nottheonion_2016discussions_comments_2017_9.tsv
+Found 0 (of 0) relevant comments
+Loading comments from /data/datasets/reddit_discussions/nottheonion/nottheonion_2016discussions_comments_2018_1.tsv
+Found 0 (of 0) relevant comments
+Loading comments from /data/datasets/reddit_discussions/nottheonion/nottheonion_2016discussions_comments_2018_2.tsv
+Found 0 (of 0) relevant comments
+Loading comments from /data/datasets/reddit_discussions/nottheonion/nottheonion_2016discussions_comments_2018_3.tsv
+Found 0 (of 0) relevant comments
+Loading comments from /data/datasets/reddit_discussions/nottheonion/nottheonion_2016discussions_comments_2018_4.tsv
+Found 0 (of 0) relevant comments
+Loading comments from /data/datasets/reddit_discussions/nottheonion/nottheonion_2016discussions_comments_2018_5.tsv
+Found 0 (of 0) relevant comments
+Loading comments from /data/datasets/reddit_discussions/nottheonion/nottheonion_2016discussions_comments_2018_6.tsv
+Found 0 (of 0) relevant comments
+Total of 70510 comments for 4-2016 posts (of 886580 scanned)
+Extracting post/comment structure for 3950 nottheonion 4-2016 posts and 70510 comments
+Built 3947 cascades with 68076 comments
+   Removed 3 incomplete cascades (2434 associated comments)
+Fitting 3947 cascades for nottheonion 4-2016
+Fitted 2500 cascades (1865 failed)
+Fitted params for a total of 1006 cascades
+   skipped 0 cascades with negative comment times
+   2941 cascades failed fit process
+   fail average cascade size: 1
+   365 cascades succeeded fit process
+   succeed average cascade size: 148
+   641 cascades partially-succeeded fit process (some missing params)
+      591 cascades failed weibull fit
+   partial-succeed average cascade size: 16
+Loading 5-2016
+   Processed posts file doesn't exist, creating now
+   Fitted params file doesn't exist, creating now
+Reconstructing cascades for nottheonion 5-2016
+Loading comments from /data/datasets/reddit_discussions/nottheonion/nottheonion_2016discussions_comments_2016_10.tsv
+Found 6 (of 92611) relevant comments
+Loading comments from /data/datasets/reddit_discussions/nottheonion/nottheonion_2016discussions_comments_2016_11.tsv
+Found 0 (of 103379) relevant comments
+Loading comments from /data/datasets/reddit_discussions/nottheonion/nottheonion_2016discussions_comments_2016_12.tsv
+Found 0 (of 94785) relevant comments
+Loading comments from /data/datasets/reddit_discussions/nottheonion/nottheonion_2016discussions_comments_2016_5.tsv
+Found 79735 (of 86896) relevant comments
+Loading comments from /data/datasets/reddit_discussions/nottheonion/nottheonion_2016discussions_comments_2016_6.tsv
+Found 2160 (of 107300) relevant comments
+Loading comments from /data/datasets/reddit_discussions/nottheonion/nottheonion_2016discussions_comments_2016_7.tsv
+Found 7 (of 100493) relevant comments
+Loading comments from /data/datasets/reddit_discussions/nottheonion/nottheonion_2016discussions_comments_2016_8.tsv
+Found 3 (of 112169) relevant comments
+Loading comments from /data/datasets/reddit_discussions/nottheonion/nottheonion_2016discussions_comments_2016_9.tsv
+Found 0 (of 110092) relevant comments
+Loading comments from /data/datasets/reddit_discussions/nottheonion/nottheonion_2016discussions_comments_2017_1.tsv
+Found 0 (of 1017) relevant comments
+Loading comments from /data/datasets/reddit_discussions/nottheonion/nottheonion_2016discussions_comments_2017_10.tsv
+Found 0 (of 0) relevant comments
+Loading comments from /data/datasets/reddit_discussions/nottheonion/nottheonion_2016discussions_comments_2017_11.tsv
+Found 0 (of 0) relevant comments
+Loading comments from /data/datasets/reddit_discussions/nottheonion/nottheonion_2016discussions_comments_2017_12.tsv
+Found 0 (of 0) relevant comments
+Loading comments from /data/datasets/reddit_discussions/nottheonion/nottheonion_2016discussions_comments_2017_2.tsv
+Found 0 (of 71) relevant comments
+Loading comments from /data/datasets/reddit_discussions/nottheonion/nottheonion_2016discussions_comments_2017_3.tsv
+Found 0 (of 18) relevant comments
+Loading comments from /data/datasets/reddit_discussions/nottheonion/nottheonion_2016discussions_comments_2017_4.tsv
+Found 0 (of 12) relevant comments
+Loading comments from /data/datasets/reddit_discussions/nottheonion/nottheonion_2016discussions_comments_2017_5.tsv
+Found 0 (of 8) relevant comments
+Loading comments from /data/datasets/reddit_discussions/nottheonion/nottheonion_2016discussions_comments_2017_6.tsv
+Found 0 (of 1) relevant comments
+Loading comments from /data/datasets/reddit_discussions/nottheonion/nottheonion_2016discussions_comments_2017_7.tsv
+Found 3 (of 30) relevant comments
+Loading comments from /data/datasets/reddit_discussions/nottheonion/nottheonion_2016discussions_comments_2017_8.tsv
+Found 0 (of 0) relevant comments
+Loading comments from /data/datasets/reddit_discussions/nottheonion/nottheonion_2016discussions_comments_2017_9.tsv
+Found 0 (of 0) relevant comments
+Loading comments from /data/datasets/reddit_discussions/nottheonion/nottheonion_2016discussions_comments_2018_1.tsv
+Found 0 (of 0) relevant comments
+Loading comments from /data/datasets/reddit_discussions/nottheonion/nottheonion_2016discussions_comments_2018_2.tsv
+Found 0 (of 0) relevant comments
+Loading comments from /data/datasets/reddit_discussions/nottheonion/nottheonion_2016discussions_comments_2018_3.tsv
+Found 0 (of 0) relevant comments
+Loading comments from /data/datasets/reddit_discussions/nottheonion/nottheonion_2016discussions_comments_2018_4.tsv
+Found 0 (of 0) relevant comments
+Loading comments from /data/datasets/reddit_discussions/nottheonion/nottheonion_2016discussions_comments_2018_5.tsv
+Found 0 (of 0) relevant comments
+Loading comments from /data/datasets/reddit_discussions/nottheonion/nottheonion_2016discussions_comments_2018_6.tsv
+Found 0 (of 0) relevant comments
+Total of 81914 comments for 5-2016 posts (of 808882 scanned)
+Extracting post/comment structure for 3804 nottheonion 5-2016 posts and 81914 comments
+Built 3796 cascades with 73380 comments
+   Removed 8 incomplete cascades (8534 associated comments)
+Fitting 3796 cascades for nottheonion 5-2016
+Fitted 2500 cascades (1886 failed)
+Fitted params for a total of 967 cascades
+   skipped 0 cascades with negative comment times
+   2829 cascades failed fit process
+   fail average cascade size: 1
+   370 cascades succeeded fit process
+   succeed average cascade size: 168
+   597 cascades partially-succeeded fit process (some missing params)
+      566 cascades failed weibull fit
+   partial-succeed average cascade size: 12
+Loading 6-2016
+Loading 7-2016
+Loading 8-2016
+Deleted 30 posts without cascades
+Deleted 1 posts without params
+Loaded 25784 posts 
+   25785 cascades
+   6221 fitted params, 19563 failed fit
+
+Loading processed testing data
+Loading 9-2016
+Deleted 4 posts without cascades
+Loaded 6169 posts 
+   6169 cascades
+
+Filtered to 118 posts with >= 100 comments
+Filtered to 56 posts with <= 300 comments
+Processing all 56 posts in test set
+
+Building param graph for 25784 posts
+Using 6221 posts for graph
+Downsampled to 1124 posts based on ratio and size
+   Using 843 large posts with >= 20 comments, and 281 small posts
+Using jaccard index for edge weight
+   100000 pairs
+   200000 pairs
+   300000 pairs
+   400000 pairs
+   500000 pairs
+   600000 pairs
+Graph contains 1124 nodes and 23754 unique edges (33073 edge entries)
+  max degree: 157
+  min degree: 1
+Saving graph to reddit_data/nottheonion/base_graph_2016-3start_(6months)_default_posts_False_all_nodes_0.0minquality_jaccard_0.0minedgeweight_30topn_3.0sample>=20.pkl
+
+Processing 56 posts
+   finished 50 posts (0 disconnected)
+Finish simulating 56 posts (0 disconnected)
+
+All done
+
+Number of posts: 56
+Observing: comments
+Observed: [0]
+Source subreddit: nottheonion
+Minimum node quality: False
+Max graph size: False
+
