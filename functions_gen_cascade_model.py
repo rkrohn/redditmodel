@@ -40,9 +40,10 @@ random_sample_list_filepath = "reddit_data/%s/%s_%d_test_keys_list_start%d-%d_%d
 
 #filepath for cached base graph builds
 #determined by: subreddit, training_start_year, training_start_month, training_len, 
-#	include_default_posts, max_nodes, min_node_quality, weight_method, min_weight, and top_n
+#	include_default_posts, max_nodes, min_node_quality, weight_method, min_weight, top_n,
+#   graph_downsample_ratio, and large_cascade_demarcation
 #(yes, it's a mess)
-base_graph_filepath = "reddit_data/%s/base_graph_%d-%dstart_(%dmonths)_default_posts_%s_%snodes_%.1fminquality_%s_%.1fminedgeweight_%dtopn.pkl"
+base_graph_filepath = "reddit_data/%s/base_graph_%d-%dstart_(%dmonths)_default_posts_%s_%snodes_%.1fminquality_%s_%.1fminedgeweight_%dtopn_%ssample%s.pkl"
 
 #filepaths of output/temporary files - used to pass graph to C++ node2vec for processing
 temp_graph_filepath = "sim_files/graph_%s.txt"			#updated graph for this sim run
@@ -127,6 +128,10 @@ def parse_command_args():
 	parser.set_defaults(training_stats=False)
 	parser.add_argument("--test_stats", dest="testing_stats", action="store_true", help="output statistics for testing set")
 	parser.set_defaults(testing_stats=False)
+	#optional graph downsampling - can specify a ratio of large:small posts for base graph,
+	#and the number of comments required to be considered a "large" post
+	parser.add_argument("-down_ratio", dest="graph_downsample_ratio", default=None, help="ratio of large:small posts to use for base graph build")
+	parser.add_argument("-large_req", dest="large_cascade_demarcation", default=None, help="minimum number of comments to be considered \"large\" for graph downsample")
 
 	args = parser.parse_args()		#parse the args (magic!)
 
@@ -141,6 +146,10 @@ def parse_command_args():
 	#make sure error settings don't conflict
 	if args.topological_error and (args.time_error_absolute or args.time_error_margin != False):
 		parser.error('Cannot use topological error method with absolute time error or error margin setting')
+
+	#if downsampling base graph, must specify both ratio and large size
+	if (args.graph_downsample_ratio is not None and args.large_cascade_demarcation is None) or (args.graph_downsample_ratio is None and args.large_cascade_demarcation is not None):
+		parser.error('Must specify both downsample ratio and large cascade size for graph build downsampling.')
 
 	#extract arguments (since want to return individual variables)
 	subreddit = args.subreddit
@@ -172,6 +181,9 @@ def parse_command_args():
 	max_size = int(args.max_size) if args.max_size is not None else None
 	training_stats = args.training_stats
 	testing_stats = args.testing_stats
+	graph_downsample_ratio = float(args.graph_downsample_ratio) if args.graph_downsample_ratio is not None else None
+	large_cascade_demarcation = int(args.large_cascade_demarcation) if args.large_cascade_demarcation is not None else None
+	#convert where required
 	if top_n != False:
 		top_n = int(top_n)
 	weight_threshold = args.weight_threshold
@@ -283,10 +295,12 @@ def parse_command_args():
 		vprint("Only simulating cascades with true size less than or equal to %d" % max_size)
 	if sanity_check:
 		vprint("Simulating from fitted params, skipping graph/infer/refine steps")
+	if graph_downsample_ratio is not None:
+		vprint("Downsampling base graph to %.1f:1 large:small posts, where large posts contain at least %d comments" % (graph_downsample_ratio, large_cascade_demarcation))
 	vprint("")
 
 	#return all arguments
-	return subreddit, sim_post, observing_time, observed_list, outfile, max_nodes, min_node_quality, estimate_initial_params, normalize_parameters, batch, sample_num, testing_start_month, testing_start_year, testing_len, training_start_month, training_start_year, training_len, weight_method, top_n, weight_threshold, include_default_posts, time_error_margin, error_method, sanity_check, min_size, max_size, training_stats, testing_stats, socsim_data, verbose
+	return subreddit, sim_post, observing_time, observed_list, outfile, max_nodes, min_node_quality, estimate_initial_params, normalize_parameters, batch, sample_num, testing_start_month, testing_start_year, testing_len, training_start_month, training_start_year, training_len, weight_method, top_n, weight_threshold, include_default_posts, time_error_margin, error_method, sanity_check, min_size, max_size, training_stats, testing_stats, socsim_data, graph_downsample_ratio, large_cascade_demarcation, verbose
 #end parse_command_args
 
 
@@ -381,6 +395,10 @@ def process_posts(subreddit, month, year):
 	#convert to our nested dictionary structure
 	posts = {}
 	for index, row in posts_df.iterrows():
+		#if author or title has been deleted, skip
+		if row['author'] == "[deleted]" or row['title'] == "[deleted]":
+			continue
+
 		#check for good row, fail and error if something is amiss (probably a non-quoted body)
 		if pd.isnull(row['title']) or pd.isnull(row['subreddit']) or pd.isnull(row['created_utc']) or pd.isnull(row['author']):
 			print("Invalid post, exiting\n", row)
@@ -869,9 +887,9 @@ def ddlist():
 #if include_default_posts = True, include posts with hardcoded default params in graph (otherwise, leave out)
 #if min_node_quality != False, only include nodes with param fit quality >= threshold in graph build
 #include_default_posts overrides min_node_quality - all default posts thrown out regardless of default quality setting
-def build_base_graph(posts, params, default_params_list, subreddit, training_start_year, training_start_month, training_len, include_default_posts, max_nodes, min_node_quality, weight_method, min_weight, top_n):
+def build_base_graph(cascades, posts, params, default_params_list, subreddit, training_start_year, training_start_month, training_len, include_default_posts, max_nodes, min_node_quality, weight_method, min_weight, top_n, graph_downsample_ratio, large_cascade_demarcation):
 	#first, check if we've cached this graph before
-	curr_filepath = base_graph_filepath % (subreddit, training_start_year, training_start_month, training_len, include_default_posts, (max_nodes if max_nodes != False else "all_"), min_node_quality, weight_method, min_weight, top_n)
+	curr_filepath = base_graph_filepath % (subreddit, training_start_year, training_start_month, training_len, include_default_posts, (max_nodes if max_nodes != False else "all_"), min_node_quality, weight_method, min_weight, top_n, (("%.1f" % graph_downsample_ratio) if graph_downsample_ratio is not None else "no_"), ((">=%d" % large_cascade_demarcation) if large_cascade_demarcation is not None else ""))
 	#have graph, load and return
 	if file_utils.verify_file(curr_filepath):
 		vprint("Loading base graph from file")
@@ -886,6 +904,20 @@ def build_base_graph(posts, params, default_params_list, subreddit, training_sta
 	#define post set to use for graph build based on options
 	graph_post_ids = filter_post_set(params, default_params_list, min_node_quality, include_default_posts)	
 	vprint("Using %d posts for graph" % len(graph_post_ids))
+
+	
+	#downsample post set for graph build further
+	#take all large posts, and some number of small posts
+	if graph_downsample_ratio is not None:
+		#partition to large and small based on given comment requirement
+		big_posts = [post_id for post_id in graph_post_ids if cascades[post_id]['comment_count_direct'] >= large_cascade_demarcation]
+		small_posts = [post_id for post_id in graph_post_ids if cascades[post_id]['comment_count_direct'] < large_cascade_demarcation]
+		#downsample if necessary, based on provided ratio
+		if len(small_posts) > len(big_posts):
+			small_posts = random.sample(small_posts, int(len(big_posts)/graph_downsample_ratio))
+		graph_post_ids = big_posts + small_posts
+		vprint("Downsampled to %d posts based on ratio and size" % len(graph_post_ids))
+		vprint("   Using %d large posts with >= %d comments, and %d small posts" % (len(big_posts), large_cascade_demarcation, len(small_posts)))
 
 	#do we need to sample the graph? if so, do it now
 	#the graph may well end up smaller than the max_nodes limit (because probably not all connected)
