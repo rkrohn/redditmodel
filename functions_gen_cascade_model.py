@@ -893,8 +893,11 @@ def build_base_graph(cascades, posts, params, default_params_list, subreddit, tr
 	#have graph, load and return
 	if file_utils.verify_file(curr_filepath):
 		vprint("Loading base graph from file")
-		loaded_graph = file_utils.load_pickle(curr_filepath)
-		vprint("Graph contains %d nodes and %d unique edges" % (len(loaded_graph['graph']), len(loaded_graph['graph_post_ids'])))
+		loaded_graph = file_utils.load_pickle(curr_filepath)		
+		if 'unique_edges' in loaded_graph:
+			vprint("Graph contains %d nodes and %d unique edges (%d edge entries)" % (len(loaded_graph['graph']), len(loaded_graph['unique_edges']), loaded_graph['edge_entries']))
+		else:
+			vprint("Graph contains %d nodes" % len(loaded_graph['graph']))
 		#return edgelist (may contain duplicates), and list of post ids considered for graph (may not all actually be in graph)
 		return loaded_graph['graph'], loaded_graph['graph_post_ids']
 	#no graph, build as usual, save at the end
@@ -1003,7 +1006,7 @@ def build_base_graph(cascades, posts, params, default_params_list, subreddit, tr
 
 	#save graph before we return, bundled up in a dictionary
 	vprint("Saving graph to %s"  % curr_filepath)
-	save_data = {'graph': graph, 'graph_post_ids': graph_post_ids}
+	save_data = {'graph': graph, 'graph_post_ids': graph_post_ids, 'unique_edges': len(graph_edges), 'edge_entries': len(edge_total)}
 	file_utils.save_pickle(save_data, curr_filepath)
 
 	return graph, graph_post_ids 		#return edgelist (may contain duplicates), and list of post ids considered for graph (may not all actually be in graph)
