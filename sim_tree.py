@@ -71,8 +71,8 @@ def weib_intensity(t, a, lbd, k):
 #   k           shape parameter (alpha in the source paper)
 #
 #essentially a homogenous poisson process, but with a variable base intensity mu defined by the weibull kernel
-#bounded by inter-event time of 5000 minutes = ~83 hours or max number of events 2000 
-def generate_weibull_times(params, start_time = 0, T = 5000, N_max = 2000):   #params = [a, lbd, k]
+#bounded by inter-event time of 1800 minutes = ~30 hours or max number of events 2000 
+def generate_weibull_times(params, start_time = 0, T = 1800, N_max = 2000):   #params = [a, lbd, k]
     (a, lbd, k) = params    #unpack parameters
 
     new_event_times = []    #build list of new event times
@@ -132,9 +132,9 @@ def lognorm_intensity(t, mu, sigma, n_b):
 #   sigma   variance
 #
 #essentially a homogenous poisson process, but with a variable base intensity mu defined by the log-normal distribution
-#bounded by inter-event time of 5000 minutes = ~83 hours or max number of events 2000
+#bounded by inter-event time of 1800 minutes = ~30 hours or max number of events 2000
 #also utilizes the estimated branching factor 
-def generate_lognorm_times(params, n_b, start_time = 0, T = 5000, N_max = 2000): # Log-normal kernel
+def generate_lognorm_times(params, n_b, start_time = 0, T = 1800, N_max = 2000): # Log-normal kernel
     (mu, sigma) = params    #unpack the parameters
 
     new_event_times = []    #build list of new event times
@@ -146,6 +146,9 @@ def generate_lognorm_times(params, n_b, start_time = 0, T = 5000, N_max = 2000):
         intensity = lognorm_intensity(t, mu, sigma, n_b)
     else:
         intensity = n_b * (np.exp(sigma**2 - mu) / (sigma * np.sqrt(2 * np.pi))) * np.exp(-(sigma**2) / 2)
+
+    if intensity > 500:
+        intensity = 500
 
     #thinning process to generate events - see page 10 of Hawkes chapter for more details
     while True:
@@ -163,6 +166,8 @@ def generate_lognorm_times(params, n_b, start_time = 0, T = 5000, N_max = 2000):
             #update lambda* for next generation cycle, if required
             if t > np.exp(mu - (sigma**2)):
                 intensity = lognorm_intensity(t, mu, sigma, n_b)
+                if intensity > 500:
+                    intensity = 500
 
         #quit if reached inter-arrival threshold
         if stop_sim(t, T, N_max, accept, new_event_times):
