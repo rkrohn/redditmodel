@@ -1,0 +1,152 @@
+
+Sim Post: sample 100
+Comments Observed: [0]
+Output: sim_results/2_training_with_default_no_min_weight_1adjust_norm_smalltrees
+Source subreddit: nottheonion
+Minimum node quality: False
+Max graph size: False
+Max edges per node: 30
+Minimum edge weight: None
+Normalizing params (min-max) for graph infer
+Testing Period: 9-2016 (1 month)
+Training Period: 7-2016 through 8-2016 (2 months)
+Using Jaccard index to compute graph edge weights
+Including posts with hardcoded default parameters
+Using topological error for tree evaluation (ignoring comment times)
+Only simulating cascades with true size between 20 and 50 comments (inclusive)
+
+Loading processed training data
+Loading 7-2016
+Loading 8-2016
+Deleted 5 posts without cascades
+Deleted 1 posts without params
+Loaded 10140 posts 
+   10141 cascades
+   2096 fitted params, 8044 failed fit
+
+Loading processed testing data
+Loading 9-2016
+Deleted 4 posts without cascades
+Loaded 6169 posts 
+   6169 cascades
+
+Filtered to 333 posts with >= 20 comments
+Filtered to 155 posts with <= 50 comments
+Loading cached sample simulation post set
+Loading base graph from file
+Graph contains 10125 nodes and 238065 unique edges (302977 edge entries)
+
+Processing 100 posts
+simming t3_549e6b (0/100)
+simming t3_54olej (1/100)
+simming t3_52f8jp (2/100)
+simming t3_53ipl6 (3/100)
+simming t3_512hou (4/100)
+simming t3_50ldph (5/100)
+simming t3_5169h6 (6/100)
+simming t3_54zr5z (7/100)
+simming t3_51ktg4 (8/100)
+simming t3_529ttf (9/100)
+simming t3_52gfn6 (10/100)
+simming t3_52waqo (11/100)
+simming t3_5342fn (12/100)
+simming t3_53th1y (13/100)
+simming t3_556c3y (14/100)
+simming t3_548vbm (15/100)
+simming t3_51lvo0 (16/100)
+simming t3_5175om (17/100)
+simming t3_54bo7b (18/100)
+simming t3_52z7cu (19/100)
+simming t3_54myy0 (20/100)
+simming t3_5426kw (21/100)
+simming t3_52tl01 (22/100)
+simming t3_5314wp (23/100)
+simming t3_50trbf (24/100)
+simming t3_52vmu5 (25/100)
+simming t3_544ukd (26/100)
+simming t3_52woph (27/100)
+simming t3_557g0f (28/100)
+simming t3_54oloc (29/100)
+simming t3_558gfr (30/100)
+simming t3_528b9x (31/100)
+simming t3_532u7j (32/100)
+simming t3_53j59x (33/100)
+simming t3_52opop (34/100)
+simming t3_542rbs (35/100)
+simming t3_548des (36/100)
+simming t3_54k8m0 (37/100)
+simming t3_54q0js (38/100)
+simming t3_53o4py (39/100)
+simming t3_52ed2k (40/100)
+simming t3_51d4zm (41/100)
+simming t3_54l8c4 (42/100)
+simming t3_50nw4e (43/100)
+simming t3_54gjx4 (44/100)
+simming t3_520xx5 (45/100)
+simming t3_51uzpl (46/100)
+simming t3_52cpi9 (47/100)
+simming t3_53n0je (48/100)
+simming t3_53zra2 (49/100)
+   finished 50 posts (0 disconnected)
+simming t3_53ewii (50/100)
+simming t3_54wtu3 (51/100)
+simming t3_50wfk4 (52/100)
+simming t3_544lv3 (53/100)
+simming t3_51qkbs (54/100)
+simming t3_53mdpi (55/100)
+simming t3_53nf9l (56/100)
+simming t3_53xlyu (57/100)
+simming t3_5152ns (58/100)
+simming t3_53qw2d (59/100)
+simming t3_54i887 (60/100)
+simming t3_50nx14 (61/100)
+simming t3_51nbly (62/100)
+simming t3_54gl0l (63/100)
+simming t3_514832 (64/100)
+simming t3_50qwix (65/100)
+simming t3_50or4h (66/100)
+simming t3_50libo (67/100)
+simming t3_54gqpy (68/100)
+simming t3_53fb8b (69/100)
+simming t3_54ls4m (70/100)
+simming t3_53f68g (71/100)
+simming t3_50pdsa (72/100)
+simming t3_513ibq (73/100)
+simming t3_5326kn (74/100)
+simming t3_51g1pm (75/100)
+simming t3_50td5j (76/100)
+simming t3_53o009 (77/100)
+simming t3_51gzqx (78/100)
+simming t3_53llcy (79/100)
+simming t3_513y18 (80/100)
+simming t3_557z85 (81/100)
+simming t3_53lnw0 (82/100)
+simming t3_542gm0 (83/100)
+simming t3_52q2kp (84/100)
+simming t3_51abmb (85/100)
+simming t3_550use (86/100)
+simming t3_54a7i0 (87/100)
+simming t3_51g836 (88/100)
+simming t3_5198hz (89/100)
+simming t3_51kw2b (90/100)
+simming t3_51lfxl (91/100)
+simming t3_52dl31 (92/100)
+simming t3_52b1ao (93/100)
+simming t3_52pfp7 (94/100)
+simming t3_50zvyc (95/100)
+simming t3_54zdvn (96/100)
+simming t3_51xyzd (97/100)
+simming t3_53bdyr (98/100)
+simming t3_51v6tm (99/100)
+   finished 100 posts (0 disconnected)
+Finish simulating 100 posts (0 disconnected)
+
+All done
+
+Number of posts: 100
+Observing: comments
+Observed: [0]
+Source subreddit: nottheonion
+Minimum node quality: False
+Max graph size: False
+

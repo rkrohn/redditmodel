@@ -1,0 +1,106 @@
+
+Sim Post: all
+Comments Observed: [0]
+Output: sim_results/2_training_with_default_no_min_weight_1adjust_nostopwords_norm_bigtrees
+Source subreddit: nottheonion
+Minimum node quality: False
+Max graph size: False
+Max edges per node: 30
+Minimum edge weight: None
+Normalizing params (min-max) for graph infer
+Testing Period: 9-2016 (1 month)
+Training Period: 7-2016 through 8-2016 (2 months)
+Using Jaccard index to compute graph edge weights
+   Removing stopwords for edge weight calculation
+Including posts with hardcoded default parameters
+Using topological error for tree evaluation (ignoring comment times)
+Only simulating cascades with true size greater than or equal to 400
+
+Loading processed training data
+Loading 7-2016
+Loading 8-2016
+Deleted 5 posts without cascades
+Deleted 1 posts without params
+Loaded 10140 posts 
+   10141 cascades
+   2096 fitted params, 8044 failed fit
+
+Loading processed testing data
+Loading 9-2016
+Deleted 4 posts without cascades
+Loaded 6169 posts 
+   6169 cascades
+
+Filtered to 55 posts with >= 400 comments
+Processing all 55 posts in test set
+Loading base graph from file
+Graph contains 10124 nodes and 238680 unique edges (301287 edge entries)
+
+Processing 55 posts
+simming t3_50liaq (0/55)
+simming t3_50lswv (1/55)
+simming t3_50oh0v (2/55)
+simming t3_50r262 (3/55)
+simming t3_50sf26 (4/55)
+simming t3_50tyd7 (5/55)
+simming t3_50xsoo (6/55)
+simming t3_50zzoa (7/55)
+simming t3_514f41 (8/55)
+simming t3_514isu (9/55)
+simming t3_515dj4 (10/55)
+simming t3_518k87 (11/55)
+simming t3_51byrc (12/55)
+simming t3_51dr2b (13/55)
+simming t3_51hwuw (14/55)
+simming t3_51q230 (15/55)
+simming t3_51qybn (16/55)
+simming t3_51umhc (17/55)
+simming t3_51xvq6 (18/55)
+simming t3_52257r (19/55)
+simming t3_523deu (20/55)
+simming t3_526c31 (21/55)
+simming t3_5298tc (22/55)
+simming t3_52e0k9 (23/55)
+simming t3_52gizw (24/55)
+simming t3_52ksxj (25/55)
+simming t3_52lp83 (26/55)
+simming t3_52qid3 (27/55)
+simming t3_532ndc (28/55)
+simming t3_536rcg (29/55)
+simming t3_53a5yu (30/55)
+simming t3_53c4te (31/55)
+simming t3_53cmdo (32/55)
+simming t3_53gr5e (33/55)
+simming t3_53lclq (34/55)
+simming t3_53nv4o (35/55)
+simming t3_53slbg (36/55)
+simming t3_53t6uh (37/55)
+simming t3_53wvmy (38/55)
+simming t3_53yt68 (39/55)
+simming t3_5439er (40/55)
+simming t3_54470h (41/55)
+simming t3_54afyf (42/55)
+simming t3_54civ2 (43/55)
+simming t3_54etzj (44/55)
+simming t3_54i59w (45/55)
+simming t3_54l4wt (46/55)
+simming t3_54o48l (47/55)
+simming t3_54r45b (48/55)
+simming t3_54tleo (49/55)
+   finished 50 posts (0 disconnected)
+simming t3_54womh (50/55)
+simming t3_5500ux (51/55)
+simming t3_551usn (52/55)
+simming t3_5554w4 (53/55)
+simming t3_557f5g (54/55)
+Finish simulating 55 posts (0 disconnected)
+
+All done
+
+Number of posts: 55
+Observing: comments
+Observed: [0]
+Source subreddit: nottheonion
+Minimum node quality: False
+Max graph size: False
+
