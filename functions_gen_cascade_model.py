@@ -1734,9 +1734,12 @@ def save_results(base_filename, metrics, avg_metrics, input_sim_post, sample_num
 		fields.insert(5, "max_observed_comments")
 	file_utils.save_csv(metrics, filename, fields)
 
-	#dump average metrics after that
-	with open(filename, 'a') as file:
-		file.write("\nAverage by %s\n" % ("time observed" if observing_time else "max observed comments"))		#header/label
+	#dump average metrics and arguments/settings to a separate file
+	avg_filename = base_filename + "_avg.csv"
+
+	#avg metrics
+	with open(avg_filename, 'w') as file:
+		file.write("Average by %s\n" % ("time observed" if observing_time else "max observed comments"))		#header/label
 	#convert avg metrics from nested dict to list of dict
 	avg_metrics = [avg_metrics[obs] for obs in avg_metrics.keys()]
 	#remove a couple unneeded fields for this dump
@@ -1745,10 +1748,10 @@ def save_results(base_filename, metrics, avg_metrics, input_sim_post, sample_num
 	fields.remove("param_source")
 	fields.remove("observing_by")
 	#save avg metrics
-	file_utils.save_csv(avg_metrics, filename, fields, file_mode='a')
+	file_utils.save_csv(avg_metrics, avg_filename, fields, file_mode='a')
 	
 	#append arguments/settings to the end
-	with open(filename, "a") as file:
+	with open(avg_filename, "a") as file:
 		file.write("\nSettings\n")
 		file.write("sim_post,%s%s\n" % (input_sim_post, (sample_num if sample_num != False else "")))
 		file.write("observing,%s\n" % ("time" if observing_time else "comments"))
