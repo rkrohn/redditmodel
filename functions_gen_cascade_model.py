@@ -20,6 +20,7 @@ import bisect
 from copy import deepcopy
 import statistics
 import networkx as nx
+from nltk.corpus import stopwords
 
 #filepaths of data and pre-processed files - keeping everything in the same spot, for sanity/simplicity
 
@@ -41,9 +42,9 @@ random_sample_list_filepath = "reddit_data/%s/%s_%d_test_keys_list_start%d-%d_%d
 #filepath for cached base graph builds
 #determined by: subreddit, training_start_year, training_start_month, training_len, 
 #	include_default_posts, max_nodes, min_node_quality, weight_method, min_weight, top_n,
-#   graph_downsample_ratio, and large_cascade_demarcation
+#   graph_downsample_ratio, large_cascade_demarcation, and remove_stopwords
 #(yes, it's a mess)
-base_graph_filepath = "reddit_data/%s/base_graph_%d-%dstart_(%dmonths)_default_posts_%s_%snodes_%.1fminquality_%s_%.1fminedgeweight_%dtopn_%ssample%s.pkl"
+base_graph_filepath = "reddit_data/%s/base_graph_%d-%dstart_(%dmonths)_default_posts_%s_%snodes_%.1fminquality_%s_%.1fminedgeweight_%dtopn_%ssample%s%s.pkl"
 
 #filepaths of output/temporary files - used to pass graph to C++ node2vec for processing
 temp_graph_filepath = "sim_files/graph_%s.txt"			#updated graph for this sim run
@@ -88,6 +89,9 @@ def parse_command_args():
 	weight_group.add_argument("-j", "--jaccard", dest="weight_method", action='store_const', const="jaccard", help="compute edge weight between pairs using jaccard index")
 	weight_group.add_argument("-c", "--cosine", dest="weight_method", action='store_const', const="cosine", help="compute edge weight between pairs using tf-idf and cosine similarity")
 	weight_group.add_argument("-wmd", "--word_mover", dest="weight_method", action='store_const', const="word_mover", help="compute edge weight between pairs using GloVe embeddings and word-mover distance")
+	#if running jaccard, can elect to remove stopwords
+	parser.add_argument("-stopwords", dest="remove_stopwords", action="store_true", help="remove stopwords before computing edge weight")
+	parser.set_defaults(remove_stopwords=False)
 	#must pick an edge limit method: top n edges per node, or weight threshold, or both
 	parser.add_argument("-topn", dest="top_n", default=False, metavar=('<max edges per node>'), help="limit post graph to n edges per node")
 	parser.add_argument("-threshold", dest="weight_threshold", default=False, metavar=('<minimum edge weight>'), help="limit post graph to edges with weight above threshold")
@@ -151,6 +155,10 @@ def parse_command_args():
 	if (args.graph_downsample_ratio is not None and args.large_cascade_demarcation is None) or (args.graph_downsample_ratio is None and args.large_cascade_demarcation is not None):
 		parser.error('Must specify both downsample ratio and large cascade size for graph build downsampling.')
 
+	#only remove stopwords if running in jaccard mode
+	if args.remove_stopwords and args.weight_method != "jaccard":
+		parser.error("Can only remove stopwords when using jaccard for edge weight.")
+
 	#extract arguments (since want to return individual variables)
 	subreddit = args.subreddit
 	sim_post = args.sim_post
@@ -169,6 +177,7 @@ def parse_command_args():
 	testing_len = int(args.testing_len)
 	training_len = int(args.training_len)
 	weight_method = args.weight_method
+	remove_stopwords = args.remove_stopwords
 	include_default_posts = args.include_default_posts
 	verbose = args.verbose
 	top_n = args.top_n
@@ -271,6 +280,8 @@ def parse_command_args():
 	vprint("Training Period: %d-%d" % (training_start_month, training_start_year), " through %d-%d (%d months)" % (monthdelta(training_start_month, training_start_year, training_len, inclusive=True)+(training_len,)) if training_len > 1 else " (%d month)" % training_len)
 	if weight_method == "jaccard":
 		vprint("Using Jaccard index to compute graph edge weights")
+		if remove_stopwords:
+			vprint("   Removing stopwords for edge weight calculation")
 	elif weight_method == "cosine":
 		vprint("Using tf-idf and cosine similarity to compute graph edge weights")
 	else:  #word_mover
@@ -300,7 +311,7 @@ def parse_command_args():
 	vprint("")
 
 	#return all arguments
-	return subreddit, sim_post, observing_time, observed_list, outfile, max_nodes, min_node_quality, estimate_initial_params, normalize_parameters, batch, sample_num, testing_start_month, testing_start_year, testing_len, training_start_month, training_start_year, training_len, weight_method, top_n, weight_threshold, include_default_posts, time_error_margin, error_method, sanity_check, min_size, max_size, training_stats, testing_stats, socsim_data, graph_downsample_ratio, large_cascade_demarcation, verbose
+	return subreddit, sim_post, observing_time, observed_list, outfile, max_nodes, min_node_quality, estimate_initial_params, normalize_parameters, batch, sample_num, testing_start_month, testing_start_year, testing_len, training_start_month, training_start_year, training_len, weight_method, remove_stopwords, top_n, weight_threshold, include_default_posts, time_error_margin, error_method, sanity_check, min_size, max_size, training_stats, testing_stats, socsim_data, graph_downsample_ratio, large_cascade_demarcation, verbose
 #end parse_command_args
 
 
@@ -887,9 +898,9 @@ def ddlist():
 #if include_default_posts = True, include posts with hardcoded default params in graph (otherwise, leave out)
 #if min_node_quality != False, only include nodes with param fit quality >= threshold in graph build
 #include_default_posts overrides min_node_quality - all default posts thrown out regardless of default quality setting
-def build_base_graph(cascades, posts, params, default_params_list, subreddit, training_start_year, training_start_month, training_len, include_default_posts, max_nodes, min_node_quality, weight_method, min_weight, top_n, graph_downsample_ratio, large_cascade_demarcation):
+def build_base_graph(cascades, posts, params, default_params_list, subreddit, training_start_year, training_start_month, training_len, include_default_posts, max_nodes, min_node_quality, weight_method, remove_stopwords, min_weight, top_n, graph_downsample_ratio, large_cascade_demarcation):
 	#first, check if we've cached this graph before
-	curr_filepath = base_graph_filepath % (subreddit, training_start_year, training_start_month, training_len, include_default_posts, (max_nodes if max_nodes != False else "all_"), min_node_quality, weight_method, min_weight, top_n, (("%.1f" % graph_downsample_ratio) if graph_downsample_ratio is not None else "no_"), ((">=%d" % large_cascade_demarcation) if large_cascade_demarcation is not None else ""))
+	curr_filepath = base_graph_filepath % (subreddit, training_start_year, training_start_month, training_len, include_default_posts, (max_nodes if max_nodes != False else "all_"), min_node_quality, weight_method, min_weight, top_n, (("%.1f" % graph_downsample_ratio) if graph_downsample_ratio is not None else "no_"), (("_>=%d" % large_cascade_demarcation) if large_cascade_demarcation is not None else ""), ("_stopwords" if remove_stopwords else ""))
 	#have graph, load and return
 	if file_utils.verify_file(curr_filepath):
 		vprint("Loading base graph from file")
@@ -929,6 +940,12 @@ def build_base_graph(cascades, posts, params, default_params_list, subreddit, tr
 		vprint("\nSampling graph to %d nodes" % max_nodes)
 		#sample down posts, true random sample
 		graph_post_ids = set(random.sample(graph_post_ids, max_nodes-1))	#-1, leave room for sim_post
+
+	#define stopwords list if we need them, and filter all the token sets
+	if remove_stopwords:
+		stop_words = set(stopwords.words('english'))
+		for post_id in graph_post_ids:
+			posts[post_id]['tokens'] = [w for w in posts[post_id]['tokens'] if not w in stop_words] 
 
 	#chose edge computation method, store relevant function in variable for easy no-if calling later
 	compute_edge_weight = get_edge_weight_method(weight_method)
