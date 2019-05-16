@@ -11,11 +11,11 @@ arguments_list = []
 repeat_runs = 3			#number of repeated runs to do for each subreddit/size class
 
 #list of subreddits separately, since one output file per subreddit
-subreddits = ["explainlikeimfive", 'nottheonion']	#list of subreddits, -s
+subreddits = ['explainlikeimfive']	#list of subreddits, -s
 
 #list of times/comment counts for observation, along with the selected option
 observation_option = '-nco'		#-nco or -t
-observation_list = [0, 1, 2, 3, 4, 5]#, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75, 80, 85, 90, 95, 100, 110, 120, 130, 140, 150, 175, 200, 250, 300, 350, 400, 500, 600, 700, 800, 900, 1000]
+observation_list = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75, 80, 85, 90, 95, 100, 110, 120, 130, 140, 150, 175, 200, 250, 300, 350, 400, 500, 600, 700, 800, 900, 1000]
 #this will be filtered depending on the size class, so you don't try to observe more than can possibly exist for that run
 
 #select an edge weight method
@@ -30,8 +30,8 @@ arguments['-topn'] = 20			#max connected neighbors (pick highest weighted edges)
 #arguments['-threshold'] = 0.1		#min edge weight to be included in graph
 
 #define testing set - used unless running crypto or cyber
-arguments['-y'] = 2016 #2017		#year
-arguments['-m'] = 9 #12
+arguments['-y'] = 2017		#year
+arguments['-m'] = 12
 
 #pick an error method - --topo_err, --err_abs, or define a margin using --err
 arguments_list.append('--topo_err')
