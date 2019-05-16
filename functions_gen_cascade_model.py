@@ -215,6 +215,8 @@ def parse_command_args():
 		except ValueError:
 			#single specified post
 			batch = False
+	if len(observed_list) > 1:
+		batch = True
 	#and for eval mode
 	if topological_error:
 		error_method = "topo"
@@ -992,7 +994,7 @@ def build_base_graph(cascades, posts, params, default_params_list, subreddit, tr
 
 		#progress prints
 		pair_count += 1
-		if pair_count % 100000 == 0:
+		if pair_count % 1000000 == 0:
 			vprint("   %d pairs" % pair_count)
 
 	#verify top-n condition worked, get some stats
