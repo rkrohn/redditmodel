@@ -1076,6 +1076,8 @@ def get_edge_weight_method(weight_method, display=True):
 def jaccard_edge_weight(tokens_a, tokens_b):
 	intersection = len(set(tokens_a).intersection(tokens_b))
 	union = len(set(tokens_a).union(tokens_b))
+	if union == 0:
+		return 0.0
 	return float(intersection / union)
 #end jaccard_edge_weight
 
