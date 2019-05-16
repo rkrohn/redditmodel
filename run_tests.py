@@ -1,6 +1,7 @@
 import datetime
 import subprocess
 from collections import defaultdict
+import file_utils
 
 #dictionary of arguments with values, list of flag/boolean arguments
 arguments = {}
@@ -66,6 +67,10 @@ arguments_list.append('-v')			#verbose output
 
 #END ARGUMENTS
 
+#make sure output dir for each subreddit exists
+for subreddit in subreddits:
+	file_utils.verify_dir("sim_results/%s" % subreddit)
+
 #timestamp for this set of runs
 timestamp = '{:%m-%d-%H:%M:%S}'.format(datetime.datetime.now())
 
@@ -107,7 +112,7 @@ for run in range(repeat_runs):
 		for subreddit in subreddits:
 
 			#define our base output filename - keep it simple, will have all the settings in the output files
-			outfile = "sim_results/%s_%d-%d_%s_test_%s%s" % (subreddit, arguments['-y'], arguments['-m'], size_class, timestamp, "_run%d" % run if repeat_runs > 1 else "")
+			outfile = "sim_results/%s/%s_%d-%d_%s_test_%s%s" % (subreddit, subreddit, arguments['-y'], arguments['-m'], size_class, timestamp, "_run%d" % run if repeat_runs > 1 else "")
 
 			#build command arguments list
 			#base first
@@ -127,7 +132,7 @@ for run in range(repeat_runs):
 			#wait for this graph-build-only run to finish before doing more
 			if sub_counts[subreddit] == 0:
 				print("Preprocessing", subreddit)
-				f = open("sim_results/%s_%d-%d_%sgraph.txt" % (subreddit, arguments['-y'], arguments['-m'], timestamp), "w")
+				f = open("sim_results/%s/%s_%d-%d_%sgraph.txt" % (subreddit, subreddit, arguments['-y'], arguments['-m'], timestamp), "w")
 				subprocess.call(command+['-graph_only'], stdout=f, stderr=f)
 				print("Done")
 			
