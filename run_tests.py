@@ -79,6 +79,7 @@ for subreddit in subreddits:
 
 #timestamp for this set of runs
 timestamp = '{:%m-%d-%H:%M:%S}'.format(datetime.datetime.now())
+#timestamp = "05-15-21:46:48"		#hardcode to fill holes caused by process death
 
 #prepend/append a None to size breaks list for easier looping
 size_breaks = [None] + size_breaks + [None]
@@ -120,6 +121,10 @@ for run in range(repeat_runs):
 			#define our base output filename - keep it simple, will have all the settings in the output files
 			outfile = "sim_results/%s/%s_%d-%d_%s_test_%s%s" % (subreddit, subreddit, arguments['-y'], arguments['-m'], size_class, timestamp, "_run%d" % run if repeat_runs > 1 else "")
 
+			#this run already done? skip
+			if file_utils.verify_file(outfile+"_results.csv"):
+				continue
+
 			#build command arguments list
 			#base first
 			command = ['time', 'python3', 'gen_cascade_model.py', '-s', subreddit, '-o', outfile]
@@ -141,6 +146,8 @@ for run in range(repeat_runs):
 				f = open("sim_results/%s/%s_%d-%d_%sgraph.txt" % (subreddit, subreddit, arguments['-y'], arguments['-m'], timestamp), "w")
 				subprocess.call(command+['-preprocess'], stdout=f, stderr=f)
 				print("Done")
+
+			print(outfile)
 			
 			#run the thing, piping output to file
 			f = open(outfile+".txt", "w")
