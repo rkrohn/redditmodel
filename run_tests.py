@@ -139,7 +139,7 @@ for run in range(repeat_runs):
 			if sub_counts[subreddit] == 0:
 				print("Preprocessing", subreddit)
 				f = open("sim_results/%s/%s_%d-%d_%sgraph.txt" % (subreddit, subreddit, arguments['-y'], arguments['-m'], timestamp), "w")
-				subprocess.call(command+['-graph_only'], stdout=f, stderr=f)
+				subprocess.call(command+['-preprocess'], stdout=f, stderr=f)
 				print("Done")
 			
 			#run the thing, piping output to file
