@@ -106,11 +106,8 @@ for run in range(repeat_runs):
 		#loop subreddits
 		for subreddit in subreddits:
 
-			#parser.add_argument("-o", "--out", dest="outfile", required=True, help="base output filename")
-
 			#define our base output filename - keep it simple, will have all the settings in the output files
 			outfile = "sim_results/%s_%d-%d_%s_test_%s%s" % (subreddit, arguments['-y'], arguments['-m'], size_class, timestamp, "_run%d" % run if repeat_runs > 1 else "")
-			print(outfile)
 
 			#build command arguments list
 			#base first
@@ -124,6 +121,15 @@ for run in range(repeat_runs):
 			#observation list
 			command.append(observation_option)
 			command = command + run_observed_list
+
+			#is this the first run for this subreddit? 
+			#if yes, make sure all the preprocessing is done and the graph exists first
+			#wait for this graph-build-only run to finish before doing more
+			if sub_counts[subreddit] == 0:
+				print("Preprocessing", subreddit)
+				f = open("sim_results/%s_%d-%d_%sgraph.txt" % (subreddit, arguments['-y'], arguments['-m'], timestamp), "w")
+				subprocess.call(command+['-graph_only'], stdout=f, stderr=f)
+				print("Done")
 			
 			#run the thing, piping output to file
 			f = open(outfile+".txt", "w")
@@ -134,10 +140,9 @@ for run in range(repeat_runs):
 			#add to subreddit counter
 			sub_counts[subreddit] += 1
 
-			break
-		break
-	break
-
-print("Test counts by subreddit:")
+print("\nTest counts by subreddit:")
+total_count = 0
 for sub, count in sub_counts.items():
 	print("  ", sub, ":", count)
+	total_count += count
+print("Total:", total_count, "(plus", len(subreddits), "preprocessing)")

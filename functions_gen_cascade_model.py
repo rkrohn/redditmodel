@@ -137,6 +137,10 @@ def parse_command_args():
 	parser.add_argument("-down_ratio", dest="graph_downsample_ratio", default=None, help="ratio of large:small posts to use for base graph build")
 	parser.add_argument("-large_req", dest="large_cascade_demarcation", default=None, help="minimum number of comments to be considered \"large\" for graph downsample")
 
+	#just build the base graph, don't bother with any actual testing
+	parser.add_argument('-preprocess', dest='preprocess', action="store_true", help="preprocess posts, construct and save base graph, no actual testing")
+	parser.set_defaults(preprocess=False)
+
 	args = parser.parse_args()		#parse the args (magic!)
 
 	#must provide year and month for start of testing data set - unless running off crypto, cve, or cyber
@@ -190,6 +194,7 @@ def parse_command_args():
 	max_size = int(args.max_size) if args.max_size is not None else None
 	training_stats = args.training_stats
 	testing_stats = args.testing_stats
+	preprocess = args.preprocess
 	graph_downsample_ratio = float(args.graph_downsample_ratio) if args.graph_downsample_ratio is not None else None
 	large_cascade_demarcation = int(args.large_cascade_demarcation) if args.large_cascade_demarcation is not None else None
 	#convert where required
@@ -313,7 +318,7 @@ def parse_command_args():
 	vprint("")
 
 	#return all arguments
-	return subreddit, sim_post, observing_time, observed_list, outfile, max_nodes, min_node_quality, estimate_initial_params, normalize_parameters, batch, sample_num, testing_start_month, testing_start_year, testing_len, training_start_month, training_start_year, training_len, weight_method, remove_stopwords, top_n, weight_threshold, include_default_posts, time_error_margin, error_method, sanity_check, min_size, max_size, training_stats, testing_stats, socsim_data, graph_downsample_ratio, large_cascade_demarcation, verbose
+	return subreddit, sim_post, observing_time, observed_list, outfile, max_nodes, min_node_quality, estimate_initial_params, normalize_parameters, batch, sample_num, testing_start_month, testing_start_year, testing_len, training_start_month, training_start_year, training_len, weight_method, remove_stopwords, top_n, weight_threshold, include_default_posts, time_error_margin, error_method, sanity_check, min_size, max_size, training_stats, testing_stats, socsim_data, graph_downsample_ratio, large_cascade_demarcation, verbose, preprocess
 #end parse_command_args
 
 
