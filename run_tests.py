@@ -1,6 +1,8 @@
 import datetime
 import subprocess
 from collections import defaultdict
+import sys
+
 import file_utils
 
 #dictionary of arguments with values, list of flag/boolean arguments
@@ -12,7 +14,11 @@ arguments_list = []
 repeat_runs = 3			#number of repeated runs to do for each subreddit/size class
 
 #list of subreddits separately, since one output file per subreddit
-subreddits = ['explainlikeimfive']	#list of subreddits, -s
+#subreddits = ['explainlikeimfive']	#list of subreddits, -s
+#converted this to a command line arg for parallel processing of multiple subreddits,
+#even during the preprocessing phase
+#but it could be manual without too much work
+subreddits = sys.argv[1:]
 
 #list of times/comment counts for observation, along with the selected option
 observation_option = '-nco'		#-nco or -t
