@@ -93,6 +93,8 @@ for sim_post_id, sim_post in test_posts.items():
 	if batch == False:
 		vprint("Simulation post has %d comments" % test_cascades[sim_post_id]['comment_count_total'])
 
+	#print("processing %s (%d/%d)" % (sim_post_id, post_count, len(test_posts)))
+
 	#GRAPH INFER
 	if not sanity_check:
 		inferred_params, disconnected, new_edges = functions_gen_cascade_model.graph_infer(sim_post, sim_post_id, weight_method, weight_threshold, base_graph, graph_post_ids, train_posts, train_cascades, train_params, train_fit_fail_list, top_n, estimate_initial_params, normalize_parameters, filename_id, display= not batch)
@@ -111,14 +113,11 @@ for sim_post_id, sim_post in test_posts.items():
 	true_structural_virality = functions_gen_cascade_model.get_structural_virality(true_cascade)
 
 	#use the same inferred params for all the time_observed values
-	for observed in observed_list:
-
-		#REFINE PARAMS - for partial observed trees
-		if not sanity_check:
-			partial_fit_params = fit_partial_cascade.fit_partial_cascade(test_cascades[sim_post_id], observed, observing_time, inferred_params, verbose=(verbose if batch==False else False))
-			if batch == False: vprint("Refined params: ", partial_fit_params, "\n")
+	for observed in observed_list:			
 
 		#which params are we using for simulation?
+
+		#if sanity check, grab fitted or default params
 		if sanity_check:
 			if sim_post_id in test_params:
 				sim_params = test_params[sim_post_id]
@@ -128,10 +127,20 @@ for sim_post_id, sim_post in test_posts.items():
 			else:
 				sim_params = functions_gen_cascade_model.get_default_params(test_cascades[sim_post_id])
 			disconnected = False 		#set this for output
-			if not batch:
-				vprint("Simulation params: ", sim_params)
+			
+		#real sim, get refined params
 		else:
-			sim_params = partial_fit_params			#refined params from partial fit
+			#REFINE PARAMS - for partial observed trees
+			partial_fit_params = fit_partial_cascade.fit_partial_cascade(test_cascades[sim_post_id], observed, observing_time, inferred_params, verbose=(verbose if batch==False else False))
+			#verify we got good params back - if not, skip this post entirely
+			if partial_fit_params == False:
+				post_count -= 1		#don't count this post (counter incremented at bottom of loop)
+				break
+
+			sim_params = partial_fit_params			#refined params from partial fit for sim
+
+		if not batch:
+			vprint("Simulation params: ", sim_params)
 
 		#SIMULATE COMMENT TREE
 		sim_tree, observed_count, observed_time, simulated_count = functions_gen_cascade_model.simulate_comment_tree(sim_params, subreddit, test_cascades[sim_post_id], observed, observing_time, not batch)
@@ -186,12 +195,16 @@ for sim_post_id, sim_post in test_posts.items():
 		vprint("   finished %d posts (%d disconnected)" % (post_count, disconnected_count))
 
 #all done, print final disconnected count
-vprint("Finish simulating %d posts (%d disconnected)" % (post_count, disconnected_count))
+vprint("Finished simulating %d posts (%d disconnected)" % (post_count, disconnected_count))
+
+if post_count == 0:
+	vprint("\nNo posts simulated, no results to save\n")
+	exit(0)
 
 #if mode == all, print metric totals
 if batch or len(observed_list) > 1:
 	print("\nAll done\n")
-	vprint("Number of posts: ", len(test_posts))
+	vprint("Number of posts: ", post_count)
 	vprint("Observing: ", "time" if observing_time else "comments")
 	vprint("Observed: ", observed_list)
 	vprint("Source subreddit: ", subreddit)
