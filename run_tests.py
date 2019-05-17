@@ -11,7 +11,7 @@ arguments_list = []
 
 #REQUIRED ARGUMENTS
 
-repeat_runs = 3			#number of repeated runs to do for each subreddit/size class
+repeat_runs = 1			#number of repeated runs to do for each subreddit/size class
 
 #list of subreddits separately, since one output file per subreddit
 #subreddits = ['explainlikeimfive']	#list of subreddits, -s
@@ -29,7 +29,7 @@ observation_list = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17
 arguments_list.append('-j')		#-j, -c, or -wmd
 
 #define the test set: -n <sample size>, -id <post id>, -r, or -a
-arguments_list.append('-r')		#list for -a or -r
+arguments_list.append('-a')		#list for -a or -r
 #arguments['-n'] = 50			#dict for -n or -id
 
 #choose at least one graph limit option, but can use both
@@ -151,7 +151,7 @@ for run in range(repeat_runs):
 			
 			#run the thing, piping output to file
 			f = open(outfile+".txt", "w")
-			f.write(' '.join(command[3:])+'\n')		#write arguments to first line of file
+			f.write(' '.join(command)+'\n')		#write arguments to first line of file
 			f.flush()  #make sure arguments get written first
 			subprocess.Popen(command, stdout=f, stderr=f)
 
