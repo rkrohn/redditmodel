@@ -33,7 +33,7 @@ def fit_partial_cascade(cascade, observed, observing_time, param_guess=False, ve
     root_comment_times = get_root_comment_times(filtered_cascade)
     if root_comment_times == False:
         vprint("Invalid comment times, skipping this cascade.")
-        return False
+        return False, False
     
     #fitting log-normal to all other comment times, so get list of those
     other_comment_times = get_other_comment_times(filtered_cascade)
@@ -64,7 +64,7 @@ def fit_partial_cascade(cascade, observed, observing_time, param_guess=False, ve
         params[5] = n_b
 
     #return all parameters together - your job to keep the order straight ;) - [a, lbd, k, mu, sigma, n_b]
-    return params
+    return params, observed_count
 #end fit_partial_cascade
 
 
