@@ -182,3 +182,19 @@ def load_parquet(filename):
 	df = pd.read_parquet(filename, engine='pyarrow')
 	return df
 #end load_parquet
+
+
+#load a csv file to a pandas dataframe
+#if index_col is given, set that column to be the index
+def load_csv_pandas(filename, index_col=False):
+	df = pd.read_csv(filename)
+	if index_col != False:
+		df.set_index(index_col, inplace=True)
+	return df
+#end load_csv_pandas
+
+
+#save a dataframe to csv
+def save_csv_pandas(df, filename, include_index=True):
+	df.to_csv(filename, index=include_index)
+#end save_csv_pandas
