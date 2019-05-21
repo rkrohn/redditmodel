@@ -54,6 +54,7 @@ size_breaks = [10, 30, 50, 100, 200, 300, 500, 1000]
 #arguments['-q'] = [0.1]		#minimum node quality
 #arguments['-l'] = 1			#number of months for testing (default 1)
 #arguments['-p'] = 1			#number of months for training
+#arguments['-np'] = 'ln'		#optional normalization, ln (natural log) or mm (min-max)
 
 #must do both of these together, if you want any
 #arguments['-down_ratio'] = 3	#ratio of large:small posts for graph downsampling, 
@@ -63,7 +64,6 @@ size_breaks = [10, 30, 50, 100, 200, 300, 500, 1000]
 #arguments_list.append('-e')		#estimate initial params
 arguments_list.append('-v')			#verbose output
 #arguments_list.append('-d')		#include default posts in graph
-#arguments_list.append('-np')		#normalize params for node2vec infer
 #arguments_list.append('--sanity')	#simulate from fitted params
 #arguments_list.append('--train_stats')		#compute and output training set stats
 #arguments_list.append('--test_stats')		#compute and output testing set stats

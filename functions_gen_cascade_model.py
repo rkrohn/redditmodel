@@ -21,6 +21,8 @@ from copy import deepcopy
 import statistics
 import networkx as nx
 from nltk.corpus import stopwords
+import math
+import sys
 
 #filepaths of data and pre-processed files - keeping everything in the same spot, for sanity/simplicity
 
@@ -120,8 +122,7 @@ def parse_command_args():
 	parser.set_defaults(time_error_absolute=False)
 	parser.add_argument("--topo_err", dest="topological_error", action="store_true", help="compute topological error only, ignoring comment timestamps")
 	parser.set_defaults(topological_error=False)
-	parser.add_argument("-np", "--norm_param", dest="normalize_parameters", action="store_true", help="min-max normalize paramters for graph inference")
-	parser.set_defaults(normalize_parameters=False)
+	parser.add_argument("-np", "--norm_param", dest="normalize_parameters", default=None, help="normalize paramters for graph inference, either mm or ln")
 	parser.add_argument("--sanity", dest="sanity_check", action="store_true", help="sanity check: simulate from fitted params instead of inferring")
 	parser.set_defaults(sanity_check=False)
 	#can also layer in a size filter: only simulate cascades within a size range (or meeting some min/max size)
@@ -162,6 +163,10 @@ def parse_command_args():
 	#only remove stopwords if running in jaccard mode
 	if args.remove_stopwords and args.weight_method != "jaccard":
 		parser.error("Can only remove stopwords when using jaccard for edge weight.")
+
+	#must choose ln or minmax for normalization
+	if args.normalize_parameters is not None and args.normalize_parameters != "ln" and args.normalize_parameters != "mm":
+		parser.error("Must choose from ln (natural log) or mm (min-max) normalization options")
 
 	#extract arguments (since want to return individual variables)
 	subreddit = args.subreddit
@@ -279,8 +284,8 @@ def parse_command_args():
 	vprint("Minimum edge weight: ", "None" if weight_threshold==False else weight_threshold)
 	if estimate_initial_params:
 		vprint("Estimating initial params for seed posts based on inverse quality weighted average of neighbors")
-	if normalize_parameters:
-		vprint("Normalizing params (min-max) for graph infer")
+	if normalize_parameters is not None:
+		vprint("Normalizing params for graph infer using ", ("min-max" if normalize_parameters == "mm" else "natural log"))
 	else:
 		vprint("No param normalization for infer step")
 	vprint("Testing Period: %d-%d" % (testing_start_month, testing_start_year), " through %d-%d (%d months)" % (monthdelta(testing_start_month, testing_start_year, testing_len, inclusive=True)+(testing_len,)) if testing_len > 1 else " (%d month)" % testing_len)
@@ -1251,10 +1256,7 @@ def graph_infer(sim_post, sim_post_id, weight_method, min_weight, base_graph, el
 
 	#save graph and params to files for node2vec
 	save_graph(edges, temp_graph_filepath % filename_id, isolated_nodes, display)
-	if normalize_parameters:
-		min_params, max_params = save_params(numeric_ids, posts, cascades, params, temp_params_filepath % filename_id, param_estimate=(estimated_params if estimate_initial_params else False), normalize=True, display=display)
-	else:
-		save_params(numeric_ids, posts, cascades, params, temp_params_filepath % filename_id, param_estimate=(estimated_params if estimate_initial_params else False), normalize=False, display=display)
+	param_save_res = save_params(numeric_ids, posts, cascades, params, temp_params_filepath % filename_id, param_estimate=(estimated_params if estimate_initial_params else False), normalize=normalize_parameters, display=display)
 
 	#clear any previous output params
 	if file_utils.verify_file(output_params_filepath):
@@ -1272,10 +1274,7 @@ def graph_infer(sim_post, sim_post_id, weight_method, min_weight, base_graph, el
 		vprint("")
 
 	#load the inferred params (dictionary of numeric id -> params) and extract sim_post inferred params
-	if normalize_parameters:
-		all_inferred_params = load_inferred_params(output_params_filepath % filename_id, min_params, max_params, display=display)
-	else:
-		all_inferred_params = load_inferred_params(output_params_filepath % filename_id, display=display)
+	all_inferred_params = load_inferred_params(output_params_filepath % filename_id, normalize=normalize_parameters, min_max_params=param_save_res, display=display)
 	inferred_params = all_inferred_params[numeric_ids[sim_post_id]]
 
 	return inferred_params, disconnected, len(new_edges)
@@ -1346,26 +1345,51 @@ def save_graph(edgelist, filename, isolated_nodes = [], display=False):
 
 
 #save params to txt file for node2vec processing
-def save_params(numeric_ids, posts, cascades, params, filename, param_estimate=False, normalize=False, display=False):
-	#if normalizing, find min and max values in each position (not sticky/quality)
-	if normalize:
-		#start at defaults, so those values included in min/max checks
-		min_params = DEFAULT_WEIBULL_NONE + DEFAULT_LOGNORMAL + [DEFAULT_QUALITY]
-		max_params = DEFAULT_WEIBULL_SINGLE + DEFAULT_LOGNORMAL + [DEFAULT_QUALITY]
-		for post_id, params in params.items():
+def save_params(numeric_ids, posts, cascades, params, filename, param_estimate=False, normalize=None, display=False):
+
+	#first, build a complete list of params to save - including any default or incomplete ones
+	save_params = {}		#post id -> params
+	for post_id, numeric_id in numeric_ids.items():
+		#skip sim post for now
+		if numeric_id == 0:
+			continue
+
+		#fetch params for this post - either from dict or as default
+		if post_id in params:
+			post_params = params[post_id]				
+			#fill in holes if params not complete
+			if not all(post_params):
+				post_params = get_complete_params(cascades[post_id], post_params)
+		else:
+			post_params = get_default_params(cascades[post_id])
+
+		#save to dump dictionary
+		save_params[post_id] = post_params
+
+	#if min-max normalizing, find min and max values in each position (not sticky/quality)
+	if normalize == "mm":
+		#start min/max tracking at the sim post estimated params (if we have them)
+		if param_estimate != False:
+			min_params = param_estimate.copy()
+			max_params = param_estimate.copy()
+		#otherwise, start them at a param set from the graph (doesn't matter which one)
+		else:
+			min_params = save_params[list(save_params.keys())[0]].copy()
+			max_params = save_params[list(save_params.keys())[0]].copy()
+
+		#loop to find min and max values at each position
+		for post_id, params in save_params.items():
 			for i in range(6):
 				if params[i] < min_params[i]:
 					min_params[i] = params[i]
 				if params[i] > max_params[i] :
 					max_params[i] = params[i]
-		#max value at index 0 (first weibull) could be highest number of comments for any default post
-		for post_id, numeric_id in numeric_ids.items():
-			if post_id not in params and post_id in cascades and cascades[post_id]['comment_count_direct'] > max_params[0]:
-				max_params[0] = cascades[post_id]['comment_count_direct']
 		#compute normalization denominator
 		denom = [0] * 6
 		for i in range(6):
 			denom[i] = max_params[i] - min_params[i]
+
+	#if natural log normalizing, just apply the natural log to all values as we write them
 
 	#write all params out to file
 	with open(filename, "w") as f: 
@@ -1374,46 +1398,52 @@ def save_params(numeric_ids, posts, cascades, params, filename, param_estimate=F
 			if numeric_id == 0:
 				continue
 
-			f.write(str(numeric_id) + " ")		#write numeric post id
-			#fetch params
-			if post_id in params:
-				post_params = params[post_id]				
-				#fill in holes if params not complete
-				if not all(post_params):
-					post_params = get_complete_params(cascades[post_id], post_params)
-			else:
-				post_params = get_default_params(cascades[post_id])
-			#write params
-			if normalize:
-				for i in range(6):
-					f.write(str((post_params[i] - min_params[i]) / denom[i]) + ' ')
-			else:
-				for i in range(6):
-					f.write(str(post_params[i]) + ' ')
+			f.write(str(numeric_id) + " ")		#write numeric post id			
+			post_params = save_params[post_id]	#fetch params
+			#write params, normalizing if we have to
+			for i in range(6):
+				try:
+					if normalize == "mm": f.write(str((post_params[i] - min_params[i]) / denom[i]) + ' ')
+					elif normalize == "ln": 
+						if post_params[i] > 0:
+							f.write(str(math.log(post_params[i])) + ' ')
+						else:
+							f.write(str(math.log(sys.float_info.min)) + ' ')
+					else: f.write(str(post_params[i]) + ' ')
+				except Exception as e:
+					print(e)
+					print(i, post_params[i])
+					exit(0)
 			f.write(str(post_params[6]) + "\n")	#write quality (last value in params)
 
-		#estimated params for sim_post, if we have them	(no quality)
+		#write estimated params for sim_post, if we have them	(no quality)
 		if param_estimate != False:
-			if normalize:
-				for i in range(6):
-					f.write(str((param_estimate[i] - min_params[i]) / denom[i]) + ' ')
-			else:
-				f.write("%d %f %f %f %f %f %f\n" % (0, param_estimate[0], param_estimate[1], param_estimate[2], param_estimate[3], param_estimate[4], param_estimate[5]))
+			f.write(str(0) + " ")		#write numeric post id - in this case 0
+			for i in range(0):
+				if normalize == "mm": f.write(str((param_estimate[i] - min_params[i]) / denom[i]) + ' ')
+				if normalize == "ln": f.write(str(math.log(param_estimate[i])) + ' ')
+				else: f.write(str(param_estimate[i]) + ' ')
+			f.write("\n")
 
 	if display:
 		vprint("Saved graph params to %s" % filename)
 
-	#if normalized, return min/max values so we can reverse it later
-	if normalize:
+	#if min-max normalized, return min/max values so we can reverse it later
+	#otherwise, return None (no return data)
+	if normalize == 'mm':
 		return min_params, max_params
+	else:
+		return None
 #end save_params
 
 
 #load inferred params from file
-def load_inferred_params(filename, min_params=False, max_params=False, display=False):
-	#if reversing normalization, compute denominator
-	if min_params != False:
+def load_inferred_params(filename, normalize=False, min_max_params=False, display=False):
+	#if reversing min-max normalization, compute denominator
+	if normalize == 'mm':
 		denom = [0] * 6
+		min_params = min_max_params[0]
+		max_params = min_max_params[1]
 		for i in range(6):
 			denom[i] = max_params[i] - min_params[i]
 
@@ -1434,9 +1464,10 @@ def load_inferred_params(filename, min_params=False, max_params=False, display=F
 		for i in range(1, 7):
 			params.append(float(values[i]))
 		#reverse normalization, if applicable
-		if min_params != False:
-			for i in range(6):
-				params[i] = params[i] * denom[i] + min_params[i]
+		if normalize == 'mm':
+			for i in range(6): params[i] = params[i] * denom[i] + min_params[i]
+		elif normalize == 'ln':
+			for i in range(6): params[i] = math.exp(params[i])
 		all_params[post_id] = params
 
 	if display:
