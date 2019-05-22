@@ -1280,6 +1280,10 @@ def graph_infer(sim_post, sim_post_id, weight_method, min_weight, base_graph, el
 	all_inferred_params = load_inferred_params(output_params_filepath % filename_id, normalize=normalize_parameters, min_max_params=param_save_res, display=display)
 	inferred_params = all_inferred_params[numeric_ids[sim_post_id]]
 
+	#cap branching factor at 1 to prevent infinite sim
+	if inferred_params[5] > 1:
+		inferred_params[5] = 1
+
 	return inferred_params, disconnected, len(new_edges)
 #end graph_infer
 
