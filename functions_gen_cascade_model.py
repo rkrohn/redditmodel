@@ -1508,6 +1508,10 @@ def simulate_comment_tree(sim_params, group, sim_cascade, observed, observing_ti
 		observed_count = 0
 		time_observed = 0
 
+	#catching the infinite sim
+	if sim_root == False:
+		return False, observed_count, time_observed, -1
+
 	if display:
 		vprint("Generated %d total comments for post (including %d observed)" % (len(all_times), observed_count))
 		vprint("   %d actual\n" % sim_cascade['comment_count_total'])

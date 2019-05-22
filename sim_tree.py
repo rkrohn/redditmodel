@@ -319,6 +319,10 @@ def simulate_comment_tree(model_params, time_observed = False, observed_tree = F
             #add child objects for all these generated replies
             curr['replies'].extend(reply_comments)  
             needs_replies.extend(reply_comments)       #add all new replies to list to be processed
+
+            #try to catch the infinite sim (might need tuning)
+            if len(needs_replies) > 500:
+                return False, False
     #finished processing root comments
 
     if display:

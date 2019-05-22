@@ -149,6 +149,9 @@ for sim_post_id, sim_post in test_posts.items():
 		#SIMULATE COMMENT TREE
 		sim_tree, observed_count, observed_time, simulated_count = functions_gen_cascade_model.simulate_comment_tree(sim_params, subreddit, test_cascades[sim_post_id], observed, observing_time, not batch)
 
+		if sim_tree == False:
+			continue
+
 		#EVAL
 
 		#already got ground-truth cascade above
