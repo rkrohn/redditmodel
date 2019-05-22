@@ -1,0 +1,23 @@
+Average by max observed comments
+time_observed,observed_comment_count,max_observed_comments,true_comment_count,simulated_comment_count,true_root_comments,sim_root_comments,true_depth,true_breadth,simulated_depth,simulated_breadth,true_structural_virality,sim_structural_virality,dist,norm_dist,norm_dist_exclude_observed,MEPDL_min,MEPDL_max,remove_count,remove_time,insert_count,insert_time,update_count,update_time,match_count,connecting_edges
+0.0,0.0,0.0,4.955,63.815,2.82,2.11,1.74,3.245,7.85,4.605,0.694601768336988,4.083555862708616,66.57,nan,nan,1.3116666666666668,2.3553891316419198,62.34,6084.456240305996,3.835,2084.407166666667,0.0,0.0,1.98,17.245
+
+Settings
+sim_post,sample200
+observing,comments
+observed_list,[0]
+subreddit,aww
+min_node_quality,False
+max_graph_size,False
+min_edge_weight,False
+testing_period,12-2017
+test_len,1
+training_period,11-2017
+train_len,1
+edge_weight_method,jaccard
+include_default_params_posts,True
+estimate_initial_params,False
+allowable time error,30.0
+time error method,topo
+minimum comments,none
+maximum comments,none
