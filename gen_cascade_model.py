@@ -136,9 +136,10 @@ for sim_post_id, sim_post in test_posts.items():
 			if partial_fit_params == False:
 				post_count -= 1		#don't count this post (counter incremented at bottom of loop)
 				break
-				
-			#if we have observed the whole cascade, don't bother simming for this observed setting
-			if observed_comment_count >= test_cascades[sim_post_id]['comment_count_total']:
+
+			#if we have observed the whole cascade and max observed is not 0, 
+			#don't bother simming for this observed setting
+			if observed != 0 and observed_comment_count >= test_cascades[sim_post_id]['comment_count_total']:
 				continue
 
 			sim_params = partial_fit_params			#refined params from partial fit for sim
