@@ -192,7 +192,7 @@ for sim_post_id, sim_post in test_posts.items():
 		#aggregate metrics for average later
 		if batch:
 			for metric, value in eval_res.items():
-				if metric == "post_id" or metric == "disconnected" or metric == "param_source" or metric == "observing_by":
+				if metric == "post_id" or metric == "disconnected" or metric == "param_source" or metric == "observing_by" or (metric == "connecting_edges" and sanity_check):
 					continue
 				avg_metrics[observed][metric] += value
 
