@@ -81,12 +81,15 @@ if preprocess:
 
 all_metrics = []		#keep all metrics, separate for each post/observed time run, dump them all at the end
 filename_id = str(time.time())		#unique temp file identifier for this run - node2vec graph/param files
-finished_posts = set()		#set of finished posts (for pickle bookmark)
 
 #load list of finished posts for this run, so we can skip ones that are already done
-if file_utils.verify_file(outfile+"_finished_posts.pkl"):
-	finished_posts = file_utils.load_pickle(outfile+"_finished_posts.pkl")
-	vprint("Skipping simulation for %d posts already completed" % len(finished_posts))
+#(if no bookmark, will get back empty set and False flag)
+finished_posts, complete = functions_gen_cascade_model.load_bookmark(outfile)
+#if finished all posts already, exit
+if complete:
+	vprint("Entire post set already simulated, exiting")
+	exit(0)
+else: vprint("Skipping %d already simulated posts" % len(finished_posts))
 
 #process all posts (or just one, if doing that)
 post_count = 0
@@ -198,8 +201,8 @@ for sim_post_id, sim_post in test_posts.items():
 		#append new results to running csv
 		functions_gen_cascade_model.save_results(outfile, all_metrics, observing_time)
 		all_metrics.clear()		#clear out what we already saved
-		#and save pickle of set of finished posts (bookmark for later)
-		file_utils.save_pickle(finished_posts, outfile+"_finished_posts.pkl")
+		#and save pickle bookmark: set of finished posts and current status
+		functions_gen_cascade_model.save_bookmark(finished_posts, outfile)
 		#don't clear that list, want it to contain everything
 
 #all done, print final disconnected count
@@ -211,3 +214,6 @@ if post_count == 0:
 
 #save metrics + settings to output file
 functions_gen_cascade_model.save_results(outfile, all_metrics, observing_time)
+
+#all done, update bookmark to "finished"
+functions_gen_cascade_model.save_bookmark(finished_posts, outfile, status=True)

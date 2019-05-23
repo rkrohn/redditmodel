@@ -1775,6 +1775,32 @@ def cascade_to_graph(cascade):
 #end cascade_to_graph
 
 
+#load set of finished posts from pickle, if the file exists
+#this acts as progress bookmark in case of sad process deaths
+#file includes a status flag, which is also unpacked and returned
+def load_bookmark(base_filename):
+	#no bookmark, return empty set and False 
+	if file_utils.verify_file(base_filename+"_finished_posts.pkl") == False:
+		return set(), False
+
+	#otherwise, load and unpack	
+	bookmark_data = file_utils.load_pickle(base_filename+"_finished_posts.pkl")
+	#return set of finished posts and status - True if finished, False otherwise
+	return bookmark_data['finished_posts'], bookmark_data['complete']
+#end save_bookmark	
+
+
+#save set of finished posts to pickle - acts as progress bookmark in case of sad process deaths
+#includes a completion status flag - either True, indicating all posts simulated and results saved, 
+#   or False, indicating that there are still posts that must be simulated
+def save_bookmark(finished_posts, base_filename, status=False):
+	#put post set and flag in a dictionary for unpacking later
+	bookmark_data = {"finished_posts": finished_posts, "complete": status}
+	#save file
+	file_utils.save_pickle(bookmark_data, base_filename+"_finished_posts.pkl")
+#end save_bookmark	
+
+
 #save all sim results to csv file
 #one row per simulated post/time pair, with a bunch of data in it
 #then, at the bottom, all the settings/arguments, for tracking purposes
