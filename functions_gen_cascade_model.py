@@ -1778,7 +1778,7 @@ def cascade_to_graph(cascade):
 #save all sim results to csv file
 #one row per simulated post/time pair, with a bunch of data in it
 #then, at the bottom, all the settings/arguments, for tracking purposes
-def save_results(base_filename, metrics, input_sim_post, sample_num, observed_list, observing_time, subreddit, min_node_quality, max_graph_size, min_weight, testing_start_month, testing_start_year, testing_len, training_start_month, training_start_year, training_len, edge_weight_method, include_hardcoded_posts, estimate_initial_params, time_error_margin, error_method, min_size, max_size):
+def save_results(base_filename, metrics, observing_time):
 	#given a base filename, convert to complete output filename
 	filename = base_filename + "_results.csv"
 
