@@ -13,7 +13,6 @@ import fit_partial_cascade
 import time
 from collections import defaultdict
 
-print("")
 
 #parse all command-line arguments
 subreddit, input_sim_post, observing_time, observed_list, outfile, max_nodes, min_node_quality, estimate_initial_params, normalize_parameters, batch, sample_num, testing_start_month, testing_start_year, testing_len, training_start_month, training_start_year, training_len, weight_method, remove_stopwords, top_n, weight_threshold, include_default_posts, time_error_margin, error_method, sanity_check, min_size, max_size, get_training_stats, get_testing_stats, socsim_data, graph_downsample_ratio, large_cascade_demarcation, verbose, preprocess = functions_gen_cascade_model.parse_command_args()
@@ -93,8 +92,6 @@ for sim_post_id, sim_post in test_posts.items():
 	if batch == False:
 		vprint("Simulation post has %d comments" % test_cascades[sim_post_id]['comment_count_total'])
 
-	#print("processing %s (%d/%d)" % (sim_post_id, post_count, len(test_posts)))
-
 	#GRAPH INFER
 	if not sanity_check:
 		inferred_params, disconnected, new_edges = functions_gen_cascade_model.graph_infer(sim_post, sim_post_id, weight_method, weight_threshold, base_graph, graph_post_ids, train_posts, train_cascades, train_params, train_fit_fail_list, top_n, estimate_initial_params, normalize_parameters, filename_id, display= not batch)
@@ -134,6 +131,7 @@ for sim_post_id, sim_post in test_posts.items():
 			partial_fit_params, observed_comment_count = fit_partial_cascade.fit_partial_cascade(test_cascades[sim_post_id], observed, observing_time, inferred_params, verbose=(verbose if batch==False else False))
 			#verify we got good params back - if not, skip this post entirely
 			if partial_fit_params == False:
+				vprint("Partial fit failed for", sim_post_id, "- skipping post")
 				post_count -= 1		#don't count this post (counter incremented at bottom of loop)
 				break
 
@@ -150,6 +148,7 @@ for sim_post_id, sim_post in test_posts.items():
 		#SIMULATE COMMENT TREE
 		sim_tree, observed_count, observed_time, simulated_count = functions_gen_cascade_model.simulate_comment_tree(sim_params, subreddit, test_cascades[sim_post_id], observed, observing_time, not batch)
 
+		#don't try to eval if sim failed (aborted infinite sim)
 		if sim_tree == False:
 			continue
 

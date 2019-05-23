@@ -270,6 +270,9 @@ def parse_command_args():
 	else:   
 		vprint = lambda *a: None      # do-nothing function
 
+	#print all arguments, so we know what this run was
+	vprint("\n", args, "\n")	
+
 	#print some log-ish stuff in case output being piped and saved
 	vprint("Sim Post: ", sim_post, " %d" % sample_num if sample_num != False else "")
 	if observing_time:
