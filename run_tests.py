@@ -4,6 +4,7 @@ from collections import defaultdict
 import sys
 
 import file_utils
+from functions_gen_cascade_model import load_bookmark
 
 #dictionary of arguments with values, list of flag/boolean arguments
 arguments = {}
@@ -46,7 +47,7 @@ arguments_list.append('--topo_err')
 #size classes - put a list of size category breaks here, and the loop will process them all
 #first will just be used as a max, last as just a min
 #for options -min and -max
-size_breaks = [10, 30, 50, 100, 200, 300, 500, 1000]
+size_breaks = [1, 5, 10, 30, 50, 100, 200, 300, 500, 1000]
 
 #OPTIONAL ARGUMENTS: only add to dictionary/list if not using default
 
@@ -54,7 +55,7 @@ size_breaks = [10, 30, 50, 100, 200, 300, 500, 1000]
 #arguments['-q'] = [0.1]		#minimum node quality
 #arguments['-l'] = 1			#number of months for testing (default 1)
 #arguments['-p'] = 1			#number of months for training
-#arguments['-np'] = 'ln'		#optional normalization, ln (natural log) or mm (min-max)
+arguments['-np'] = 'ln'		#optional normalization, ln (natural log) or mm (min-max)
 
 #must do both of these together, if you want any
 #arguments['-down_ratio'] = 3	#ratio of large:small posts for graph downsampling, 
@@ -63,7 +64,7 @@ size_breaks = [10, 30, 50, 100, 200, 300, 500, 1000]
 
 #arguments_list.append('-e')		#estimate initial params
 arguments_list.append('-v')			#verbose output
-#arguments_list.append('-d')		#include default posts in graph
+arguments_list.append('-d')		#include default posts in graph
 #arguments_list.append('--sanity')	#simulate from fitted params
 #arguments_list.append('--train_stats')		#compute and output training set stats
 #arguments_list.append('--test_stats')		#compute and output testing set stats
@@ -122,7 +123,10 @@ for run in range(repeat_runs):
 			outfile = "sim_results/%s/%s_%d-%d_%s_test_%s%s" % (subreddit, subreddit, arguments['-y'], arguments['-m'], size_class, timestamp, "_run%d" % run if repeat_runs > 1 else "")
 
 			#this run already done? skip
-			if file_utils.verify_file(outfile+"_results.csv"):
+			#check the bookmark saved by the model to know if finished or not
+			finished_posts, complete = load_bookmark(outfile)
+			if complete:
+				print("skipping", outfile)
 				continue
 
 			#build command arguments list
@@ -143,7 +147,7 @@ for run in range(repeat_runs):
 			#wait for this graph-build-only run to finish before doing more
 			if sub_counts[subreddit] == 0:
 				print("Preprocessing", subreddit)
-				f = open("sim_results/%s/%s_%d-%d_%sgraph.txt" % (subreddit, subreddit, arguments['-y'], arguments['-m'], timestamp), "w")
+				f = open("sim_results/%s/%s_%d-%d_%sgraph.txt" % (subreddit, subreddit, arguments['-y'], arguments['-m'], timestamp), "a")
 				subprocess.call(command+['-preprocess'], stdout=f, stderr=f)
 				print("Done")
 
@@ -153,7 +157,8 @@ for run in range(repeat_runs):
 			f = open(outfile+".txt", "w")
 			f.write(' '.join(command)+'\n')		#write arguments to first line of file
 			f.flush()  #make sure arguments get written first
-			subprocess.Popen(command, stdout=f, stderr=f)
+			process = subprocess.Popen(command, stdout=f, stderr=f)
+			#process.wait()		#wait for it to finish before we do more, if you want
 
 			#add to subreddit counter
 			sub_counts[subreddit] += 1
