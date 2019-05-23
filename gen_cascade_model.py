@@ -80,7 +80,6 @@ if preprocess:
 	exit(0)
 
 all_metrics = []		#keep all metrics, separate for each post/observed time run, dump them all at the end
-avg_metrics = defaultdict(lambda: defaultdict(float))	#keep average of all metrics for each observed time
 filename_id = str(time.time())		#unique temp file identifier for this run
 
 #process all posts (or just one, if doing that)
@@ -177,25 +176,6 @@ for sim_post_id, sim_post in test_posts.items():
 		#append eval data to overall list
 		all_metrics.append(eval_res)
 
-		if batch == False and len(observed_list) == 1:
-			vprint("Tree stats:")
-			vprint("   comment count: true ", eval_res['true_comment_count'], " simulated ", eval_res['simulated_comment_count'])
-			vprint("   depth: true ", eval_res['true_depth'], " simulated ", eval_res['simulated_depth'])
-			vprint("   breadth: true ", eval_res['true_breadth'], " simulated ", eval_res['simulated_breadth'])
-			vprint("Tree edit distance: ", eval_res['dist'])
-			vprint("   update: ", eval_res['update_count'], " ", eval_res['update_time'])
-			vprint("   insert: ", eval_res['insert_count'], " ", eval_res['insert_time'])
-			vprint("   remove: ", eval_res['remove_count'], " ", eval_res['remove_time'])
-			vprint("   match: ", eval_res['match_count'])
-
-		#aggregate metrics for average later
-		if batch:
-			for metric, value in eval_res.items():
-				if metric == "post_id" or metric == "disconnected" or metric == "param_source" or metric == "observing_by" or (metric == "connecting_edges" and sanity_check):
-					continue
-				avg_metrics[observed][metric] += value
-
-
 	#counter and periodic prints
 	post_count += 1
 	if batch and post_count % 50 == 0:
@@ -208,28 +188,5 @@ if post_count == 0:
 	vprint("\nNo posts simulated, no results to save\n")
 	exit(0)
 
-#if mode == all, print metric totals
-if batch or len(observed_list) > 1:
-	print("\nAll done\n")
-	vprint("Number of posts: ", post_count)
-	vprint("Observing: ", "time" if observing_time else "comments")
-	vprint("Observed: ", observed_list)
-	vprint("Source subreddit: ", subreddit)
-	if min_node_quality != -1:
-		vprint("Minimum node quality: ", min_node_quality)
-	else:
-		vprint("No minimum node quality")
-	vprint("Max graph size: ", max_nodes)
-	if estimate_initial_params:
-		vprint("Estimating initial params for seed posts based on inverse quality weighted average of neighbors")
-
-	vprint("")
-
-#finish average metrics
-if batch:
-	for time_observed, metrics in avg_metrics.items():
-		for metric in metrics.keys():
-			avg_metrics[time_observed][metric] /= len(test_posts)
-
 #save metrics + settings to output file
-functions_gen_cascade_model.save_results(outfile, all_metrics, avg_metrics, input_sim_post, sample_num, observed_list, observing_time, subreddit, min_node_quality, max_nodes, weight_threshold, testing_start_month, testing_start_year, testing_len, training_start_month, training_start_year, training_len, weight_method, include_default_posts, estimate_initial_params, time_error_margin, error_method, min_size, max_size)
+functions_gen_cascade_model.save_results(outfile, all_metrics, input_sim_post, sample_num, observed_list, observing_time, subreddit, min_node_quality, max_nodes, weight_threshold, testing_start_month, testing_start_year, testing_len, training_start_month, training_start_year, training_len, weight_method, include_default_posts, estimate_initial_params, time_error_margin, error_method, min_size, max_size)

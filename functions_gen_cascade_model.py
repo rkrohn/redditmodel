@@ -1778,7 +1778,7 @@ def cascade_to_graph(cascade):
 #save all sim results to csv file
 #one row per simulated post/time pair, with a bunch of data in it
 #then, at the bottom, all the settings/arguments, for tracking purposes
-def save_results(base_filename, metrics, avg_metrics, input_sim_post, sample_num, observed_list, observing_time, subreddit, min_node_quality, max_graph_size, min_weight, testing_start_month, testing_start_year, testing_len, training_start_month, training_start_year, training_len, edge_weight_method, include_hardcoded_posts, estimate_initial_params, time_error_margin, error_method, min_size, max_size):
+def save_results(base_filename, metrics, input_sim_post, sample_num, observed_list, observing_time, subreddit, min_node_quality, max_graph_size, min_weight, testing_start_month, testing_start_year, testing_len, training_start_month, training_start_year, training_len, edge_weight_method, include_hardcoded_posts, estimate_initial_params, time_error_margin, error_method, min_size, max_size):
 	#given a base filename, convert to complete output filename
 	filename = base_filename + "_results.csv"
 
@@ -1787,44 +1787,6 @@ def save_results(base_filename, metrics, avg_metrics, input_sim_post, sample_num
 	if observing_time == False:
 		fields.insert(5, "max_observed_comments")
 	file_utils.save_csv(metrics, filename, fields)
-
-	#dump average metrics and arguments/settings to a separate file
-	avg_filename = base_filename + "_avg.csv"
-
-	#avg metrics
-	with open(avg_filename, 'w') as file:
-		file.write("Average by %s\n" % ("time observed" if observing_time else "max observed comments"))		#header/label
-	#convert avg metrics from nested dict to list of dict
-	avg_metrics = [avg_metrics[obs] for obs in avg_metrics.keys()]
-	#remove a couple unneeded fields for this dump
-	fields.remove("post_id")
-	fields.remove("disconnected")
-	fields.remove("param_source")
-	fields.remove("observing_by")
-	#save avg metrics
-	file_utils.save_csv(avg_metrics, avg_filename, fields, file_mode='a')
-	
-	#append arguments/settings to the end
-	with open(avg_filename, "a") as file:
-		file.write("\nSettings\n")
-		file.write("sim_post,%s%s\n" % (input_sim_post, (sample_num if sample_num != False else "")))
-		file.write("observing,%s\n" % ("time" if observing_time else "comments"))
-		file.write("observed_list,%s\n" % observed_list)
-		file.write("subreddit,%s\n" % subreddit)
-		file.write("min_node_quality,%s\n" % min_node_quality)
-		file.write("max_graph_size,%s\n" % max_graph_size)
-		file.write("min_edge_weight,%s\n" % min_weight)
-		file.write("testing_period,%d-%d\n" % (testing_start_month, testing_start_year))
-		file.write("test_len,%s\n" % testing_len)
-		file.write("training_period,%d-%d\n" % (training_start_month, training_start_year))
-		file.write("train_len,%s\n" % training_len)
-		file.write("edge_weight_method,%s\n" % edge_weight_method)
-		file.write("include_default_params_posts,%s\n" % include_hardcoded_posts)
-		file.write("estimate_initial_params,%s\n" % estimate_initial_params)
-		file.write("allowable time error,%s\n" % time_error_margin)
-		file.write("time error method,%s\n" % error_method)
-		file.write("minimum comments,%s\n" % (min_size if min_size is not None else "none"))
-		file.write("maximum comments,%s\n" % (max_size if max_size is not None else "none"))
 
 	return
 #end save_results
