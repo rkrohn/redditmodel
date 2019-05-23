@@ -80,13 +80,23 @@ if preprocess:
 	exit(0)
 
 all_metrics = []		#keep all metrics, separate for each post/observed time run, dump them all at the end
-filename_id = str(time.time())		#unique temp file identifier for this run
+filename_id = str(time.time())		#unique temp file identifier for this run - node2vec graph/param files
+finished_posts = set()		#set of finished posts (for pickle bookmark)
+
+#load list of finished posts for this run, so we can skip ones that are already done
+if file_utils.verify_file(outfile+"_finished_posts.pkl"):
+	finished_posts = file_utils.load_pickle(outfile+"_finished_posts.pkl")
+	vprint("Skipping simulation for %d posts already completed" % len(finished_posts))
 
 #process all posts (or just one, if doing that)
 post_count = 0
 disconnected_count = 0
 vprint("Processing %d post" % len(test_posts) + ("s" if len(test_posts) > 1 else ""))
 for sim_post_id, sim_post in test_posts.items():
+
+	#skip this post if we've already done it
+	if sim_post_id in finished_posts:
+		continue
 
 	if batch == False:
 		vprint("Simulation post has %d comments" % test_cascades[sim_post_id]['comment_count_total'])
@@ -178,14 +188,19 @@ for sim_post_id, sim_post in test_posts.items():
 
 	#counter and periodic prints
 	post_count += 1
-	if batch and post_count % 50 == 0:
+	finished_posts.add(sim_post_id)
+	if batch and post_count % 100 == 0:
 		vprint("   finished %d posts (%d disconnected)" % (post_count, disconnected_count))
 
 	#dump results every 500 posts, to save memory
 	if batch and post_count % 500 == 0:
 		vprint("   saving results so far")
+		#append new results to running csv
 		functions_gen_cascade_model.save_results(outfile, all_metrics, observing_time)
 		all_metrics.clear()		#clear out what we already saved
+		#and save pickle of set of finished posts (bookmark for later)
+		file_utils.save_pickle(finished_posts, outfile+"_finished_posts.pkl")
+		#don't clear that list, want it to contain everything
 
 #all done, print final disconnected count
 vprint("Finished simulating %d posts (%d disconnected)" % (post_count, disconnected_count))
