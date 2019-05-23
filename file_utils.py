@@ -99,6 +99,7 @@ def load_csv(filename):
 #end load_csv
 
 #save list of dictionary objects to csv, filtering to given fields if list is given
+#if appending to existing file, do not write the fieldnames header
 def save_csv(data, filename, fields=False, file_mode='w'):
 	#define list of fieldnames, if not given
 	if fields == False:
@@ -106,8 +107,8 @@ def save_csv(data, filename, fields=False, file_mode='w'):
 
 	with open(filename, mode=file_mode) as csv_file:
 		writer = csv.DictWriter(csv_file, fieldnames=fields)
-
-		writer.writeheader()
+		if file_mode == 'w':
+			writer.writeheader()	#only write fieldnames if not appending
 		for row in data:
 			writer.writerow({key: row[key] for key in fields})
 #end save_csv

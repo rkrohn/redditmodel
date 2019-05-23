@@ -181,6 +181,12 @@ for sim_post_id, sim_post in test_posts.items():
 	if batch and post_count % 50 == 0:
 		vprint("   finished %d posts (%d disconnected)" % (post_count, disconnected_count))
 
+	#dump results every 500 posts, to save memory
+	if batch and post_count % 500 == 0:
+		vprint("   saving results so far")
+		functions_gen_cascade_model.save_results(outfile, all_metrics, observing_time)
+		all_metrics.clear()		#clear out what we already saved
+
 #all done, print final disconnected count
 vprint("Finished simulating %d posts (%d disconnected)" % (post_count, disconnected_count))
 

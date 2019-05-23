@@ -1786,7 +1786,13 @@ def save_results(base_filename, metrics, observing_time):
 	fields = ["post_id", "param_source", "observing_by", "time_observed", "observed_comment_count", "true_comment_count", "simulated_comment_count", "true_root_comments", "sim_root_comments", "true_depth", "true_breadth", "simulated_depth", "simulated_breadth", "true_structural_virality", "sim_structural_virality", "dist", "norm_dist", "norm_dist_exclude_observed", "MEPDL_min", "MEPDL_max", "remove_count", "remove_time", "insert_count", "insert_time", "update_count", "update_time", "match_count", "disconnected", "connecting_edges"]
 	if observing_time == False:
 		fields.insert(5, "max_observed_comments")
-	file_utils.save_csv(metrics, filename, fields)
+
+	#if file already exists, append to it
+	if file_utils.verify_file(filename):
+		file_utils.save_csv(metrics, filename, fields, file_mode='a')
+	#otherwise, create from scratch
+	else:
+		file_utils.save_csv(metrics, filename, fields)
 
 	return
 #end save_results
