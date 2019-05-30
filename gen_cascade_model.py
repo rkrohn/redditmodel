@@ -82,6 +82,9 @@ if preprocess:
 all_metrics = []		#keep all metrics, separate for each post/observed time run, dump them all at the end
 filename_id = str(time.time())		#unique temp file identifier for this run - node2vec graph/param files
 
+#how often do we want to dump? every 10% or so
+dump_count = int(len(test_posts) / 10)
+
 #load list of finished posts for this run, so we can skip ones that are already done
 #(if no bookmark, will get back empty set and False flag)
 finished_posts, complete = functions_gen_cascade_model.load_bookmark(outfile)
@@ -162,6 +165,7 @@ for sim_post_id, sim_post in test_posts.items():
 
 		#don't try to eval if sim failed (aborted infinite sim)
 		if sim_tree == False:
+			print("infinite sim aborted, skipping post", sim_post_id)
 			continue
 
 		#EVAL
@@ -195,9 +199,9 @@ for sim_post_id, sim_post in test_posts.items():
 	if batch and post_count % 100 == 0:
 		vprint("   finished %d posts (%d disconnected)" % (post_count, disconnected_count))
 
-	#dump results every 500 posts, to save memory
-	if batch and post_count % 500 == 0:
-		vprint("   saving results so far")
+	#dump results every 10%, to save memory
+	if batch and post_count % dump_count == 0:
+		vprint("   saving results so far (%d posts)" % post_count)
 		#append new results to running csv
 		functions_gen_cascade_model.save_results(outfile, all_metrics, observing_time)
 		all_metrics.clear()		#clear out what we already saved
@@ -217,3 +221,5 @@ functions_gen_cascade_model.save_results(outfile, all_metrics, observing_time)
 
 #all done, update bookmark to "finished"
 functions_gen_cascade_model.save_bookmark(finished_posts, outfile, status=True)
+
+vprint("All done, all results saved\n")
