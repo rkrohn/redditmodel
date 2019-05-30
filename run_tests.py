@@ -158,7 +158,17 @@ for run in range(repeat_runs):
 			f.write(' '.join(command)+'\n')		#write arguments to first line of file
 			f.flush()  #make sure arguments get written first
 			process = subprocess.Popen(command, stdout=f, stderr=f)
-			#process.wait()		#wait for it to finish before we do more, if you want
+			process.wait()		#wait for it to finish before we do more, if you want
+
+			#did this actually finish? if not, try again (just once)
+			#check the bookmark saved by the model to know if finished or not
+			finished_posts, complete = load_bookmark(outfile)
+			if complete == False:
+				print("failed, restarting", outfile)
+				#append to file this time, don't write arguments
+				f = open(outfile+".txt", "a")
+				process = subprocess.Popen(command, stdout=f, stderr=f)
+				process.wait()		#wait for it to finish before we do more, if you want
 
 			#add to subreddit counter
 			sub_counts[subreddit] += 1
