@@ -1,0 +1,46 @@
+time python3 gen_cascade_model.py -s explainlikeimfive -o sim_results/explainlikeimfive/explainlikeimfive_2017-12_30-50_test_05-23-18:27:57 -topn 20 -y 2017 -m 12 -np ln -min 30 -max 50 -j -a --topo_err -v -d -nco 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 25 30 35 40 45
+
+Namespace(estimate_initial_params=False, graph_downsample_ratio=None, include_default_posts=True, large_cascade_demarcation=None, max_nodes=False, max_size='50', min_node_quality=False, min_size='30', normalize_parameters='ln', num_comments_observed=['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19', '20', '25', '30', '35', '40', '45'], outfile='sim_results/explainlikeimfive/explainlikeimfive_2017-12_30-50_test_05-23-18:27:57', preprocess=False, remove_stopwords=False, sanity_check=False, sim_post='all', subreddit='explainlikeimfive', testing_len=1, testing_start_month='12', testing_start_year='2017', testing_stats=False, time_error_absolute=False, time_error_margin=False, time_observed=False, top_n='20', topological_error=True, training_len=1, training_stats=False, verbose=True, weight_method='jaccard', weight_threshold=False)
+
+Sim Post: all
+Comments Observed: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 25, 30, 35, 40, 45]
+Output: sim_results/explainlikeimfive/explainlikeimfive_2017-12_30-50_test_05-23-18:27:57
+Source subreddit: explainlikeimfive
+Minimum node quality: False
+Max graph size: False
+Max edges per node: 20
+Minimum edge weight: None
+Normalizing params for graph infer using natural log
+Testing Period: 12-2017 (1 month)
+Training Period: 11-2017 (1 month)
+Using Jaccard index to compute graph edge weights
+Including posts with hardcoded default parameters
+Using topological error for tree evaluation (ignoring comment times)
+Only simulating cascades with true size between 30 and 50 comments (inclusive)
+
+Loading processed training data
+Loading 11-2017
+Deleted 1 posts without cascades
+Loaded 11035 posts 
+   11035 cascades
+   3839 fitted params, 7196 failed fit
+
+Loading processed testing data
+Loading 12-2017
+Deleted 1 posts without cascades
+Loaded 10814 posts 
+   10814 cascades
+
+Filtered to 166 posts with >= 30 comments
+Filtered to 67 posts with <= 50 comments
+Processing all 67 posts in test set
+Loading base graph from file
+Graph contains 11016 nodes and 184581 unique edges (219815 edge entries)
+
+Skipping 0 already simulated posts
+Processing 67 posts
+Finished simulating 67 posts (0 disconnected)
+All done, all results saved
+
+1588.19user 13.14system 26:30.54elapsed 100%CPU (0avgtext+0avgdata 2888648maxresident)k
+209658inputs+709272outputs (342major+3164385minor)pagefaults 0swaps

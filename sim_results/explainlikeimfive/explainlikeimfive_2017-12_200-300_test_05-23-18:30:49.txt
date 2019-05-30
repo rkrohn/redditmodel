@@ -1,0 +1,44 @@
+time python3 gen_cascade_model.py -s explainlikeimfive -o sim_results/explainlikeimfive/explainlikeimfive_2017-12_200-300_test_05-23-18:30:49 -topn 20 -y 2017 -m 12 -min 200 -max 300 -j -a --topo_err -v -d -nco 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 25 30 35 40 45 50 55 60 65 70 75 80 85 90 95 100 110 120 130 140 150 175 200 250
+
+Namespace(estimate_initial_params=False, graph_downsample_ratio=None, include_default_posts=True, large_cascade_demarcation=None, max_nodes=False, max_size='300', min_node_quality=False, min_size='200', normalize_parameters=None, num_comments_observed=['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19', '20', '25', '30', '35', '40', '45', '50', '55', '60', '65', '70', '75', '80', '85', '90', '95', '100', '110', '120', '130', '140', '150', '175', '200', '250'], outfile='sim_results/explainlikeimfive/explainlikeimfive_2017-12_200-300_test_05-23-18:30:49', preprocess=False, remove_stopwords=False, sanity_check=False, sim_post='all', subreddit='explainlikeimfive', testing_len=1, testing_start_month='12', testing_start_year='2017', testing_stats=False, time_error_absolute=False, time_error_margin=False, time_observed=False, top_n='20', topological_error=True, training_len=1, training_stats=False, verbose=True, weight_method='jaccard', weight_threshold=False)
+
+Sim Post: all
+Comments Observed: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75, 80, 85, 90, 95, 100, 110, 120, 130, 140, 150, 175, 200, 250]
+Output: sim_results/explainlikeimfive/explainlikeimfive_2017-12_200-300_test_05-23-18:30:49
+Source subreddit: explainlikeimfive
+Minimum node quality: False
+Max graph size: False
+Max edges per node: 20
+Minimum edge weight: None
+No param normalization for infer step
+Testing Period: 12-2017 (1 month)
+Training Period: 11-2017 (1 month)
+Using Jaccard index to compute graph edge weights
+Including posts with hardcoded default parameters
+Using topological error for tree evaluation (ignoring comment times)
+Only simulating cascades with true size between 200 and 300 comments (inclusive)
+
+Loading processed training data
+Loading 11-2017
+Deleted 1 posts without cascades
+Loaded 11035 posts 
+   11035 cascades
+   3839 fitted params, 7196 failed fit
+
+Loading processed testing data
+Loading 12-2017
+Deleted 1 posts without cascades
+Loaded 10814 posts 
+   10814 cascades
+
+Filtered to 45 posts with >= 200 comments
+Filtered to 5 posts with <= 300 comments
+Processing all 5 posts in test set
+Loading base graph from file
+Graph contains 11016 nodes and 184581 unique edges (219815 edge entries)
+
+Skipping 0 already simulated posts
+Processing 5 posts
+Finished simulating 5 posts (0 disconnected)
+977.59user 8.70system 16:21.52elapsed 100%CPU (0avgtext+0avgdata 1048696maxresident)k
+0inputs+45400outputs (0major+2107081minor)pagefaults 0swaps
