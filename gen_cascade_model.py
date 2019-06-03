@@ -70,6 +70,7 @@ train_posts = functions_gen_cascade_model.filter_dict_by_list(train_posts, train
 #and reduce cascades and params to match this set
 train_cascades = functions_gen_cascade_model.filter_dict_by_list(train_cascades, train_keys)
 train_params = functions_gen_cascade_model.filter_dict_by_list(train_params, train_keys)
+train_fit_fail_list = [post_id for post_id in train_fit_fail_list if post_id in train_keys]
 
 #if want training data stats, get those now
 if get_training_stats:
