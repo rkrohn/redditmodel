@@ -1,0 +1,80 @@
+
+Namespace(estimate_initial_params=False, graph_downsample_ratio=None, include_default_posts=True, large_cascade_demarcation=None, max_nodes=False, max_size='1', min_node_quality=False, min_size=None, normalize_parameters='ln', num_comments_observed=['0'], outfile='sim_results/aww/aww_2017-12_<1_test_05-23-18:28:09', preprocess=True, remove_stopwords=False, sanity_check=False, sim_post='all', subreddit='aww', testing_len=1, testing_start_month='12', testing_start_year='2017', testing_stats=False, time_error_absolute=False, time_error_margin=False, time_observed=False, top_n='20', topological_error=True, training_len=1, training_stats=False, verbose=True, weight_method='jaccard', weight_threshold=False)
+
+Sim Post: all
+Comments Observed: [0]
+Output: sim_results/aww/aww_2017-12_<1_test_05-23-18:28:09
+Source subreddit: aww
+Minimum node quality: False
+Max graph size: False
+Max edges per node: 20
+Minimum edge weight: None
+Normalizing params for graph infer using natural log
+Testing Period: 12-2017 (1 month)
+Training Period: 11-2017 (1 month)
+Using Jaccard index to compute graph edge weights
+Including posts with hardcoded default parameters
+Using topological error for tree evaluation (ignoring comment times)
+Only simulating cascades with true size less than or equal to 1
+
+Loading processed training data
+Loading 11-2017
+Deleted 1 posts without cascades
+Deleted 3 posts without params
+Loaded 31655 posts 
+   31658 cascades
+   7124 fitted params, 24531 failed fit
+
+Loading processed testing data
+Loading 12-2017
+Loaded 35332 posts 
+   35332 cascades
+
+Filtered to 17202 posts with <= 1 comments
+Processing all 17202 posts in test set
+Loading base graph from file
+Graph contains 31439 nodes and 489805 unique edges (618248 edge entries)
+
+Finished graph build, exiting
+6.85user 2.13system 0:06.47elapsed 138%CPU (0avgtext+0avgdata 425508maxresident)k
+97040inputs+8outputs (0major+116084minor)pagefaults 0swaps
+
+Namespace(estimate_initial_params=False, graph_downsample_ratio=None, include_default_posts=True, large_cascade_demarcation=None, max_nodes=False, max_size='1', min_node_quality=False, min_size=None, normalize_parameters='ln', num_comments_observed=['0'], outfile='sim_results/aww/aww_2017-12_<1_test_05-23-18:28:09', preprocess=True, remove_stopwords=False, sanity_check=False, sim_post='all', subreddit='aww', testing_len=1, testing_start_month='12', testing_start_year='2017', testing_stats=False, time_error_absolute=False, time_error_margin=False, time_observed=False, top_n='20', topological_error=True, training_len=1, training_stats=False, verbose=True, weight_method='jaccard', weight_threshold=False)
+
+Sim Post: all
+Comments Observed: [0]
+Output: sim_results/aww/aww_2017-12_<1_test_05-23-18:28:09
+Source subreddit: aww
+Minimum node quality: False
+Max graph size: False
+Max edges per node: 20
+Minimum edge weight: None
+Normalizing params for graph infer using natural log
+Testing Period: 12-2017 (1 month)
+Training Period: 11-2017 (1 month)
+Using Jaccard index to compute graph edge weights
+Including posts with hardcoded default parameters
+Using topological error for tree evaluation (ignoring comment times)
+Only simulating cascades with true size less than or equal to 1
+
+Loading processed training data
+Loading 11-2017
+Deleted 1 posts without cascades
+Deleted 3 posts without params
+Loaded 31655 posts 
+   31658 cascades
+   7124 fitted params, 24531 failed fit
+
+Loading processed testing data
+Loading 12-2017
+Loaded 35332 posts 
+   35332 cascades
+
+Filtered to 17202 posts with <= 1 comments
+Processing all 17202 posts in test set
+Loading base graph from file
+Graph contains 31439 nodes and 489805 unique edges (618248 edge entries)
+
+Finished graph build, exiting
+6.66user 2.08system 0:05.93elapsed 147%CPU (0avgtext+0avgdata 426304maxresident)k
+8inputs+8outputs (0major+115815minor)pagefaults 0swaps

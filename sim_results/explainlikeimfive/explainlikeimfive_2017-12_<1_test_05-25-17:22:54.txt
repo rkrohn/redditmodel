@@ -2,3 +2,6 @@ time python3 gen_cascade_model.py -s explainlikeimfive -o sim_results/explainlik
 Command terminated by signal 9
 111788.06user 227.78system 31:08:32elapsed 99%CPU (0avgtext+0avgdata 47667420maxresident)k
 5149032inputs+2448outputs (69553major+39270465minor)pagefaults 0swaps
+Command terminated by signal 9
+129593.49user 184.82system 36:05:36elapsed 99%CPU (0avgtext+0avgdata 89235296maxresident)k
+60819809inputs+1488outputs (365680major+28201195minor)pagefaults 0swaps

@@ -1,4 +1,4 @@
 time python3 gen_cascade_model.py -s explainlikeimfive -o sim_results/explainlikeimfive/explainlikeimfive_2017-12_5-10_test_05-23-18:27:57 -topn 20 -y 2017 -m 12 -np ln -min 5 -max 10 -j -a --topo_err -v -d -nco 0 1 2 3 4 5 6 7 8 9
 Command terminated by signal 9
-26621.71user 115.93system 7:25:27elapsed 100%CPU (0avgtext+0avgdata 43291528maxresident)k
-792363inputs+983576outputs (3938major+24267459minor)pagefaults 0swaps
+58900.38user 336.55system 16:26:47elapsed 100%CPU (0avgtext+0avgdata 82842616maxresident)k
+1805051inputs+1426680outputs (10717major+45322460minor)pagefaults 0swaps

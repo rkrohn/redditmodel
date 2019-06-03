@@ -1,0 +1,1 @@
+time python3 gen_cascade_model.py -s aww -o sim_results/aww/aww_2017-12_50-100_test_05-23-18:28:09 -topn 20 -y 2017 -m 12 -np ln -min 50 -max 100 -j -a --topo_err -v -d -nco 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 25 30 35 40 45 50 55 60 65 70 75 80 85 90 95

@@ -1,0 +1,59 @@
+time python3 gen_cascade_model.py -s aww -o sim_results/aww/aww_2017-12_10-30_test_05-23-18:30:56 -topn 20 -y 2017 -m 12 -min 10 -max 30 -j -a --topo_err -v -d -nco 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 25
+
+Namespace(estimate_initial_params=False, graph_downsample_ratio=None, include_default_posts=True, large_cascade_demarcation=None, max_nodes=False, max_size='30', min_node_quality=False, min_size='10', normalize_parameters=None, num_comments_observed=['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19', '20', '25'], outfile='sim_results/aww/aww_2017-12_10-30_test_05-23-18:30:56', preprocess=False, remove_stopwords=False, sanity_check=False, sim_post='all', subreddit='aww', testing_len=1, testing_start_month='12', testing_start_year='2017', testing_stats=False, time_error_absolute=False, time_error_margin=False, time_observed=False, top_n='20', topological_error=True, training_len=1, training_stats=False, verbose=True, weight_method='jaccard', weight_threshold=False)
+
+Sim Post: all
+Comments Observed: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 25]
+Output: sim_results/aww/aww_2017-12_10-30_test_05-23-18:30:56
+Source subreddit: aww
+Minimum node quality: False
+Max graph size: False
+Max edges per node: 20
+Minimum edge weight: None
+No param normalization for infer step
+Testing Period: 12-2017 (1 month)
+Training Period: 11-2017 (1 month)
+Using Jaccard index to compute graph edge weights
+Including posts with hardcoded default parameters
+Using topological error for tree evaluation (ignoring comment times)
+Only simulating cascades with true size between 10 and 30 comments (inclusive)
+
+Loading processed training data
+Loading 11-2017
+Deleted 1 posts without cascades
+Deleted 3 posts without params
+Loaded 31655 posts 
+   31658 cascades
+   7124 fitted params, 24531 failed fit
+
+Loading processed testing data
+Loading 12-2017
+Loaded 35332 posts 
+   35332 cascades
+
+Filtered to 2083 posts with >= 10 comments
+Filtered to 1171 posts with <= 30 comments
+Processing all 1171 posts in test set
+Loading base graph from file
+Graph contains 31439 nodes and 489805 unique edges (618248 edge entries)
+
+Skipping 0 already simulated posts
+Processing 1171 posts
+   finished 100 posts (0 disconnected)
+   finished 200 posts (0 disconnected)
+   finished 300 posts (0 disconnected)
+   finished 400 posts (1 disconnected)
+   finished 500 posts (2 disconnected)
+   saving results so far
+   finished 600 posts (2 disconnected)
+   finished 700 posts (2 disconnected)
+   finished 800 posts (3 disconnected)
+   finished 900 posts (3 disconnected)
+   finished 1000 posts (4 disconnected)
+   saving results so far
+   finished 1100 posts (6 disconnected)
+Finished simulating 1171 posts (6 disconnected)
+All done, all results saved
+
+12389.64user 207.03system 3:23:06elapsed 103%CPU (0avgtext+0avgdata 434956maxresident)k
+1559141inputs+29713200outputs (7435major+69063337minor)pagefaults 0swaps
