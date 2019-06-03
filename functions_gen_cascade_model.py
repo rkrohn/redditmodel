@@ -46,7 +46,7 @@ random_sample_list_filepath = "reddit_data/%s/%s_%d_test_keys_list_start%d-%d_%d
 #	include_default_posts, max_nodes, min_node_quality, weight_method, min_weight, top_n,
 #   graph_downsample_ratio, large_cascade_demarcation, and remove_stopwords
 #(yes, it's a mess)
-base_graph_filepath = "reddit_data/%s/base_graph_%d-%dstart_(%dmonths)_default_posts_%s_%snodes_%.1fminquality_%s_%.1fminedgeweight_%dtopn_%ssample%s%s.pkl"
+base_graph_filepath = "reddit_data/%s/base_graph_%d-%dtest_start_%dtrainposts_default_posts_%s_%snodes_%.1fminquality_%s_%.1fminedgeweight_%dtopn_%ssample%s%s.pkl"
 
 #filepaths of output/temporary files - used to pass graph to C++ node2vec for processing
 temp_graph_filepath = "sim_files/graph_%s.txt"			#updated graph for this sim run
@@ -54,7 +54,7 @@ temp_params_filepath = "sim_files/in_params_%s.txt"		#temporary, filtered params
 output_params_filepath = "sim_files/out_params_%s.txt"		#output params from node2vec
 
 #output filepaths
-stats_filepath = "sim_results/post_set_stats_%s_%d-%d_(%dmonths)_%d_posts.csv"		#post set stats (subreddit, year, month, num_months, num_posts)
+stats_filepath = "sim_results/post_set_stats_%s_test%d-%d_%d_%s_posts.csv"		#post set stats (subreddit, year, month, num_posts, type)
 
 #hardcoded params for failed fit cascades
 #only used when fit/estimation fails and these posts are still included in graph
@@ -85,7 +85,7 @@ def parse_command_args():
 	proc_group.add_argument("-id", dest="sim_post", default=None,  help="post id for single-processing")
 	proc_group.add_argument("-r", "--rand", dest="sim_post", action="store_const", const="random", help="choose a random post from the subreddit to simulate")
 	proc_group.add_argument("-a", "--all", dest="sim_post", action="store_const", const="all", help="simulate all posts in the subreddit")
-	proc_group.add_argument("-n", "--n_sample", dest="sim_post", default=None, help="number of posts to test, taken as random sample from testing period")
+	proc_group.add_argument("-n", "--n_sample", dest="sim_post", default=None, help="number of posts to test, taken as first n posts in the testing period")
 	#must pick an edge weight computation method: cosine (based on tf-idf) or jaccard
 	weight_group = parser.add_mutually_exclusive_group(required=True)
 	weight_group.add_argument("-j", "--jaccard", dest="weight_method", action='store_const', const="jaccard", help="compute edge weight between pairs using jaccard index")
@@ -98,7 +98,7 @@ def parse_command_args():
 	parser.add_argument("-topn", dest="top_n", default=False, metavar=('<max edges per node>'), help="limit post graph to n edges per node")
 	parser.add_argument("-threshold", dest="weight_threshold", default=False, metavar=('<minimum edge weight>'), help="limit post graph to edges with weight above threshold")
 	#must select an observation type (time or comments) and provide at least one time/count
-	observed_group = parser.add_mutually_exclusive_group(required=False)
+	observed_group = parser.add_mutually_exclusive_group(required=True)
 	observed_group.add_argument("-t", dest="time_observed", default=False, help="time of post observation, in hours", nargs='+')
 	observed_group.add_argument("-nco", "--num_comments_observed", dest="num_comments_observed", default=False, help="number of comments observed", nargs='+')
 
@@ -111,8 +111,7 @@ def parse_command_args():
 	parser.add_argument("-q", "--qual", dest="min_node_quality", default=False, help="minimum node quality for post graph")
 	parser.add_argument("-e", "--esp", dest="estimate_initial_params", action='store_true', help="estimate initial params as inverse quality weighted average of neighbor nodes")
 	parser.set_defaults(estimate_initial_params=False)
-	parser.add_argument("-l", "--testlen", dest="testing_len", default=1, help="number of months to use for testing")
-	parser.add_argument("-p", "--periodtrain", dest="training_len", default=1, help="number of months to use for training (preceding first test month")
+	parser.add_argument("-n_train", dest="training_num", default=10000, help="number of posts to use for training (immediately preceding test month")
 	parser.add_argument("-v", "--verbose", dest="verbose", action="store_true", help="verbose output")
 	parser.set_defaults(verbose=False)
 	parser.add_argument("-d", "--default_params", dest="include_default_posts", action='store_true', help="include posts with hardcoded default parameters in infer graph")
@@ -183,8 +182,7 @@ def parse_command_args():
 	estimate_initial_params = args.estimate_initial_params
 	testing_start_month = int(args.testing_start_month)
 	testing_start_year = int(args.testing_start_year)
-	testing_len = int(args.testing_len)
-	training_len = int(args.training_len)
+	training_num = int(args.training_num)
 	weight_method = args.weight_method
 	remove_stopwords = args.remove_stopwords
 	include_default_posts = args.include_default_posts
@@ -220,8 +218,8 @@ def parse_command_args():
 			#number of posts to sample
 			int(sim_post)
 			batch = True
-			sample_num = int(sim_post)
-			sim_post = "sample"
+			testing_num = int(sim_post)
+			sim_post = "subset"
 		except ValueError:
 			#single specified post
 			batch = False
@@ -242,20 +240,11 @@ def parse_command_args():
 	#if running socsim data, set that flag
 	if subreddit == "cve" or subreddit == "cyber" or subreddit == "crypto":
 		socsim_data = True
-		#and set month/year to something for when it shows up in filenames
-		training_start_month = 0
-		training_start_year = 0
-		training_len = 0
-		testing_len = 0
+		#and set counts to something for when it shows up in filenames
+		training_num = 0
+		testing_num = 0
 	else:
 		socsim_data = False
-
-	#compute start of training period for easy use later
-	if socsim_data:
-		training_start_month = 0
-		training_start_year = 0
-	else:
-		training_start_month, training_start_year = monthdelta(testing_start_month, testing_start_year, -training_len)
 
 	#hackery: declare a special print function for verbose output
 	#make it global here for all the other functions to use
@@ -291,8 +280,8 @@ def parse_command_args():
 		vprint("Normalizing params for graph infer using ", ("min-max" if normalize_parameters == "mm" else "natural log"))
 	else:
 		vprint("No param normalization for infer step")
-	vprint("Testing Period: %d-%d" % (testing_start_month, testing_start_year), " through %d-%d (%d months)" % (monthdelta(testing_start_month, testing_start_year, testing_len, inclusive=True)+(testing_len,)) if testing_len > 1 else " (%d month)" % testing_len)
-	vprint("Training Period: %d-%d" % (training_start_month, training_start_year), " through %d-%d (%d months)" % (monthdelta(training_start_month, training_start_year, training_len, inclusive=True)+(training_len,)) if training_len > 1 else " (%d month)" % training_len)
+	vprint("Test Set: first %d posts starting at %d-%d" % (testing_num, testing_start_month, testing_start_year))
+	vprint("Training Set: %d posts immediately preceding %d-%d" % (training_num, testing_start_month, testing_start_year))
 	if weight_method == "jaccard":
 		vprint("Using Jaccard index to compute graph edge weights")
 		if remove_stopwords:
@@ -326,7 +315,7 @@ def parse_command_args():
 	vprint("")
 
 	#return all arguments
-	return subreddit, sim_post, observing_time, observed_list, outfile, max_nodes, min_node_quality, estimate_initial_params, normalize_parameters, batch, sample_num, testing_start_month, testing_start_year, testing_len, training_start_month, training_start_year, training_len, weight_method, remove_stopwords, top_n, weight_threshold, include_default_posts, time_error_margin, error_method, sanity_check, min_size, max_size, training_stats, testing_stats, socsim_data, graph_downsample_ratio, large_cascade_demarcation, verbose, preprocess
+	return subreddit, sim_post, observing_time, observed_list, outfile, max_nodes, min_node_quality, estimate_initial_params, normalize_parameters, batch, testing_num, testing_start_month, testing_start_year, training_num, weight_method, remove_stopwords, top_n, weight_threshold, include_default_posts, time_error_margin, error_method, sanity_check, min_size, max_size, training_stats, testing_stats, socsim_data, graph_downsample_ratio, large_cascade_demarcation, verbose, preprocess
 #end parse_command_args
 
 
@@ -343,18 +332,27 @@ def monthdelta(month, year, delta, inclusive=False):
 #end monthdelta
 
 
-#given a subreddit, starting month-year, and number of months to load, load processed posts
+#given a subreddit, starting month-year, and number of posts to load, load processed posts
+#	if load_forward=False, do not load the starting month, start loading on the previous
 #if params = True, also load fitted params for these posts
 #if cascades = True, also load reconstructed cascades for these posts
 #if files don't exist, call methods to perform preprocessing
-def load_processed_posts(subreddit, start_month, start_year, num_months, load_params=False, load_cascades=False):
+#load as many months as required to reach the num_posts given
+#	if load_forward=True, load months following the given if need more posts
+#	if load_forward=False, load months backwards from the given if need more posts
+def load_processed_posts(subreddit, start_month, start_year, num_posts, load_params=False, load_cascades=False, load_forward=True):
 	posts = {}
 	params = {}
 	failed_fit_posts = []
 	cascades = {}
 
-	#loop months to load
-	for m in range(0, num_months):
+	#do we want to load the start month? or start with the preceding?
+	if load_forward == False:
+		start_month, start_year = monthdelta(start_month, start_year, -1)
+
+	#loop load until reach required number of posts (each loop will load a single month)
+	m = 0
+	while len(posts) < num_posts:
 		month, year = monthdelta(start_month, start_year, m)	#calc month to load
 		vprint("Loading %d-%d" % (month, year))
 
@@ -386,6 +384,9 @@ def load_processed_posts(subreddit, start_month, start_year, num_months, load_pa
 
 		#add this month's posts to overall
 		posts.update(month_posts)
+		#increment/decrement month counter to load correct "next" month based on direction
+		if load_forward: m += 1
+		else: m += -1
 
 	#throw out posts that we don't have cascades for - incomplete or some other issue
 	if load_cascades and len(posts) != len(cascades):
@@ -739,47 +740,47 @@ def build_cascades(posts, comments):
 #end build_cascades
 
 
+#given a dictionary of posts, a desired sample size, and a flag indicating direction,
+#return a chronological sample of n posts
+#if forward=True, take the first n posts sorted by time
+#if forward=False, take the last n posts sorted by time
+def sample_chronologically(posts, sample_num, forward=True):
+	#get list of (post id, time) tuples sorted by time
+	sorted_posts = sorted([(key, value['time']) for key, value in posts.items()], key=lambda x: x[1])
+
+	#if forward is true, take just the first n of them
+	if forward: sorted_posts = sorted_posts[:sample_num]
+	#otherwise, take the last n of them
+	else: sorted_posts = sorted_posts[-1 * sample_num:]
+
+	#return as list of keys
+	return [i[0] for i in sorted_posts]
+#end sample_chronologically
+
+
 #given a post id, boolean mode flags, and dictionary of posts, ensure post is in this set
-#if running in sample mode, pick the sample
+#if running in sample mode, pick the sample as the first n posts chronologically
 #returns modified post dictionary that contains only the posts to be tested
-def get_test_post_set(input_sim_post, batch_process, min_size, max_size, sample_num, posts, cascades, subreddit, testing_start_month, testing_start_year, testing_len):
-	#apply min-size filter before anything else
-	if min_size != None:
-		keys = [post_id for post_id in cascades if cascades[post_id]['comment_count_total'] >= min_size]
-		posts = filter_dict_by_list(posts, keys)
-		vprint("Filtered to %d posts with >= %d comments" % (len(posts), min_size))
-	#and the max-size filter:
-	if max_size != None:
-		keys = [post_id for post_id in cascades if cascades[post_id]['comment_count_total'] < max_size]
-		posts = filter_dict_by_list(posts, keys)
-		vprint("Filtered to %d posts with <= %d comments" % (len(posts), max_size))
+def get_test_post_set(input_sim_post, min_size, max_size, sample_num, posts, cascades, subreddit, testing_start_month, testing_start_year):
 
 	#if processing all posts in test set, return list of ids
 	if input_sim_post == "all":		
 		vprint("Processing all %d posts in test set" % len(posts))
+
 	#if random post id, pick an id from loaded posts
 	elif input_sim_post == "random":
 		rand_sim_post_id = random.choice(list(posts.keys()))
 		posts = {rand_sim_post_id: posts[rand_sim_post_id]}
 		vprint("Choosing random simulation post: %s" % rand_sim_post_id)
-	#if sampling, choose random sample of posts
-	elif sample_num != False:		
-		#if stored random sample exists, load that
-		curr_filepath = random_sample_list_filepath % (subreddit, subreddit, sample_num, testing_start_year, testing_start_month, testing_len, (min_size if min_size is not None else 0), (max_size if max_size is not None else "inf"))
-		if file_utils.verify_file(curr_filepath):
-			vprint("Loading cached sample simulation post set")
-			keys = file_utils.load_pickle(curr_filepath)
-		#no existing sample file, pick random post id set, and dump list to pickle
-		else:
-			vprint("Sampling %d random posts (from %d) for simulation set" % (sample_num, len(posts.keys())))
-			if sample_num <= len(posts.keys()):
-				keys = random.sample(list(posts.keys()), sample_num)
-			else:
-				vprint("Set smaller than sample, using entire set")
-				keys = list(posts.keys())
-			file_utils.save_pickle(keys, curr_filepath)
-		#filter posts to match keys list
+
+	#if sampling, first n posts chronologically
+	elif sample_num != False:
+		vprint("Sampling %d first posts (from %d) for simulation set" % (sample_num, len(posts.keys())))
+		#get list of first n keys
+		keys = sample_chronologically(posts, sample_num)
+		#filter posts to match corresponding keys list
 		posts = filter_dict_by_list(posts, keys)
+
 	#if single id, make sure given post id is in the dataset
 	else:
 		#if given not in set, exit
@@ -789,15 +790,27 @@ def get_test_post_set(input_sim_post, batch_process, min_size, max_size, sample_
 		posts = {input_sim_post: posts[input_sim_post]}
 		vprint("Using input post id: %s" % input_sim_post)
 
+	#apply size filters last - assuming they're being used to break up a run
+	if min_size != None:
+		keys = [post_id for post_id in cascades if cascades[post_id]['comment_count_total'] >= min_size]
+		posts = filter_dict_by_list(posts, keys)
+		vprint("Filtered to %d posts with >= %d comments" % (len(posts), min_size))
+	if max_size != None:
+		keys = [post_id for post_id in cascades if cascades[post_id]['comment_count_total'] < max_size]
+		posts = filter_dict_by_list(posts, keys)
+		vprint("Filtered to %d posts with <= %d comments" % (len(posts), max_size))	
+
 	return posts
 #end get_test_post_set
 
 
 #for a given set of processed posts and reconstructed cascades, 
 #compute and output some stats on the post set
-def output_post_set_stats(cascades, subreddit, year, month, num_months):
+def output_post_set_stats(cascades, subreddit, year, month, set_type, num_posts):
+	curr_filepath = stats_filepath % (subreddit, year, month, len(cascades), set_type)
+
 	#do we already have a stats file for this subreddit set? if so, skip
-	if file_utils.verify_file(stats_filepath % (subreddit, year, month, num_months, len(cascades))):
+	if file_utils.verify_file(curr_filepath):
 		vprint("Training data stats already exist.")
 		return
 
@@ -841,7 +854,7 @@ def output_post_set_stats(cascades, subreddit, year, month, num_months):
 		median_observed[percent] = statistics.median(observed_percents[percent])
 
 	#write all to output
-	file_utils.multi_dict_to_csv(stats_filepath % (subreddit, year, month, num_months, len(cascades)), ["number_of_comments", "number_of_cascades", "lifetime(minutes)", "number_of_cascades", "percent_lifetime", "mean_comments_observed", "percent_lifetime", "median_comments_observed"], [cascade_sizes, lifetime_dist, mean_observed, median_observed])
+	file_utils.multi_dict_to_csv(stats_filepath % (subreddit, year, month, len(cascades), set_type), ["number_of_comments", "number_of_cascades", "lifetime(minutes)", "number_of_cascades", "percent_lifetime", "mean_comments_observed", "percent_lifetime", "median_comments_observed"], [cascade_sizes, lifetime_dist, mean_observed, median_observed])
 #end output_post_set_stats
 
 
@@ -913,9 +926,9 @@ def ddlist():
 #if include_default_posts = True, include posts with hardcoded default params in graph (otherwise, leave out)
 #if min_node_quality != False, only include nodes with param fit quality >= threshold in graph build
 #include_default_posts overrides min_node_quality - all default posts thrown out regardless of default quality setting
-def build_base_graph(cascades, posts, params, default_params_list, subreddit, training_start_year, training_start_month, training_len, include_default_posts, max_nodes, min_node_quality, weight_method, remove_stopwords, min_weight, top_n, graph_downsample_ratio, large_cascade_demarcation):
+def build_base_graph(cascades, posts, params, default_params_list, subreddit, testing_start_year, testing_start_month, training_num, include_default_posts, max_nodes, min_node_quality, weight_method, remove_stopwords, min_weight, top_n, graph_downsample_ratio, large_cascade_demarcation):
 	#first, check if we've cached this graph before
-	curr_filepath = base_graph_filepath % (subreddit, training_start_year, training_start_month, training_len, include_default_posts, (max_nodes if max_nodes != False else "all_"), min_node_quality, weight_method, min_weight, top_n, (("%.1f" % graph_downsample_ratio) if graph_downsample_ratio is not None else "no_"), (("_>=%d" % large_cascade_demarcation) if large_cascade_demarcation is not None else ""), ("_stopwords" if remove_stopwords else ""))
+	curr_filepath = base_graph_filepath % (subreddit, testing_start_year, testing_start_month, training_num, include_default_posts, (max_nodes if max_nodes != False else "all_"), min_node_quality, weight_method, min_weight, top_n, (("%.1f" % graph_downsample_ratio) if graph_downsample_ratio is not None else "no_"), (("_>=%d" % large_cascade_demarcation) if large_cascade_demarcation is not None else ""), ("_stopwords" if remove_stopwords else ""))
 	#have graph, load and return
 	if file_utils.verify_file(curr_filepath):
 		vprint("Loading base graph from file")

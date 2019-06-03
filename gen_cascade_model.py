@@ -15,7 +15,7 @@ from collections import defaultdict
 
 
 #parse all command-line arguments
-subreddit, input_sim_post, observing_time, observed_list, outfile, max_nodes, min_node_quality, estimate_initial_params, normalize_parameters, batch, sample_num, testing_start_month, testing_start_year, testing_len, training_start_month, training_start_year, training_len, weight_method, remove_stopwords, top_n, weight_threshold, include_default_posts, time_error_margin, error_method, sanity_check, min_size, max_size, get_training_stats, get_testing_stats, socsim_data, graph_downsample_ratio, large_cascade_demarcation, verbose, preprocess = functions_gen_cascade_model.parse_command_args()
+subreddit, input_sim_post, observing_time, observed_list, outfile, max_nodes, min_node_quality, estimate_initial_params, normalize_parameters, batch, testing_num, testing_start_month, testing_start_year, training_num, weight_method, remove_stopwords, top_n, weight_threshold, include_default_posts, time_error_margin, error_method, sanity_check, min_size, max_size, get_training_stats, get_testing_stats, socsim_data, graph_downsample_ratio, large_cascade_demarcation, verbose, preprocess = functions_gen_cascade_model.parse_command_args()
 
 #hackery: declare a special print function for verbose output
 if verbose:
@@ -44,35 +44,45 @@ else:
 	#load pre-processed posts and their fitted params for training period
 	if not sanity_check:
 		vprint("Loading processed training data")
-		train_posts, train_cascades, train_params, train_fit_fail_list = functions_gen_cascade_model.load_processed_posts(subreddit, training_start_month, training_start_year, training_len, load_params=True, load_cascades=True)
+		train_posts, train_cascades, train_params, train_fit_fail_list = functions_gen_cascade_model.load_processed_posts(subreddit, testing_start_month, testing_start_year, training_num, load_params=True, load_cascades=True, load_forward=False)
 
 	vprint("\nLoading processed testing data")
 	#load pre-processed posts and their reconstructed cascades for testing period (no params here!)
 	if not sanity_check:
-		test_posts, test_cascades = functions_gen_cascade_model.load_processed_posts(subreddit, testing_start_month, testing_start_year, testing_len, load_cascades=True)
+		test_posts, test_cascades = functions_gen_cascade_model.load_processed_posts(subreddit, testing_start_month, testing_start_year, testing_num, load_cascades=True)
 	#if simming from fitted params, load testing params
 	else:
-		test_posts, test_cascades, test_params, test_fit_fail_list = functions_gen_cascade_model.load_processed_posts(subreddit, testing_start_month, testing_start_year, testing_len, load_params=True, load_cascades=True)
+		test_posts, test_cascades, test_params, test_fit_fail_list = functions_gen_cascade_model.load_processed_posts(subreddit, testing_start_month, testing_start_year, testing_num, load_params=True, load_cascades=True)
 
 #ensure post id is in dataset (and filter test_posts set down to processing group only)
 vprint("")
-test_posts = functions_gen_cascade_model.get_test_post_set(input_sim_post, batch, min_size, max_size, sample_num, test_posts, test_cascades, subreddit, testing_start_month, testing_start_year, testing_len)
+test_posts = functions_gen_cascade_model.get_test_post_set(input_sim_post, min_size, max_size, testing_num, test_posts, test_cascades, subreddit, testing_start_month, testing_start_year)
 #reduce cascades to match this set
 if len(test_posts) != len(test_cascades):
 	test_cascades = functions_gen_cascade_model.filter_dict_by_list(test_cascades, list(test_posts.keys()))
 
+#also sample/filter the train set to the desired number
+vprint("Sampling %d last posts (from %d) for simulation set" % (training_num, len(train_posts.keys())))
+#get list of n keys to keep - last n posts in loaded train data
+train_keys = functions_gen_cascade_model.sample_chronologically(train_posts, training_num, forward=False)
+#filter posts to match corresponding keys list
+train_posts = functions_gen_cascade_model.filter_dict_by_list(train_posts, train_keys)
+#and reduce cascades and params to match this set
+train_cascades = functions_gen_cascade_model.filter_dict_by_list(train_cascades, train_keys)
+train_params = functions_gen_cascade_model.filter_dict_by_list(train_params, train_keys)
+
 #if want training data stats, get those now
 if get_training_stats:
 	vprint("Computing training data stats")
-	functions_gen_cascade_model.output_post_set_stats(train_cascades, subreddit, training_start_year, training_start_month, training_len)
+	functions_gen_cascade_model.output_post_set_stats(train_cascades, subreddit, testing_start_year, testing_start_month, "train", training_num)
 #if want testing data stats, get those now
 if get_testing_stats:
 	vprint("Computing testing data stats")
-	functions_gen_cascade_model.output_post_set_stats(test_cascades, subreddit, testing_start_year, testing_start_month, testing_len)
+	functions_gen_cascade_model.output_post_set_stats(test_cascades, subreddit, testing_start_year, testing_start_month, "test", testing_num)
 
 #build base graph for training set - will add infer posts later
 if not sanity_check:
-	base_graph, graph_post_ids = functions_gen_cascade_model.build_base_graph(train_cascades, train_posts, train_params, train_fit_fail_list, subreddit, training_start_year, training_start_month, training_len, include_default_posts, max_nodes, min_node_quality, weight_method, remove_stopwords, weight_threshold, top_n, graph_downsample_ratio, large_cascade_demarcation)
+	base_graph, graph_post_ids = functions_gen_cascade_model.build_base_graph(train_cascades, train_posts, train_params, train_fit_fail_list, subreddit, testing_start_year, testing_start_month, training_num, include_default_posts, max_nodes, min_node_quality, weight_method, remove_stopwords, weight_threshold, top_n, graph_downsample_ratio, large_cascade_demarcation)
 vprint("")
 
 if preprocess:
@@ -82,8 +92,9 @@ if preprocess:
 all_metrics = []		#keep all metrics, separate for each post/observed time run, dump them all at the end
 filename_id = str(time.time())		#unique temp file identifier for this run - node2vec graph/param files
 
-#how often do we want to dump? every 10% or so
-dump_count = int(len(test_posts) / 10)
+#how often do we want to dump? every 100 tests or so
+#total number of sim runs / 100 = number of posts to finish before dumping
+dump_count = int(len(test_posts) * len(observed_list) / 100)
 
 #load list of finished posts for this run, so we can skip ones that are already done
 #(if no bookmark, will get back empty set and False flag)
