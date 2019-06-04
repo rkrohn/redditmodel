@@ -94,8 +94,8 @@ all_metrics = []		#keep all metrics, separate for each post/observed time run, d
 filename_id = str(time.time())		#unique temp file identifier for this run - node2vec graph/param files
 
 #how often do we want to dump? every 100 tests or so
-#total number of sim runs / 100 = number of posts to finish before dumping
-dump_count = int(len(test_posts) * len(observed_list) / 100)
+#100 / number of observation settings = number of posts to finish before dumping
+dump_count = 100 // len(observed_list) + (100 % len(observed_list) > 0) 
 if dump_count == 0: dump_count = 100	#make sure not modding by 0 if small run
 
 #load list of finished posts for this run, so we can skip ones that are already done
