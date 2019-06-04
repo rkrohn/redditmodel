@@ -210,8 +210,10 @@ def parse_command_args():
 	sample_num = False
 	if sim_post == "all":
 		batch = True
+		testing_num = False
 	elif sim_post == "random":
 		batch = False
+		testing_num = False
 	else:
 		#is this a number (n_sample), or an id (single post)?
 		try:
@@ -223,6 +225,7 @@ def parse_command_args():
 		except ValueError:
 			#single specified post
 			batch = False
+			testing_num = False
 	if len(observed_list) > 1:
 		batch = True
 	#and for eval mode
@@ -351,8 +354,9 @@ def load_processed_posts(subreddit, start_month, start_year, num_posts, load_par
 		start_month, start_year = monthdelta(start_month, start_year, -1)
 
 	#loop load until reach required number of posts (each loop will load a single month)
+	#if running in random, id, or all mode, load just one month
 	m = 0
-	while len(posts) < num_posts:
+	while (len(posts) < num_posts and num_posts != False) or len(posts) == 0:
 		month, year = monthdelta(start_month, start_year, m)	#calc month to load
 		vprint("Loading %d-%d" % (month, year))
 
