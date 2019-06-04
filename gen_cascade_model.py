@@ -96,6 +96,7 @@ filename_id = str(time.time())		#unique temp file identifier for this run - node
 #how often do we want to dump? every 100 tests or so
 #total number of sim runs / 100 = number of posts to finish before dumping
 dump_count = int(len(test_posts) * len(observed_list) / 100)
+if dump_count == 0: dump_count = 100	#make sure not modding by 0 if small run
 
 #load list of finished posts for this run, so we can skip ones that are already done
 #(if no bookmark, will get back empty set and False flag)
