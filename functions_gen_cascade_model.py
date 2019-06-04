@@ -702,6 +702,10 @@ def build_cascades(posts, comments):
 			if post_parent not in cascades:
 				fail_cascades.add(post_parent)
 				continue
+			#if comment time is before post time, FAIL
+			if comment['time'] < cascades[post_parent]['time']:
+				fail_cascades.add(post_parent)
+				continue
 			#update overall post comment count for this new comment
 			cascades[post_parent]['comment_count_total'] += 1
 
@@ -710,6 +714,10 @@ def build_cascades(posts, comments):
 			if direct_parent_type == "post":
 				#missing post, FAIL
 				if direct_parent not in cascades:
+					fail_cascades.add(post_parent)
+					continue
+				#if comment time is before post time, FAIL
+				if comment['time'] < cascades[direct_parent]['time']:
 					fail_cascades.add(post_parent)
 					continue
 				#add this comment to replies field of post (no total comment increment, done above)
@@ -723,6 +731,10 @@ def build_cascades(posts, comments):
 				if direct_parent not in cascade_comments:
 					fail_cascades.add(post_parent)
 					continue
+				#if comment time is before parent comment time, FAIL
+				if comment['time'] < cascade_comments[direct_parent]['time']:
+					fail_cascades.add(post_parent)
+					continue	
 				#add current comment to replies field of parent comment
 				cascade_comments[direct_parent]['replies'].append(cascade_comments[comment_id])
 		except:
@@ -738,7 +750,7 @@ def build_cascades(posts, comments):
 		cascade_comments.pop(key, None)
 
 	vprint("Built %d cascades with %d comments" % (len(cascades), len(cascade_comments)))
-	vprint("   Removed %d incomplete cascades (%d associated comments)" % (len(fail_cascades), len(fail_comments)))	
+	vprint("   Removed %d incomplete/erroneous cascades (%d associated comments)" % (len(fail_cascades), len(fail_comments)))	
 
 	return cascades
 #end build_cascades

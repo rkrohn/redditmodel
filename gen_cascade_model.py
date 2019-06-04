@@ -158,7 +158,7 @@ for sim_post_id, sim_post in test_posts.items():
 			partial_fit_params, observed_comment_count = fit_partial_cascade.fit_partial_cascade(test_cascades[sim_post_id], observed, observing_time, inferred_params, verbose=(verbose if batch==False else False))
 			#verify we got good params back - if not, skip this post entirely
 			if partial_fit_params == False:
-				vprint("Partial fit failed for", sim_post_id, "- skipping post")
+				vprint("Partial fit failed for ", sim_post_id, " - skipping post")
 				post_count -= 1		#don't count this post (counter incremented at bottom of loop)
 				break
 
