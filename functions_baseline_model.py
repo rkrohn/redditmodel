@@ -1,76 +1,11 @@
-#functions for gen_cascade_model.py - offloading and modularizing all the things
+#functions for baseline_model.py
+#very similar to versions in functions_gen_cascade_model.py, with a few minor modifications
 
 import file_utils
-import sim_tree
 import tree_edit_distance
-import fit_cascade_gen_model
 import functions_gen_cascade_model
 
-from shutil import copyfile
-import subprocess
-import os
-import random
 from argparse import *
-import pandas as pd
-import string
-import glob
-import re
-from collections import defaultdict
-import itertools
-import bisect
-from copy import deepcopy
-import statistics
-import networkx as nx
-from nltk.corpus import stopwords
-import math
-import sys
-
-#filepaths of data and pre-processed files - keeping everything in the same spot, for sanity/simplicity
-
-#raw posts for (sub, sub, year, month)
-raw_posts_filepath = "/data/datasets/reddit_discussions/%s/%s_submissions_%d_%d.tsv"	
-#raw comments for (sub, sub, post year, comment year, comment month)
-raw_comments_filepath = "/data/datasets/reddit_discussions/%s/%s_%sdiscussions_comments_%s_%s.tsv"  
-#processed posts for (sub, sub, year, month) - dictionary of post id -> post containing title tokens, author, created utc
-processed_posts_filepath = "reddit_data/%s/%s_processed_posts_%d_%d.pkl"
-#fitted params for posts for (sub, sub, year, month) - dictionary of post id -> params tuple
-fitted_params_filepath = "reddit_data/%s/%s_post_params_%d_%d.pkl"
-#reconstructed cascades for (sub, sub, year, month) - dictionary of post id -> cascade dict, with "time", "num_comments", and "replies", where "replies" is nested list of reply objects
-cascades_filepath = "reddit_data/%s/%s_cascades_%d_%d.pkl"
-
-#filepath for random test samples, determined by subreddit, subreddit, number of posts, testing start (year-month), testing length, and tree size requirements
-#(save these to files so you can have repeated runs of the same random set)
-random_sample_list_filepath = "reddit_data/%s/%s_%d_test_keys_list_start%d-%d_%dmonths_filter%s-%s.pkl"
-
-#filepath for cached base graph builds
-#determined by: subreddit, training_start_year, training_start_month, training_len, 
-#	include_default_posts, max_nodes, min_node_quality, weight_method, min_weight, top_n,
-#   graph_downsample_ratio, large_cascade_demarcation, and remove_stopwords
-#(yes, it's a mess)
-base_graph_filepath = "reddit_data/%s/base_graph_%d-%dtest_start_%dtrainposts_default_posts_%s_%snodes_%.1fminquality_%s_%.1fminedgeweight_%dtopn_%ssample%s%s.pkl"
-
-#filepaths of output/temporary files - used to pass graph to C++ node2vec for processing
-temp_graph_filepath = "sim_files/graph_%s.txt"			#updated graph for this sim run
-temp_params_filepath = "sim_files/in_params_%s.txt"		#temporary, filtered params for sim run (if sampled graph)
-output_params_filepath = "sim_files/out_params_%s.txt"		#output params from node2vec
-
-#output filepaths
-stats_filepath = "sim_results/post_set_stats_%s_test%d-%d_%d_%s_posts.csv"		#post set stats (subreddit, year, month, num_posts, type)
-
-#hardcoded params for failed fit cascades
-#only used when fit/estimation fails and these posts are still included in graph
-
-DEFAULT_WEIBULL_NONE = [1, 1, 0.15]     #weibull param results if post has NO comments to fit
-                                        #force a distribution heavily weighted towards the left, then decreasing
-
-DEFAULT_WEIBULL_SINGLE = [1, 2, 0.75]   #weibull param result if post has ONE comment and other fit methods fail
-                                        #force a distribution heavily weighted towards the left, then decreasing
-                   #use this same hardcode for other fit failures, but set a (index 0) equal to the number of replies
-
-DEFAULT_LOGNORMAL = [0.15, 1.5]    	#lognormal param results if post has no comment replies to fit
-                                	#mu = 0, sigma = 1.5 should allow for occasional comment replies, but not many
-
-DEFAULT_QUALITY = 0.45     #default param quality if hardcode params are used
 
 
 #parse out all command line arguments and return results

@@ -10,10 +10,7 @@ import file_utils
 import functions_gen_cascade_model
 import socsim_data_functions_gen_cascade_model
 import functions_baseline_model
-import cascade_manip
 
-import time
-from collections import defaultdict
 import random
 
 
@@ -72,8 +69,6 @@ train_fit_fail_list = [post_id for post_id in train_fit_fail_list if post_id in 
 
 
 all_metrics = []		#keep all metrics, separate for each post/observed time run, dump them all at the end
-filename_id = str(time.time())		#unique temp file identifier for this run - node2vec graph/param files
-
 
 #how often do we want to dump? every 100 tests or so
 #100 / number of observation settings = number of posts to finish before dumping
