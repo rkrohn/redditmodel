@@ -233,6 +233,6 @@ if post_count == 0:
 functions_gen_cascade_model.save_results(outfile, all_metrics, observing_time)
 
 #all done, update bookmark to "finished"
-functions_gen_cascade_model.save_bookmark(finished_posts, outfile, status=True)
+functions_gen_cascade_model.save_bookmark(finished_posts, outfile, status=(True if len(finished_posts) == len(test_posts) else False))
 
 vprint("All done, all results saved\n")
