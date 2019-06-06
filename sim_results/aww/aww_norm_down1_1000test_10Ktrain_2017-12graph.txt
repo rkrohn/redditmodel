@@ -1,0 +1,89 @@
+
+Namespace(estimate_initial_params=False, graph_downsample_ratio='1', include_default_posts=True, large_cascade_demarcation='10', max_nodes=False, max_size=None, min_node_quality=False, min_size=None, normalize_parameters='ln', num_comments_observed=['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19', '20', '25', '30', '35', '40', '45', '50', '55', '60', '65', '70', '75', '80', '85', '90', '95', '100', '110', '120', '130', '140', '150', '175', '200', '250', '300', '350', '400', '500', '600', '700', '800', '900', '1000'], outfile='sim_results/aww/aww_norm_down1_1000test_10Ktrain_2017-12_test', preprocess=True, remove_stopwords=False, sanity_check=False, sim_post='1000', subreddit='aww', testing_start_month='12', testing_start_year='2017', testing_stats=False, time_error_absolute=False, time_error_margin=False, time_observed=False, top_n='20', topological_error=True, training_num='10000', training_stats=False, verbose=True, weight_method='jaccard', weight_threshold=False)
+
+Sim Post: subset
+Comments Observed: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75, 80, 85, 90, 95, 100, 110, 120, 130, 140, 150, 175, 200, 250, 300, 350, 400, 500, 600, 700, 800, 900, 1000]
+Output: sim_results/aww/aww_norm_down1_1000test_10Ktrain_2017-12_test
+Source subreddit: aww
+Minimum node quality: False
+Max graph size: False
+Max edges per node: 20
+Minimum edge weight: None
+Normalizing params for graph infer using natural log
+Test Set: first 1000 posts starting at 12-2017
+Training Set: 10000 posts immediately preceding 12-2017
+Using Jaccard index to compute graph edge weights
+Including posts with hardcoded default parameters
+Using topological error for tree evaluation (ignoring comment times)
+Downsampling base graph to 1.0:1 large:small posts, where large posts contain at least 10 comments
+
+Loading processed training data
+Loading 11-2017
+Deleted 4 posts without cascades
+Loaded 31655 posts 
+   31655 cascades
+   7124 fitted params, 24531 failed fit
+
+Loading processed testing data
+Loading 12-2017
+Deleted 3 posts without cascades
+Loaded 35329 posts 
+   35329 cascades
+
+Sampling 1000 first posts (from 35329) for simulation set
+Sampling 10000 last posts (from 31655) for simulation set
+
+Building param graph for 10000 posts
+   Including posts with default parameters
+Using 10000 posts for graph
+Downsampled to 972 posts based on ratio and size
+   Using 486 large posts with >= 10 comments, and 486 small posts
+Using jaccard index for edge weight
+Graph contains 945 nodes and 12359 unique edges (17685 edge entries)
+  max degree: 86
+  min degree: 1
+Saving graph to reddit_data/aww/base_graph_2017-12test_start_10000trainposts_default_posts_True_all_nodes_0.0minquality_jaccard_0.0minedgeweight_20topn_1.0sample_>=10.pkl
+
+Finished graph build, exiting
+12.30user 2.19system 0:11.54elapsed 125%CPU (0avgtext+0avgdata 425920maxresident)k
+0inputs+584outputs (0major+115912minor)pagefaults 0swaps
+
+Namespace(estimate_initial_params=False, graph_downsample_ratio='1', include_default_posts=True, large_cascade_demarcation='10', max_nodes=False, max_size=None, min_node_quality=False, min_size=None, normalize_parameters='ln', num_comments_observed=['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19', '20', '25', '30', '35', '40', '45', '50', '55', '60', '65', '70', '75', '80', '85', '90', '95', '100', '110', '120', '130', '140', '150', '175', '200', '250', '300', '350', '400', '500', '600', '700', '800', '900', '1000'], outfile='sim_results/aww/aww_norm_down1_1000test_10Ktrain_2017-12_test', preprocess=True, remove_stopwords=False, sanity_check=False, sim_post='1000', subreddit='aww', testing_start_month='12', testing_start_year='2017', testing_stats=False, time_error_absolute=False, time_error_margin=False, time_observed=False, top_n='20', topological_error=True, training_num='10000', training_stats=False, verbose=True, weight_method='jaccard', weight_threshold=False)
+
+Sim Post: subset
+Comments Observed: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75, 80, 85, 90, 95, 100, 110, 120, 130, 140, 150, 175, 200, 250, 300, 350, 400, 500, 600, 700, 800, 900, 1000]
+Output: sim_results/aww/aww_norm_down1_1000test_10Ktrain_2017-12_test
+Source subreddit: aww
+Minimum node quality: False
+Max graph size: False
+Max edges per node: 20
+Minimum edge weight: None
+Normalizing params for graph infer using natural log
+Test Set: first 1000 posts starting at 12-2017
+Training Set: 10000 posts immediately preceding 12-2017
+Using Jaccard index to compute graph edge weights
+Including posts with hardcoded default parameters
+Using topological error for tree evaluation (ignoring comment times)
+Downsampling base graph to 1.0:1 large:small posts, where large posts contain at least 10 comments
+
+Loading processed training data
+Loading 11-2017
+Deleted 4 posts without cascades
+Loaded 31655 posts 
+   31655 cascades
+   7124 fitted params, 24531 failed fit
+
+Loading processed testing data
+Loading 12-2017
+Deleted 3 posts without cascades
+Loaded 35329 posts 
+   35329 cascades
+
+Sampling 1000 first posts (from 35329) for simulation set
+Sampling 10000 last posts (from 31655) for simulation set
+Loading base graph from file
+Graph contains 945 nodes and 12359 unique edges (17685 edge entries)
+
+Finished graph build, exiting
+11.33user 2.61system 0:11.11elapsed 125%CPU (0avgtext+0avgdata 426668maxresident)k
+8inputs+16outputs (0major+115687minor)pagefaults 0swaps

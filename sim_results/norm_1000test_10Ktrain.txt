@@ -1,0 +1,13 @@
+Preprocessing aww
+Done
+sim_results/aww/aww_norm_1000test_10Ktrain_2017-12_test
+failed, restarting sim_results/aww/aww_norm_1000test_10Ktrain_2017-12_test
+Preprocessing explainlikeimfive
+Done
+sim_results/explainlikeimfive/explainlikeimfive_norm_1000test_10Ktrain_2017-12_test
+failed, restarting sim_results/explainlikeimfive/explainlikeimfive_norm_1000test_10Ktrain_2017-12_test
+
+Test counts by subreddit:
+   aww : 1
+   explainlikeimfive : 1
+Total: 2 (plus 2 preprocessing)
