@@ -1,4 +1,4 @@
-#functions for paper_model.py - offloading and modularizing all the things
+#functions for gen_cascade_model.py - offloading and modularizing all the things
 
 import file_utils
 import sim_tree
@@ -250,17 +250,7 @@ def parse_command_args():
 		socsim_data = False
 
 	#hackery: declare a special print function for verbose output
-	#make it global here for all the other functions to use
-	global vprint
-	if verbose:
-		def vprint(*args):
-			# Print each argument separately so caller doesn't need to
-			# stuff everything to be printed into a single string
-			for arg in args:
-				print(arg, end='')
-			print("")
-	else:   
-		vprint = lambda *a: None      # do-nothing function
+	define_vprint(verbose)
 
 	#print all arguments, so we know what this run was
 	vprint("\n", args, "\n")	
@@ -320,6 +310,23 @@ def parse_command_args():
 	#return all arguments
 	return subreddit, sim_post, observing_time, observed_list, outfile, max_nodes, min_node_quality, estimate_initial_params, normalize_parameters, batch, testing_num, testing_start_month, testing_start_year, training_num, weight_method, remove_stopwords, top_n, weight_threshold, include_default_posts, time_error_margin, error_method, sanity_check, min_size, max_size, training_stats, testing_stats, socsim_data, graph_downsample_ratio, large_cascade_demarcation, verbose, preprocess
 #end parse_command_args
+
+
+#helper function: calling this will define vprint based on the current verbosity setting
+def define_vprint(verbose):
+	#hackery: declare a special print function for verbose output
+	#make it global here for all the other functions to use
+	global vprint
+	if verbose:
+		def vprint(*args):
+			# Print each argument separately so caller doesn't need to
+			# stuff everything to be printed into a single string
+			for arg in args:
+				print(arg, end='')
+			print("")
+	else:   
+		vprint = lambda *a: None      # do-nothing function
+#end define_vprint
 
 
 #given a month and year, shift by delta months (pos or neg) and return result
@@ -1832,7 +1839,6 @@ def save_bookmark(finished_posts, base_filename, status=False):
 
 #save all sim results to csv file
 #one row per simulated post/time pair, with a bunch of data in it
-#then, at the bottom, all the settings/arguments, for tracking purposes
 def save_results(base_filename, metrics, observing_time):
 	#given a base filename, convert to complete output filename
 	filename = base_filename + "_results.csv"
