@@ -148,6 +148,9 @@ for sim_post_id, sim_post in test_posts.items():
 		eval_res = functions_baseline_model.eval_trees(sim_post_id, sim_tree, true_cascade, simulated_count, observed_count, true_comment_count, true_structural_virality, observed_time, observing_time, time_error_margin, error_method, (observed if observing_time==False else None))
 		#add a column indicating where the params for this sim came from
 		eval_res['param_source'] = param_source
+		#dummy columns (graph infer) so output format matches real model exactly
+		eval_res['disconnected'] = "N/A"
+		eval_res['connecting_edges'] = "N/A"
 
 		#append eval data to overall list
 		all_metrics.append(eval_res)
@@ -176,7 +179,7 @@ if post_count == 0:
 	exit(0)
 
 #save metrics + settings to output file
-functions_baseline_model.save_results(outfile, all_metrics, observing_time)
+functions_gen_cascade_model.save_results(outfile, all_metrics, observing_time)
 
 #all done, update bookmark to "finished"
 functions_gen_cascade_model.save_bookmark(finished_posts, outfile, status=(True if len(finished_posts) == len(test_posts) else False))
