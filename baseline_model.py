@@ -126,6 +126,14 @@ for sim_post_id, sim_post in test_posts.items():
 		if not batch:
 			vprint("Simulation params: ", sim_params)
 
+		#get truncated cascade, so we know how many comments observed
+		observed_tree, observed_comment_count, time_observed = functions_gen_cascade_model.filter_comment_tree_by_num_comments(test_cascades[sim_post_id], observed, convert_times=False)
+
+		#if we have observed the whole cascade and max observed is not 0, 
+		#don't bother simming for this observed setting
+		if observed != 0 and observed_comment_count >= test_cascades[sim_post_id]['comment_count_total']:
+			continue
+
 		#SIMULATE COMMENT TREE
 		sim_tree, observed_count, observed_time, simulated_count = functions_gen_cascade_model.simulate_comment_tree(sim_params, subreddit, test_cascades[sim_post_id], observed, observing_time, not batch)
 
