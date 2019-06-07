@@ -6,3 +6,10 @@ failed, restarting sim_results/aww/aww_norm_down1_1000test_10Ktrain_2017-12_test
 Test counts by subreddit:
    aww : 1
 Total: 1 (plus 1 preprocessing)
+lainlikeimfive_norm_down1_1000test_10Ktrain_2017-12_test
+failed, restarting sim_results/explainlikeimfive/explainlikeimfive_norm_down1_1000test_10Ktrain_2017-12_test
+
+Test counts by subreddit:
+   aww : 1
+   explainlikeimfive : 1
+Total: 2 (plus 2 preprocessing)
