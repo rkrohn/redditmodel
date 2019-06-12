@@ -1,7 +1,0 @@
-Preprocessing aww
-Done
-sim_results/aww/aww_norm_1000test_10Ktrain_2017-12_test
-
-Test counts by subreddit:
-   aww : 1
-Total: 1 (plus 1 preprocessing)

@@ -1,1 +1,0 @@
-time python3 gen_cascade_model.py -s explainlikeimfive -o sim_results/explainlikeimfive/explainlikeimfive_2017-12_5-10_test_05-25-17:22:54 -topn 20 -y 2017 -m 12 -np ln -down_ratio 1 -large_req 20 -min 5 -max 10 -j -a --topo_err -v -d -nco 0 1 2 3 4 5 6 7 8 9
