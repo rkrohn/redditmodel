@@ -12,6 +12,7 @@ import socsim_data_functions_gen_cascade_model
 import functions_baseline_model
 
 import random
+from copy import deepcopy
 
 
 #parse all command-line arguments
@@ -111,26 +112,38 @@ for sim_post_id, sim_post in test_posts.items():
 		param_source = "random_default"
 
 	#get time-shifted ground-truth cascade (same for all observation periods)
-	true_cascade, true_comment_count = functions_gen_cascade_model.filter_comment_tree(test_cascades[sim_post_id])
+	true_cascade, true_comment_count = functions_gen_cascade_model.shift_comment_tree(test_cascades[sim_post_id])
 	#and compute the structural virality of this cascade
 	true_structural_virality = functions_gen_cascade_model.get_structural_virality(true_cascade)
 
+	#duplicate the true cascade - will use as a working copy for different observed trees
+	observed_tree = deepcopy(true_cascade)
+
 	#use the same sim params for all the time_observed values
-	for observed in observed_list:			
+	for observed in sorted(observed_list, reverse=True):		
 
 		if not batch:
 			vprint("Simulation params: ", sim_params)
 
 		#get truncated cascade, so we know how many comments observed
-		observed_tree, observed_comment_count, time_observed = functions_gen_cascade_model.filter_comment_tree_by_num_comments(test_cascades[sim_post_id], observed, convert_times=False)
+		#remove unobserved comments from base tree, so we can simulate from partially observed tree
+		#observation defined by time
+		if observing_time:
+			#get observed tree based on observation time and comment timestamps
+			observed_tree, observed_count = functions_gen_cascade_model.filter_comment_tree(observed_tree, observed*60)	#pass in time in minutes
+			#set observed time equal to given for sim
+			time_observed = observed
+		#observation defined by number of comments
+		else:
+			observed_tree, observed_count, time_observed = functions_gen_cascade_model.filter_comment_tree_by_num_comments(observed_tree, observed)
 
 		#if we have observed the whole cascade and max observed is not 0, 
 		#don't bother simming for this observed setting
-		if observed != 0 and observed_comment_count >= test_cascades[sim_post_id]['comment_count_total']:
+		if observed != 0 and observed_count >= test_cascades[sim_post_id]['comment_count_total']:
 			continue
 
 		#SIMULATE COMMENT TREE
-		sim_tree, observed_count, observed_time, simulated_count = functions_gen_cascade_model.simulate_comment_tree(sim_params, subreddit, test_cascades[sim_post_id], observed, observing_time, not batch)
+		sim_tree, simulated_count = functions_gen_cascade_model.simulate_comment_tree(sim_params, observed_tree, time_observed, not batch)
 
 		#don't try to eval if sim failed (aborted infinite sim)
 		if sim_tree == False:
@@ -145,7 +158,7 @@ for sim_post_id, sim_post in test_posts.items():
 		#sim_graph = functions_gen_cascade_model.cascade_to_graph(sim_tree)
 
 		#compute tree edit distance between ground-truth and simulated cascades
-		eval_res = functions_baseline_model.eval_trees(sim_post_id, sim_tree, true_cascade, simulated_count, observed_count, true_comment_count, true_structural_virality, observed_time, observing_time, time_error_margin, error_method, (observed if observing_time==False else None))
+		eval_res = functions_baseline_model.eval_trees(sim_post_id, sim_tree, true_cascade, simulated_count, observed_count, true_comment_count, true_structural_virality, time_observed, observing_time, time_error_margin, error_method, (observed if observing_time==False else None))
 		#add a column indicating where the params for this sim came from
 		eval_res['param_source'] = param_source
 		#dummy columns (graph infer) so output format matches real model exactly
