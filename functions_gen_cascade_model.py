@@ -881,11 +881,10 @@ def output_post_set_stats(cascades, subreddit, year, month, set_type, num_posts)
 #end output_post_set_stats
 
 
-#given a single cascade, get a list of all comment times in minutes, relative to root time
-def get_list_of_comment_times(cascade, to_minutes=True):
+#given a single cascade, with comment times already shifted and converted to minutes,
+#return a single list of ALL comment times
+def get_list_of_comment_times(cascade):
 	comment_times = []		#list of all comment times
-
-	root_time = cascade['time']     #get post time in seconds to use as offset
 
 	#init queue to root, will process children as nodes are removed from queue
 	nodes_to_visit = [cascade]
@@ -893,15 +892,8 @@ def get_list_of_comment_times(cascade, to_minutes=True):
 		parent = nodes_to_visit.pop(0)    #grab current comment/node
 		#add all reply times to set of cascade comments, and add child nodes to queue
 		for comment in parent['replies']:
-			if comment['time'] - root_time < 0:
-				comment_times.append(0)
-			else:
-				comment_times.append(comment['time'] - root_time)   #offset by parent time, still in seconds
+			comment_times.append(comment['time'])	#add time (in minutes) to list
 			nodes_to_visit.append(comment)    #add reply to processing queue
-
-	#convert comment times - all in minutes from root post - if desired
-	if to_minutes:
-		comment_times = [time / 60.0 for time in comment_times]
 
 	#return sorted list of times
 	return sorted(comment_times)
@@ -1524,35 +1516,18 @@ def load_inferred_params(filename, normalize=False, min_max_params=False, displa
 
 
 #given params, simulate a comment tree
-#arguments: post object, simulation parameters, actual cascade, observed time
-#sim_cascade comment times in utc seconds, time_observed in minutes
+#arguments: simulation parameters, observed cascade (shifted comment times in minutes), 
+#time observed (in minutes)
 #returned simulated cascade has relative comment times in minutes
-def simulate_comment_tree(sim_params, group, sim_cascade, observed, observing_time, display=False):
+#returns a new tree, does not modify the version passed in
+def simulate_comment_tree(sim_params, observed_tree, time_observed, display=False):
 	if display:
 		vprint("\nSimulating comment tree")
 
 	#simulate tree structure + comment times!	
 	
-	#simulate from partially observed tree
-	if observed != 0:
-		#observation defined by time
-		if observing_time:
-			#get observed tree based on observation time and comment timestamps
-			observed_tree, observed_count = filter_comment_tree(sim_cascade, observed*60)
-			#set observed time equal to given for sim
-			time_observed = observed
-		#observation defined by number of comments
-		else:
-			observed_tree, observed_count, time_observed = filter_comment_tree_by_num_comments(sim_cascade, observed)
-
-		#simulate from this observed tree (regardless of how we got it)
-		sim_root, all_times = sim_tree.simulate_comment_tree(sim_params, time_observed*60, observed_tree)
-
-	#simulate entirely new tree from root only
-	else:
-		sim_root, all_times = sim_tree.simulate_comment_tree(sim_params)
-		observed_count = 0
-		time_observed = 0
+	#simulate from the observed tree
+	sim_root, all_times = sim_tree.simulate_comment_tree(sim_params, time_observed, deepcopy(observed_tree))
 
 	#catching the infinite sim
 	if sim_root == False:
@@ -1563,56 +1538,66 @@ def simulate_comment_tree(sim_params, group, sim_cascade, observed, observing_ti
 		vprint("   %d actual\n" % sim_cascade['comment_count_total'])
 
 	#return simulated tree, observed comment count, time_observed, and simulated comment count (counts for output/eval)
-	return sim_root, observed_count, time_observed, len(all_times)
+	return sim_root, len(all_times)
 #end simulate_comment_tree
 
 
-#given a ground-truth cascade stored as nested dictionary structure, and an observed time, 
-#filter tree to only the comments we have observed, offset comment times by root time, 
-#and convert relative comment times to minutes
-#time_observed given in minutes, unless observed_seconds is true
-#cascade comment times always in seconds
-#if time_observed == None, just time shift and return that
-#if convert_times == False, do not shift times relative to root or convert to minutes (leave times alone!)
-def filter_comment_tree(cascade, time_observed=None, convert_times=True, observed_seconds=False):
+#given a ground-truth cascade stored as nested dictionary structure, 
+#offset comment times by root time and convert relative comment times to minutes
+def shift_comment_tree(cascade):
 	#build new list/structure of post comments - offset times by post time
-	observed_tree = deepcopy(cascade)	#start with given, modify from there
+	shifted_tree = deepcopy(cascade)	#start with given, modify from there
 
-	#grab post time to use as offset
-	root_time = cascade['time']
+	root_time = cascade['time']		#grab post time to use as offset
+	shifted_tree['time'] = 0		#post at time 0
 
-	#update root, if required
-	if convert_times:
-		observed_tree['time'] = 0		#post at time 0
+	#traverse the tree, removing unobserved comments and offsetting times
+	comments_to_visit = [] + [(shifted_tree, reply) for reply in shifted_tree['replies']]	#init queue to root replies
+	comment_count = 0
+	while len(comments_to_visit) != 0:
+		parent, curr = comments_to_visit.pop()		#get current comment
+		#observed comment time, shift/convert if required and add replies to queue
+		curr['time'] = (curr['time'] - root_time) / 60.0
+		comments_to_visit.extend([(curr, reply) for reply in curr['replies']])
+		comment_count += 1
+	
+	return shifted_tree, comment_count		#return root post of converted tree
+#end shift_comment_tree
 
-	#traverse the tree, removing unovserved comments and offsetting times
-	comments_to_visit = [] + [(observed_tree, reply) for reply in observed_tree['replies']]	#init queue to root replies
+
+#given a ground-truth cascade stored as nested dictionary structure, and an observed time, 
+#filter tree to only the comments we have observed
+#cascade comments already shifted relative to root and converted to minutes
+#time_observed given in minutes
+#modifies the given cascade by deleting comments - does NOT create a copy
+def filter_comment_tree(cascade, time_observed):
+	#traverse the tree, removing unobserved comments
+	comments_to_visit = [] + [(cascade, reply) for reply in cascade['replies']]	#init queue to root replies
 	observed_count = 0
 	while len(comments_to_visit) != 0:
 		parent, curr = comments_to_visit.pop()		#get current comment
 		#check time, delete if not within observed window
-		if time_observed is not None and ((observed_seconds and curr['time'] - root_time > time_observed) or (observed_seconds == False and curr['time'] - root_time > time_observed * 60)):
+		if curr['time'] > time_observed:
 			parent['replies'].remove(curr)
 			continue
-		#observed comment time, shift/convert if required and add replies to queue
-		if convert_times:
-			curr['time'] = (curr['time'] - root_time) / 60.0
+		#observed comment, add replies to queue
 		observed_count += 1
 		comments_to_visit.extend([(curr, reply) for reply in curr['replies']])
 
 	#return post/root
-	return observed_tree, observed_count
+	return cascade, observed_count
 #end filter_comment_tree
 
 
 #given a ground-truth cascade stored as nested dictionary structure, and an observed number of comments,
-#filter tree to only the comments we have observed, offset comment times by root time,
-#and convert relative comment times to minutes
-#cascade times given in seconds
-#if convert_times == False, do not shift times relative to root or convert to minutes (leave times alone!)
-def filter_comment_tree_by_num_comments(cascade, num_observed, convert_times=True):
-	#get sorted list of ALL comment times, in seconds (no floats here!)
-	all_comment_times = get_list_of_comment_times(cascade, to_minutes=False)
+#filter tree to only the comments we have observed
+#also return the time observed in hours
+#cascade comments already shifted relative to root and converted to minutes
+#time_observed given in minutes
+#modifies the given cascade by deleting comments - does NOT create a copy
+def filter_comment_tree_by_num_comments(cascade, num_observed):
+	#get sorted list of ALL comment times, in minutes
+	all_comment_times = get_list_of_comment_times(cascade)
 	#pull just the observed comments
 	observed_comments = all_comment_times[:num_observed]
 
@@ -1642,7 +1627,7 @@ def filter_comment_tree_by_num_comments(cascade, num_observed, convert_times=Tru
 	expected_observed_count = len([time for time in all_comment_times if time <= time_observed])
 
 	#filter tree based on this observation time (determined by # of comments)
-	observed_tree, observed_count = filter_comment_tree(cascade, time_observed, convert_times, observed_seconds=True)
+	observed_tree, observed_count = filter_comment_tree(cascade, time_observed)
 
 	#verify that the tree size matches
 	if observed_count != expected_observed_count:
@@ -1656,7 +1641,7 @@ def filter_comment_tree_by_num_comments(cascade, num_observed, convert_times=Tru
 		print("observed tree", observed_tree)
 		exit(0)
 
-	return observed_tree, observed_count, time_observed / 3600.0
+	return observed_tree, observed_count, time_observed / 60.0
 #end filter_comment_tree_by_num_comments
 
 
