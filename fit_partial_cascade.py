@@ -54,7 +54,7 @@ def fit_partial_cascade(cascade, observed, observing_time, param_guess=False, ve
     n_b = partial_estimate_branching_factor(len(root_comment_times), len(other_comment_times), verbose)
 
     #build return set of params
-    params = param_guess        #start with the guess we were given
+    params = param_guess[:]        #start with the guess we were given
     #use any fit values that didn't fail
     if weibull_res != False:
         params[0:3] = weibull_res
