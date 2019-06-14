@@ -1,6 +1,5 @@
 from fit_weibull import *
 from fit_lognormal import *
-import functions_gen_cascade_model
 
 #given a single cascade and associated comments, and an observed time, fit both the root-comment Weibull and deeper-comment lognormal distributions for the observed comments
 #also, estimate the branching factor
