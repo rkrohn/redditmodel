@@ -11,7 +11,7 @@ arguments_list = []
 
 #REQUIRED ARGUMENTS
 
-repeat_runs = 1			#number of repeated runs to do for each subreddit/size class
+repeat_runs = 5			#number of repeated runs to do for each subreddit/size class
 
 #first command line arg - string identifier for this set of runs
 run_str = sys.argv[1]
@@ -24,8 +24,13 @@ subreddits = sys.argv[2:]
 
 #list of times/comment counts for observation, along with the selected option
 observation_option = '-nco'		#-nco or -t
-observation_list = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75, 80, 85, 90, 95, 100, 110, 120, 130, 140, 150, 175, 200, 250, 300, 350, 400, 500, 600, 700, 800, 900, 1000]
+observation_list = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 12, 15, 17, 20, 25, 30, 35, 40, 45, 50, 60, 70, 75, 80, 90, 100, 125, 150, 175, 200, 250, 300, 350, 400, 500, 600, 700, 800, 900, 1000]
 #this will be filtered depending on the size class, so you don't try to observe more than can possibly exist for that run
+#without commas for easy copying for other individual runs (ie, baseline)
+# 0 1 2 3 4 5 6 7 8 9 10 12 15 17 20 25 30 35 40 45 50 60 70 75 80 90 100 125 150 175 200 250 300 350 400 500 600 700 800 900 1000	
+#full list (reducing for time)
+#0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 25 30 35 40 45 50 55 60 65 70 75 80 85 90 95 100 110 120 130 140 150 175 200 250 300 350 400 500 600 700 800 900 1000
+#[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75, 80, 85, 90, 95, 100, 110, 120, 130, 140, 150, 175, 200, 250, 300, 350, 400, 500, 600, 700, 800, 900, 1000]
 
 #select an edge weight method
 arguments_list.append('-j')		#-j, -c, or -wmd
@@ -60,12 +65,12 @@ size_breaks = []
 #arguments['-q'] = [0.1]		#minimum node quality
 #arguments['-l'] = 1			#number of months for testing (default 1)
 #arguments['-p'] = 1			#number of months for training
-arguments['-np'] = 'ln'		#optional normalization, ln (natural log) or mm (min-max)
+#arguments['-np'] = 'ln'		#optional normalization, ln (natural log) or mm (min-max)
 
 #must do both of these together, if you want any
-arguments['-down_ratio'] = 1	#ratio of large:small posts for graph downsampling, 
+#arguments['-down_ratio'] = 1	#ratio of large:small posts for graph downsampling, 
 								#where large/small border defined by -large_req
-arguments['-large_req'] = 10	#divider between large and small cascades for downsample
+#arguments['-large_req'] = 10	#divider between large and small cascades for downsample
 
 #arguments_list.append('-e')		#estimate initial params
 arguments_list.append('-v')			#verbose output
@@ -122,6 +127,40 @@ for run in range(repeat_runs):
 		#loop subreddits
 		for subreddit in subreddits:
 
+			#run corresponding baseline model in background - if don't have results already
+			
+			#define output filename for baseline model
+			baseline_outfile = "sim_results/%s/%s_baseline_%dtrain_%dtest_%d-%d%s_test%s" % (subreddit, subreddit, arguments['-n_train'], arguments['-n'], arguments['-y'], arguments['-m'], size_class, "_run%d" % run if repeat_runs > 1 else "")
+
+			#no data for this baseline configuration, run the test
+			#check the bookmark saved by the model to know if finished or not
+			finished_posts, complete = load_bookmark(baseline_outfile)
+			if complete:
+				print("skipping", outfile)
+			
+			else:
+				#build command arguments list
+				#base first
+				command = ['time', 'python3', 'baseline_model.py', '-s', subreddit, '-o', baseline_outfile]
+				#add the dict args - but only the ones that make sense for the baseline model
+				for arg in ['-n', '-n_train', '-m', '-y']:
+					command.append(arg)
+					command.append(str(arguments[arg]))
+				#observation list
+				command.append(observation_option)
+				command = command + run_observed_list
+
+				print(baseline_outfile)
+				
+				#run the thing, piping output to file
+				f = open(baseline_outfile+".txt", "w")
+				f.write(' '.join(command)+'\n')		#write arguments to first line of file
+				f.flush()  #make sure arguments get written first
+				process = subprocess.Popen(command, stdout=f, stderr=f)
+				#no wait, run in background
+
+			#and then run the regular model, and wait for it to finish
+
 			#define our base output filename - keep it simple, will have all the settings in the output files
 			outfile = "sim_results/%s/%s_%s_%d-%d%s_test%s" % (subreddit, subreddit, run_str, arguments['-y'], arguments['-m'], size_class, "_run%d" % run if repeat_runs > 1 else "")
 
@@ -152,7 +191,6 @@ for run in range(repeat_runs):
 				print("Preprocessing", subreddit)
 				f = open("sim_results/%s/%s_%s_%d-%dgraph.txt" % (subreddit, subreddit, run_str, arguments['-y'], arguments['-m']), "a")
 				subprocess.call(command+['-preprocess'], stdout=f, stderr=f)
-				print("Done")
 
 			print(outfile)
 			
