@@ -143,9 +143,10 @@ for run in range(repeat_runs):
 				#base first
 				command = ['time', 'python3', 'baseline_model.py', '-s', subreddit, '-o', baseline_outfile]
 				#add the dict args - but only the ones that make sense for the baseline model
-				for arg in ['-n', '-n_train', '-m', '-y']:
-					command.append(arg)
-					command.append(str(arguments[arg]))
+				for arg in ['-n', '-n_train', '-m', '-y', '-min', '-max']:
+					if arg in arguments:
+						command.append(arg)
+						command.append(str(arguments[arg]))
 				#observation list
 				command.append(observation_option)
 				command = command + run_observed_list
@@ -223,15 +224,15 @@ print("Total:", total_count, "(plus", len(subreddits), "preprocessing)\n")
 
 #combine multiple runs into a single results file
 print("Creating combined results files")
-if repeat_runs != 1:
+if repeat_runs != 1 or len(size_breaks) != 0:
 	#baseline results
 	#redefine output filename - without run identifier
-	baseline_outfile = "sim_results/%s/%s_baseline_%dtrain_%dtest_%d-%d%s" % (subreddit, subreddit, arguments['-n_train'], arguments['-n'], arguments['-y'], arguments['-m'], size_class)
+	baseline_outfile = "sim_results/%s/%s_baseline_%dtrain_%dtest_%d-%d" % (subreddit, subreddit, arguments['-n_train'], arguments['-n'], arguments['-y'], arguments['-m'])
 	#combine matching files from multiple runs together
-	file_utils.combine_csv(baseline_outfile+"_all_results.csv", baseline_outfile+"_test*.csv", display=True)
+	file_utils.combine_csv(baseline_outfile+"_all_results.csv", baseline_outfile + ("*" if len(size_breaks) != 0 else "") + "_test*.csv", display=True)
 
 	#test results
 	#redefine output filename - without run identifier
-	outfile = "sim_results/%s/%s_%s_%d-%d%s" % (subreddit, subreddit, run_str, arguments['-y'], arguments['-m'], size_class)
+	outfile = "sim_results/%s/%s_%s_%d-%d" % (subreddit, subreddit, run_str, arguments['-y'], arguments['-m'])
 	#combine matching files from multiple runs together
-	file_utils.combine_csv(outfile+"_all_results.csv", outfile+"_test*.csv", display=True)
+	file_utils.combine_csv(outfile+"_all_results.csv", outfile + ("*" if len(size_breaks) != 0 else "") + "_test*.csv", display=True)
