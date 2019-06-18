@@ -12,6 +12,7 @@ import itertools
 import sys
 from itertools import zip_longest
 import pandas as pd
+import glob
 
 DISPLAY = False
 
@@ -199,3 +200,39 @@ def load_csv_pandas(filename, index_col=False):
 def save_csv_pandas(df, filename, include_index=True):
 	df.to_csv(filename, index=include_index)
 #end save_csv_pandas
+
+
+#given an output filename and a glob string, combine all files in resulting glob list to 
+#a single csv file, saved to the output filename
+#(uses combine_csv_list to do the actual combining)
+#if file already exists, skip it - if not, combine to create new file
+def combine_csv(combined_filename, glob_string, display=False):
+	#check if file already exists
+	if verify_file(combined_filename) == False:
+		#get list of files to combine
+		combine_file_list = glob.glob(glob_string)
+		#return if no files
+		if len(combine_file_list) == 0:
+			if display: print("No matching files to combine for %s" % combined_filename)
+			return
+
+		#combine contents into a single csv file
+		if display: print("Combining %d files to %s" % (len(combine_file_list), combined_filename))
+		combine_csv_list(combine_file_list, combined_filename)
+
+	#combined file already exists, skip	
+	elif display: print("Skipping combine, %s already exists" % combined_filename)	
+#end combine_csv
+
+
+#given a list of csv files, combine them into a single file
+#(all files must have the same column structure, or this doesn't make much sense)
+#find all csv files in the folder
+#use glob pattern matching -> extension = 'csv'
+#save result in list -> all_filenames
+def combine_csv_list(file_list, combined_filename):
+	#combine all files in the list
+	combined_csv = pd.concat([pd.read_csv(f) for f in file_list])
+	#export to csv
+	combined_csv.to_csv(combined_filename, index=False, encoding='utf-8-sig')
+#end combine_csv_list
