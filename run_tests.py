@@ -37,7 +37,7 @@ arguments_list.append('-j')		#-j, -c, or -wmd
 
 #define the test set: -n <sample size>, -id <post id>, -r, or -a
 #arguments_list.append('-a')		#list for -a or -r
-arguments['-n'] = 1000			#dict for -n or -id
+arguments['-n'] = 500			#dict for -n or -id
 
 #define the size of the training set
 arguments['-n_train'] = 10000
@@ -136,7 +136,7 @@ for run in range(repeat_runs):
 			#check the bookmark saved by the model to know if finished or not
 			finished_posts, complete = load_bookmark(baseline_outfile)
 			if complete:
-				print("skipping", outfile)
+				print("skipping", baseline_outfile)
 			
 			else:
 				#build command arguments list
@@ -219,4 +219,19 @@ total_count = 0
 for sub, count in sub_counts.items():
 	print("  ", sub, ":", count)
 	total_count += count
-print("Total:", total_count, "(plus", len(subreddits), "preprocessing)")
+print("Total:", total_count, "(plus", len(subreddits), "preprocessing)\n")
+
+#combine multiple runs into a single results file
+print("Creating combined results files")
+if repeat_runs != 1:
+	#baseline results
+	#redefine output filename - without run identifier
+	baseline_outfile = "sim_results/%s/%s_baseline_%dtrain_%dtest_%d-%d%s" % (subreddit, subreddit, arguments['-n_train'], arguments['-n'], arguments['-y'], arguments['-m'], size_class)
+	#combine matching files from multiple runs together
+	file_utils.combine_csv(baseline_outfile+"_all_results.csv", baseline_outfile+"_test*.csv", display=True)
+
+	#test results
+	#redefine output filename - without run identifier
+	outfile = "sim_results/%s/%s_%s_%d-%d%s" % (subreddit, subreddit, run_str, arguments['-y'], arguments['-m'], size_class)
+	#combine matching files from multiple runs together
+	file_utils.combine_csv(outfile+"_all_results.csv", outfile+"_test*.csv", display=True)
