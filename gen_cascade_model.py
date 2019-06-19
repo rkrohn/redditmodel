@@ -108,6 +108,9 @@ if complete:
 	exit(0)
 else: vprint("Skipping %d already simulated posts" % len(finished_posts))
 
+#sort the observed list - largest to smallest
+observed_list = sorted(observed_list, reverse=True)
+
 #process all posts (or just one, if doing that)
 post_count = 0
 disconnected_count = 0
@@ -141,9 +144,21 @@ for sim_post_id, sim_post in test_posts.items():
 	#duplicate the true cascade - will use as a working copy for different observed trees
 	observed_tree = deepcopy(true_cascade)
 
+	#if observing by comments, reduce observation list if necessary - so we can make sure not to sim from a complete tree more than once
+	if observing_time == False and observed_list[0] >= true_comment_count and len(observed_list) > 1 and observed_list[1] >= true_comment_count:
+		#reduce list by removing all but the smallest observation setting that observes the whole tree
+		#(yes, this is ugly)
+		post_observed_list = deepcopy(observed_list)
+		while post_observed_list[0] >= true_comment_count and len(post_observed_list) > 1 and post_observed_list[1] >= true_comment_count:
+			del post_observed_list[0]
+	#not observing the whole post more than once, or observing by time, use the unedited list
+	else:	
+		post_observed_list = deepcopy(observed_list)
+
 	#use the same inferred params for all the time_observed values
 	#loop observed settings from largest to smallest - so we shrink the observed tree
-	for observed in sorted(observed_list, reverse=True):
+	#(list should already be sorted - but just to be sure...)
+	for observed in sorted(post_observed_list, reverse=True):
 
 		#remove unobserved comments from base tree, so we can simulate from partially observed tree
 		#observation defined by time
@@ -178,12 +193,6 @@ for sim_post_id, sim_post in test_posts.items():
 				vprint("Partial fit failed for ", sim_post_id, " - skipping post")
 				post_count -= 1		#don't count this post (counter incremented at bottom of loop)
 				break
-
-			#if we have observed the whole cascade and max observed is not 0, 
-			#don't bother simming for this observed setting
-			if observed != 0 and observed_comment_count >= test_cascades[sim_post_id]['comment_count_total']:
-				continue
-
 			sim_params = partial_fit_params			#refined params from partial fit for sim
 
 		if not batch:
