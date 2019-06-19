@@ -437,6 +437,10 @@ def process_posts(subreddit, month, year):
 		if row['author'] == "[deleted]" or row['title'] == "[deleted]":
 			continue
 
+		#if title is nan but other fields okay, just skip this post
+		if pd.isnull(row['title']) and pd.isnull(row['subreddit']) == False and pd.isnull(row['created_utc']) == False and pd.isnull(row['author']) == False:
+			continue
+
 		#check for good row, fail and error if something is amiss (probably a non-quoted body)
 		if pd.isnull(row['title']) or pd.isnull(row['subreddit']) or pd.isnull(row['created_utc']) or pd.isnull(row['author']):
 			print("Invalid post, exiting\n", row)
@@ -1596,7 +1600,6 @@ def filter_comment_tree(cascade, time_observed):
 #filter tree to only the comments we have observed
 #also return the time observed in hours
 #cascade comments already shifted relative to root and converted to minutes
-#time_observed given in minutes
 #modifies the given cascade by deleting comments - does NOT create a copy
 def filter_comment_tree_by_num_comments(cascade, num_observed):
 	#get sorted list of ALL comment times
