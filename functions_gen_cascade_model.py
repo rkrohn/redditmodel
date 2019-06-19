@@ -834,7 +834,7 @@ def output_post_set_stats(cascades, subreddit, year, month, set_type, num_posts)
 
 	#do we already have a stats file for this subreddit set? if so, skip
 	if file_utils.verify_file(curr_filepath):
-		vprint("Training data stats already exist.")
+		vprint("Post set stats already exist.")
 		return
 
 	#cascade size distribution
@@ -848,7 +848,11 @@ def output_post_set_stats(cascades, subreddit, year, month, set_type, num_posts)
 	lifetime_dist = defaultdict(int)
 	#loop cascades
 	for post_id, cascade in cascades.items():
+		#get list of all comment times for this cascade
 		comment_times = get_list_of_comment_times(cascade)
+		#cascade time still in UTC seconds at this point, so convert to minutes relative to post
+		comment_times = [(time - cascade['time']) / 60.0 for time in comment_times]
+		#save list of comments and lifetime (binned by 15 minutes)
 		post_to_comment_times[post_id] = comment_times
 		if len(comment_times) == 0:
 			lifetime_dist[0] += 1
@@ -881,8 +885,8 @@ def output_post_set_stats(cascades, subreddit, year, month, set_type, num_posts)
 #end output_post_set_stats
 
 
-#given a single cascade, with comment times already shifted and converted to minutes,
-#return a single list of ALL comment times
+#given a single cascade, return a single list of ALL comment times
+#does not modify the times in any way, no shifting or conversion - you get back what you put in
 def get_list_of_comment_times(cascade):
 	comment_times = []		#list of all comment times
 
@@ -1520,7 +1524,7 @@ def load_inferred_params(filename, normalize=False, min_max_params=False, displa
 #time observed (in minutes)
 #returned simulated cascade has relative comment times in minutes
 #returns a new tree, does not modify the version passed in
-def simulate_comment_tree(sim_params, observed_tree, time_observed, display=False):
+def simulate_comment_tree(sim_params, observed_tree, observed_count, time_observed, display=False):
 	if display:
 		vprint("\nSimulating comment tree")
 
@@ -1535,7 +1539,6 @@ def simulate_comment_tree(sim_params, observed_tree, time_observed, display=Fals
 
 	if display:
 		vprint("Generated %d total comments for post (including %d observed)" % (len(all_times), observed_count))
-		vprint("   %d actual\n" % sim_cascade['comment_count_total'])
 
 	#return simulated tree, observed comment count, time_observed, and simulated comment count (counts for output/eval)
 	return sim_root, len(all_times)
@@ -1596,7 +1599,8 @@ def filter_comment_tree(cascade, time_observed):
 #time_observed given in minutes
 #modifies the given cascade by deleting comments - does NOT create a copy
 def filter_comment_tree_by_num_comments(cascade, num_observed):
-	#get sorted list of ALL comment times, in minutes
+	#get sorted list of ALL comment times
+	#cascade already shifted and in minutes, so that's what we get back
 	all_comment_times = get_list_of_comment_times(cascade)
 	#pull just the observed comments
 	observed_comments = all_comment_times[:num_observed]

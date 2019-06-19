@@ -31,7 +31,7 @@ def fit_partial_cascade(observed_tree, param_guess=False, verbose = False):
 
     #how many comments have we observed?
     observed_count = len(root_comment_times) + len(other_comment_times)
-    vprint("Fitting partial cascade, observed %dcomments" % observed_count)
+    vprint("Fitting partial cascade, observed %d comments" % observed_count)
 
     #weibull fit
     #refine the weibull params by calling fit with guess as starting point and #comments (total) as max iterations
