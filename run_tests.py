@@ -120,7 +120,7 @@ for run in range(repeat_runs):
 
 		#filter the observed list for this run
 		if max_size is not None:
-			run_observed_list = [str(count) for count in observation_list if count < max_size]
+			run_observed_list = [str(count) for count in observation_list if count <= max_size]
 		else:
 			run_observed_list = [str(count) for count in observation_list]
 
