@@ -1,0 +1,95 @@
+
+Namespace(estimate_initial_params=False, graph_downsample_ratio=None, include_default_posts=True, large_cascade_demarcation=None, max_nodes=False, max_size=None, min_node_quality=False, min_size=None, normalize_parameters=None, num_comments_observed=['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '12', '15', '17', '20', '25', '30', '35', '40', '45', '50', '60', '70', '75', '80', '90', '100', '125', '150', '175', '200', '250', '300', '350', '400', '500', '600', '700', '800', '900', '1000'], outfile='sim_results/aww/aww_top3_10Ktrain_500test_2017-12_test_run0', preprocess=True, remove_stopwords=False, sanity_check=False, sim_post='500', subreddit='aww', testing_start_month='12', testing_start_year='2017', testing_stats=False, time_error_absolute=False, time_error_margin=False, time_observed=False, top_n='3', topological_error=True, training_num='10000', training_stats=False, verbose=True, weight_method='jaccard', weight_threshold=False)
+
+Sim Post: subset
+Comments Observed: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 12, 15, 17, 20, 25, 30, 35, 40, 45, 50, 60, 70, 75, 80, 90, 100, 125, 150, 175, 200, 250, 300, 350, 400, 500, 600, 700, 800, 900, 1000]
+Output: sim_results/aww/aww_top3_10Ktrain_500test_2017-12_test_run0
+Source subreddit: aww
+Minimum node quality: False
+Max graph size: False
+Max edges per node: 3
+Minimum edge weight: None
+No param normalization for infer step
+Test Set: first 500 posts starting at 12-2017
+Training Set: 10000 posts immediately preceding 12-2017
+Using Jaccard index to compute graph edge weights
+Including posts with hardcoded default parameters
+Using topological error for tree evaluation (ignoring comment times)
+
+Loading processed training data
+Loading 11-2017
+Deleted 4 posts without cascades
+Loaded 31655 posts 
+   31655 cascades
+   7124 fitted params, 24531 failed fit
+
+Loading processed testing data
+Loading 12-2017
+Deleted 3 posts without cascades
+Loaded 35329 posts 
+   35329 cascades
+
+Sampling 500 first posts (from 35329) for simulation set
+Sampling 10000 last posts (from 31655) for simulation set
+
+Building param graph for 10000 posts
+   Including posts with default parameters
+Using 10000 posts for graph
+Using jaccard index for edge weight
+   1000000 pairs
+   2000000 pairs
+   3000000 pairs
+   4000000 pairs
+   5000000 pairs
+   6000000 pairs
+   7000000 pairs
+   8000000 pairs
+   9000000 pairs
+   10000000 pairs
+   11000000 pairs
+   12000000 pairs
+   13000000 pairs
+   14000000 pairs
+   15000000 pairs
+   16000000 pairs
+   17000000 pairs
+   18000000 pairs
+   19000000 pairs
+   20000000 pairs
+   21000000 pairs
+   22000000 pairs
+   23000000 pairs
+   24000000 pairs
+   25000000 pairs
+   26000000 pairs
+   27000000 pairs
+   28000000 pairs
+   29000000 pairs
+   30000000 pairs
+   31000000 pairs
+   32000000 pairs
+   33000000 pairs
+   34000000 pairs
+   35000000 pairs
+   36000000 pairs
+   37000000 pairs
+   38000000 pairs
+   39000000 pairs
+   40000000 pairs
+   41000000 pairs
+   42000000 pairs
+   43000000 pairs
+   44000000 pairs
+   45000000 pairs
+   46000000 pairs
+   47000000 pairs
+   48000000 pairs
+   49000000 pairs
+Graph contains 9905 nodes and 23816 unique edges (29597 edge entries)
+  max degree: 68
+  min degree: 1
+Saving graph to reddit_data/aww/base_graph_2017-12test_start_10000trainposts_default_posts_True_all_nodes_0.0minquality_jaccard_0.0minedgeweight_3topn_no_sample.pkl
+
+Finished graph build, exiting
+189.09user 5.17system 3:11.69elapsed 101%CPU (0avgtext+0avgdata 426868maxresident)k
+76561inputs+2016outputs (0major+115881minor)pagefaults 0swaps
