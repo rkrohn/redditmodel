@@ -66,6 +66,7 @@ size_breaks = []
 #arguments['-l'] = 1			#number of months for testing (default 1)
 #arguments['-p'] = 1			#number of months for training
 #arguments['-np'] = 'ln'		#optional normalization, ln (natural log) or mm (min-max)
+#arguments['-threshold'] = 0.1	#minimum edge weight for inclusion in graph
 
 #must do both of these together, if you want any
 #arguments['-down_ratio'] = 1	#ratio of large:small posts for graph downsampling, 
