@@ -412,6 +412,8 @@ def get_trunc_tree(tree, trunc_value):
     #delete all flagged nodes
     for u in nodes_to_delete:
         g.remove_node(u)
+
+    #new node labels?    
     g_out = nx.convert_node_labels_to_integers(g, first_label=0, ordering='default')
 
     #convert all node times to minutes since root
@@ -426,11 +428,17 @@ def get_trunc_tree_no_relabel(tree, trunc_value):
     g = nx.Graph()
     g = tree.copy()
     r, root_creation_time = get_root(tree)
+
+    #build list of nodes to remove from graph
     nodes_to_delete = []
+    #process all nodes
     for u in g.nodes():
         t = (g.node[u]['created']-root_creation_time)/60
+        #if node creation time too late, delete it
         if t > trunc_value:
             nodes_to_delete.append(u)
+
+    #delete flagged nodes        
     for u in nodes_to_delete:
         g.remove_node(u)
     return g
