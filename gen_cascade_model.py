@@ -73,6 +73,18 @@ train_cascades = functions_gen_cascade_model.filter_dict_by_list(train_cascades,
 train_params = functions_gen_cascade_model.filter_dict_by_list(train_params, train_keys)
 train_fit_fail_list = [post_id for post_id in train_fit_fail_list if post_id in train_keys]
 
+#drop a random training cascade to a pickle (for dev/testing purposes)
+
+import random
+'''
+rand_id, rand_cascade = random.choice(list(train_cascades.items()))
+while rand_cascade['comment_count_total'] < 100:
+	rand_id, rand_cascade = random.choice(list(train_cascades.items()))
+file_utils.save_pickle(rand_cascade, "test_cascade.pkl")
+'''
+exit(0)
+
+
 #if want training data stats, get those now
 if get_training_stats:
 	vprint("Computing training data stats")
