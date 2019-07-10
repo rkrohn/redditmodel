@@ -24,6 +24,10 @@ from copy import deepcopy
 import os
 
 
+
+functions_gen_cascade_model.define_vprint(True)
+
+
 # # Upload a set of trees
 
 # In this work the preprocessed set of trees is used. Each tree is asssumed to be a networkx Graph (undirected) with key node attributes: 'root': Bool - if the node is the post; 'created': int, POSIX timestamp -- creation time of the node. 
@@ -55,12 +59,15 @@ final_tree_list.append(H)
 cascade = pickle.load(open('test_cascade.pkl', "rb"))
 print("cascade:", cascade)
 
-print(functions_gen_cascade_model.get_structural_virality(cascade))
-
 #convert to networkx graph
 graph = functions_gen_cascade_model.cascade_to_graph(cascade)
 #print("graph nodes:", graph.nodes(data=True))
 #print("graph edges:", graph.edges())
+
+#can we convert a graph back to a cascade?
+new_cascade = functions_gen_cascade_model.graph_to_cascade(graph)
+#print(new_cascade)
+
 
 final_tree_list = [graph]
 
@@ -135,6 +142,7 @@ for t in range(0,len(trunc_values)):
     sim_tree, success = simulate_comment_tree(given_tree, t_learn, mu_params, phi_params, n_b)	#simulate!
     if success:
         list_hawkes_sizes[t].append(len(sim_tree))
+        print("mean error per distance layer", functions_gen_cascade_model.mean_error_per_distance_layer(cascade, functions_gen_cascade_model.graph_to_cascade(sim_tree)))
     else:
         print('Generation failed! Too many nodes')
         print("RUN " + str(i) + ": T_learn: "+ t_learn_list[t] + ': Generation HAWKES failed! Too many nodes')
@@ -152,4 +160,3 @@ print('Sequence done!')
 for i, size_list in enumerate(result_dict['hawkes_sizes']):
     print("t_learn:", t_learn_list[i], 
           "| avg size error:", np.abs(np.mean(size_list)-result_dict['true_size'])/result_dict['true_size'])
-

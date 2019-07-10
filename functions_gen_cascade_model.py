@@ -1809,6 +1809,59 @@ def cascade_to_graph(cascade):
 #end cascade_to_graph
 
 
+#given a networkx graph, convert it to a cascade (nested dict structure) for 
+#original (comparative) reddit model eval
+#graph nodes look like this: ('t1_c0ppdh8', {'created': 1273480323, 'root': False})
+#where id is the post/comment id (with prefix), created is UTC timestamp, root is a bool
+#cascades look like this: {'id': 't3_7em0od', 'time': 1511305044, 'replies': [{'time': 1511305148, 'replies': [], 'id': 't1_dq5wyll'}, {'time': 1511305164, 'replies': [], 'id': 't1_dq5wz4x'}, {'time': 1511305783, 'replies': [], 'id': 't1_dq5xitc'}], 'comment_count_direct': 3, 'comment_count_total': 3}
+def graph_to_cascade(graph):
+	#quick-convert networkx graph to dict of posts (just one) and dict of comments
+	posts = {}
+	comments = {}
+	for curr_node in graph.nodes():
+		if graph.node[curr_node]['root'] == True:
+			root_id = curr_node		#graph root id
+			#also need root id as a string, with correct prefix
+			root_id_str = curr_node if isinstance(curr_node, str) else "t3_"+str(curr_node)
+			#add root to posts dictionary
+			posts[root_id] = {'time': graph.node[curr_node]['created'], 'link_id': root_id}
+		else:
+			comments[curr_node] = {'time': graph.node[curr_node]['created']}
+
+	#add in parent/child links from graph edges
+	for u, v in graph.edges():
+		#one of these is root? then it is parent
+		#point children to root's string (prefix) id
+		if u == root_id:
+			comments[v]['parent_id'] = root_id_str
+		elif v == root_id:
+			comments[u]['parent_id'] = root_id_str
+		#otherwise both comments, have to look at times	
+		else:
+			#which node is parent, which is child?
+			#point child to string (prefix) id of parent
+			if comments[u]['time'] < comments[v]['time']:
+				comments[v]['parent_id'] = u if isinstance(u, str) else "t1_"+str(u)
+			else:
+				comments[u]['parent_id'] = v if isinstance(v, str) else "t1_"+str(v)
+
+	#set all comments to have root as post parent
+	for comment_id, comment in comments.items():
+		comment['link_id'] = root_id_str
+	#make sure comment ids are strings with prefixes	
+	comments = {(comment_id if isinstance(comment_id, str) else "t1_"+str(comment_id)): comment for comment_id, comment in comments.items()}	
+
+	#and the post needs to have a string id with prefix
+	posts = {(post_id if isinstance(post_id, str) else "t3_"+str(post_id)): post for post_id, post in posts.items()}				
+
+	#reconstruct into a cascade - actually a dictionary of cascades (but just one)
+	cascades_dict = build_cascades(posts, comments)
+
+	#return just the cascade we care about
+	return cascades_dict[root_id_str]
+#end graph_to_cascade
+
+
 #load set of finished posts from pickle, if the file exists
 #this acts as progress bookmark in case of sad process deaths
 #file includes a status flag, which is also unpacked and returned
