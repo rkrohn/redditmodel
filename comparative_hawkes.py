@@ -55,13 +55,12 @@ print(len(Otrees_list), "trees")
 # Introducing the parameters
 
 
-i = 0
-sim_num_runs = 50
-t_learn_list = ['4h', '6h', '8h', '12h']
-trunc_values = [240, 360, 480, 720]
+i = 0		#index of tree to sim
+t_learn_list = ['4h', '6h', '8h', '12h']		#observation times
+trunc_values = [240, 360, 480, 720]				#corresponding times in minutes
 
 tree = Otrees_list[i]
-len(tree)
+print(len(tree), "comments in sim tree\n")
 
 
 # Here is the main code. Go through *trunc_values*, cut the *tree* into *given_tree* available at the current t_learn from *trunc_values*, infer parameters for $\mu(t)$ and $\phi(t)$, grow the tree according to the Hawkes model.
@@ -80,6 +79,7 @@ run_success = True
 for t in range(0,len(trunc_values)):
     print("     ---    T_LEARN = ", t_learn_list[t], "   ---")
     t_learn = trunc_values[t]		#current learning time in minutes
+
     given_tree = get_trunc_tree_no_relabel(tree, t_learn)		#filter tree, only observe stuff in training window
 
     #break if size of the observed tree is too small for prediction at that moment
@@ -109,20 +109,17 @@ for t in range(0,len(trunc_values)):
     
     hawkes_times = []
     given_tree = get_trunc_tree(tree, t_learn)	#filter tree, but this time set timestamps to minutes
-    add_count = sim_num_runs/5
-    for j in range(0,sim_num_runs):
-        hawkes_times.clear()
-        if j % add_count==0:
-            print(j, " of HAWKES trees simulated for the tree i=", i)
-        sim_tree, success = simulate_comment_tree(given_tree, t_learn, mu_params, phi_params, n_b)	#simulate!
-        if success:
-            list_hawkes_sizes[t].append(len(sim_tree))
-        else:
-            print('Generation failed! Too many nodes')
-            print("RUN " + str(i) + ": T_learn: "+ t_learn_list[t] + ': Generation HAWKES failed! Too many nodes')
-            list_hawkes_sizes[t] = [-1]
-            break
+
+    sim_tree, success = simulate_comment_tree(given_tree, t_learn, mu_params, phi_params, n_b)	#simulate!
+    if success:
+        list_hawkes_sizes[t].append(len(sim_tree))
+    else:
+        print('Generation failed! Too many nodes')
+        print("RUN " + str(i) + ": T_learn: "+ t_learn_list[t] + ': Generation HAWKES failed! Too many nodes')
+        list_hawkes_sizes[t] = [-1]
+
     print("\n")
+
 result_dict['hawkes_sizes'] = list_hawkes_sizes
 result_dict["run_success"] = run_success
 print('Sequence done!')
