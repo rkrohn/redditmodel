@@ -1776,28 +1776,34 @@ def get_structural_virality(cascade):
 #end get_structural_virality
 
 
-#given a cascade (nested dict structure), convert it to a networkx graph
+#given a cascade (nested dict structure), convert it to a networkx graph for structural
+#virality evaluation and for the original (comparative) reddit model to use
+#nodes look like this: ('t1_c0ppdh8', {'created': 1273480323, 'root': False})
+#where id is the post/comment id (with prefix), created is UTC timestamp, root is a bool
 def cascade_to_graph(cascade):
 	#build list of edges in graph
 	edges = []    #list of edges (list of tuples)
 
-	#init queue to root, will process nodes as they are removed from the queue
+	G=nx.Graph()		#new graph
+
+	#init queue to root, will process child nodes as they are removed from the queue
 	nodes_to_visit = [cascade]
+	#and add root node to graph
+	G.add_node(cascade['id'], created=cascade['time'], root=True)
+
+	#process queue until all done
 	while len(nodes_to_visit) != 0:
 		node = nodes_to_visit.pop(0)    #grab current comment
+
 		#add edges between this node and all children to edge list
 		#also add children to processing queue
 		for comment in node['replies']:
 			edges.append((node['id'], comment['id']))	#edge as tuple
-			nodes_to_visit.append(comment)    #add reply comment to processing queue
+			nodes_to_visit.append(comment)    #add reply comment to processing queue			
+			G.add_node(comment['id'], created=comment['time'], root=False)	#add child node to graph
 
-	#use edgelist to build a graph
-	G=nx.Graph()		#new graph
+	#add all edges
 	G.add_edges_from(edges)
-
-	#if no edges (ie, no comments), add a root
-	if len(edges) == 0:
-		G.add_node(0)
 
 	return G 		#return the graph
 #end cascade_to_graph

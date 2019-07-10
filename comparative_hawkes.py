@@ -3,6 +3,8 @@
 
 from functions_comparative_hawkes import *
 
+import functions_gen_cascade_model		#use the same load/eval/conversion functions
+
 import json
 import numpy as np
 import matplotlib.pyplot as plt
@@ -32,6 +34,8 @@ dump_filename = './sample_trees.dump'
 final_tree_list = pickle.load(open (dump_filename, "rb"))
 '''
 
+
+
 #load my own tree - pickle of edges and nodes
 tree = pickle.load(open('./tree.pkl', "rb"))
 
@@ -41,6 +45,24 @@ H = nx.Graph()
 H.add_nodes_from(tree['nodes'])
 H.add_edges_from(tree['edges'])
 final_tree_list.append(H)
+
+#print(H)
+#print(H.nodes(data=True))
+#print(tree.edges())
+
+
+#test cascade - will our conversion stuff work?
+cascade = pickle.load(open('test_cascade.pkl', "rb"))
+print("cascade:", cascade)
+
+print(functions_gen_cascade_model.get_structural_virality(cascade))
+
+#convert to networkx graph
+graph = functions_gen_cascade_model.cascade_to_graph(cascade)
+#print("graph nodes:", graph.nodes(data=True))
+#print("graph edges:", graph.edges())
+
+final_tree_list = [graph]
 
 
 # Create a list of all trees sorted by its size
@@ -60,7 +82,7 @@ t_learn_list = ['4h', '6h', '8h', '12h']		#observation times
 trunc_values = [240, 360, 480, 720]				#corresponding times in minutes
 
 tree = Otrees_list[i]
-print(len(tree), "comments in sim tree\n")
+print(len(tree), "nodes in sim tree\n")
 
 
 # Here is the main code. Go through *trunc_values*, cut the *tree* into *given_tree* available at the current t_learn from *trunc_values*, infer parameters for $\mu(t)$ and $\phi(t)$, grow the tree according to the Hawkes model.
