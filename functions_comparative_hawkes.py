@@ -333,7 +333,7 @@ def mu_func_fit_weibull(list_times, res=60, runs = 10, T_max = 3*1440, large_par
     center_bins = [b+res/2 for b in bins[:-1]]
     
     param_set = np.asarray(start_params)
-    print("Start curve_fit estimation:")
+    #print("Start curve_fit estimation:")
     try:
         for i in range(runs):
             fit_params, pcov = curve_fit(weib_func, xdata = center_bins, ydata = hist/res, p0 = param_set, 

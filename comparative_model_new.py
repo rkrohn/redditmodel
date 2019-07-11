@@ -104,8 +104,6 @@ for sim_post_id, sim_post in test_posts.items():
 	#loop observed
 	for observed in sorted(observed_list, reverse=True):
 
-		print("observed", observed, "h")
-
 		#get truncated graph, so we know how many comments observed
 		#remove unobserved comments from base tree, so we can simulate from partially observed tree
 		#observation defined by time
@@ -113,7 +111,6 @@ for sim_post_id, sim_post in test_posts.items():
 			#get observed graph based on observation time and comment timestamps
 			given_tree = functions_comparative_hawkes.get_trunc_tree_no_relabel(graph, observed*60)		#pass observed time in minutes
 			observed_count = len(given_tree) - 1	#observed comments = graph nodes - 1
-			print(observed_count, "comments")
 			#set observed time equal to given for sim
 			time_observed = observed
 		#observation defined by number of comments
@@ -131,7 +128,6 @@ for sim_post_id, sim_post in test_posts.items():
 		#if size of the observed tree is too small for prediction at that moment, just
 		#eval on the observed tree
 		if len(given_tree) <= 10:  
-			print("Not enough data for parameters estimation!")
 			param_source = "no_est"
 			sim_graph = given_tree
 
@@ -141,28 +137,21 @@ for sim_post_id, sim_post in test_posts.items():
 
 			#fit the weibull based on root comment times
 			root_comment_times = functions_comparative_hawkes.get_root_comment_times(given_tree)
-			print(len(root_comment_times), "root")
 			mu_params = functions_comparative_hawkes.mu_parameters_estimation(root_comment_times)		
 			if mu_params == None:  # if loglikelihood estimation fails - use curve_fit
 				mu_params = functions_comparative_hawkes.mu_func_fit_weibull(root_comment_times)
 			
 			if mu_params is None:	#if curve_fit fails, no sim
-				print("Parameter estimation failed")
 				param_source = "est_fail"
 				sim_graph = given_tree
 
 			else:	#good params, keep fitting	
-				print("Mu_params:", mu_params)
-
 				#fit log-normal based on all other comment times
 				other_comment_times = functions_comparative_hawkes.get_other_comment_times(given_tree)
-				print(len(other_comment_times), "other")
 				phi_params = functions_comparative_hawkes.phi_parameters_estimation(other_comment_times)
-				print("Phi_params:", phi_params)
 
 				#estimate branching factor (average number of replies per comment)
 				n_b = functions_comparative_hawkes.nb_parameters_estimation(given_tree, root)
-				print("n_b:", n_b)
 			    
 				hawkes_times = []
 				given_tree = functions_comparative_hawkes.get_trunc_tree(graph, observed*60)	#filter tree, but this time set timestamps to minutes

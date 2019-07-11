@@ -670,7 +670,7 @@ def load_comments(subreddit, post_month, post_year, posts):
 def build_and_save_cascades(subreddit, month, year, posts, comments):
 	vprint("Extracting post/comment structure for %d %s %d-%d posts and %d comments" % (len(posts), subreddit, month, year, len(comments)))
 
-	cascades = build_cascades(posts, comments)
+	cascades = build_cascades(posts, comments, display=True)
 
 	#save cascades for later loading
 	file_utils.save_pickle(cascades, cascades_filepath % (subreddit, subreddit, year, month))
@@ -686,7 +686,7 @@ def build_and_save_cascades(subreddit, month, year, posts, comments):
 # 	post/comment replies field -> list of direct replies
 #	post/comment time field -> create time of object as utc timestamp
 #posts also have comment_count_total and comment_count_direct 
-def build_cascades(posts, comments):
+def build_cascades(posts, comments, display=False):
 
 	#create dictionary of post id -> new post object to store cascades
 	cascades = {key:{'id':key, 'time':value['time'], 'replies':list(), 'comment_count_direct':0, 'comment_count_total':0} for key, value in posts.items()}
@@ -749,7 +749,7 @@ def build_cascades(posts, comments):
 				#add current comment to replies field of parent comment
 				cascade_comments[direct_parent]['replies'].append(cascade_comments[comment_id])
 		except:
-			print("Something went very wrong, exiting")
+			print("Something went very wrong building cascades, exiting")
 			exit(0)
 
 	#delete failed cascades with missing comments and/or post
@@ -760,8 +760,9 @@ def build_cascades(posts, comments):
 	for key in fail_comments:
 		cascade_comments.pop(key, None)
 
-	vprint("Built %d cascades with %d comments" % (len(cascades), len(cascade_comments)))
-	vprint("   Removed %d incomplete/erroneous cascades (%d associated comments)" % (len(fail_cascades), len(fail_comments)))	
+	if display:
+		vprint("Built %d cascades with %d comments" % (len(cascades), len(cascade_comments)))
+		vprint("   Removed %d incomplete/erroneous cascades (%d associated comments)" % (len(fail_cascades), len(fail_comments)))	
 
 	return cascades
 #end build_cascades
