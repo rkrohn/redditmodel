@@ -155,33 +155,27 @@ for sim_post_id, sim_post in test_posts.items():
 		hawkes_times = []
 		given_tree = functions_comparative_hawkes.get_trunc_tree(graph, observed*60)	#filter tree, but this time set timestamps to minutes
 
-		sim_tree, success = functions_comparative_hawkes.simulate_comment_tree(given_tree, observed*60, mu_params, phi_params, n_b)	#simulate!
-		if success:
-			#list_hawkes_sizes[t].append(len(sim_tree))
-			print("mean error per distance layer", functions_gen_cascade_model.mean_error_per_distance_layer(test_cascades[sim_post_id], functions_gen_cascade_model.graph_to_cascade(sim_tree)))
-		else:
+		sim_graph, success = functions_comparative_hawkes.simulate_comment_tree(given_tree, observed*60, mu_params, phi_params, n_b)	#simulate!
+		simulated_count = len(sim_graph) - 1	#number of sim comments = size of graph - 1
+
+		#don't try to eval if sim failed
+		if success == False:
 			print('Generation failed! Too many nodes')
 			print("RUN " + str(i) + ": T_learn: "+ t_learn_list[t] + ': Generation HAWKES failed! Too many nodes')
 			#list_hawkes_sizes[t] = [-1]
 
-		exit(0)	
-
-		#don't try to eval if sim failed (aborted infinite sim)
-		if sim_tree == False:
-			print("infinite sim aborted, skipping post", sim_post_id)
-			continue
 
 		#EVAL
 
 		#already got ground-truth cascade above
 
-		#get sim cascade as networkx graph
-		#sim_graph = functions_gen_cascade_model.cascade_to_graph(sim_tree)
+		#get sim networkx graph as cascade
+		sim_tree = functions_gen_cascade_model.graph_to_cascade(sim_graph)
 
 		#compute tree edit distance between ground-truth and simulated cascades
 		eval_res = functions_baseline_model.eval_trees(sim_post_id, sim_tree, true_cascade, simulated_count, observed_count, true_comment_count, true_structural_virality, time_observed, observing_time, time_error_margin, error_method, (observed if observing_time==False else None))
 		#add a column indicating where the params for this sim came from
-		eval_res['param_source'] = param_source
+		eval_res['param_source'] = "fitted"
 		#dummy columns (graph infer) so output format matches real model exactly
 		eval_res['disconnected'] = "N/A"
 		eval_res['connecting_edges'] = "N/A"
@@ -214,7 +208,6 @@ if post_count == 0:
 	vprint("\nNo posts simulated, no results to save\n")
 	exit(0)
 
-'''
 #save metrics + settings to output file
 functions_gen_cascade_model.save_results(outfile, all_metrics, observing_time)
 
@@ -222,4 +215,3 @@ functions_gen_cascade_model.save_results(outfile, all_metrics, observing_time)
 functions_gen_cascade_model.save_bookmark(finished_posts, outfile, status=(True if len(finished_posts) == len(test_posts) else False))
 
 vprint("All done, all results saved\n")
-'''
