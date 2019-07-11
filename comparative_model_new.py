@@ -118,11 +118,6 @@ for sim_post_id, sim_post in test_posts.items():
 			print("no observing by comments, sorry")
 			exit(0)
 
-		#if we have observed the whole cascade and max observed is not 0, 
-		#don't bother simming for this observed setting
-		if observed != 0 and observed_count >= test_cascades[sim_post_id]['comment_count_total']:
-			continue
-
 		#SIMULATE COMMENT TREE
 
 		#if size of the observed tree is too small for prediction at that moment, just
