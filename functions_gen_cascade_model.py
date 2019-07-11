@@ -1544,7 +1544,7 @@ def simulate_comment_tree(sim_params, observed_tree, observed_count, time_observ
 	if display:
 		vprint("Generated %d total comments for post (including %d observed)" % (len(all_times), observed_count))
 
-	#return simulated tree, observed comment count, time_observed, and simulated comment count (counts for output/eval)
+	#return simulated tree and simulated comment count (counts for output/eval)
 	return sim_root, len(all_times)
 #end simulate_comment_tree
 
