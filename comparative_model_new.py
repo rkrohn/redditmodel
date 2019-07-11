@@ -127,55 +127,66 @@ for sim_post_id, sim_post in test_posts.items():
 			continue
 
 		#SIMULATE COMMENT TREE
-		#sim_tree, simulated_count = functions_gen_cascade_model.simulate_comment_tree(sim_params, observed_tree, time_observed, not batch)
 
-		#break if size of the observed tree is too small for prediction at that moment
+		#if size of the observed tree is too small for prediction at that moment, just
+		#eval on the observed tree
 		if len(given_tree) <= 10:  
 			print("Not enough data for parameters estimation!")
-			negative_result = 0
-			#list_hawkes_sizes[t].append(negative_result)
-			continue
+			param_source = "no_est"
+			sim_graph = given_tree
 
-		#fit the weibull based on root comment times
-		root_comment_times = functions_comparative_hawkes.get_root_comment_times(given_tree)
-		mu_params = functions_comparative_hawkes.mu_parameters_estimation(root_comment_times)		
-		if mu_params == None:  # if loglikelihood estimation fails - use curve_fit
-			mu_params = functions_comparative_hawkes.mu_func_fit_weibull(root_comment_times)
-		print("Mu_params:", mu_params)
+		#otherwise, estimate params and use those to sim
+		else:
+			param_source = "fitted"
 
-		#fit log-normal based on all other comment times
-		other_comment_times = functions_comparative_hawkes.get_other_comment_times(given_tree)
-		phi_params = functions_comparative_hawkes.phi_parameters_estimation(other_comment_times)
-		print("Phi_params:", phi_params)
+			#fit the weibull based on root comment times
+			root_comment_times = functions_comparative_hawkes.get_root_comment_times(given_tree)
+			print(len(root_comment_times), "root")
+			mu_params = functions_comparative_hawkes.mu_parameters_estimation(root_comment_times)		
+			if mu_params == None:  # if loglikelihood estimation fails - use curve_fit
+				mu_params = functions_comparative_hawkes.mu_func_fit_weibull(root_comment_times)
+			
+			if mu_params is None:	#if curve_fit fails, no sim
+				print("Parameter estimation failed")
+				param_source = "est_fail"
+				sim_graph = given_tree
 
-		#estimate branching factor (average number of replies per comment)
-		n_b = functions_comparative_hawkes.nb_parameters_estimation(given_tree, root)
-		print("n_b:", n_b)
-	    
-		hawkes_times = []
-		given_tree = functions_comparative_hawkes.get_trunc_tree(graph, observed*60)	#filter tree, but this time set timestamps to minutes
+			else:	#good params, keep fitting	
+				print("Mu_params:", mu_params)
 
-		sim_graph, success = functions_comparative_hawkes.simulate_comment_tree(given_tree, observed*60, mu_params, phi_params, n_b)	#simulate!
-		simulated_count = len(sim_graph) - 1	#number of sim comments = size of graph - 1
+				#fit log-normal based on all other comment times
+				other_comment_times = functions_comparative_hawkes.get_other_comment_times(given_tree)
+				print(len(other_comment_times), "other")
+				phi_params = functions_comparative_hawkes.phi_parameters_estimation(other_comment_times)
+				print("Phi_params:", phi_params)
 
-		#don't try to eval if sim failed
-		if success == False:
-			print('Generation failed! Too many nodes')
-			print("RUN " + str(i) + ": T_learn: "+ t_learn_list[t] + ': Generation HAWKES failed! Too many nodes')
-			#list_hawkes_sizes[t] = [-1]
+				#estimate branching factor (average number of replies per comment)
+				n_b = functions_comparative_hawkes.nb_parameters_estimation(given_tree, root)
+				print("n_b:", n_b)
+			    
+				hawkes_times = []
+				given_tree = functions_comparative_hawkes.get_trunc_tree(graph, observed*60)	#filter tree, but this time set timestamps to minutes
 
+				sim_graph, success = functions_comparative_hawkes.simulate_comment_tree(given_tree, observed*60, mu_params, phi_params, n_b)	#simulate!
+
+				#don't try to eval if sim failed
+				if success == False:
+					print('Generation failed! Too many nodes')
+					print("infinite sim aborted, skipping post", sim_post_id)
+					continue
 
 		#EVAL
 
 		#already got ground-truth cascade above
 
 		#get sim networkx graph as cascade
-		sim_tree = functions_gen_cascade_model.graph_to_cascade(sim_graph)
+		sim_tree = functions_gen_cascade_model.graph_to_cascade(sim_graph)		
+		simulated_count = len(sim_graph) - 1	#number of sim comments = size of graph - 1
 
 		#compute tree edit distance between ground-truth and simulated cascades
 		eval_res = functions_baseline_model.eval_trees(sim_post_id, sim_tree, true_cascade, simulated_count, observed_count, true_comment_count, true_structural_virality, time_observed, observing_time, time_error_margin, error_method, (observed if observing_time==False else None))
 		#add a column indicating where the params for this sim came from
-		eval_res['param_source'] = "fitted"
+		eval_res['param_source'] = param_source
 		#dummy columns (graph infer) so output format matches real model exactly
 		eval_res['disconnected'] = "N/A"
 		eval_res['connecting_edges'] = "N/A"
@@ -190,7 +201,6 @@ for sim_post_id, sim_post in test_posts.items():
 		vprint("   finished %d posts" % post_count)
 
 	#dump results every 10%, to save memory
-	'''
 	if batch and post_count % dump_count == 0:
 		vprint("   saving results so far (%d posts)" % post_count)
 		#append new results to running csv
@@ -199,7 +209,6 @@ for sim_post_id, sim_post in test_posts.items():
 		#and save pickle bookmark: set of finished posts and current status
 		functions_gen_cascade_model.save_bookmark(finished_posts, outfile)
 		#don't clear that list, want it to contain everything
-	'''	
 
 #all done, print final disconnected count
 vprint("Finished simulating %d posts" % post_count)

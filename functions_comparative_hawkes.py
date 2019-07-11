@@ -295,7 +295,7 @@ def simulate_comment_tree(given_tree, start_time, params_mu, params_phi, n_b, N_
                 node_index += 1
                 g.add_node(node_index, created = t2, root = False)
                 g.add_edge(node_index, node_index)
-                tree_node_list.append(node_index)
+                tree_node_list.append(node_index)     
 
         #process the reply-replies, same as above
         while len(tree_node_list) != 0:
@@ -334,18 +334,21 @@ def mu_func_fit_weibull(list_times, res=60, runs = 10, T_max = 3*1440, large_par
     
     param_set = np.asarray(start_params)
     print("Start curve_fit estimation:")
-    for i in range(runs):
-        fit_params, pcov = curve_fit(weib_func, xdata = center_bins, ydata = hist/res, p0 = param_set, 
-                                     bounds = (0.0001, 100000))
-        if fit_params[0] > large_params[0] or fit_params[1] > large_params[1] or fit_params[2] > large_params[2]:
-            print("Current params:", param_set, "fit_params:", fit_params)
-            param_set += np.array([np.random.normal(0, start_params[0]/10), np.random.normal(0, start_params[1]/10),
-                                  np.random.normal(0, start_params[2]/4)])
-            if i == runs-1:
-                fit_params = [None, None, None]
-            continue
-        else:
-            break
+    try:
+        for i in range(runs):
+            fit_params, pcov = curve_fit(weib_func, xdata = center_bins, ydata = hist/res, p0 = param_set, 
+                                         bounds = (0.0001, 100000))
+            if fit_params[0] > large_params[0] or fit_params[1] > large_params[1] or fit_params[2] > large_params[2]:
+                print("Current params:", param_set, "fit_params:", fit_params)
+                param_set += np.array([np.random.normal(0, start_params[0]/10), np.random.normal(0, start_params[1]/10),
+                                      np.random.normal(0, start_params[2]/4)])
+                if i == runs-1:
+                    fit_params = [None, None, None]
+                continue
+            else:
+                break
+    except RuntimeError:
+        return None            
     return fit_params     # [a,b,alpha]
 
 
