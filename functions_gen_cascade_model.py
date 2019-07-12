@@ -1693,6 +1693,11 @@ def eval_trees(post_id, sim_cascade, true_cascade, simulated_comment_count, obse
 	#mean error per distance layer (both min and max)
 	eval_res['MEPDL_min'], eval_res['MEPDL_max'] = mean_error_per_distance_layer(true_cascade, sim_cascade)
 	
+	#cascade lifetime - ie, time of last comment relative to root time
+	true_comments = get_list_of_comment_times(true_cascade)
+	eval_res['true_lifetime'] = 0 if len(true_comments) == 0 else true_comments[-1]
+	sim_comments = get_list_of_comment_times(sim_cascade)
+	eval_res['sim_lifetime'] = 0 if len(sim_comments) == 0 else sim_comments[-1]	
 
 	return eval_res
 #end eval_trees
@@ -1896,7 +1901,7 @@ def save_results(base_filename, metrics, observing_time):
 	filename = base_filename + "_results.csv"
 
 	#dump metrics dict to file, enforcing a semi-meaningful order
-	fields = ["post_id", "param_source", "observing_by", "time_observed", "observed_comment_count", "true_comment_count", "simulated_comment_count", "true_root_comments", "sim_root_comments", "true_depth", "true_breadth", "simulated_depth", "simulated_breadth", "true_structural_virality", "sim_structural_virality", "dist", "norm_dist", "norm_dist_exclude_observed", "MEPDL_min", "MEPDL_max", "remove_count", "remove_time", "insert_count", "insert_time", "update_count", "update_time", "match_count", "disconnected", "connecting_edges"]
+	fields = ["post_id", "param_source", "observing_by", "time_observed", "observed_comment_count", "true_comment_count", "simulated_comment_count", "true_root_comments", "sim_root_comments", "true_depth", "true_breadth", "simulated_depth", "simulated_breadth", "true_structural_virality", "sim_structural_virality", "true_lifetime", "sim_lifetime", "dist", "norm_dist", "norm_dist_exclude_observed", "MEPDL_min", "MEPDL_max", "remove_count", "remove_time", "insert_count", "insert_time", "update_count", "update_time", "match_count", "disconnected", "connecting_edges"]
 	if observing_time == False:
 		fields.insert(5, "max_observed_comments")
 

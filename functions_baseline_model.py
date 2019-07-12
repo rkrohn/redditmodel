@@ -200,7 +200,12 @@ def eval_trees(post_id, sim_cascade, true_cascade, simulated_comment_count, obse
 
 	#mean error per distance layer (both min and max)
 	eval_res['MEPDL_min'], eval_res['MEPDL_max'] = functions_gen_cascade_model.mean_error_per_distance_layer(true_cascade, sim_cascade)
-	
+
+	#cascade lifetime - ie, time of last comment relative to root time
+	true_comments = functions_gen_cascade_model.get_list_of_comment_times(true_cascade)
+	eval_res['true_lifetime'] = 0 if len(true_comments) == 0 else true_comments[-1]
+	sim_comments = functions_gen_cascade_model.get_list_of_comment_times(sim_cascade)
+	eval_res['sim_lifetime'] = 0 if len(sim_comments) == 0 else sim_comments[-1]	
 
 	return eval_res
 #end eval_trees
