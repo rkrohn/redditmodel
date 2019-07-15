@@ -16,7 +16,11 @@ from copy import deepcopy
 
 
 #parse all command-line arguments
-subreddit, input_sim_post, observing_time, observed_list, outfile, batch, testing_num, testing_start_month, testing_start_year, training_num, time_error_margin, error_method, min_size, max_size, socsim_data, verbose = functions_baseline_model.parse_command_args()
+mode, subreddit, input_sim_post, observing_time, observed_list, outfile, batch, testing_num, testing_start_month, testing_start_year, training_num, time_error_margin, error_method, min_size, max_size, socsim_data, verbose = functions_baseline_model.parse_command_args()
+
+if mode == "rand_tree":
+	print("Sorry, no random tree mode yet")
+	exit(0)
 
 #hackery: declare a special print function for verbose output
 if verbose:
@@ -84,6 +88,8 @@ if complete:
 	exit(0)
 else: vprint("Skipping %d already simulated posts" % len(finished_posts))
 
+avg_params = None
+
 #process all posts (or just one, if doing that)
 post_count = 0
 vprint("Processing %d post" % len(test_posts) + ("s" if len(test_posts) > 1 else ""))
@@ -96,19 +102,45 @@ for sim_post_id, sim_post in test_posts.items():
 	if batch == False:
 		vprint("Simulation post has %d comments" % test_cascades[sim_post_id]['comment_count_total'])
 
+	#if simulating - get sim params from somewhere, either random or average
+	#will use these same params for all simulations of this post, regardless of the observed setting
+
 	#draw random simulation params from training set
-	rand_train_id = random.choice(train_keys)	#random training post
-	#get params: either fitted or default
-	if rand_train_id in train_params:
-		sim_params = train_params[rand_train_id]
-		param_source = "random_fitted"
-		#if any are false here, fill the holes with default
-		if sim_params[0] == False or sim_params[3] == 0:
-			sim_params = functions_gen_cascade_model.get_complete_params(train_cascades[rand_train_id], sim_params)
-			param_source = "random_fitted_default_combo"
-	else:
-		sim_params = functions_gen_cascade_model.get_default_params(train_cascades[rand_train_id])
-		param_source = "random_default"
+	if mode == "rand_sim":
+		rand_train_id = random.choice(train_keys)	#random training post
+		#get params: either fitted or default
+		if rand_train_id in train_params:
+			sim_params = train_params[rand_train_id]
+			param_source = "random_fitted"
+			#if any are false here, fill the holes with default
+			if sim_params[0] == False or sim_params[3] == 0:
+				sim_params = functions_gen_cascade_model.get_complete_params(train_cascades[rand_train_id], sim_params)
+				param_source = "random_fitted_default_combo"
+		else:
+			sim_params = functions_gen_cascade_model.get_default_params(train_cascades[rand_train_id])
+			param_source = "random_default"
+	#compute average params over entire training set (default, partial fitted, and fully fitted)
+	if mode == "avg_sim" and avg_params is None:
+		vprint("Computing average params for training set")
+		avg_params = [0, 0, 0, 0, 0, 0]		#init to 0
+		#loop all training posts
+		for train_id in train_keys:
+			#fitted params, fill any holes
+			if train_id in train_params:
+				train_post_params = train_params[train_id]
+				#fill holes in fitted params
+				if train_post_params[0] == False or train_post_params[3] == 0:
+					train_post_params = functions_gen_cascade_model.get_complete_params(train_cascades[train_id], train_post_params)
+			#no fitted params, get default and add to total	
+			else:
+				train_post_params = functions_gen_cascade_model.get_default_params(train_cascades[train_id])
+			#add this post's params to runnign total	
+			for i in range(6): avg_params[i] += train_post_params[i]
+		#finish the average
+		for i in range(6): avg_params[i] /= len(train_keys)
+		param_source = "avg_fitted"
+		#set the average as the sim_params
+		sim_params = avg_params.copy()
 
 	#get time-shifted ground-truth cascade (same for all observation periods)
 	true_cascade, true_comment_count = functions_gen_cascade_model.shift_comment_tree(test_cascades[sim_post_id])
@@ -138,6 +170,8 @@ for sim_post_id, sim_post in test_posts.items():
 
 		#SIMULATE COMMENT TREE
 		sim_tree, simulated_count = functions_gen_cascade_model.simulate_comment_tree(sim_params, observed_tree, time_observed, not batch)
+		if not batch:
+			vprint("Simulated cascade has ", simulated_count, " comments")
 
 		#don't try to eval if sim failed (aborted infinite sim)
 		if sim_tree == False:
