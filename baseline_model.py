@@ -18,10 +18,6 @@ from copy import deepcopy
 #parse all command-line arguments
 mode, subreddit, input_sim_post, observing_time, observed_list, outfile, batch, testing_num, testing_start_month, testing_start_year, training_num, time_error_margin, error_method, min_size, max_size, socsim_data, verbose = functions_baseline_model.parse_command_args()
 
-if mode == "rand_tree":
-	print("Sorry, no random tree mode yet")
-	exit(0)
-
 #hackery: declare a special print function for verbose output
 if verbose:
 	def vprint(*args):
@@ -154,30 +150,44 @@ for sim_post_id, sim_post in test_posts.items():
 	#use the same sim params for all the time_observed values
 	for observed in sorted(observed_list, reverse=True):		
 
-		if not batch:
-			vprint("Simulation params: ", sim_params)
+		#if returning a random tree instead of simulating, pick one and skip to eval
+		#this doesn't take the observed time/comments into account at all, so results will be pretty poor indeed
+		if mode == "rand_tree":
+			#draw a random id
+			rand_train_id = random.choice(train_keys)	#random training post
+			#get time-shifted cascade for this post, to use as "simulated" tree
+			sim_tree, simulated_count = functions_gen_cascade_model.shift_comment_tree(train_cascades[rand_train_id])
+			#ignore some eval fields, since we're only doing one random tree per test post
+			observed_count = 0
+			time_observed = 0
+			param_source = "rand_tree"
 
-		#get truncated cascade, so we know how many comments observed
-		#remove unobserved comments from base tree, so we can simulate from partially observed tree
-		#observation defined by time
-		if observing_time:
-			#get observed tree based on observation time and comment timestamps
-			observed_tree, observed_count = functions_gen_cascade_model.filter_comment_tree(observed_tree, observed*60)	#pass in time in minutes
-			#set observed time equal to given for sim
-			time_observed = observed
-		#observation defined by number of comments
+		#simulating from random params or average params, generate a tree
 		else:
-			observed_tree, observed_count, time_observed = functions_gen_cascade_model.filter_comment_tree_by_num_comments(observed_tree, observed)
+			if not batch:
+				vprint("Simulation params: ", sim_params)
 
-		#SIMULATE COMMENT TREE
-		sim_tree, simulated_count = functions_gen_cascade_model.simulate_comment_tree(sim_params, observed_tree, time_observed, not batch)
-		if not batch:
-			vprint("Simulated cascade has ", simulated_count, " comments")
+			#get truncated cascade, so we know how many comments observed
+			#remove unobserved comments from base tree, so we can simulate from partially observed tree
+			#observation defined by time
+			if observing_time:
+				#get observed tree based on observation time and comment timestamps
+				observed_tree, observed_count = functions_gen_cascade_model.filter_comment_tree(observed_tree, observed*60)	#pass in time in minutes
+				#set observed time equal to given for sim
+				time_observed = observed
+			#observation defined by number of comments
+			else:
+				observed_tree, observed_count, time_observed = functions_gen_cascade_model.filter_comment_tree_by_num_comments(observed_tree, observed)
 
-		#don't try to eval if sim failed (aborted infinite sim)
-		if sim_tree == False:
-			print("infinite sim aborted, skipping post", sim_post_id)
-			continue
+			#SIMULATE COMMENT TREE
+			sim_tree, simulated_count = functions_gen_cascade_model.simulate_comment_tree(sim_params, observed_tree, time_observed, not batch)
+			if not batch:
+				vprint("Simulated cascade has ", simulated_count, " comments")
+
+			#don't try to eval if sim failed (aborted infinite sim)
+			if sim_tree == False:
+				print("infinite sim aborted, skipping post", sim_post_id)
+				continue
 
 		#EVAL
 
@@ -196,6 +206,10 @@ for sim_post_id, sim_post in test_posts.items():
 
 		#append eval data to overall list
 		all_metrics.append(eval_res)
+
+		#if running in random tree mode, skip all other observed settings
+		if mode == "rand_tree":
+			break
 
 	#counter and periodic prints
 	post_count += 1
