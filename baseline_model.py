@@ -204,6 +204,11 @@ for sim_post_id, sim_post in test_posts.items():
 		eval_res['disconnected'] = "N/A"
 		eval_res['connecting_edges'] = "N/A"
 
+		#if running in random tree mode, null out the observed stats now that eval is done
+		if mode == "rand_tree":
+			eval_res['observed_comment_count'] = "N/A"
+			eval_res['time_observed'] = "N/A"
+
 		#append eval data to overall list
 		all_metrics.append(eval_res)
 
