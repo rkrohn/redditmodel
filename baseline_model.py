@@ -138,6 +138,7 @@ for sim_post_id, sim_post in test_posts.items():
 			for i in range(6): avg_params[i] += train_post_params[i]
 		#finish the average
 		for i in range(6): avg_params[i] /= len(train_keys)
+		print("Average params: ", avg_params)
 		param_source = "avg_fitted"
 		#set the average as the sim_params
 		sim_params = avg_params.copy()
