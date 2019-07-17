@@ -88,6 +88,7 @@ arguments_list.append('-d')		#include default posts in graph
 #make sure output dir for each subreddit exists
 for subreddit in subreddits:
 	file_utils.verify_dir("sim_results/%s" % subreddit)
+	file_utils.verify_dir("sim_results/%s/run_results" % subreddit)
 
 #prepend/append a None to size breaks list for easier looping
 size_breaks = [None] + size_breaks + [None]
@@ -132,7 +133,7 @@ for run in range(repeat_runs):
 
 			for mode in baseline_modes:
 				#define output filename for baseline model
-				baseline_outfile = "sim_results/%s/%s_baseline_%s_%dtrain_%dtest_%d-%d%s%s" % (subreddit, subreddit, mode[1:], arguments['-n_train'], arguments['-n'], arguments['-y'], arguments['-m'], size_class, "_run%d" % run if repeat_runs > 1 else "")
+				baseline_outfile = "sim_results/%s/run_results/%s_baseline_%s_%dtrain_%dtest_%d-%d%s%s" % (subreddit, subreddit, mode[1:], arguments['-n_train'], arguments['-n'], arguments['-y'], arguments['-m'], size_class, "_run%d" % run if repeat_runs > 1 else "")
 
 				#no data for this baseline configuration, run the test
 				#check the bookmark saved by the model to know if finished or not
@@ -165,7 +166,7 @@ for run in range(repeat_runs):
 			#also run comparative model (reddit paper Hawkes) in background - if not already done
 			
 			#define output filename for comparative model
-			comparative_outfile = "sim_results/%s/%s_comparative_%s_%dtrain_%dtest_%d-%d%s%s" % (subreddit, subreddit, mode[1:], arguments['-n_train'], arguments['-n'], arguments['-y'], arguments['-m'], size_class, "_run%d" % run if repeat_runs > 1 else "")
+			comparative_outfile = "sim_results/%s/run_results/%s_comparative_%s_%dtrain_%dtest_%d-%d%s%s" % (subreddit, subreddit, mode[1:], arguments['-n_train'], arguments['-n'], arguments['-y'], arguments['-m'], size_class, "_run%d" % run if repeat_runs > 1 else "")
 
 			#no data for this configuration, run the test
 			#check bookmark saved by the model to know if finished or not
@@ -198,7 +199,7 @@ for run in range(repeat_runs):
 			#and then run the regular model, and wait for it to finish
 
 			#define our base output filename - keep it simple, will have all the settings in the output files
-			outfile = "sim_results/%s/%s_%s_%d-%d%s%s" % (subreddit, subreddit, run_str, arguments['-y'], arguments['-m'], size_class, "_run%d" % run if repeat_runs > 1 else "")
+			outfile = "sim_results/%s/run_results/%s_%s_%d-%d%s%s" % (subreddit, subreddit, run_str, arguments['-y'], arguments['-m'], size_class, "_run%d" % run if repeat_runs > 1 else "")
 
 			#this run already done? skip
 			#check the bookmark saved by the model to know if finished or not
@@ -225,7 +226,7 @@ for run in range(repeat_runs):
 			#wait for this graph-build-only run to finish before doing more
 			if sub_counts[subreddit] == 0:
 				print("Preprocessing", subreddit)
-				f = open("sim_results/%s/%s_%s_%d-%dgraph.txt" % (subreddit, subreddit, run_str, arguments['-y'], arguments['-m']), "a")
+				f = open("sim_results/%s/run_results/%s_%s_%d-%dgraph.txt" % (subreddit, subreddit, run_str, arguments['-y'], arguments['-m']), "a")
 				subprocess.call(command+['-preprocess'], stdout=f, stderr=f)
 
 			print(outfile)
@@ -260,21 +261,26 @@ print("Total:", total_count, "(plus", len(subreddits), "preprocessing)\n")
 #combine multiple runs into a single results file
 print("Creating combined results files")
 if repeat_runs != 1 or len(size_breaks) != 0:
+	#path to subreddit results directory (top-level)
+	subreddit_dir = "sim_results/%s/" % subreddit
+	#path to subreddit dir for individual results
+	run_dir = subreddit_dir + "run_results/"
+
 	#baseline results
 	for mode in baseline_modes:
-	#redefine output filename - without run identifier	
-		baseline_outfile = "sim_results/%s/%s_baseline_%s_%dtrain_%dtest_%d-%d%s" % (subreddit, subreddit, mode[1:], arguments['-n_train'], arguments['-n'], arguments['-y'], arguments['-m'], size_class)	
+	#redefine output filename - without run identifier or subreddit directory
+		baseline_outfile = "%s_baseline_%s_%dtrain_%dtest_%d-%d%s" % (subreddit, mode[1:], arguments['-n_train'], arguments['-n'], arguments['-y'], arguments['-m'], size_class)	
 		#combine matching files from multiple runs together
-		file_utils.combine_csv(baseline_outfile+"_all_results.csv", baseline_outfile + ("*" if len(size_breaks) != 0 else "") + "*.csv", display=True)
+		file_utils.combine_csv(subreddit_dir+baseline_outfile+"_all_results.csv", run_dir+baseline_outfile + ("*" if len(size_breaks) != 0 else "") + "*.csv", display=True)
 
 	#comparative model results
-	#redefine output filename - without run identifier
-	comparative_outfile = "sim_results/%s/%s_comparative_%s_%dtrain_%dtest_%d-%d%s" % (subreddit, subreddit, mode[1:], arguments['-n_train'], arguments['-n'], arguments['-y'], arguments['-m'], size_class)
+	#redefine output filename - without run identifier or subreddit directory
+	comparative_outfile = "%s_comparative_%s_%dtrain_%dtest_%d-%d%s" % (subreddit, mode[1:], arguments['-n_train'], arguments['-n'], arguments['-y'], arguments['-m'], size_class)
 	#combine matching files from multiple runs together
-	file_utils.combine_csv(comparative_outfile+"_all_results.csv", comparative_outfile + ("*" if len(size_breaks) != 0 else "") + "*.csv", display=True)	
+	file_utils.combine_csv(subreddit_dir+comparative_outfile+"_all_results.csv", run_dir+comparative_outfile + ("*" if len(size_breaks) != 0 else "") + "*.csv", display=True)	
 
 	#test results
-	#redefine output filename - without run identifier
-	outfile = "sim_results/%s/%s_%s_%d-%d" % (subreddit, subreddit, run_str, arguments['-y'], arguments['-m'])
+	#redefine output filename - without run identifier or subreddit directory
+	outfile = "%s_%s_%d-%d" % (subreddit, run_str, arguments['-y'], arguments['-m'])
 	#combine matching files from multiple runs together
-	file_utils.combine_csv(outfile+"_all_results.csv", outfile + ("*" if len(size_breaks) != 0 else "") + ".csv", display=True)
+	file_utils.combine_csv(subreddit_dir+outfile+"_all_results.csv", run_dir+outfile + ("*" if len(size_breaks) != 0 else "") + ".csv", display=True)
