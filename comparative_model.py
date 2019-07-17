@@ -145,18 +145,27 @@ for sim_post_id, sim_post in test_posts.items():
 			else:	#good params, keep fitting	
 				#fit log-normal based on all other comment times
 				other_comment_times = functions_comparative_hawkes.get_other_comment_times(given_tree_utc)
-				phi_params = functions_comparative_hawkes.phi_parameters_estimation(other_comment_times)
 
-				#estimate branching factor (average number of replies per comment)
-				n_b = functions_comparative_hawkes.nb_parameters_estimation(given_tree_utc, root)
+				#make sure we've observed at least one non-root comment
+				#if not, can't fit or sim, eval on the observed tree
+				if len(other_comment_times) == 0:
+					param_source = "no_est"
+					sim_graph = given_tree
 
-				sim_graph, success = functions_comparative_hawkes.simulate_comment_tree(given_tree, observed*60, mu_params, phi_params, n_b)	#simulate!
+				#have some observed comments, fit params and sim
+				else:	
+					phi_params = functions_comparative_hawkes.phi_parameters_estimation(other_comment_times)
 
-				#don't try to eval if sim failed
-				if success == False:
-					print('Generation failed! Too many nodes')
-					print("infinite sim aborted, skipping post", sim_post_id)
-					continue
+					#estimate branching factor (average number of replies per comment)
+					n_b = functions_comparative_hawkes.nb_parameters_estimation(given_tree_utc, root)
+
+					sim_graph, success = functions_comparative_hawkes.simulate_comment_tree(given_tree, observed*60, mu_params, phi_params, n_b)	#simulate!
+
+					#don't try to eval if sim failed
+					if success == False:
+						print('Generation failed! Too many nodes')
+						print("infinite sim aborted, skipping post", sim_post_id)
+						continue
 
 		#EVAL
 
