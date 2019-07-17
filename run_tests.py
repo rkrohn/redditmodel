@@ -131,7 +131,6 @@ for run in range(repeat_runs):
 			#run corresponding baseline models in background - if don't have results already
 
 			for mode in baseline_modes:
-			
 				#define output filename for baseline model
 				baseline_outfile = "sim_results/%s/%s_baseline_%s_%dtrain_%dtest_%d-%d%s%s" % (subreddit, subreddit, mode[1:], arguments['-n_train'], arguments['-n'], arguments['-y'], arguments['-m'], size_class, "_run%d" % run if repeat_runs > 1 else "")
 
@@ -140,7 +139,7 @@ for run in range(repeat_runs):
 				finished_posts, complete = load_bookmark(baseline_outfile)
 				if complete:
 					print("skipping", baseline_outfile)
-				
+
 				else:
 					#build command arguments list
 					#base first
@@ -162,6 +161,39 @@ for run in range(repeat_runs):
 					f.flush()  #make sure arguments get written first
 					process = subprocess.Popen(command, stdout=f, stderr=f)
 					#no wait, run in background
+
+			#also run comparative model (reddit paper Hawkes) in background - if not already done
+			
+			#define output filename for comparative model
+			comparative_outfile = "sim_results/%s/%s_comparative_%s_%dtrain_%dtest_%d-%d%s%s" % (subreddit, subreddit, mode[1:], arguments['-n_train'], arguments['-n'], arguments['-y'], arguments['-m'], size_class, "_run%d" % run if repeat_runs > 1 else "")
+
+			#no data for this configuration, run the test
+			#check bookmark saved by the model to know if finished or not
+			finished_posts, complete = load_bookmark(comparative_outfile)
+			if complete:
+				print("skipping", comparative_outfile)
+
+			else:
+				#build command arguments list
+				#base first
+				command = ['time', 'python3', 'comparative_model.py', '-s', subreddit, '-o', comparative_outfile, '-v']
+				#add the dict args - but only the ones that make sense for the baseline model
+				for arg in ['-n', '-n_train', '-m', '-y', '-min', '-max']:
+					if arg in arguments:
+						command.append(arg)
+						command.append(str(arguments[arg]))
+				#observation list
+				command.append(observation_option)
+				command = command + run_observed_list
+
+				print(comparative_outfile)
+				
+				#run the thing, piping output to file
+				f = open(comparative_outfile+".txt", "w")
+				f.write(' '.join(command)+'\n')		#write arguments to first line of file
+				f.flush()  #make sure arguments get written first
+				process = subprocess.Popen(command, stdout=f, stderr=f)
+				#no wait, run in background
 
 			#and then run the regular model, and wait for it to finish
 
@@ -234,6 +266,12 @@ if repeat_runs != 1 or len(size_breaks) != 0:
 		baseline_outfile = "sim_results/%s/%s_baseline_%s_%dtrain_%dtest_%d-%d%s" % (subreddit, subreddit, mode[1:], arguments['-n_train'], arguments['-n'], arguments['-y'], arguments['-m'], size_class)	
 		#combine matching files from multiple runs together
 		file_utils.combine_csv(baseline_outfile+"_all_results.csv", baseline_outfile + ("*" if len(size_breaks) != 0 else "") + "*.csv", display=True)
+
+	#comparative model results
+	#redefine output filename - without run identifier
+	comparative_outfile = "sim_results/%s/%s_comparative_%s_%dtrain_%dtest_%d-%d%s" % (subreddit, subreddit, mode[1:], arguments['-n_train'], arguments['-n'], arguments['-y'], arguments['-m'], size_class)
+	#combine matching files from multiple runs together
+	file_utils.combine_csv(comparative_outfile+"_all_results.csv", comparative_outfile + ("*" if len(size_breaks) != 0 else "") + "*.csv", display=True)	
 
 	#test results
 	#redefine output filename - without run identifier
