@@ -22,16 +22,16 @@ run_str = sys.argv[1]
 #but it could be manual without too much work
 subreddits = sys.argv[2:]
 
-#list of times/comment counts for observation, along with the selected option
-observation_option = '-nco'		#-nco or -t
-observation_list = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 12, 15, 17, 20, 25, 30, 35, 40, 45, 50, 60, 70, 75, 80, 90, 100, 125, 150, 175, 200, 250, 300, 350, 400, 500, 600, 700, 800, 900, 1000]
-#this will be filtered depending on the size class, so you don't try to observe more than can possibly exist for that run
-#without commas for easy copying for other individual runs (ie, baseline)
-# 0 1 2 3 4 5 6 7 8 9 10 12 15 17 20 25 30 35 40 45 50 60 70 75 80 90 100 125 150 175 200 250 300 350 400 500 600 700 800 900 1000	
-#full list (reducing for time)
-#0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 25 30 35 40 45 50 55 60 65 70 75 80 85 90 95 100 110 120 130 140 150 175 200 250 300 350 400 500 600 700 800 900 1000
-#[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75, 80, 85, 90, 95, 100, 110, 120, 130, 140, 150, 175, 200, 250, 300, 350, 400, 500, 600, 700, 800, 900, 1000]
+#list of baseline model modes to run
+#each of them will produce a separate output file
+#options are: -rand_sim, -rand_tree, -avg_sim
+baseline_modes = ['-rand_sim', '-rand_tree', '-avg_sim']
 
+#list of times/comment counts for observation, along with the selected option
+observation_option = '-t'		#-nco or -t
+observation_list = [0, 0.5, 1, 1.5, 2, 3, 4, 5, 6, 7, 8, 9, 10, 12, 14, 16, 18, 20, 22, 24]
+#if observing by comments, this will be filtered depending on the size class, so you don't try to observe more than can possibly exist for that run
+#if observing by time, list will be used unedited, even if observe the entire cascade more than once
 #select an edge weight method
 arguments_list.append('-j')		#-j, -c, or -wmd
 
@@ -128,43 +128,45 @@ for run in range(repeat_runs):
 		#loop subreddits
 		for subreddit in subreddits:
 
-			#run corresponding baseline model in background - if don't have results already
-			
-			#define output filename for baseline model
-			baseline_outfile = "sim_results/%s/%s_baseline_%dtrain_%dtest_%d-%d%s_test%s" % (subreddit, subreddit, arguments['-n_train'], arguments['-n'], arguments['-y'], arguments['-m'], size_class, "_run%d" % run if repeat_runs > 1 else "")
+			#run corresponding baseline models in background - if don't have results already
 
-			#no data for this baseline configuration, run the test
-			#check the bookmark saved by the model to know if finished or not
-			finished_posts, complete = load_bookmark(baseline_outfile)
-			if complete:
-				print("skipping", baseline_outfile)
+			for mode in baseline_modes:
 			
-			else:
-				#build command arguments list
-				#base first
-				command = ['time', 'python3', 'baseline_model.py', '-s', subreddit, '-o', baseline_outfile]
-				#add the dict args - but only the ones that make sense for the baseline model
-				for arg in ['-n', '-n_train', '-m', '-y', '-min', '-max']:
-					if arg in arguments:
-						command.append(arg)
-						command.append(str(arguments[arg]))
-				#observation list
-				command.append(observation_option)
-				command = command + run_observed_list
+				#define output filename for baseline model
+				baseline_outfile = "sim_results/%s/%s_baseline_%s_%dtrain_%dtest_%d-%d%s%s" % (subreddit, subreddit, mode[1:], arguments['-n_train'], arguments['-n'], arguments['-y'], arguments['-m'], size_class, "_run%d" % run if repeat_runs > 1 else "")
 
-				print(baseline_outfile)
+				#no data for this baseline configuration, run the test
+				#check the bookmark saved by the model to know if finished or not
+				finished_posts, complete = load_bookmark(baseline_outfile)
+				if complete:
+					print("skipping", baseline_outfile)
 				
-				#run the thing, piping output to file
-				f = open(baseline_outfile+".txt", "w")
-				f.write(' '.join(command)+'\n')		#write arguments to first line of file
-				f.flush()  #make sure arguments get written first
-				process = subprocess.Popen(command, stdout=f, stderr=f)
-				#no wait, run in background
+				else:
+					#build command arguments list
+					#base first
+					command = ['time', 'python3', 'baseline_model.py', '-s', subreddit, '-o', baseline_outfile, mode, '-v']
+					#add the dict args - but only the ones that make sense for the baseline model
+					for arg in ['-n', '-n_train', '-m', '-y', '-min', '-max']:
+						if arg in arguments:
+							command.append(arg)
+							command.append(str(arguments[arg]))
+					#observation list
+					command.append(observation_option)
+					command = command + run_observed_list
+
+					print(baseline_outfile)
+					
+					#run the thing, piping output to file
+					f = open(baseline_outfile+".txt", "w")
+					f.write(' '.join(command)+'\n')		#write arguments to first line of file
+					f.flush()  #make sure arguments get written first
+					process = subprocess.Popen(command, stdout=f, stderr=f)
+					#no wait, run in background
 
 			#and then run the regular model, and wait for it to finish
 
 			#define our base output filename - keep it simple, will have all the settings in the output files
-			outfile = "sim_results/%s/%s_%s_%d-%d%s_test%s" % (subreddit, subreddit, run_str, arguments['-y'], arguments['-m'], size_class, "_run%d" % run if repeat_runs > 1 else "")
+			outfile = "sim_results/%s/%s_%s_%d-%d%s%s" % (subreddit, subreddit, run_str, arguments['-y'], arguments['-m'], size_class, "_run%d" % run if repeat_runs > 1 else "")
 
 			#this run already done? skip
 			#check the bookmark saved by the model to know if finished or not
@@ -227,13 +229,14 @@ print("Total:", total_count, "(plus", len(subreddits), "preprocessing)\n")
 print("Creating combined results files")
 if repeat_runs != 1 or len(size_breaks) != 0:
 	#baseline results
-	#redefine output filename - without run identifier
-	baseline_outfile = "sim_results/%s/%s_baseline_%dtrain_%dtest_%d-%d" % (subreddit, subreddit, arguments['-n_train'], arguments['-n'], arguments['-y'], arguments['-m'])
-	#combine matching files from multiple runs together
-	file_utils.combine_csv(baseline_outfile+"_all_results.csv", baseline_outfile + ("*" if len(size_breaks) != 0 else "") + "_test*.csv", display=True)
+	for mode in baseline_modes:
+	#redefine output filename - without run identifier	
+		baseline_outfile = "sim_results/%s/%s_baseline_%s_%dtrain_%dtest_%d-%d%s" % (subreddit, subreddit, mode[1:], arguments['-n_train'], arguments['-n'], arguments['-y'], arguments['-m'], size_class)	
+		#combine matching files from multiple runs together
+		file_utils.combine_csv(baseline_outfile+"_all_results.csv", baseline_outfile + ("*" if len(size_breaks) != 0 else "") + "*.csv", display=True)
 
 	#test results
 	#redefine output filename - without run identifier
 	outfile = "sim_results/%s/%s_%s_%d-%d" % (subreddit, subreddit, run_str, arguments['-y'], arguments['-m'])
 	#combine matching files from multiple runs together
-	file_utils.combine_csv(outfile+"_all_results.csv", outfile + ("*" if len(size_breaks) != 0 else "") + "_test*.csv", display=True)
+	file_utils.combine_csv(outfile+"_all_results.csv", outfile + ("*" if len(size_breaks) != 0 else "") + ".csv", display=True)
