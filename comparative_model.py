@@ -16,7 +16,7 @@ from copy import deepcopy
 
 
 #parse all command-line arguments
-subreddit, input_sim_post, observing_time, observed_list, outfile, batch, testing_num, testing_start_month, testing_start_year, training_num, time_error_margin, error_method, min_size, max_size, socsim_data, verbose = functions_baseline_model.parse_command_args()
+mode, subreddit, input_sim_post, observing_time, observed_list, outfile, batch, testing_num, testing_start_month, testing_start_year, training_num, time_error_margin, error_method, min_size, max_size, socsim_data, verbose = functions_baseline_model.parse_command_args(baseline=False)
 
 if observing_time == False:
 	print("Can't observe by number of comments now, sorry")

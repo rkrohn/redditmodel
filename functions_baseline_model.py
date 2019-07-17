@@ -9,7 +9,7 @@ from argparse import *
 
 
 #parse out all command line arguments and return results
-def parse_command_args():
+def parse_command_args(baseline = True):
 	#arg parser
 	parser = ArgumentParser(description="BASELINE MODEL: Simulate reddit cascades from partially-observed posts.")
 
@@ -22,11 +22,12 @@ def parse_command_args():
 	proc_group.add_argument("-r", "--rand", dest="sim_post", action="store_const", const="random", help="choose a random post from the subreddit to simulate")
 	proc_group.add_argument("-a", "--all", dest="sim_post", action="store_const", const="all", help="simulate all posts in the subreddit")
 	proc_group.add_argument("-n", "--n_sample", dest="sim_post", default=None, help="number of posts to test, taken as first n posts in the testing period")
-	#must pick one baseline model mode
-	mode_group = parser.add_mutually_exclusive_group(required=True)
-	mode_group.add_argument("-rand_sim", dest="mode", action="store_const", const="rand_sim", help="simulate cascade using fitted params for a random post in training set")
-	mode_group.add_argument("-rand_tree", dest="mode", action="store_const", const="rand_tree", help="return a random cascade from training set (no simulation)")
-	mode_group.add_argument("-avg_sim", dest="mode", action="store_const", const="avg_sim", help="simulate cascade using average params of training set")
+	#must pick one baseline model mode, if running a baseline model
+	if baseline:
+		mode_group = parser.add_mutually_exclusive_group(required=True)
+		mode_group.add_argument("-rand_sim", dest="mode", action="store_const", const="rand_sim", help="simulate cascade using fitted params for a random post in training set")
+		mode_group.add_argument("-rand_tree", dest="mode", action="store_const", const="rand_tree", help="return a random cascade from training set (no simulation)")
+		mode_group.add_argument("-avg_sim", dest="mode", action="store_const", const="avg_sim", help="simulate cascade using average params of training set")
 
 	#must select an observation type (time or comments) and provide at least one time/count
 	observed_group = parser.add_mutually_exclusive_group(required=True)
@@ -64,7 +65,8 @@ def parse_command_args():
 	#extract arguments (since want to return individual variables)
 	subreddit = args.subreddit
 	sim_post = args.sim_post
-	mode = args.mode
+	if baseline: mode = args.mode
+	else: mode = "comparative"
 	if args.time_observed != False:
 		observed_list = [float(time) for time in args.time_observed]
 		observing_time = True
@@ -139,7 +141,8 @@ def parse_command_args():
 
 	#print some log-ish stuff in case output being piped and saved
 	vprint("Sim Post: ", sim_post, " %d" % sample_num if sample_num != False else "")
-	vprint("Baseline model mode: ", mode)
+	if baseline: vprint("Baseline model mode: ", mode)
+	else: vprint("Comparative model")
 	if observing_time:
 		vprint("Time Observed: ", observed_list)
 	else:
