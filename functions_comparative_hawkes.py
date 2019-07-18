@@ -339,11 +339,11 @@ def mu_func_fit_weibull(list_times, res=60, runs = 10, T_max = 3*1440, large_par
             fit_params, pcov = curve_fit(weib_func, xdata = center_bins, ydata = hist/res, p0 = param_set, 
                                          bounds = (0.0001, 100000))
             if fit_params[0] > large_params[0] or fit_params[1] > large_params[1] or fit_params[2] > large_params[2]:
-                print("Current params:", param_set, "fit_params:", fit_params)
+                #print("Current params:", param_set, "fit_params:", fit_params)
                 param_set += np.array([np.random.normal(0, start_params[0]/10), np.random.normal(0, start_params[1]/10),
                                       np.random.normal(0, start_params[2]/4)])
                 if i == runs-1:
-                    fit_params = [None, None, None]
+                    fit_params = None
                 continue
             else:
                 break
