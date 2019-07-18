@@ -96,6 +96,9 @@ size_breaks = [None] + size_breaks + [None]
 #count runs for each subreddit (hackery incoming)
 sub_counts = defaultdict(int)
 
+#keep list of background processes, so we can wait for them at the end
+background_procs = []
+
 #loop repeated runs
 for run in range(repeat_runs):
 
@@ -162,6 +165,7 @@ for run in range(repeat_runs):
 					f.flush()  #make sure arguments get written first
 					process = subprocess.Popen(command, stdout=f, stderr=f)
 					#no wait, run in background
+					background_procs.append(process)
 
 			#also run comparative model (reddit paper Hawkes) in background - if not already done
 			
@@ -195,6 +199,7 @@ for run in range(repeat_runs):
 				f.flush()  #make sure arguments get written first
 				process = subprocess.Popen(command, stdout=f, stderr=f)
 				#no wait, run in background
+				background_procs.append(process)
 
 			#and then run the regular model, and wait for it to finish
 
@@ -257,6 +262,10 @@ for sub, count in sub_counts.items():
 	print("  ", sub, ":", count)
 	total_count += count
 print("Total:", total_count, "(plus", len(subreddits), "preprocessing)\n")
+
+print("\nWaiting on", len(background_procs), "background processes")
+exit_codes = [p.wait() for p in background_procs]
+print("Finished\n")
 
 #combine multiple runs into a single results file
 print("Creating combined results files")
