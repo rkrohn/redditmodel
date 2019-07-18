@@ -699,7 +699,6 @@ def build_cascades(posts, comments, display=False):
 	#loop all comments, assign to immediate parent and increment comment_count of post parent
 	fail_cascades = set()		#keep set of post ids with missing comments, throw out at the end
 	for comment_id, comment in comments.items():
-
 		#get immediate parent (post or comment)
 		direct_parent = comment['parent_id']
 		direct_parent_type = "post" if direct_parent[:2] == "t3" else "comment"
@@ -1805,8 +1804,14 @@ def cascade_to_graph(cascade):
 		#also add children to processing queue
 		for comment in node['replies']:
 			edges.append((node['id'], comment['id']))	#edge as tuple
-			nodes_to_visit.append(comment)    #add reply comment to processing queue			
-			G.add_node(comment['id'], created=comment['time'], root=False)	#add child node to graph
+			nodes_to_visit.append(comment)    #add reply comment to processing queue
+
+			#if child at same time as parent, shift the time just a *tiny* bit
+			if node['time'] == comment['time']:	
+				G.add_node(comment['id'], created=comment['time']+0.01, root=False)	#add child node to graph
+			#otherwise, leave times unchanged
+			else:		
+				G.add_node(comment['id'], created=comment['time'], root=False)	#add child node to graph
 
 	#add all edges
 	G.add_edges_from(edges)
@@ -1855,10 +1860,10 @@ def graph_to_cascade(graph):
 	for comment_id, comment in comments.items():
 		comment['link_id'] = root_id_str
 	#make sure comment ids are strings with prefixes	
-	comments = {(comment_id if isinstance(comment_id, str) else "t1_"+str(comment_id)): comment for comment_id, comment in comments.items()}	
-
+	comments = {(comment_id if isinstance(comment_id, str) else "t1_"+str(comment_id)): comment for comment_id, comment in comments.items()}
+	
 	#and the post needs to have a string id with prefix
-	posts = {(post_id if isinstance(post_id, str) else "t3_"+str(post_id)): post for post_id, post in posts.items()}				
+	posts = {(post_id if isinstance(post_id, str) else "t3_"+str(post_id)): post for post_id, post in posts.items()}
 
 	#reconstruct into a cascade - actually a dictionary of cascades (but just one)
 	cascades_dict = build_cascades(posts, comments)
