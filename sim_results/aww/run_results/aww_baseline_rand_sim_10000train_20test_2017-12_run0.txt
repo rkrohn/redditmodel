@@ -1,0 +1,41 @@
+time python3 baseline_model.py -s aww -o sim_results/aww/run_results/aww_baseline_rand_sim_10000train_20test_2017-12_run0 -rand_sim -v -n 20 -n_train 10000 -m 12 -y 2017 -t 0 0.5 1 1.5 2 3 4 5 6 7 8 9 10 12 14 16 18 20 22 24
+
+Namespace(max_size=None, min_size=None, mode='rand_sim', num_comments_observed=False, outfile='sim_results/aww/run_results/aww_baseline_rand_sim_10000train_20test_2017-12_run0', sim_post='20', subreddit='aww', testing_start_month='12', testing_start_year='2017', time_error_absolute=False, time_error_margin=False, time_observed=['0', '0.5', '1', '1.5', '2', '3', '4', '5', '6', '7', '8', '9', '10', '12', '14', '16', '18', '20', '22', '24'], topological_error=False, training_num='10000', verbose=True)
+
+Sim Post: subset
+Baseline model mode: rand_sim
+Time Observed: [0.0, 0.5, 1.0, 1.5, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 12.0, 14.0, 16.0, 18.0, 20.0, 22.0, 24.0]
+Output: sim_results/aww/run_results/aww_baseline_rand_sim_10000train_20test_2017-12_run0
+Source subreddit: aww
+Test Set: first 20 posts starting at 12-2017
+Training Set: 10000 posts immediately preceding 12-2017
+Using error margin increasing by level
+   Allowable eval time error: 30.0
+
+Loading processed training data
+Loading 11-2017
+Deleted 4 posts without cascades
+Loaded 31655 posts 
+   31655 cascades
+   7124 fitted params, 24531 failed fit
+
+Loading processed testing data
+Loading 12-2017
+Deleted 3 posts without cascades
+Loaded 35329 posts 
+   35329 cascades
+
+Sampling 20 first posts (from 35329) for simulation set
+Sampling 10000 last posts (from 31655) for simulation set
+
+Skipping 0 already simulated posts
+Processing 20 posts
+   saving results so far (5 posts)
+   saving results so far (10 posts)
+   saving results so far (15 posts)
+   saving results so far (20 posts)
+Finished simulating 20 posts
+All done, all results saved
+
+653.80user 1.28system 10:54.31elapsed 100%CPU (0avgtext+0avgdata 431448maxresident)k
+0inputs+192outputs (0major+116376minor)pagefaults 0swaps
