@@ -170,7 +170,7 @@ for run in range(repeat_runs):
 			#also run comparative model (reddit paper Hawkes) in background - if not already done
 			
 			#define output filename for comparative model
-			comparative_outfile = "sim_results/%s/run_results/%s_comparative_%s_%dtrain_%dtest_%d-%d%s%s" % (subreddit, subreddit, mode[1:], arguments['-n_train'], arguments['-n'], arguments['-y'], arguments['-m'], size_class, "_run%d" % run if repeat_runs > 1 else "")
+			comparative_outfile = "sim_results/%s/run_results/%s_comparative_%dtrain_%dtest_%d-%d%s%s" % (subreddit, subreddit, arguments['-n_train'], arguments['-n'], arguments['-y'], arguments['-m'], size_class, "_run%d" % run if repeat_runs > 1 else "")
 
 			#no data for this configuration, run the test
 			#check bookmark saved by the model to know if finished or not
@@ -284,7 +284,7 @@ if repeat_runs != 1 or len(size_breaks) != 0:
 
 	#comparative model results
 	#redefine output filename - without run identifier or subreddit directory
-	comparative_outfile = "%s_comparative_%s_%dtrain_%dtest_%d-%d%s" % (subreddit, mode[1:], arguments['-n_train'], arguments['-n'], arguments['-y'], arguments['-m'], size_class)
+	comparative_outfile = "%s_comparative_%dtrain_%dtest_%d-%d%s" % (subreddit, arguments['-n_train'], arguments['-n'], arguments['-y'], arguments['-m'], size_class)
 	#combine matching files from multiple runs together
 	file_utils.combine_csv(subreddit_dir+comparative_outfile+"_all_results.csv", run_dir+comparative_outfile + ("*" if len(size_breaks) != 0 else "") + "*.csv", display=True)	
 
