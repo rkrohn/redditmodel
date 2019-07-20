@@ -64,7 +64,7 @@ def phi_parameters_estimation(hawkes_others, runs = 10, large_params = [20, 20],
     for i in range(runs):
         result = minimize(lognorm_loglikelihood, param_set, 
                                         method = 'L-BFGS-B', 
-                                        bounds = ((0.0001,None), (0.0001,None)))
+                                        bounds = ((0.0001,None), (0.0001,4.75)))
         fit_params = list(result.get('x'))
 #         print("Current params:", param_set, 
 #                   "fit_params:", fit_params,
