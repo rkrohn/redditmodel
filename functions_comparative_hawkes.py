@@ -279,7 +279,7 @@ def simulate_comment_tree(given_tree, start_time, params_mu, params_phi, n_b, N_
     #generate new top-level comments, process each individually
     new_root_comment_times = generate_mu_poisson_times(float(start_time), params_mu, T)
     for t in new_root_comment_times:
-    	#create new node, add to graph
+        #create new node, add to graph
         node_index += 1
         g.add_node(node_index, created = t, root = False)
         g.add_edge(root, node_index)
@@ -287,7 +287,7 @@ def simulate_comment_tree(given_tree, start_time, params_mu, params_phi, n_b, N_
         tree_node_list = []		#clear this list
 
         #generate replies to this new comment
-        new_further_comment_times = generate_phi_poisson_times(0, params_phi, n_b, T2 )
+        new_further_comment_times = generate_phi_poisson_times(0, params_phi, n_b, T2)
         new_further_comment_times = [i+t for i in new_further_comment_times]
         if len(new_further_comment_times) > 0:
             for t2 in new_further_comment_times:
@@ -342,6 +342,7 @@ def mu_func_fit_weibull(list_times, res=60, runs = 10, T_max = 3*1440, large_par
                 #print("Current params:", param_set, "fit_params:", fit_params)
                 param_set += np.array([np.random.normal(0, start_params[0]/10), np.random.normal(0, start_params[1]/10),
                                       np.random.normal(0, start_params[2]/4)])
+                param_set[param_set < 0.0001] = 0.0001
                 if i == runs-1:
                     fit_params = None
                 continue
