@@ -37,7 +37,7 @@ arguments_list.append('-j')		#-j, -c, or -wmd
 
 #define the test set: -n <sample size>, -id <post id>, -r, or -a
 #arguments_list.append('-a')		#list for -a or -r
-arguments['-n'] = 500			#dict for -n or -id
+arguments['-n'] = 1000			#dict for -n or -id
 
 #define the size of the training set
 arguments['-n_train'] = 10000
@@ -132,6 +132,31 @@ for run in range(repeat_runs):
 		#loop subreddits
 		for subreddit in subreddits:
 
+			#is this the first run for this subreddit? 
+			#if yes, make sure all the preprocessing is done and the graph exists first
+
+			#define our base output filename - keep it simple, will have all the settings in the output files
+			outfile = "sim_results/%s/run_results/%s_%s_%d-%d%s%s" % (subreddit, subreddit, run_str, arguments['-y'], arguments['-m'], size_class, "_run%d" % run if repeat_runs > 1 else "")
+
+			#build command arguments list
+			#base first
+			model_command = ['time', 'python3', 'gen_cascade_model.py', '-s', subreddit, '-o', outfile]
+			#add all the dict args
+			for key, value in arguments.items():
+				model_command.append(key)
+				model_command.append(str(value))
+			#all the list args
+			model_command = model_command + arguments_list
+			#observation list
+			model_command.append(observation_option)
+			model_command = model_command + run_observed_list
+
+			#wait for this graph-build-only run to finish before doing more
+			if sub_counts[subreddit] == 0:
+				print("Preprocessing", subreddit)
+				f = open("sim_results/%s/run_results/%s_%s_%d-%dgraph.txt" % (subreddit, subreddit, run_str, arguments['-y'], arguments['-m']), "a")
+				subprocess.call(model_command+['-preprocess'], stdout=f, stderr=f)
+
 			#run corresponding baseline models in background - if don't have results already
 
 			for mode in baseline_modes:
@@ -147,23 +172,23 @@ for run in range(repeat_runs):
 				else:
 					#build command arguments list
 					#base first
-					command = ['time', 'python3', 'baseline_model.py', '-s', subreddit, '-o', baseline_outfile, mode, '-v']
+					baseline_command = ['time', 'python3', 'baseline_model.py', '-s', subreddit, '-o', baseline_outfile, mode, '-v']
 					#add the dict args - but only the ones that make sense for the baseline model
 					for arg in ['-n', '-n_train', '-m', '-y', '-min', '-max']:
 						if arg in arguments:
-							command.append(arg)
-							command.append(str(arguments[arg]))
+							baseline_command.append(arg)
+							baseline_command.append(str(arguments[arg]))
 					#observation list
-					command.append(observation_option)
-					command = command + run_observed_list
+					baseline_command.append(observation_option)
+					baseline_command = baseline_command + run_observed_list
 
 					print(baseline_outfile)
 					
 					#run the thing, piping output to file
 					f = open(baseline_outfile+".txt", "w")
-					f.write(' '.join(command)+'\n')		#write arguments to first line of file
+					f.write(' '.join(baseline_command)+'\n')		#write arguments to first line of file
 					f.flush()  #make sure arguments get written first
-					process = subprocess.Popen(command, stdout=f, stderr=f)
+					process = subprocess.Popen(baseline_command, stdout=f, stderr=f)
 					#no wait, run in background
 					background_procs.append(process)
 
@@ -181,30 +206,29 @@ for run in range(repeat_runs):
 			else:
 				#build command arguments list
 				#base first
-				command = ['time', 'python3', 'comparative_model.py', '-s', subreddit, '-o', comparative_outfile, '-v']
+				comparative_command = ['time', 'python3', 'comparative_model.py', '-s', subreddit, '-o', comparative_outfile, '-v']
 				#add the dict args - but only the ones that make sense for the baseline model
 				for arg in ['-n', '-n_train', '-m', '-y', '-min', '-max']:
 					if arg in arguments:
-						command.append(arg)
-						command.append(str(arguments[arg]))
+						comparative_command.append(arg)
+						comparative_command.append(str(arguments[arg]))
 				#observation list
-				command.append(observation_option)
-				command = command + run_observed_list
+				comparative_command.append(observation_option)
+				comparative_command = comparative_command + run_observed_list
 
 				print(comparative_outfile)
 				
 				#run the thing, piping output to file
 				f = open(comparative_outfile+".txt", "w")
-				f.write(' '.join(command)+'\n')		#write arguments to first line of file
+				f.write(' '.join(comparative_command)+'\n')		#write arguments to first line of file
 				f.flush()  #make sure arguments get written first
-				process = subprocess.Popen(command, stdout=f, stderr=f)
+				process = subprocess.Popen(comparative_command, stdout=f, stderr=f)
 				#no wait, run in background
 				background_procs.append(process)
 
 			#and then run the regular model, and wait for it to finish
 
-			#define our base output filename - keep it simple, will have all the settings in the output files
-			outfile = "sim_results/%s/run_results/%s_%s_%d-%d%s%s" % (subreddit, subreddit, run_str, arguments['-y'], arguments['-m'], size_class, "_run%d" % run if repeat_runs > 1 else "")
+			#outfile name defined above
 
 			#this run already done? skip
 			#check the bookmark saved by the model to know if finished or not
@@ -213,34 +237,15 @@ for run in range(repeat_runs):
 				print("skipping", outfile)
 				continue
 
-			#build command arguments list
-			#base first
-			command = ['time', 'python3', 'gen_cascade_model.py', '-s', subreddit, '-o', outfile]
-			#add all the dict args
-			for key, value in arguments.items():
-				command.append(key)
-				command.append(str(value))
-			#all the list args
-			command = command + arguments_list
-			#observation list
-			command.append(observation_option)
-			command = command + run_observed_list
-
-			#is this the first run for this subreddit? 
-			#if yes, make sure all the preprocessing is done and the graph exists first
-			#wait for this graph-build-only run to finish before doing more
-			if sub_counts[subreddit] == 0:
-				print("Preprocessing", subreddit)
-				f = open("sim_results/%s/run_results/%s_%s_%d-%dgraph.txt" % (subreddit, subreddit, run_str, arguments['-y'], arguments['-m']), "a")
-				subprocess.call(command+['-preprocess'], stdout=f, stderr=f)
+			#model command defined above
 
 			print(outfile)
 			
 			#run the thing, piping output to file
 			f = open(outfile+".txt", "w")
-			f.write(' '.join(command)+'\n')		#write arguments to first line of file
+			f.write(' '.join(model_command)+'\n')		#write arguments to first line of file
 			f.flush()  #make sure arguments get written first
-			process = subprocess.Popen(command, stdout=f, stderr=f)
+			process = subprocess.Popen(model_command, stdout=f, stderr=f)
 			process.wait()		#wait for it to finish before we do more, if you want
 
 			#did this actually finish? if not, try again (just once)
@@ -250,7 +255,7 @@ for run in range(repeat_runs):
 				print("failed, restarting", outfile)
 				#append to file this time, don't write arguments
 				f = open(outfile+".txt", "a")
-				process = subprocess.Popen(command, stdout=f, stderr=f)
+				process = subprocess.Popen(model_command, stdout=f, stderr=f)
 				process.wait()		#wait for it to finish before we do more, if you want
 
 			#add to subreddit counter
