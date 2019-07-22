@@ -139,7 +139,7 @@ for sim_post_id, sim_post in test_posts.items():
 				mu_params = functions_comparative_hawkes.mu_func_fit_weibull(root_comment_times)
 			
 			if mu_params is None:	#if curve_fit fails, no sim
-				param_source = "est_fail"
+				param_source = "root_est_fail"
 				sim_graph = given_tree
 
 			else:	#good params, keep fitting	
@@ -149,7 +149,7 @@ for sim_post_id, sim_post in test_posts.items():
 				#make sure we've observed at least one non-root comment
 				#if not, can't fit or sim, eval on the observed tree
 				if len(other_comment_times) == 0:
-					param_source = "no_est"
+					param_source = "no_other_est"
 					sim_graph = given_tree
 
 				#have some observed comments, fit params and sim
@@ -161,11 +161,11 @@ for sim_post_id, sim_post in test_posts.items():
 
 					sim_graph, success = functions_comparative_hawkes.simulate_comment_tree(given_tree, observed*60, mu_params, phi_params, n_b)	#simulate!
 
-					#don't try to eval if sim failed
+					#if sim failed (aborted because too many nodes), eval on sim tree we got, and flag the result
 					if success == False:
 						print('Generation failed! Too many nodes')
-						print("infinite sim aborted, skipping post", sim_post_id)
-						continue
+						print("infinite sim aborted for post", sim_post_id, "at", observed, "hours")
+						param_source = "inf_sim"
 
 		#EVAL
 
