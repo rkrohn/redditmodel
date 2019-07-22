@@ -1,0 +1,152 @@
+
+Namespace(estimate_initial_params=False, graph_downsample_ratio=None, include_default_posts=True, large_cascade_demarcation=None, max_nodes=False, max_size=None, min_node_quality=False, min_size=None, normalize_parameters=None, num_comments_observed=False, outfile='sim_results/explainlikeimfive/run_results/explainlikeimfive_1000_test_2017-12_run0', preprocess=True, remove_stopwords=False, sanity_check=False, sim_post='1000', subreddit='explainlikeimfive', testing_start_month='12', testing_start_year='2017', testing_stats=False, time_error_absolute=False, time_error_margin=False, time_observed=['0', '0.5', '1', '1.5', '2', '3', '4', '5', '6', '7', '8', '9', '10', '12', '14', '16', '18', '20', '22', '24'], top_n='20', topological_error=True, training_num='10000', training_stats=False, verbose=True, weight_method='jaccard', weight_threshold=False)
+
+Sim Post: subset
+Time Observed: [0.0, 0.5, 1.0, 1.5, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 12.0, 14.0, 16.0, 18.0, 20.0, 22.0, 24.0]
+Output: sim_results/explainlikeimfive/run_results/explainlikeimfive_1000_test_2017-12_run0
+Source subreddit: explainlikeimfive
+Minimum node quality: False
+Max graph size: False
+Max edges per node: 20
+Minimum edge weight: None
+No param normalization for infer step
+Test Set: first 1000 posts starting at 12-2017
+Training Set: 10000 posts immediately preceding 12-2017
+Using Jaccard index to compute graph edge weights
+Including posts with hardcoded default parameters
+Using topological error for tree evaluation (ignoring comment times)
+
+Loading processed training data
+Loading 11-2017
+   Processed posts file doesn't exist, creating now
+   Fitted params file doesn't exist, creating now
+Reconstructing cascades for explainlikeimfive 11-2017
+Loading comments from /data/datasets/reddit_discussions/explainlikeimfive/explainlikeimfive_2017discussions_comments_2017_11.tsv
+Found 82181 (of 90066) relevant comments
+Loading comments from /data/datasets/reddit_discussions/explainlikeimfive/explainlikeimfive_2017discussions_comments_2017_12.tsv
+Found 2067 (of 87687) relevant comments
+Loading comments from /data/datasets/reddit_discussions/explainlikeimfive/explainlikeimfive_2017discussions_comments_2018_1.tsv
+Found 19 (of 806) relevant comments
+Loading comments from /data/datasets/reddit_discussions/explainlikeimfive/explainlikeimfive_2017discussions_comments_2018_2.tsv
+Found 14 (of 87) relevant comments
+Loading comments from /data/datasets/reddit_discussions/explainlikeimfive/explainlikeimfive_2017discussions_comments_2018_3.tsv
+Found 9 (of 60) relevant comments
+Loading comments from /data/datasets/reddit_discussions/explainlikeimfive/explainlikeimfive_2017discussions_comments_2018_4.tsv
+Found 8 (of 21) relevant comments
+Loading comments from /data/datasets/reddit_discussions/explainlikeimfive/explainlikeimfive_2017discussions_comments_2018_5.tsv
+Found 1 (of 14) relevant comments
+Loading comments from /data/datasets/reddit_discussions/explainlikeimfive/explainlikeimfive_2017discussions_comments_2018_6.tsv
+Found 0 (of 4) relevant comments
+Total of 84299 comments for 11-2017 posts (of 178745 scanned)
+Extracting post/comment structure for 11036 explainlikeimfive 11-2017 posts and 84299 comments
+Built 11035 cascades with 84296 comments
+   Removed 1 incomplete/erroneous cascades (3 associated comments)
+Fitting 11035 cascades for explainlikeimfive 11-2017
+Fitted 2500 cascades (1638 failed)
+Fitted 5000 cascades (3227 failed)
+Fitted 7500 cascades (4857 failed)
+Fitted 10000 cascades (6541 failed)
+Fitted params for a total of 3849 cascades
+   skipped 0 cascades with negative comment times
+   7186 cascades failed fit process
+   fail average cascade size: 1
+   948 cascades succeeded fit process
+   succeed average cascade size: 55
+   2901 cascades partially-succeeded fit process (some missing params)
+      2685 cascades failed weibull fit
+   partial-succeed average cascade size: 8
+Deleted 1 posts without cascades
+Loaded 11035 posts 
+   11035 cascades
+   3849 fitted params, 7186 failed fit
+
+Loading processed testing data
+Loading 12-2017
+   Processed posts file doesn't exist, creating now
+Reconstructing cascades for explainlikeimfive 12-2017
+Loading comments from /data/datasets/reddit_discussions/explainlikeimfive/explainlikeimfive_2017discussions_comments_2017_12.tsv
+Found 77633 (of 87687) relevant comments
+Loading comments from /data/datasets/reddit_discussions/explainlikeimfive/explainlikeimfive_2017discussions_comments_2018_1.tsv
+Found 692 (of 806) relevant comments
+Loading comments from /data/datasets/reddit_discussions/explainlikeimfive/explainlikeimfive_2017discussions_comments_2018_2.tsv
+Found 24 (of 87) relevant comments
+Loading comments from /data/datasets/reddit_discussions/explainlikeimfive/explainlikeimfive_2017discussions_comments_2018_3.tsv
+Found 25 (of 60) relevant comments
+Loading comments from /data/datasets/reddit_discussions/explainlikeimfive/explainlikeimfive_2017discussions_comments_2018_4.tsv
+Found 8 (of 21) relevant comments
+Loading comments from /data/datasets/reddit_discussions/explainlikeimfive/explainlikeimfive_2017discussions_comments_2018_5.tsv
+Found 11 (of 14) relevant comments
+Loading comments from /data/datasets/reddit_discussions/explainlikeimfive/explainlikeimfive_2017discussions_comments_2018_6.tsv
+Found 2 (of 4) relevant comments
+Total of 78395 comments for 12-2017 posts (of 88679 scanned)
+Extracting post/comment structure for 10815 explainlikeimfive 12-2017 posts and 78395 comments
+Built 10814 cascades with 78364 comments
+   Removed 1 incomplete/erroneous cascades (31 associated comments)
+Deleted 1 posts without cascades
+Loaded 10814 posts 
+   10814 cascades
+
+Sampling 1000 first posts (from 10814) for simulation set
+Sampling 10000 last posts (from 11035) for simulation set
+
+Building param graph for 10000 posts
+   Including posts with default parameters
+Using 10000 posts for graph
+Using jaccard index for edge weight
+   1000000 pairs
+   2000000 pairs
+   3000000 pairs
+   4000000 pairs
+   5000000 pairs
+   6000000 pairs
+   7000000 pairs
+   8000000 pairs
+   9000000 pairs
+   10000000 pairs
+   11000000 pairs
+   12000000 pairs
+   13000000 pairs
+   14000000 pairs
+   15000000 pairs
+   16000000 pairs
+   17000000 pairs
+   18000000 pairs
+   19000000 pairs
+   20000000 pairs
+   21000000 pairs
+   22000000 pairs
+   23000000 pairs
+   24000000 pairs
+   25000000 pairs
+   26000000 pairs
+   27000000 pairs
+   28000000 pairs
+   29000000 pairs
+   30000000 pairs
+   31000000 pairs
+   32000000 pairs
+   33000000 pairs
+   34000000 pairs
+   35000000 pairs
+   36000000 pairs
+   37000000 pairs
+   38000000 pairs
+   39000000 pairs
+   40000000 pairs
+   41000000 pairs
+   42000000 pairs
+   43000000 pairs
+   44000000 pairs
+   45000000 pairs
+   46000000 pairs
+   47000000 pairs
+   48000000 pairs
+   49000000 pairs
+Graph contains 9988 nodes and 166985 unique edges (199249 edge entries)
+  max degree: 278
+  min degree: 1
+Saving graph to reddit_data/explainlikeimfive/base_graph_2017-12test_start_10000trainposts_default_posts_True_all_nodes_0.0minquality_jaccard_0.0minedgeweight_20topn_no_sample.pkl
+
+Finished graph build, exiting
+1537.87user 2.30system 25:38.09elapsed 100%CPU (0avgtext+0avgdata 361988maxresident)k
+151688inputs+36248outputs (0major+136098minor)pagefaults 0swaps

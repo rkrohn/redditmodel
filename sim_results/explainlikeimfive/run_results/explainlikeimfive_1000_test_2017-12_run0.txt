@@ -1,0 +1,7 @@
+time python3 gen_cascade_model.py -s explainlikeimfive -o sim_results/explainlikeimfive/run_results/explainlikeimfive_1000_test_2017-12_run0 -n 1000 -n_train 10000 -topn 20 -y 2017 -m 12 -j --topo_err -v -d -t 0 0.5 1 1.5 2 3 4 5 6 7 8 9 10 12 14 16 18 20 22 24
+Command terminated by signal 9
+2270.02user 52.65system 37:29.70elapsed 103%CPU (0avgtext+0avgdata 20985152maxresident)k
+14424inputs+2282608outputs (115major+11852421minor)pagefaults 0swaps
+Command terminated by signal 9
+1722.47user 33.42system 29:32.82elapsed 99%CPU (0avgtext+0avgdata 29768428maxresident)k
+219283inputs+40760outputs (416major+7788004minor)pagefaults 0swaps
