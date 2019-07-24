@@ -1,7 +1,7 @@
 time python3 gen_cascade_model.py -s science -o sim_results/science/run_results/science_1000_test_2017-12_run3 -n 1000 -n_train 10000 -topn 20 -y 2017 -m 12 -j --topo_err -v -d -t 0 0.5 1 1.5 2 3 4 5 6 7 8 9 10 12 14 16 18 20 22 24
 Command terminated by signal 9
-1496.76user 23.81system 25:28.38elapsed 99%CPU (0avgtext+0avgdata 16791112maxresident)k
-77425inputs+230720outputs (307major+5036792minor)pagefaults 0swaps
+1638.23user 47.56system 28:18.95elapsed 99%CPU (0avgtext+0avgdata 25220924maxresident)k
+519761inputs+7448outputs (2465major+7542497minor)pagefaults 0swaps
 Command terminated by signal 9
-2629.17user 39.52system 44:47.78elapsed 99%CPU (0avgtext+0avgdata 26123592maxresident)k
-323617inputs+7432outputs (892major+6995865minor)pagefaults 0swaps
+2507.07user 44.85system 42:45.03elapsed 99%CPU (0avgtext+0avgdata 29518020maxresident)k
+925065inputs+7432outputs (4231major+7651999minor)pagefaults 0swaps

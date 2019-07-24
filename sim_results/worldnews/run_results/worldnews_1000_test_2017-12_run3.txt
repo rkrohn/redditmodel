@@ -1,7 +1,7 @@
 time python3 gen_cascade_model.py -s worldnews -o sim_results/worldnews/run_results/worldnews_1000_test_2017-12_run3 -n 1000 -n_train 10000 -topn 20 -y 2017 -m 12 -j --topo_err -v -d -t 0 0.5 1 1.5 2 3 4 5 6 7 8 9 10 12 14 16 18 20 22 24
 Command terminated by signal 9
-12608.08user 124.20system 3:31:33elapsed 100%CPU (0avgtext+0avgdata 46297320maxresident)k
-115211inputs+1283008outputs (433major+22088891minor)pagefaults 0swaps
+5529.88user 49.70system 1:33:33elapsed 99%CPU (0avgtext+0avgdata 42191984maxresident)k
+722585inputs+21624outputs (3274major+11042347minor)pagefaults 0swaps
 Command terminated by signal 9
-12730.13user 133.94system 3:34:40elapsed 99%CPU (0avgtext+0avgdata 87929128maxresident)k
-522497inputs+21624outputs (1225major+22538695minor)pagefaults 0swaps
+7647.58user 53.31system 2:08:33elapsed 99%CPU (0avgtext+0avgdata 55063596maxresident)k
+581105inputs+21576outputs (1652major+14337585minor)pagefaults 0swaps

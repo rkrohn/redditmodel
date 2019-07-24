@@ -1,0 +1,4 @@
+time python3 comparative_model.py -s worldnews -o sim_results/worldnews/run_results/worldnews_comparative_10000train_1000test_2017-12_run1 -v -n 1000 -n_train 10000 -m 12 -y 2017 -t 0 0.5 1 1.5 2 3 4 5 6 7 8 9 10 12 14 16 18 20 22 24
+Command terminated by signal 9
+4297.14user 69.55system 1:13:06elapsed 99%CPU (0avgtext+0avgdata 29767860maxresident)k
+1308424inputs+0outputs (7223major+11225972minor)pagefaults 0swaps

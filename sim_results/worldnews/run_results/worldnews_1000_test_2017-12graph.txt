@@ -155,3 +155,120 @@ Saving graph to reddit_data/worldnews/base_graph_2017-12test_start_10000trainpos
 Finished graph build, exiting
 2537.03user 6.75system 42:22.29elapsed 100%CPU (0avgtext+0avgdata 1871804maxresident)k
 947440inputs+165584outputs (0major+1097240minor)pagefaults 0swaps
+
+Namespace(estimate_initial_params=False, graph_downsample_ratio=None, include_default_posts=True, large_cascade_demarcation=None, max_nodes=False, max_size=None, min_node_quality=False, min_size=None, normalize_parameters=None, num_comments_observed=False, outfile='sim_results/worldnews/run_results/worldnews_1000_test_2017-12_run0', preprocess=True, remove_stopwords=False, sanity_check=False, sim_post='1000', subreddit='worldnews', testing_start_month='12', testing_start_year='2017', testing_stats=False, time_error_absolute=False, time_error_margin=False, time_observed=['0', '0.5', '1', '1.5', '2', '3', '4', '5', '6', '7', '8', '9', '10', '12', '14', '16', '18', '20', '22', '24'], top_n='20', topological_error=True, training_num='10000', training_stats=False, verbose=True, weight_method='jaccard', weight_threshold=False)
+
+Sim Post: subset
+Time Observed: [0.0, 0.5, 1.0, 1.5, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 12.0, 14.0, 16.0, 18.0, 20.0, 22.0, 24.0]
+Output: sim_results/worldnews/run_results/worldnews_1000_test_2017-12_run0
+Source subreddit: worldnews
+Minimum node quality: False
+Max graph size: False
+Max edges per node: 20
+Minimum edge weight: None
+No param normalization for infer step
+Test Set: first 1000 posts starting at 12-2017
+Training Set: 10000 posts immediately preceding 12-2017
+Using Jaccard index to compute graph edge weights
+Including posts with hardcoded default parameters
+Using topological error for tree evaluation (ignoring comment times)
+
+Loading processed training data
+Loading 11-2017
+Deleted 14 posts without cascades
+Loaded 23207 posts 
+   23207 cascades
+   5324 fitted params, 17883 failed fit
+
+Loading processed testing data
+Loading 12-2017
+Deleted 8 posts without cascades
+Loaded 22928 posts 
+   22928 cascades
+
+Sampling 1000 first posts (from 22928) for simulation set
+Sampling 10000 last posts (from 23207) for simulation set
+Loading base graph from file
+Graph contains 9945 nodes and 143137 unique edges (196201 edge entries)
+
+Finished graph build, exiting
+15.46user 3.02system 0:16.56elapsed 111%CPU (0avgtext+0avgdata 851880maxresident)k
+166360inputs+16outputs (2major+227721minor)pagefaults 0swaps
+
+Namespace(estimate_initial_params=False, graph_downsample_ratio=None, include_default_posts=True, large_cascade_demarcation=None, max_nodes=False, max_size=None, min_node_quality=False, min_size=None, normalize_parameters=None, num_comments_observed=False, outfile='sim_results/worldnews/run_results/worldnews_1000_test_2017-12_run0', preprocess=True, remove_stopwords=False, sanity_check=False, sim_post='1000', subreddit='worldnews', testing_start_month='12', testing_start_year='2017', testing_stats=False, time_error_absolute=False, time_error_margin=False, time_observed=['0', '0.5', '1', '1.5', '2', '3', '4', '5', '6', '7', '8', '9', '10', '12', '14', '16', '18', '20', '22', '24'], top_n='20', topological_error=True, training_num='10000', training_stats=False, verbose=True, weight_method='jaccard', weight_threshold=False)
+
+Sim Post: subset
+Time Observed: [0.0, 0.5, 1.0, 1.5, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 12.0, 14.0, 16.0, 18.0, 20.0, 22.0, 24.0]
+Output: sim_results/worldnews/run_results/worldnews_1000_test_2017-12_run0
+Source subreddit: worldnews
+Minimum node quality: False
+Max graph size: False
+Max edges per node: 20
+Minimum edge weight: None
+No param normalization for infer step
+Test Set: first 1000 posts starting at 12-2017
+Training Set: 10000 posts immediately preceding 12-2017
+Using Jaccard index to compute graph edge weights
+Including posts with hardcoded default parameters
+Using topological error for tree evaluation (ignoring comment times)
+
+Loading processed training data
+Loading 11-2017
+Deleted 14 posts without cascades
+Loaded 23207 posts 
+   23207 cascades
+   5324 fitted params, 17883 failed fit
+
+Loading processed testing data
+Loading 12-2017
+Deleted 8 posts without cascades
+Loaded 22928 posts 
+   22928 cascades
+
+Sampling 1000 first posts (from 22928) for simulation set
+Sampling 10000 last posts (from 23207) for simulation set
+Loading base graph from file
+Graph contains 9945 nodes and 143137 unique edges (196201 edge entries)
+
+Finished graph build, exiting
+15.07user 2.88system 0:15.63elapsed 114%CPU (0avgtext+0avgdata 851844maxresident)k
+166160inputs+8outputs (2major+227736minor)pagefaults 0swaps
+
+Namespace(estimate_initial_params=False, graph_downsample_ratio=None, include_default_posts=True, large_cascade_demarcation=None, max_nodes=False, max_size=None, min_node_quality=False, min_size=None, normalize_parameters=None, num_comments_observed=False, outfile='sim_results/worldnews/run_results/worldnews_1000_test_2017-12_run0', preprocess=True, remove_stopwords=False, sanity_check=False, sim_post='1000', subreddit='worldnews', testing_start_month='12', testing_start_year='2017', testing_stats=False, time_error_absolute=False, time_error_margin=False, time_observed=['0', '0.5', '1', '1.5', '2', '3', '4', '5', '6', '7', '8', '9', '10', '12', '14', '16', '18', '20', '22', '24'], top_n='20', topological_error=True, training_num='10000', training_stats=False, verbose=True, weight_method='jaccard', weight_threshold=False)
+
+Sim Post: subset
+Time Observed: [0.0, 0.5, 1.0, 1.5, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 12.0, 14.0, 16.0, 18.0, 20.0, 22.0, 24.0]
+Output: sim_results/worldnews/run_results/worldnews_1000_test_2017-12_run0
+Source subreddit: worldnews
+Minimum node quality: False
+Max graph size: False
+Max edges per node: 20
+Minimum edge weight: None
+No param normalization for infer step
+Test Set: first 1000 posts starting at 12-2017
+Training Set: 10000 posts immediately preceding 12-2017
+Using Jaccard index to compute graph edge weights
+Including posts with hardcoded default parameters
+Using topological error for tree evaluation (ignoring comment times)
+
+Loading processed training data
+Loading 11-2017
+Deleted 14 posts without cascades
+Loaded 23207 posts 
+   23207 cascades
+   5324 fitted params, 17883 failed fit
+
+Loading processed testing data
+Loading 12-2017
+Deleted 8 posts without cascades
+Loaded 22928 posts 
+   22928 cascades
+
+Sampling 1000 first posts (from 22928) for simulation set
+Sampling 10000 last posts (from 23207) for simulation set
+Loading base graph from file
+Graph contains 9945 nodes and 143137 unique edges (196201 edge entries)
+
+Finished graph build, exiting
+15.68user 3.14system 0:16.99elapsed 110%CPU (0avgtext+0avgdata 852460maxresident)k
+165944inputs+16outputs (0major+227733minor)pagefaults 0swaps
