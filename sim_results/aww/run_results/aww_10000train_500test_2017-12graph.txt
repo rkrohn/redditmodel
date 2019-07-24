@@ -1,0 +1,585 @@
+
+Namespace(estimate_initial_params=False, graph_downsample_ratio=None, include_default_posts=True, large_cascade_demarcation=None, max_nodes=False, max_size=None, min_node_quality=False, min_size=None, normalize_parameters=None, num_comments_observed=False, outfile='sim_results/aww/run_results/aww_model_10000train_500test_2017-12_run0', preprocess=True, remove_stopwords=False, sanity_check=False, sim_post='500', subreddit='aww', testing_start_month='12', testing_start_year='2017', testing_stats=False, time_error_absolute=False, time_error_margin=False, time_observed=['0', '0.5', '1', '1.5', '2', '3', '4', '5', '6', '7', '8', '9', '10', '12', '14', '16', '18', '20', '22', '24'], top_n='20', topological_error=True, training_num='10000', training_stats=False, verbose=True, weight_method='jaccard', weight_threshold=False)
+
+Sim Post: subset
+Time Observed: [0.0, 0.5, 1.0, 1.5, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 12.0, 14.0, 16.0, 18.0, 20.0, 22.0, 24.0]
+Output: sim_results/aww/run_results/aww_model_10000train_500test_2017-12_run0
+Source subreddit: aww
+Minimum node quality: False
+Max graph size: False
+Max edges per node: 20
+Minimum edge weight: None
+No param normalization for infer step
+Test Set: first 500 posts starting at 12-2017
+Training Set: 10000 posts immediately preceding 12-2017
+Using Jaccard index to compute graph edge weights
+Including posts with hardcoded default parameters
+Using topological error for tree evaluation (ignoring comment times)
+
+Loading processed training data
+Loading 11-2017
+Deleted 4 posts without cascades
+Loaded 31655 posts 
+   31655 cascades
+   7119 fitted params, 24536 failed fit
+
+Loading processed testing data
+Loading 12-2017
+Deleted 3 posts without cascades
+Loaded 35329 posts 
+   35329 cascades
+
+Sampling 500 first posts (from 35329) for simulation set
+Sampling 10000 last posts (from 31655) for simulation set
+Loading base graph from file
+Graph contains 9905 nodes and 148400 unique edges (193495 edge entries)
+
+Finished graph build, exiting
+10.56user 2.30system 0:10.58elapsed 121%CPU (0avgtext+0avgdata 431040maxresident)k
+44848inputs+8outputs (0major+116320minor)pagefaults 0swaps
+
+Namespace(estimate_initial_params=False, graph_downsample_ratio=None, include_default_posts=True, large_cascade_demarcation=None, max_nodes=False, max_size=None, min_node_quality=False, min_size=None, normalize_parameters=None, num_comments_observed=False, outfile='sim_results/aww/run_results/aww_model_10000train_500test_2017-12_run1', preprocess=True, remove_stopwords=False, sanity_check=False, sim_post='500', subreddit='aww', testing_start_month='12', testing_start_year='2017', testing_stats=False, time_error_absolute=False, time_error_margin=False, time_observed=['0', '0.5', '1', '1.5', '2', '3', '4', '5', '6', '7', '8', '9', '10', '12', '14', '16', '18', '20', '22', '24'], top_n='20', topological_error=True, training_num='10000', training_stats=False, verbose=True, weight_method='jaccard', weight_threshold=False)
+
+Sim Post: subset
+Time Observed: [0.0, 0.5, 1.0, 1.5, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 12.0, 14.0, 16.0, 18.0, 20.0, 22.0, 24.0]
+Output: sim_results/aww/run_results/aww_model_10000train_500test_2017-12_run1
+Source subreddit: aww
+Minimum node quality: False
+Max graph size: False
+Max edges per node: 20
+Minimum edge weight: None
+No param normalization for infer step
+Test Set: first 500 posts starting at 12-2017
+Training Set: 10000 posts immediately preceding 12-2017
+Using Jaccard index to compute graph edge weights
+Including posts with hardcoded default parameters
+Using topological error for tree evaluation (ignoring comment times)
+
+Loading processed training data
+Loading 11-2017
+Deleted 4 posts without cascades
+Loaded 31655 posts 
+   31655 cascades
+   7119 fitted params, 24536 failed fit
+
+Loading processed testing data
+Loading 12-2017
+Deleted 3 posts without cascades
+Loaded 35329 posts 
+   35329 cascades
+
+Sampling 500 first posts (from 35329) for simulation set
+Sampling 10000 last posts (from 31655) for simulation set
+Loading base graph from file
+Graph contains 9905 nodes and 148400 unique edges (193495 edge entries)
+
+Finished graph build, exiting
+10.71user 2.29system 0:10.27elapsed 126%CPU (0avgtext+0avgdata 431044maxresident)k
+0inputs+16outputs (0major+116292minor)pagefaults 0swaps
+
+Namespace(estimate_initial_params=False, graph_downsample_ratio=None, include_default_posts=True, large_cascade_demarcation=None, max_nodes=False, max_size=None, min_node_quality=False, min_size=None, normalize_parameters=None, num_comments_observed=False, outfile='sim_results/aww/run_results/aww_model_10000train_500test_2017-12_run2', preprocess=True, remove_stopwords=False, sanity_check=False, sim_post='500', subreddit='aww', testing_start_month='12', testing_start_year='2017', testing_stats=False, time_error_absolute=False, time_error_margin=False, time_observed=['0', '0.5', '1', '1.5', '2', '3', '4', '5', '6', '7', '8', '9', '10', '12', '14', '16', '18', '20', '22', '24'], top_n='20', topological_error=True, training_num='10000', training_stats=False, verbose=True, weight_method='jaccard', weight_threshold=False)
+
+Sim Post: subset
+Time Observed: [0.0, 0.5, 1.0, 1.5, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 12.0, 14.0, 16.0, 18.0, 20.0, 22.0, 24.0]
+Output: sim_results/aww/run_results/aww_model_10000train_500test_2017-12_run2
+Source subreddit: aww
+Minimum node quality: False
+Max graph size: False
+Max edges per node: 20
+Minimum edge weight: None
+No param normalization for infer step
+Test Set: first 500 posts starting at 12-2017
+Training Set: 10000 posts immediately preceding 12-2017
+Using Jaccard index to compute graph edge weights
+Including posts with hardcoded default parameters
+Using topological error for tree evaluation (ignoring comment times)
+
+Loading processed training data
+Loading 11-2017
+Deleted 4 posts without cascades
+Loaded 31655 posts 
+   31655 cascades
+   7119 fitted params, 24536 failed fit
+
+Loading processed testing data
+Loading 12-2017
+Deleted 3 posts without cascades
+Loaded 35329 posts 
+   35329 cascades
+
+Sampling 500 first posts (from 35329) for simulation set
+Sampling 10000 last posts (from 31655) for simulation set
+Loading base graph from file
+Graph contains 9905 nodes and 148400 unique edges (193495 edge entries)
+
+Finished graph build, exiting
+10.92user 2.21system 0:10.41elapsed 126%CPU (0avgtext+0avgdata 431276maxresident)k
+0inputs+0outputs (0major+116279minor)pagefaults 0swaps
+
+Namespace(estimate_initial_params=False, graph_downsample_ratio=None, include_default_posts=True, large_cascade_demarcation=None, max_nodes=False, max_size=None, min_node_quality=False, min_size=None, normalize_parameters=None, num_comments_observed=False, outfile='sim_results/aww/run_results/aww_model_10000train_500test_2017-12_run3', preprocess=True, remove_stopwords=False, sanity_check=False, sim_post='500', subreddit='aww', testing_start_month='12', testing_start_year='2017', testing_stats=False, time_error_absolute=False, time_error_margin=False, time_observed=['0', '0.5', '1', '1.5', '2', '3', '4', '5', '6', '7', '8', '9', '10', '12', '14', '16', '18', '20', '22', '24'], top_n='20', topological_error=True, training_num='10000', training_stats=False, verbose=True, weight_method='jaccard', weight_threshold=False)
+
+Sim Post: subset
+Time Observed: [0.0, 0.5, 1.0, 1.5, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 12.0, 14.0, 16.0, 18.0, 20.0, 22.0, 24.0]
+Output: sim_results/aww/run_results/aww_model_10000train_500test_2017-12_run3
+Source subreddit: aww
+Minimum node quality: False
+Max graph size: False
+Max edges per node: 20
+Minimum edge weight: None
+No param normalization for infer step
+Test Set: first 500 posts starting at 12-2017
+Training Set: 10000 posts immediately preceding 12-2017
+Using Jaccard index to compute graph edge weights
+Including posts with hardcoded default parameters
+Using topological error for tree evaluation (ignoring comment times)
+
+Loading processed training data
+Loading 11-2017
+Deleted 4 posts without cascades
+Loaded 31655 posts 
+   31655 cascades
+   7119 fitted params, 24536 failed fit
+
+Loading processed testing data
+Loading 12-2017
+Deleted 3 posts without cascades
+Loaded 35329 posts 
+   35329 cascades
+
+Sampling 500 first posts (from 35329) for simulation set
+Sampling 10000 last posts (from 31655) for simulation set
+Loading base graph from file
+Graph contains 9905 nodes and 148400 unique edges (193495 edge entries)
+
+Finished graph build, exiting
+10.88user 2.05system 0:10.09elapsed 128%CPU (0avgtext+0avgdata 431300maxresident)k
+0inputs+8outputs (0major+116313minor)pagefaults 0swaps
+
+Namespace(estimate_initial_params=False, graph_downsample_ratio=None, include_default_posts=True, large_cascade_demarcation=None, max_nodes=False, max_size=None, min_node_quality=False, min_size=None, normalize_parameters=None, num_comments_observed=False, outfile='sim_results/aww/run_results/aww_model_10000train_500test_2017-12_run4', preprocess=True, remove_stopwords=False, sanity_check=False, sim_post='500', subreddit='aww', testing_start_month='12', testing_start_year='2017', testing_stats=False, time_error_absolute=False, time_error_margin=False, time_observed=['0', '0.5', '1', '1.5', '2', '3', '4', '5', '6', '7', '8', '9', '10', '12', '14', '16', '18', '20', '22', '24'], top_n='20', topological_error=True, training_num='10000', training_stats=False, verbose=True, weight_method='jaccard', weight_threshold=False)
+
+Sim Post: subset
+Time Observed: [0.0, 0.5, 1.0, 1.5, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 12.0, 14.0, 16.0, 18.0, 20.0, 22.0, 24.0]
+Output: sim_results/aww/run_results/aww_model_10000train_500test_2017-12_run4
+Source subreddit: aww
+Minimum node quality: False
+Max graph size: False
+Max edges per node: 20
+Minimum edge weight: None
+No param normalization for infer step
+Test Set: first 500 posts starting at 12-2017
+Training Set: 10000 posts immediately preceding 12-2017
+Using Jaccard index to compute graph edge weights
+Including posts with hardcoded default parameters
+Using topological error for tree evaluation (ignoring comment times)
+
+Loading processed training data
+Loading 11-2017
+Deleted 4 posts without cascades
+Loaded 31655 posts 
+   31655 cascades
+   7119 fitted params, 24536 failed fit
+
+Loading processed testing data
+Loading 12-2017
+Deleted 3 posts without cascades
+Loaded 35329 posts 
+   35329 cascades
+
+Sampling 500 first posts (from 35329) for simulation set
+Sampling 10000 last posts (from 31655) for simulation set
+Loading base graph from file
+Graph contains 9905 nodes and 148400 unique edges (193495 edge entries)
+
+Finished graph build, exiting
+10.91user 2.09system 0:10.12elapsed 128%CPU (0avgtext+0avgdata 430900maxresident)k
+0inputs+0outputs (0major+116311minor)pagefaults 0swaps
+
+Namespace(estimate_initial_params=False, graph_downsample_ratio=None, include_default_posts=True, large_cascade_demarcation=None, max_nodes=False, max_size=None, min_node_quality=False, min_size=None, normalize_parameters=None, num_comments_observed=False, outfile='sim_results/aww/run_results/aww_model_10000train_500test_2017-12_run0', preprocess=True, remove_stopwords=False, sanity_check=False, sim_post='500', subreddit='aww', testing_start_month='12', testing_start_year='2017', testing_stats=False, time_error_absolute=False, time_error_margin=False, time_observed=['0', '0.5', '1', '1.5', '2', '3', '4', '5', '6', '7', '8', '9', '10', '12', '14', '16', '18', '20', '22', '24'], top_n='20', topological_error=True, training_num='10000', training_stats=False, verbose=True, weight_method='jaccard', weight_threshold=False)
+
+Sim Post: subset
+Time Observed: [0.0, 0.5, 1.0, 1.5, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 12.0, 14.0, 16.0, 18.0, 20.0, 22.0, 24.0]
+Output: sim_results/aww/run_results/aww_model_10000train_500test_2017-12_run0
+Source subreddit: aww
+Minimum node quality: False
+Max graph size: False
+Max edges per node: 20
+Minimum edge weight: None
+No param normalization for infer step
+Test Set: first 500 posts starting at 12-2017
+Training Set: 10000 posts immediately preceding 12-2017
+Using Jaccard index to compute graph edge weights
+Including posts with hardcoded default parameters
+Using topological error for tree evaluation (ignoring comment times)
+
+Loading processed training data
+Loading 11-2017
+Deleted 4 posts without cascades
+Loaded 31655 posts 
+   31655 cascades
+   7119 fitted params, 24536 failed fit
+
+Loading processed testing data
+Loading 12-2017
+Deleted 3 posts without cascades
+Loaded 35329 posts 
+   35329 cascades
+
+Sampling 500 first posts (from 35329) for simulation set
+Sampling 10000 last posts (from 31655) for simulation set
+Loading base graph from file
+Graph contains 9905 nodes and 148400 unique edges (193495 edge entries)
+
+Finished graph build, exiting
+10.65user 2.18system 0:10.08elapsed 127%CPU (0avgtext+0avgdata 431332maxresident)k
+0inputs+16outputs (0major+116290minor)pagefaults 0swaps
+
+Namespace(estimate_initial_params=False, graph_downsample_ratio=None, include_default_posts=True, large_cascade_demarcation=None, max_nodes=False, max_size=None, min_node_quality=False, min_size=None, normalize_parameters=None, num_comments_observed=False, outfile='sim_results/aww/run_results/aww_model_10000train_500test_2017-12_run1', preprocess=True, remove_stopwords=False, sanity_check=False, sim_post='500', subreddit='aww', testing_start_month='12', testing_start_year='2017', testing_stats=False, time_error_absolute=False, time_error_margin=False, time_observed=['0', '0.5', '1', '1.5', '2', '3', '4', '5', '6', '7', '8', '9', '10', '12', '14', '16', '18', '20', '22', '24'], top_n='20', topological_error=True, training_num='10000', training_stats=False, verbose=True, weight_method='jaccard', weight_threshold=False)
+
+Sim Post: subset
+Time Observed: [0.0, 0.5, 1.0, 1.5, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 12.0, 14.0, 16.0, 18.0, 20.0, 22.0, 24.0]
+Output: sim_results/aww/run_results/aww_model_10000train_500test_2017-12_run1
+Source subreddit: aww
+Minimum node quality: False
+Max graph size: False
+Max edges per node: 20
+Minimum edge weight: None
+No param normalization for infer step
+Test Set: first 500 posts starting at 12-2017
+Training Set: 10000 posts immediately preceding 12-2017
+Using Jaccard index to compute graph edge weights
+Including posts with hardcoded default parameters
+Using topological error for tree evaluation (ignoring comment times)
+
+Loading processed training data
+Loading 11-2017
+Deleted 4 posts without cascades
+Loaded 31655 posts 
+   31655 cascades
+   7119 fitted params, 24536 failed fit
+
+Loading processed testing data
+Loading 12-2017
+Deleted 3 posts without cascades
+Loaded 35329 posts 
+   35329 cascades
+
+Sampling 500 first posts (from 35329) for simulation set
+Sampling 10000 last posts (from 31655) for simulation set
+Loading base graph from file
+Graph contains 9905 nodes and 148400 unique edges (193495 edge entries)
+
+Finished graph build, exiting
+10.47user 2.13system 0:09.77elapsed 128%CPU (0avgtext+0avgdata 431328maxresident)k
+0inputs+0outputs (0major+116308minor)pagefaults 0swaps
+
+Namespace(estimate_initial_params=False, graph_downsample_ratio=None, include_default_posts=True, large_cascade_demarcation=None, max_nodes=False, max_size=None, min_node_quality=False, min_size=None, normalize_parameters=None, num_comments_observed=False, outfile='sim_results/aww/run_results/aww_model_10000train_500test_2017-12_run2', preprocess=True, remove_stopwords=False, sanity_check=False, sim_post='500', subreddit='aww', testing_start_month='12', testing_start_year='2017', testing_stats=False, time_error_absolute=False, time_error_margin=False, time_observed=['0', '0.5', '1', '1.5', '2', '3', '4', '5', '6', '7', '8', '9', '10', '12', '14', '16', '18', '20', '22', '24'], top_n='20', topological_error=True, training_num='10000', training_stats=False, verbose=True, weight_method='jaccard', weight_threshold=False)
+
+Sim Post: subset
+Time Observed: [0.0, 0.5, 1.0, 1.5, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 12.0, 14.0, 16.0, 18.0, 20.0, 22.0, 24.0]
+Output: sim_results/aww/run_results/aww_model_10000train_500test_2017-12_run2
+Source subreddit: aww
+Minimum node quality: False
+Max graph size: False
+Max edges per node: 20
+Minimum edge weight: None
+No param normalization for infer step
+Test Set: first 500 posts starting at 12-2017
+Training Set: 10000 posts immediately preceding 12-2017
+Using Jaccard index to compute graph edge weights
+Including posts with hardcoded default parameters
+Using topological error for tree evaluation (ignoring comment times)
+
+Loading processed training data
+Loading 11-2017
+Deleted 4 posts without cascades
+Loaded 31655 posts 
+   31655 cascades
+   7119 fitted params, 24536 failed fit
+
+Loading processed testing data
+Loading 12-2017
+Deleted 3 posts without cascades
+Loaded 35329 posts 
+   35329 cascades
+
+Sampling 500 first posts (from 35329) for simulation set
+Sampling 10000 last posts (from 31655) for simulation set
+Loading base graph from file
+Graph contains 9905 nodes and 148400 unique edges (193495 edge entries)
+
+Finished graph build, exiting
+10.91user 1.94system 0:10.05elapsed 127%CPU (0avgtext+0avgdata 431368maxresident)k
+0inputs+8outputs (0major+116277minor)pagefaults 0swaps
+
+Namespace(estimate_initial_params=False, graph_downsample_ratio=None, include_default_posts=True, large_cascade_demarcation=None, max_nodes=False, max_size=None, min_node_quality=False, min_size=None, normalize_parameters=None, num_comments_observed=False, outfile='sim_results/aww/run_results/aww_model_10000train_500test_2017-12_run3', preprocess=True, remove_stopwords=False, sanity_check=False, sim_post='500', subreddit='aww', testing_start_month='12', testing_start_year='2017', testing_stats=False, time_error_absolute=False, time_error_margin=False, time_observed=['0', '0.5', '1', '1.5', '2', '3', '4', '5', '6', '7', '8', '9', '10', '12', '14', '16', '18', '20', '22', '24'], top_n='20', topological_error=True, training_num='10000', training_stats=False, verbose=True, weight_method='jaccard', weight_threshold=False)
+
+Sim Post: subset
+Time Observed: [0.0, 0.5, 1.0, 1.5, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 12.0, 14.0, 16.0, 18.0, 20.0, 22.0, 24.0]
+Output: sim_results/aww/run_results/aww_model_10000train_500test_2017-12_run3
+Source subreddit: aww
+Minimum node quality: False
+Max graph size: False
+Max edges per node: 20
+Minimum edge weight: None
+No param normalization for infer step
+Test Set: first 500 posts starting at 12-2017
+Training Set: 10000 posts immediately preceding 12-2017
+Using Jaccard index to compute graph edge weights
+Including posts with hardcoded default parameters
+Using topological error for tree evaluation (ignoring comment times)
+
+Loading processed training data
+Loading 11-2017
+Deleted 4 posts without cascades
+Loaded 31655 posts 
+   31655 cascades
+   7119 fitted params, 24536 failed fit
+
+Loading processed testing data
+Loading 12-2017
+Deleted 3 posts without cascades
+Loaded 35329 posts 
+   35329 cascades
+
+Sampling 500 first posts (from 35329) for simulation set
+Sampling 10000 last posts (from 31655) for simulation set
+Loading base graph from file
+Graph contains 9905 nodes and 148400 unique edges (193495 edge entries)
+
+Finished graph build, exiting
+10.68user 2.33system 0:10.19elapsed 127%CPU (0avgtext+0avgdata 431600maxresident)k
+0inputs+0outputs (0major+116291minor)pagefaults 0swaps
+
+Namespace(estimate_initial_params=False, graph_downsample_ratio=None, include_default_posts=True, large_cascade_demarcation=None, max_nodes=False, max_size=None, min_node_quality=False, min_size=None, normalize_parameters=None, num_comments_observed=False, outfile='sim_results/aww/run_results/aww_model_10000train_500test_2017-12_run4', preprocess=True, remove_stopwords=False, sanity_check=False, sim_post='500', subreddit='aww', testing_start_month='12', testing_start_year='2017', testing_stats=False, time_error_absolute=False, time_error_margin=False, time_observed=['0', '0.5', '1', '1.5', '2', '3', '4', '5', '6', '7', '8', '9', '10', '12', '14', '16', '18', '20', '22', '24'], top_n='20', topological_error=True, training_num='10000', training_stats=False, verbose=True, weight_method='jaccard', weight_threshold=False)
+
+Sim Post: subset
+Time Observed: [0.0, 0.5, 1.0, 1.5, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 12.0, 14.0, 16.0, 18.0, 20.0, 22.0, 24.0]
+Output: sim_results/aww/run_results/aww_model_10000train_500test_2017-12_run4
+Source subreddit: aww
+Minimum node quality: False
+Max graph size: False
+Max edges per node: 20
+Minimum edge weight: None
+No param normalization for infer step
+Test Set: first 500 posts starting at 12-2017
+Training Set: 10000 posts immediately preceding 12-2017
+Using Jaccard index to compute graph edge weights
+Including posts with hardcoded default parameters
+Using topological error for tree evaluation (ignoring comment times)
+
+Loading processed training data
+Loading 11-2017
+Deleted 4 posts without cascades
+Loaded 31655 posts 
+   31655 cascades
+   7119 fitted params, 24536 failed fit
+
+Loading processed testing data
+Loading 12-2017
+Deleted 3 posts without cascades
+Loaded 35329 posts 
+   35329 cascades
+
+Sampling 500 first posts (from 35329) for simulation set
+Sampling 10000 last posts (from 31655) for simulation set
+Loading base graph from file
+Graph contains 9905 nodes and 148400 unique edges (193495 edge entries)
+
+Finished graph build, exiting
+10.72user 1.86system 0:09.82elapsed 128%CPU (0avgtext+0avgdata 431120maxresident)k
+0inputs+8outputs (0major+116322minor)pagefaults 0swaps
+
+Namespace(estimate_initial_params=False, graph_downsample_ratio=None, include_default_posts=True, large_cascade_demarcation=None, max_nodes=False, max_size=None, min_node_quality=False, min_size=None, normalize_parameters=None, num_comments_observed=False, outfile='sim_results/aww/run_results/aww_model_10000train_500test_2017-12_run0', preprocess=True, remove_stopwords=False, sanity_check=False, sim_post='500', subreddit='aww', testing_start_month='12', testing_start_year='2017', testing_stats=False, time_error_absolute=False, time_error_margin=False, time_observed=['0', '0.5', '1', '1.5', '2', '3', '4', '5', '6', '7', '8', '9', '10', '12', '14', '16', '18', '20', '22', '24'], top_n='20', topological_error=True, training_num='10000', training_stats=False, verbose=True, weight_method='jaccard', weight_threshold=False)
+
+Sim Post: subset
+Time Observed: [0.0, 0.5, 1.0, 1.5, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 12.0, 14.0, 16.0, 18.0, 20.0, 22.0, 24.0]
+Output: sim_results/aww/run_results/aww_model_10000train_500test_2017-12_run0
+Source subreddit: aww
+Minimum node quality: False
+Max graph size: False
+Max edges per node: 20
+Minimum edge weight: None
+No param normalization for infer step
+Test Set: first 500 posts starting at 12-2017
+Training Set: 10000 posts immediately preceding 12-2017
+Using Jaccard index to compute graph edge weights
+Including posts with hardcoded default parameters
+Using topological error for tree evaluation (ignoring comment times)
+
+Loading processed training data
+Loading 11-2017
+Deleted 4 posts without cascades
+Loaded 31655 posts 
+   31655 cascades
+   7119 fitted params, 24536 failed fit
+
+Loading processed testing data
+Loading 12-2017
+Deleted 3 posts without cascades
+Loaded 35329 posts 
+   35329 cascades
+
+Sampling 500 first posts (from 35329) for simulation set
+Sampling 10000 last posts (from 31655) for simulation set
+Loading base graph from file
+Graph contains 9905 nodes and 148400 unique edges (193495 edge entries)
+
+Finished graph build, exiting
+10.27user 2.28system 0:09.81elapsed 127%CPU (0avgtext+0avgdata 431440maxresident)k
+0inputs+8outputs (0major+116299minor)pagefaults 0swaps
+
+Namespace(estimate_initial_params=False, graph_downsample_ratio=None, include_default_posts=True, large_cascade_demarcation=None, max_nodes=False, max_size=None, min_node_quality=False, min_size=None, normalize_parameters=None, num_comments_observed=False, outfile='sim_results/aww/run_results/aww_model_10000train_500test_2017-12_run1', preprocess=True, remove_stopwords=False, sanity_check=False, sim_post='500', subreddit='aww', testing_start_month='12', testing_start_year='2017', testing_stats=False, time_error_absolute=False, time_error_margin=False, time_observed=['0', '0.5', '1', '1.5', '2', '3', '4', '5', '6', '7', '8', '9', '10', '12', '14', '16', '18', '20', '22', '24'], top_n='20', topological_error=True, training_num='10000', training_stats=False, verbose=True, weight_method='jaccard', weight_threshold=False)
+
+Sim Post: subset
+Time Observed: [0.0, 0.5, 1.0, 1.5, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 12.0, 14.0, 16.0, 18.0, 20.0, 22.0, 24.0]
+Output: sim_results/aww/run_results/aww_model_10000train_500test_2017-12_run1
+Source subreddit: aww
+Minimum node quality: False
+Max graph size: False
+Max edges per node: 20
+Minimum edge weight: None
+No param normalization for infer step
+Test Set: first 500 posts starting at 12-2017
+Training Set: 10000 posts immediately preceding 12-2017
+Using Jaccard index to compute graph edge weights
+Including posts with hardcoded default parameters
+Using topological error for tree evaluation (ignoring comment times)
+
+Loading processed training data
+Loading 11-2017
+Deleted 4 posts without cascades
+Loaded 31655 posts 
+   31655 cascades
+   7119 fitted params, 24536 failed fit
+
+Loading processed testing data
+Loading 12-2017
+Deleted 3 posts without cascades
+Loaded 35329 posts 
+   35329 cascades
+
+Sampling 500 first posts (from 35329) for simulation set
+Sampling 10000 last posts (from 31655) for simulation set
+Loading base graph from file
+Graph contains 9905 nodes and 148400 unique edges (193495 edge entries)
+
+Finished graph build, exiting
+10.83user 2.16system 0:10.15elapsed 128%CPU (0avgtext+0avgdata 431404maxresident)k
+0inputs+8outputs (0major+116294minor)pagefaults 0swaps
+
+Namespace(estimate_initial_params=False, graph_downsample_ratio=None, include_default_posts=True, large_cascade_demarcation=None, max_nodes=False, max_size=None, min_node_quality=False, min_size=None, normalize_parameters=None, num_comments_observed=False, outfile='sim_results/aww/run_results/aww_model_10000train_500test_2017-12_run2', preprocess=True, remove_stopwords=False, sanity_check=False, sim_post='500', subreddit='aww', testing_start_month='12', testing_start_year='2017', testing_stats=False, time_error_absolute=False, time_error_margin=False, time_observed=['0', '0.5', '1', '1.5', '2', '3', '4', '5', '6', '7', '8', '9', '10', '12', '14', '16', '18', '20', '22', '24'], top_n='20', topological_error=True, training_num='10000', training_stats=False, verbose=True, weight_method='jaccard', weight_threshold=False)
+
+Sim Post: subset
+Time Observed: [0.0, 0.5, 1.0, 1.5, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 12.0, 14.0, 16.0, 18.0, 20.0, 22.0, 24.0]
+Output: sim_results/aww/run_results/aww_model_10000train_500test_2017-12_run2
+Source subreddit: aww
+Minimum node quality: False
+Max graph size: False
+Max edges per node: 20
+Minimum edge weight: None
+No param normalization for infer step
+Test Set: first 500 posts starting at 12-2017
+Training Set: 10000 posts immediately preceding 12-2017
+Using Jaccard index to compute graph edge weights
+Including posts with hardcoded default parameters
+Using topological error for tree evaluation (ignoring comment times)
+
+Loading processed training data
+Loading 11-2017
+Deleted 4 posts without cascades
+Loaded 31655 posts 
+   31655 cascades
+   7119 fitted params, 24536 failed fit
+
+Loading processed testing data
+Loading 12-2017
+Deleted 3 posts without cascades
+Loaded 35329 posts 
+   35329 cascades
+
+Sampling 500 first posts (from 35329) for simulation set
+Sampling 10000 last posts (from 31655) for simulation set
+Loading base graph from file
+Graph contains 9905 nodes and 148400 unique edges (193495 edge entries)
+
+Finished graph build, exiting
+10.25user 2.28system 0:09.74elapsed 128%CPU (0avgtext+0avgdata 430916maxresident)k
+0inputs+0outputs (0major+116297minor)pagefaults 0swaps
+
+Namespace(estimate_initial_params=False, graph_downsample_ratio=None, include_default_posts=True, large_cascade_demarcation=None, max_nodes=False, max_size=None, min_node_quality=False, min_size=None, normalize_parameters=None, num_comments_observed=False, outfile='sim_results/aww/run_results/aww_model_10000train_500test_2017-12_run3', preprocess=True, remove_stopwords=False, sanity_check=False, sim_post='500', subreddit='aww', testing_start_month='12', testing_start_year='2017', testing_stats=False, time_error_absolute=False, time_error_margin=False, time_observed=['0', '0.5', '1', '1.5', '2', '3', '4', '5', '6', '7', '8', '9', '10', '12', '14', '16', '18', '20', '22', '24'], top_n='20', topological_error=True, training_num='10000', training_stats=False, verbose=True, weight_method='jaccard', weight_threshold=False)
+
+Sim Post: subset
+Time Observed: [0.0, 0.5, 1.0, 1.5, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 12.0, 14.0, 16.0, 18.0, 20.0, 22.0, 24.0]
+Output: sim_results/aww/run_results/aww_model_10000train_500test_2017-12_run3
+Source subreddit: aww
+Minimum node quality: False
+Max graph size: False
+Max edges per node: 20
+Minimum edge weight: None
+No param normalization for infer step
+Test Set: first 500 posts starting at 12-2017
+Training Set: 10000 posts immediately preceding 12-2017
+Using Jaccard index to compute graph edge weights
+Including posts with hardcoded default parameters
+Using topological error for tree evaluation (ignoring comment times)
+
+Loading processed training data
+Loading 11-2017
+Deleted 4 posts without cascades
+Loaded 31655 posts 
+   31655 cascades
+   7119 fitted params, 24536 failed fit
+
+Loading processed testing data
+Loading 12-2017
+Deleted 3 posts without cascades
+Loaded 35329 posts 
+   35329 cascades
+
+Sampling 500 first posts (from 35329) for simulation set
+Sampling 10000 last posts (from 31655) for simulation set
+Loading base graph from file
+Graph contains 9905 nodes and 148400 unique edges (193495 edge entries)
+
+Finished graph build, exiting
+10.24user 2.20system 0:09.59elapsed 129%CPU (0avgtext+0avgdata 430860maxresident)k
+0inputs+8outputs (0major+116302minor)pagefaults 0swaps
+
+Namespace(estimate_initial_params=False, graph_downsample_ratio=None, include_default_posts=True, large_cascade_demarcation=None, max_nodes=False, max_size=None, min_node_quality=False, min_size=None, normalize_parameters=None, num_comments_observed=False, outfile='sim_results/aww/run_results/aww_model_10000train_500test_2017-12_run4', preprocess=True, remove_stopwords=False, sanity_check=False, sim_post='500', subreddit='aww', testing_start_month='12', testing_start_year='2017', testing_stats=False, time_error_absolute=False, time_error_margin=False, time_observed=['0', '0.5', '1', '1.5', '2', '3', '4', '5', '6', '7', '8', '9', '10', '12', '14', '16', '18', '20', '22', '24'], top_n='20', topological_error=True, training_num='10000', training_stats=False, verbose=True, weight_method='jaccard', weight_threshold=False)
+
+Sim Post: subset
+Time Observed: [0.0, 0.5, 1.0, 1.5, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 12.0, 14.0, 16.0, 18.0, 20.0, 22.0, 24.0]
+Output: sim_results/aww/run_results/aww_model_10000train_500test_2017-12_run4
+Source subreddit: aww
+Minimum node quality: False
+Max graph size: False
+Max edges per node: 20
+Minimum edge weight: None
+No param normalization for infer step
+Test Set: first 500 posts starting at 12-2017
+Training Set: 10000 posts immediately preceding 12-2017
+Using Jaccard index to compute graph edge weights
+Including posts with hardcoded default parameters
+Using topological error for tree evaluation (ignoring comment times)
+
+Loading processed training data
+Loading 11-2017
+Deleted 4 posts without cascades
+Loaded 31655 posts 
+   31655 cascades
+   7119 fitted params, 24536 failed fit
+
+Loading processed testing data
+Loading 12-2017
+Deleted 3 posts without cascades
+Loaded 35329 posts 
+   35329 cascades
+
+Sampling 500 first posts (from 35329) for simulation set
+Sampling 10000 last posts (from 31655) for simulation set
+Loading base graph from file
+Graph contains 9905 nodes and 148400 unique edges (193495 edge entries)
+
+Finished graph build, exiting
+10.50user 1.93system 0:09.59elapsed 129%CPU (0avgtext+0avgdata 430992maxresident)k
+0inputs+8outputs (0major+116266minor)pagefaults 0swaps
