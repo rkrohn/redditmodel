@@ -86,19 +86,24 @@ for model in ["model", "comparative", "baseline_rand_tree", "baseline_rand_sim",
 	results_files = glob.glob(results_format % (subreddit, subreddit, model, training_num, "*", testing_start_year, testing_start_month, "*"))
 	print("   Found", len(results_files), "matching files")
 
-	#get correct index of train size token, based on model name
-	index = 6 if "baseline" in model else 4
+	#get correct index of test size token, based on model name
+	index = 7 if "baseline" in model else 5
 
 	#process each file
 	for results_file in results_files:
 
 		#what testing size is this file for?
 		file_tokens = results_file.split('_')
-		file_test_size = int(file_tokens[index][:4])
-		file_run = int(file_tokens[index+3][-1])
+		file_test_size = int(file_tokens[index][:-4])
+		file_run = int(file_tokens[index+2][-1])
 		
 		#if test size larger than target, process this file (and its associated pkl)
 		if file_test_size > testing_num:
+			#if bookmark and results already exist at target size for this run, skip reduction
+			if file_utils.verify_file(bookmark_format % (subreddit, subreddit, model, training_num, testing_num, testing_start_year, testing_start_month, file_run)) and file_utils.verify_file(results_format % (subreddit, subreddit, model, training_num, testing_num, testing_start_year, testing_start_month, file_run)):
+				print("   target exists, skipping", results_file)
+				continue
+				
 			print("   reducing", results_file)
 
 			#get corresponding bookmark filename
@@ -111,10 +116,10 @@ for model in ["model", "comparative", "baseline_rand_tree", "baseline_rand_sim",
 			finished_set = set([post_id for post_id in bookmark['finished_posts'] if post_id in test_ids])
 			print("     ", len(finished_set), "posts finished in bookmark")
 
-			#save new bookmark
+			#save new bookmark - if doesn't already exist (don't want to overwrite stuff!)
 			file_utils.save_pickle({"finished_posts": finished_set, 'complete': True if len(finished_set) == testing_num else False}, bookmark_format % (subreddit, subreddit, model, training_num, testing_num, testing_start_year, testing_start_month, file_run))
 
-			#edit the results csv to match this post set
+			#edit the results csv to match this post set - if correctly sized results don't already exist
 			count = 0
 			first = True
 			with open(results_file, 'r') as inp, open(results_format % (subreddit, subreddit, model, training_num, testing_num, testing_start_year, testing_start_month, file_run), 'w') as out:
@@ -126,6 +131,6 @@ for model in ["model", "comparative", "baseline_rand_tree", "baseline_rand_sim",
 					if row[0] in test_ids:
 						writer.writerow(row)
 						count += 1
-			print("      Copied", count, "rows from results file")			
+			print("      Copied", count, "rows from results file")		
 
 print("\nAll done")
