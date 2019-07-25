@@ -5,6 +5,19 @@ import sys
 import file_utils
 from functions_gen_cascade_model import load_bookmark
 
+
+#given a list of bookmark files, check to see if they have all completed
+def check_completion(file_list):
+	#loop all bookmarks
+	for bookmark in file_list:
+		finished_posts, complete = load_bookmark(bookmark)
+		#if this run didn't finish, return false
+		if complete == False:
+			return False
+	return True
+#end check_completion
+
+
 #dictionary of arguments with values, list of flag/boolean arguments
 arguments = {}
 arguments_list = []
@@ -13,14 +26,12 @@ arguments_list = []
 
 repeat_runs = 5			#number of repeated runs to do for each subreddit/size class
 
-#first command line arg - string identifier for this set of runs
-run_str = sys.argv[1]
 #list of subreddits separately, since one output file per subreddit
 #subreddits = ['explainlikeimfive']	#list of subreddits, -s
 #converted this to a command line arg for parallel processing of multiple subreddits,
 #even during the preprocessing phase
 #but it could be manual without too much work
-subreddits = sys.argv[2:]
+subreddits = sys.argv[1:]
 
 #list of baseline model modes to run
 #each of them will produce a separate output file
@@ -37,7 +48,7 @@ arguments_list.append('-j')		#-j, -c, or -wmd
 
 #define the test set: -n <sample size>, -id <post id>, -r, or -a
 #arguments_list.append('-a')		#list for -a or -r
-arguments['-n'] = 1000			#dict for -n or -id
+arguments['-n'] = 500			#dict for -n or -id
 
 #define the size of the training set
 arguments['-n_train'] = 10000
@@ -99,6 +110,10 @@ sub_counts = defaultdict(int)
 #keep list of background processes, so we can wait for them at the end
 background_procs = []
 
+#outfile list
+#for each model, keep a list of base outfiles, so we can check the bookmarks at the end
+outfile_lists = {"model": [], "comparative": [], '-rand_sim': [], '-rand_tree': [], '-avg_sim': []}
+
 #loop repeated runs
 for run in range(repeat_runs):
 
@@ -136,7 +151,8 @@ for run in range(repeat_runs):
 			#if yes, make sure all the preprocessing is done and the graph exists first
 
 			#define our base output filename - keep it simple, will have all the settings in the output files
-			outfile = "sim_results/%s/run_results/%s_%s_%d-%d%s%s" % (subreddit, subreddit, run_str, arguments['-y'], arguments['-m'], size_class, "_run%d" % run if repeat_runs > 1 else "")
+			outfile = "sim_results/%s/run_results/%s_model_%dtrain_%dtest_%d-%d%s%s" % (subreddit, subreddit, arguments['-n_train'], arguments['-n'], arguments['-y'], arguments['-m'], size_class, "_run%d" % run if repeat_runs > 1 else "")
+			outfile_lists['model'].append(outfile)
 
 			#build command arguments list
 			#base first
@@ -154,7 +170,7 @@ for run in range(repeat_runs):
 			#wait for this graph-build-only run to finish before doing more
 			if sub_counts[subreddit] == 0:
 				print("Preprocessing", subreddit)
-				f = open("sim_results/%s/run_results/%s_%s_%d-%dgraph.txt" % (subreddit, subreddit, run_str, arguments['-y'], arguments['-m']), "a")
+				f = open("sim_results/%s/run_results/%s_%dtrain_%dtest_%d-%dgraph.txt" % (subreddit, subreddit, arguments['-n_train'], arguments['-n'], arguments['-y'], arguments['-m']), "a")
 				subprocess.call(model_command+['-preprocess'], stdout=f, stderr=f)
 
 			#run corresponding baseline models in background - if don't have results already
@@ -162,6 +178,7 @@ for run in range(repeat_runs):
 			for mode in baseline_modes:
 				#define output filename for baseline model
 				baseline_outfile = "sim_results/%s/run_results/%s_baseline_%s_%dtrain_%dtest_%d-%d%s%s" % (subreddit, subreddit, mode[1:], arguments['-n_train'], arguments['-n'], arguments['-y'], arguments['-m'], size_class, "_run%d" % run if repeat_runs > 1 else "")
+				outfile_lists[mode].append(baseline_outfile)
 
 				#no data for this baseline configuration, run the test
 				#check the bookmark saved by the model to know if finished or not
@@ -196,6 +213,7 @@ for run in range(repeat_runs):
 			
 			#define output filename for comparative model
 			comparative_outfile = "sim_results/%s/run_results/%s_comparative_%dtrain_%dtest_%d-%d%s%s" % (subreddit, subreddit, arguments['-n_train'], arguments['-n'], arguments['-y'], arguments['-m'], size_class, "_run%d" % run if repeat_runs > 1 else "")
+			outfile_lists['comparative'].append(comparative_outfile)
 
 			#no data for this configuration, run the test
 			#check bookmark saved by the model to know if finished or not
@@ -272,7 +290,7 @@ print("\nWaiting on", len(background_procs), "background processes")
 exit_codes = [p.wait() for p in background_procs]
 print("Finished\n")
 
-#combine multiple runs into a single results file
+#combine multiple runs into a single results file - if all those runs *actually* finished
 print("Creating combined results files")
 if repeat_runs != 1 or len(size_breaks) != 0:
 	#path to subreddit results directory (top-level)
@@ -282,19 +300,27 @@ if repeat_runs != 1 or len(size_breaks) != 0:
 
 	#baseline results
 	for mode in baseline_modes:
-	#redefine output filename - without run identifier or subreddit directory
-		baseline_outfile = "%s_baseline_%s_%dtrain_%dtest_%d-%d%s" % (subreddit, mode[1:], arguments['-n_train'], arguments['-n'], arguments['-y'], arguments['-m'], size_class)	
+		#if all finished, combine
+		if check_completion(outfile_lists[mode]):
+			#redefine output filename - without run identifier or subreddit directory
+			baseline_outfile = "%s_baseline_%s_%dtrain_%dtest_%d-%d%s" % (subreddit, mode[1:], arguments['-n_train'], arguments['-n'], arguments['-y'], arguments['-m'], size_class)	
+			#combine matching files from multiple runs together
+			file_utils.combine_csv(subreddit_dir+baseline_outfile+"_all_results.csv", run_dir+baseline_outfile + ("*" if len(size_breaks) != 0 else "") + "*.csv", display=True)
+		else: print("Not all runs finished, skipping", mode[1:], "baseline combine")
+
+	#comparative model results - if all runs finished, combine
+	if check_completion(outfile_lists['comparative']):
+		#redefine output filename - without run identifier or subreddit directory
+		comparative_outfile = "%s_comparative_%dtrain_%dtest_%d-%d%s" % (subreddit, arguments['-n_train'], arguments['-n'], arguments['-y'], arguments['-m'], size_class)
 		#combine matching files from multiple runs together
-		file_utils.combine_csv(subreddit_dir+baseline_outfile+"_all_results.csv", run_dir+baseline_outfile + ("*" if len(size_breaks) != 0 else "") + "*.csv", display=True)
+		file_utils.combine_csv(subreddit_dir+comparative_outfile+"_all_results.csv", run_dir+comparative_outfile + ("*" if len(size_breaks) != 0 else "") + "*.csv", display=True)	
+	else: print("Not all runs finished, skipping comparative combine")
 
-	#comparative model results
-	#redefine output filename - without run identifier or subreddit directory
-	comparative_outfile = "%s_comparative_%dtrain_%dtest_%d-%d%s" % (subreddit, arguments['-n_train'], arguments['-n'], arguments['-y'], arguments['-m'], size_class)
-	#combine matching files from multiple runs together
-	file_utils.combine_csv(subreddit_dir+comparative_outfile+"_all_results.csv", run_dir+comparative_outfile + ("*" if len(size_breaks) != 0 else "") + "*.csv", display=True)	
+	#test results - if all runs finished, combine
+	if check_completion(outfile_lists['model']):
+		#redefine output filename - without run identifier or subreddit directory
+		outfile = "%s_model_%dtrain_%dtest_%d-%d%s" % (subreddit, arguments['-n_train'], arguments['-n'], arguments['-y'], arguments['-m'], size_class)
+		#combine matching files from multiple runs together
+		file_utils.combine_csv(subreddit_dir+outfile+"_all_results.csv", run_dir+outfile + ("*" if len(size_breaks) != 0 else "") + ".csv", display=True)
+	else: print("Not all runs finished, skipping model combine")
 
-	#test results
-	#redefine output filename - without run identifier or subreddit directory
-	outfile = "%s_%s_%d-%d" % (subreddit, run_str, arguments['-y'], arguments['-m'])
-	#combine matching files from multiple runs together
-	file_utils.combine_csv(subreddit_dir+outfile+"_all_results.csv", run_dir+outfile + ("*" if len(size_breaks) != 0 else "") + ".csv", display=True)
