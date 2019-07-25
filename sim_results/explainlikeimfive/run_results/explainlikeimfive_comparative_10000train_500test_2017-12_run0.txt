@@ -1,0 +1,4 @@
+time python3 comparative_model.py -s explainlikeimfive -o sim_results/explainlikeimfive/run_results/explainlikeimfive_comparative_10000train_500test_2017-12_run0 -v -n 500 -n_train 10000 -m 12 -y 2017 -t 0 0.5 1 1.5 2 3 4 5 6 7 8 9 10 12 14 16 18 20 22 24
+Command terminated by signal 9
+919.01user 36.93system 15:56.49elapsed 99%CPU (0avgtext+0avgdata 19329232maxresident)k
+24096inputs+1936outputs (116major+5043984minor)pagefaults 0swaps
