@@ -1,0 +1,7 @@
+time python3 gen_cascade_model.py -s sports -o sim_results/sports/run_results/sports_model_10000train_500test_2017-12_run0 -n 500 -n_train 10000 -topn 20 -y 2017 -m 12 -j --topo_err -v -d -t 0 0.5 1 1.5 2 3 4 5 6 7 8 9 10 12 14 16 18 20 22 24
+Command terminated by signal 9
+2154.64user 58.84system 41:53.04elapsed 88%CPU (0avgtext+0avgdata 28359480maxresident)k
+1192624inputs+7072outputs (77483major+7878033minor)pagefaults 0swaps
+Command terminated by signal 9
+2094.95user 38.98system 36:50.42elapsed 96%CPU (0avgtext+0avgdata 29054068maxresident)k
+277720inputs+7072outputs (1032major+7412583minor)pagefaults 0swaps

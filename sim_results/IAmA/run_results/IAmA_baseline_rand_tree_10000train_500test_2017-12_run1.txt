@@ -1,0 +1,4 @@
+time python3 baseline_model.py -s IAmA -o sim_results/IAmA/run_results/IAmA_baseline_rand_tree_10000train_500test_2017-12_run1 -rand_tree -v -n 500 -n_train 10000 -m 12 -y 2017 -t 0 0.5 1 1.5 2 3 4 5 6 7 8 9 10 12 14 16 18 20 22 24
+Command terminated by signal 9
+4936.03user 70.58system 1:28:26elapsed 94%CPU (0avgtext+0avgdata 26306108maxresident)k
+765680inputs+1104outputs (38550major+10006682minor)pagefaults 0swaps

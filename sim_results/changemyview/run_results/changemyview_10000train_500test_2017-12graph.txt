@@ -1,0 +1,495 @@
+
+Namespace(estimate_initial_params=False, graph_downsample_ratio=None, include_default_posts=True, large_cascade_demarcation=None, max_nodes=False, max_size=None, min_node_quality=False, min_size=None, normalize_parameters=None, num_comments_observed=False, outfile='sim_results/changemyview/run_results/changemyview_model_10000train_500test_2017-12_run0', preprocess=True, remove_stopwords=False, sanity_check=False, sim_post='500', subreddit='changemyview', testing_start_month='12', testing_start_year='2017', testing_stats=False, time_error_absolute=False, time_error_margin=False, time_observed=['0', '0.5', '1', '1.5', '2', '3', '4', '5', '6', '7', '8', '9', '10', '12', '14', '16', '18', '20', '22', '24'], top_n='20', topological_error=True, training_num='10000', training_stats=False, verbose=True, weight_method='jaccard', weight_threshold=False)
+
+Sim Post: subset
+Time Observed: [0.0, 0.5, 1.0, 1.5, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 12.0, 14.0, 16.0, 18.0, 20.0, 22.0, 24.0]
+Output: sim_results/changemyview/run_results/changemyview_model_10000train_500test_2017-12_run0
+Source subreddit: changemyview
+Minimum node quality: False
+Max graph size: False
+Max edges per node: 20
+Minimum edge weight: None
+No param normalization for infer step
+Test Set: first 500 posts starting at 12-2017
+Training Set: 10000 posts immediately preceding 12-2017
+Using Jaccard index to compute graph edge weights
+Including posts with hardcoded default parameters
+Using topological error for tree evaluation (ignoring comment times)
+
+Loading processed training data
+Loading 11-2017
+   Processed posts file doesn't exist, creating now
+   Fitted params file doesn't exist, creating now
+Reconstructing cascades for changemyview 11-2017
+Loading comments from datasets/reddit_discussions/changemyview/changemyview_2017discussions_comments_2017_11.tsv
+Found 68365 (of 77984) relevant comments
+Loading comments from datasets/reddit_discussions/changemyview/changemyview_2017discussions_comments_2017_12.tsv
+Found 1244 (of 84233) relevant comments
+Loading comments from datasets/reddit_discussions/changemyview/changemyview_2017discussions_comments_2018_1.tsv
+Found 90 (of 1529) relevant comments
+Loading comments from datasets/reddit_discussions/changemyview/changemyview_2017discussions_comments_2018_2.tsv
+Found 21 (of 199) relevant comments
+Loading comments from datasets/reddit_discussions/changemyview/changemyview_2017discussions_comments_2018_3.tsv
+Found 76 (of 252) relevant comments
+Loading comments from datasets/reddit_discussions/changemyview/changemyview_2017discussions_comments_2018_4.tsv
+Found 32 (of 108) relevant comments
+Loading comments from datasets/reddit_discussions/changemyview/changemyview_2017discussions_comments_2018_5.tsv
+Found 5 (of 72) relevant comments
+Loading comments from datasets/reddit_discussions/changemyview/changemyview_2017discussions_comments_2018_6.tsv
+Found 0 (of 54) relevant comments
+Loading comments from datasets/reddit_discussions/changemyview/changemyview_2017discussions_comments_2018_8.tsv
+Found 0 (of 1) relevant comments
+Total of 69833 comments for 11-2017 posts (of 164432 scanned)
+Extracting post/comment structure for 1464 changemyview 11-2017 posts and 69833 comments
+Built 1463 cascades with 67578 comments
+   Removed 1 incomplete/erroneous cascades (2255 associated comments)
+Fitting 1463 cascades for changemyview 11-2017
+Fitted params for a total of 948 cascades
+   skipped 0 cascades with negative comment times
+   515 cascades failed fit process
+   fail average cascade size: 0
+   717 cascades succeeded fit process
+   succeed average cascade size: 79
+   231 cascades partially-succeeded fit process (some missing params)
+      221 cascades failed weibull fit
+   partial-succeed average cascade size: 44
+Loading 10-2017
+   Processed posts file doesn't exist, creating now
+   Fitted params file doesn't exist, creating now
+Reconstructing cascades for changemyview 10-2017
+Loading comments from datasets/reddit_discussions/changemyview/changemyview_2017discussions_comments_2017_10.tsv
+Found 69908 (of 78371) relevant comments
+Loading comments from datasets/reddit_discussions/changemyview/changemyview_2017discussions_comments_2017_11.tsv
+Found 1403 (of 77984) relevant comments
+Loading comments from datasets/reddit_discussions/changemyview/changemyview_2017discussions_comments_2017_12.tsv
+Found 69 (of 84233) relevant comments
+Loading comments from datasets/reddit_discussions/changemyview/changemyview_2017discussions_comments_2018_1.tsv
+Found 40 (of 1529) relevant comments
+Loading comments from datasets/reddit_discussions/changemyview/changemyview_2017discussions_comments_2018_2.tsv
+Found 27 (of 199) relevant comments
+Loading comments from datasets/reddit_discussions/changemyview/changemyview_2017discussions_comments_2018_3.tsv
+Found 39 (of 252) relevant comments
+Loading comments from datasets/reddit_discussions/changemyview/changemyview_2017discussions_comments_2018_4.tsv
+Found 14 (of 108) relevant comments
+Loading comments from datasets/reddit_discussions/changemyview/changemyview_2017discussions_comments_2018_5.tsv
+Found 0 (of 72) relevant comments
+Loading comments from datasets/reddit_discussions/changemyview/changemyview_2017discussions_comments_2018_6.tsv
+Found 0 (of 54) relevant comments
+Loading comments from datasets/reddit_discussions/changemyview/changemyview_2017discussions_comments_2018_8.tsv
+Found 0 (of 1) relevant comments
+Total of 71500 comments for 10-2017 posts (of 242803 scanned)
+Extracting post/comment structure for 1526 changemyview 10-2017 posts and 71500 comments
+Built 1525 cascades with 71369 comments
+   Removed 1 incomplete/erroneous cascades (131 associated comments)
+Fitting 1525 cascades for changemyview 10-2017
+Fitted params for a total of 1023 cascades
+   skipped 0 cascades with negative comment times
+   502 cascades failed fit process
+   fail average cascade size: 0
+   765 cascades succeeded fit process
+   succeed average cascade size: 81
+   258 cascades partially-succeeded fit process (some missing params)
+      245 cascades failed weibull fit
+   partial-succeed average cascade size: 35
+Loading 9-2017
+   Processed posts file doesn't exist, creating now
+   Fitted params file doesn't exist, creating now
+Reconstructing cascades for changemyview 9-2017
+Loading comments from datasets/reddit_discussions/changemyview/changemyview_2017discussions_comments_2017_10.tsv
+Found 961 (of 78371) relevant comments
+Loading comments from datasets/reddit_discussions/changemyview/changemyview_2017discussions_comments_2017_11.tsv
+Found 43 (of 77984) relevant comments
+Loading comments from datasets/reddit_discussions/changemyview/changemyview_2017discussions_comments_2017_12.tsv
+Found 29 (of 84233) relevant comments
+Loading comments from datasets/reddit_discussions/changemyview/changemyview_2017discussions_comments_2017_9.tsv
+Found 60548 (of 72874) relevant comments
+Loading comments from datasets/reddit_discussions/changemyview/changemyview_2017discussions_comments_2018_1.tsv
+Found 44 (of 1529) relevant comments
+Loading comments from datasets/reddit_discussions/changemyview/changemyview_2017discussions_comments_2018_2.tsv
+Found 52 (of 199) relevant comments
+Loading comments from datasets/reddit_discussions/changemyview/changemyview_2017discussions_comments_2018_3.tsv
+Found 59 (of 252) relevant comments
+Loading comments from datasets/reddit_discussions/changemyview/changemyview_2017discussions_comments_2018_4.tsv
+Found 0 (of 108) relevant comments
+Loading comments from datasets/reddit_discussions/changemyview/changemyview_2017discussions_comments_2018_5.tsv
+Found 0 (of 72) relevant comments
+Loading comments from datasets/reddit_discussions/changemyview/changemyview_2017discussions_comments_2018_6.tsv
+Found 0 (of 54) relevant comments
+Loading comments from datasets/reddit_discussions/changemyview/changemyview_2017discussions_comments_2018_8.tsv
+Found 0 (of 1) relevant comments
+Total of 61736 comments for 9-2017 posts (of 315677 scanned)
+Extracting post/comment structure for 1198 changemyview 9-2017 posts and 61736 comments
+Built 1194 cascades with 57038 comments
+   Removed 4 incomplete/erroneous cascades (4698 associated comments)
+Fitting 1194 cascades for changemyview 9-2017
+Fitted params for a total of 781 cascades
+   skipped 0 cascades with negative comment times
+   413 cascades failed fit process
+   fail average cascade size: 0
+   581 cascades succeeded fit process
+   succeed average cascade size: 85
+   200 cascades partially-succeeded fit process (some missing params)
+      190 cascades failed weibull fit
+   partial-succeed average cascade size: 35
+Loading 8-2017
+   Processed posts file doesn't exist, creating now
+   Fitted params file doesn't exist, creating now
+Reconstructing cascades for changemyview 8-2017
+Loading comments from datasets/reddit_discussions/changemyview/changemyview_2017discussions_comments_2017_10.tsv
+Found 79 (of 78371) relevant comments
+Loading comments from datasets/reddit_discussions/changemyview/changemyview_2017discussions_comments_2017_11.tsv
+Found 13 (of 77984) relevant comments
+Loading comments from datasets/reddit_discussions/changemyview/changemyview_2017discussions_comments_2017_12.tsv
+Found 18 (of 84233) relevant comments
+Loading comments from datasets/reddit_discussions/changemyview/changemyview_2017discussions_comments_2017_9.tsv
+Found 960 (of 72874) relevant comments
+Loading comments from datasets/reddit_discussions/changemyview/changemyview_2017discussions_comments_2018_1.tsv
+Found 49 (of 1529) relevant comments
+Loading comments from datasets/reddit_discussions/changemyview/changemyview_2017discussions_comments_2018_2.tsv
+Found 3 (of 199) relevant comments
+Loading comments from datasets/reddit_discussions/changemyview/changemyview_2017discussions_comments_2018_3.tsv
+Found 0 (of 252) relevant comments
+Loading comments from datasets/reddit_discussions/changemyview/changemyview_2017discussions_comments_2018_4.tsv
+Found 0 (of 108) relevant comments
+Loading comments from datasets/reddit_discussions/changemyview/changemyview_2017discussions_comments_2018_5.tsv
+Found 0 (of 72) relevant comments
+Loading comments from datasets/reddit_discussions/changemyview/changemyview_2017discussions_comments_2018_6.tsv
+Found 0 (of 54) relevant comments
+Loading comments from datasets/reddit_discussions/changemyview/changemyview_2017discussions_comments_2018_8.tsv
+Found 0 (of 1) relevant comments
+Total of 1122 comments for 8-2017 posts (of 315677 scanned)
+Extracting post/comment structure for 1475 changemyview 8-2017 posts and 1122 comments
+Built 1355 cascades with 60 comments
+   Removed 120 incomplete/erroneous cascades (1062 associated comments)
+Fitting 1355 cascades for changemyview 8-2017
+Fitted params for a total of 14 cascades
+   skipped 0 cascades with negative comment times
+   1341 cascades failed fit process
+   fail average cascade size: 0
+   0 cascades succeeded fit process
+   14 cascades partially-succeeded fit process (some missing params)
+      10 cascades failed weibull fit
+   partial-succeed average cascade size: 2
+Loading 7-2017
+   Processed posts file doesn't exist, creating now
+   Fitted params file doesn't exist, creating now
+Reconstructing cascades for changemyview 7-2017
+Loading comments from datasets/reddit_discussions/changemyview/changemyview_2017discussions_comments_2017_10.tsv
+Found 23 (of 78371) relevant comments
+Loading comments from datasets/reddit_discussions/changemyview/changemyview_2017discussions_comments_2017_11.tsv
+Found 14 (of 77984) relevant comments
+Loading comments from datasets/reddit_discussions/changemyview/changemyview_2017discussions_comments_2017_12.tsv
+Found 20 (of 84233) relevant comments
+Loading comments from datasets/reddit_discussions/changemyview/changemyview_2017discussions_comments_2017_7.tsv
+Found 66914 (of 78907) relevant comments
+Loading comments from datasets/reddit_discussions/changemyview/changemyview_2017discussions_comments_2017_9.tsv
+Found 33 (of 72874) relevant comments
+Loading comments from datasets/reddit_discussions/changemyview/changemyview_2017discussions_comments_2018_1.tsv
+Found 22 (of 1529) relevant comments
+Loading comments from datasets/reddit_discussions/changemyview/changemyview_2017discussions_comments_2018_2.tsv
+Found 0 (of 199) relevant comments
+Loading comments from datasets/reddit_discussions/changemyview/changemyview_2017discussions_comments_2018_3.tsv
+Found 0 (of 252) relevant comments
+Loading comments from datasets/reddit_discussions/changemyview/changemyview_2017discussions_comments_2018_4.tsv
+Found 0 (of 108) relevant comments
+Loading comments from datasets/reddit_discussions/changemyview/changemyview_2017discussions_comments_2018_5.tsv
+Found 0 (of 72) relevant comments
+Loading comments from datasets/reddit_discussions/changemyview/changemyview_2017discussions_comments_2018_6.tsv
+Found 0 (of 54) relevant comments
+Loading comments from datasets/reddit_discussions/changemyview/changemyview_2017discussions_comments_2018_8.tsv
+Found 0 (of 1) relevant comments
+Total of 67026 comments for 7-2017 posts (of 394584 scanned)
+Extracting post/comment structure for 1354 changemyview 7-2017 posts and 67026 comments
+Built 1349 cascades with 65820 comments
+   Removed 5 incomplete/erroneous cascades (1206 associated comments)
+Fitting 1349 cascades for changemyview 7-2017
+Fitted params for a total of 886 cascades
+   skipped 0 cascades with negative comment times
+   463 cascades failed fit process
+   fail average cascade size: 0
+   654 cascades succeeded fit process
+   succeed average cascade size: 86
+   232 cascades partially-succeeded fit process (some missing params)
+      226 cascades failed weibull fit
+   partial-succeed average cascade size: 38
+Loading 6-2017
+   Processed posts file doesn't exist, creating now
+   Fitted params file doesn't exist, creating now
+Reconstructing cascades for changemyview 6-2017
+Loading comments from datasets/reddit_discussions/changemyview/changemyview_2017discussions_comments_2017_10.tsv
+Found 45 (of 78371) relevant comments
+Loading comments from datasets/reddit_discussions/changemyview/changemyview_2017discussions_comments_2017_11.tsv
+Found 12 (of 77984) relevant comments
+Loading comments from datasets/reddit_discussions/changemyview/changemyview_2017discussions_comments_2017_12.tsv
+Found 6 (of 84233) relevant comments
+Loading comments from datasets/reddit_discussions/changemyview/changemyview_2017discussions_comments_2017_6.tsv
+Found 62360 (of 73113) relevant comments
+Loading comments from datasets/reddit_discussions/changemyview/changemyview_2017discussions_comments_2017_7.tsv
+Found 960 (of 78907) relevant comments
+Loading comments from datasets/reddit_discussions/changemyview/changemyview_2017discussions_comments_2017_9.tsv
+Found 82 (of 72874) relevant comments
+Loading comments from datasets/reddit_discussions/changemyview/changemyview_2017discussions_comments_2018_1.tsv
+Found 0 (of 1529) relevant comments
+Loading comments from datasets/reddit_discussions/changemyview/changemyview_2017discussions_comments_2018_2.tsv
+Found 0 (of 199) relevant comments
+Loading comments from datasets/reddit_discussions/changemyview/changemyview_2017discussions_comments_2018_3.tsv
+Found 0 (of 252) relevant comments
+Loading comments from datasets/reddit_discussions/changemyview/changemyview_2017discussions_comments_2018_4.tsv
+Found 0 (of 108) relevant comments
+Loading comments from datasets/reddit_discussions/changemyview/changemyview_2017discussions_comments_2018_5.tsv
+Found 0 (of 72) relevant comments
+Loading comments from datasets/reddit_discussions/changemyview/changemyview_2017discussions_comments_2018_6.tsv
+Found 0 (of 54) relevant comments
+Loading comments from datasets/reddit_discussions/changemyview/changemyview_2017discussions_comments_2018_8.tsv
+Found 0 (of 1) relevant comments
+Total of 63465 comments for 6-2017 posts (of 467697 scanned)
+Extracting post/comment structure for 1230 changemyview 6-2017 posts and 63465 comments
+Built 1229 cascades with 63361 comments
+   Removed 1 incomplete/erroneous cascades (104 associated comments)
+Fitting 1229 cascades for changemyview 6-2017
+Fitted params for a total of 852 cascades
+   skipped 0 cascades with negative comment times
+   377 cascades failed fit process
+   fail average cascade size: 0
+   645 cascades succeeded fit process
+   succeed average cascade size: 84
+   207 cascades partially-succeeded fit process (some missing params)
+      199 cascades failed weibull fit
+   partial-succeed average cascade size: 41
+Loading 5-2017
+   Processed posts file doesn't exist, creating now
+   Fitted params file doesn't exist, creating now
+Reconstructing cascades for changemyview 5-2017
+Loading comments from datasets/reddit_discussions/changemyview/changemyview_2017discussions_comments_2017_10.tsv
+Found 17 (of 78371) relevant comments
+Loading comments from datasets/reddit_discussions/changemyview/changemyview_2017discussions_comments_2017_11.tsv
+Found 3 (of 77984) relevant comments
+Loading comments from datasets/reddit_discussions/changemyview/changemyview_2017discussions_comments_2017_12.tsv
+Found 0 (of 84233) relevant comments
+Loading comments from datasets/reddit_discussions/changemyview/changemyview_2017discussions_comments_2017_5.tsv
+Found 62916 (of 72801) relevant comments
+Loading comments from datasets/reddit_discussions/changemyview/changemyview_2017discussions_comments_2017_6.tsv
+Found 1917 (of 73113) relevant comments
+Loading comments from datasets/reddit_discussions/changemyview/changemyview_2017discussions_comments_2017_7.tsv
+Found 40 (of 78907) relevant comments
+Loading comments from datasets/reddit_discussions/changemyview/changemyview_2017discussions_comments_2017_9.tsv
+Found 25 (of 72874) relevant comments
+Loading comments from datasets/reddit_discussions/changemyview/changemyview_2017discussions_comments_2018_1.tsv
+Found 0 (of 1529) relevant comments
+Loading comments from datasets/reddit_discussions/changemyview/changemyview_2017discussions_comments_2018_2.tsv
+Found 0 (of 199) relevant comments
+Loading comments from datasets/reddit_discussions/changemyview/changemyview_2017discussions_comments_2018_3.tsv
+Found 0 (of 252) relevant comments
+Loading comments from datasets/reddit_discussions/changemyview/changemyview_2017discussions_comments_2018_4.tsv
+Found 0 (of 108) relevant comments
+Loading comments from datasets/reddit_discussions/changemyview/changemyview_2017discussions_comments_2018_5.tsv
+Found 0 (of 72) relevant comments
+Loading comments from datasets/reddit_discussions/changemyview/changemyview_2017discussions_comments_2018_6.tsv
+Found 0 (of 54) relevant comments
+Loading comments from datasets/reddit_discussions/changemyview/changemyview_2017discussions_comments_2018_8.tsv
+Found 0 (of 1) relevant comments
+Total of 64918 comments for 5-2017 posts (of 540498 scanned)
+Extracting post/comment structure for 1149 changemyview 5-2017 posts and 64918 comments
+Built 1149 cascades with 64918 comments
+   Removed 0 incomplete/erroneous cascades (0 associated comments)
+Fitting 1149 cascades for changemyview 5-2017
+Fitted params for a total of 831 cascades
+   skipped 0 cascades with negative comment times
+   318 cascades failed fit process
+   fail average cascade size: 0
+   629 cascades succeeded fit process
+   succeed average cascade size: 88
+   202 cascades partially-succeeded fit process (some missing params)
+      193 cascades failed weibull fit
+   partial-succeed average cascade size: 46
+Loading 4-2017
+   Processed posts file doesn't exist, creating now
+   Fitted params file doesn't exist, creating now
+Reconstructing cascades for changemyview 4-2017
+Loading comments from datasets/reddit_discussions/changemyview/changemyview_2017discussions_comments_2017_10.tsv
+Found 11 (of 78371) relevant comments
+Loading comments from datasets/reddit_discussions/changemyview/changemyview_2017discussions_comments_2017_11.tsv
+Found 0 (of 77984) relevant comments
+Loading comments from datasets/reddit_discussions/changemyview/changemyview_2017discussions_comments_2017_12.tsv
+Found 0 (of 84233) relevant comments
+Loading comments from datasets/reddit_discussions/changemyview/changemyview_2017discussions_comments_2017_4.tsv
+Found 65117 (of 74357) relevant comments
+Loading comments from datasets/reddit_discussions/changemyview/changemyview_2017discussions_comments_2017_5.tsv
+Found 1728 (of 72801) relevant comments
+Loading comments from datasets/reddit_discussions/changemyview/changemyview_2017discussions_comments_2017_6.tsv
+Found 57 (of 73113) relevant comments
+Loading comments from datasets/reddit_discussions/changemyview/changemyview_2017discussions_comments_2017_7.tsv
+Found 41 (of 78907) relevant comments
+Loading comments from datasets/reddit_discussions/changemyview/changemyview_2017discussions_comments_2017_9.tsv
+Found 37 (of 72874) relevant comments
+Loading comments from datasets/reddit_discussions/changemyview/changemyview_2017discussions_comments_2018_1.tsv
+Found 0 (of 1529) relevant comments
+Loading comments from datasets/reddit_discussions/changemyview/changemyview_2017discussions_comments_2018_2.tsv
+Found 0 (of 199) relevant comments
+Loading comments from datasets/reddit_discussions/changemyview/changemyview_2017discussions_comments_2018_3.tsv
+Found 0 (of 252) relevant comments
+Loading comments from datasets/reddit_discussions/changemyview/changemyview_2017discussions_comments_2018_4.tsv
+Found 0 (of 108) relevant comments
+Loading comments from datasets/reddit_discussions/changemyview/changemyview_2017discussions_comments_2018_5.tsv
+Found 0 (of 72) relevant comments
+Loading comments from datasets/reddit_discussions/changemyview/changemyview_2017discussions_comments_2018_6.tsv
+Found 0 (of 54) relevant comments
+Loading comments from datasets/reddit_discussions/changemyview/changemyview_2017discussions_comments_2018_8.tsv
+Found 0 (of 1) relevant comments
+Total of 66991 comments for 4-2017 posts (of 614855 scanned)
+Extracting post/comment structure for 1196 changemyview 4-2017 posts and 66991 comments
+Built 1192 cascades with 66135 comments
+   Removed 4 incomplete/erroneous cascades (856 associated comments)
+Fitting 1192 cascades for changemyview 4-2017
+Fitted params for a total of 821 cascades
+   skipped 0 cascades with negative comment times
+   371 cascades failed fit process
+   fail average cascade size: 0
+   609 cascades succeeded fit process
+   succeed average cascade size: 90
+   212 cascades partially-succeeded fit process (some missing params)
+      205 cascades failed weibull fit
+   partial-succeed average cascade size: 52
+Deleted 136 posts without cascades
+Loaded 10456 posts 
+   10456 cascades
+   6156 fitted params, 4300 failed fit
+
+Loading processed testing data
+Loading 12-2017
+   Processed posts file doesn't exist, creating now
+Reconstructing cascades for changemyview 12-2017
+Loading comments from datasets/reddit_discussions/changemyview/changemyview_2017discussions_comments_2017_12.tsv
+Found 74268 (of 84233) relevant comments
+Loading comments from datasets/reddit_discussions/changemyview/changemyview_2017discussions_comments_2018_1.tsv
+Found 1144 (of 1529) relevant comments
+Loading comments from datasets/reddit_discussions/changemyview/changemyview_2017discussions_comments_2018_2.tsv
+Found 92 (of 199) relevant comments
+Loading comments from datasets/reddit_discussions/changemyview/changemyview_2017discussions_comments_2018_3.tsv
+Found 76 (of 252) relevant comments
+Loading comments from datasets/reddit_discussions/changemyview/changemyview_2017discussions_comments_2018_4.tsv
+Found 62 (of 108) relevant comments
+Loading comments from datasets/reddit_discussions/changemyview/changemyview_2017discussions_comments_2018_5.tsv
+Found 67 (of 72) relevant comments
+Loading comments from datasets/reddit_discussions/changemyview/changemyview_2017discussions_comments_2018_6.tsv
+Found 54 (of 54) relevant comments
+Loading comments from datasets/reddit_discussions/changemyview/changemyview_2017discussions_comments_2018_8.tsv
+Found 1 (of 1) relevant comments
+Total of 75764 comments for 12-2017 posts (of 86448 scanned)
+Extracting post/comment structure for 1457 changemyview 12-2017 posts and 75764 comments
+Built 1455 cascades with 75459 comments
+   Removed 2 incomplete/erroneous cascades (305 associated comments)
+Deleted 2 posts without cascades
+Loaded 1455 posts 
+   1455 cascades
+
+Sampling 500 first posts (from 1455) for simulation set
+Sampling 10000 last posts (from 10456) for simulation set
+
+Building param graph for 10000 posts
+   Including posts with default parameters
+Using 10000 posts for graph
+Using jaccard index for edge weight
+   1000000 pairs
+   2000000 pairs
+   3000000 pairs
+   4000000 pairs
+   5000000 pairs
+   6000000 pairs
+   7000000 pairs
+   8000000 pairs
+   9000000 pairs
+   10000000 pairs
+   11000000 pairs
+   12000000 pairs
+   13000000 pairs
+   14000000 pairs
+   15000000 pairs
+   16000000 pairs
+   17000000 pairs
+   18000000 pairs
+   19000000 pairs
+   20000000 pairs
+   21000000 pairs
+   22000000 pairs
+   23000000 pairs
+   24000000 pairs
+   25000000 pairs
+   26000000 pairs
+   27000000 pairs
+   28000000 pairs
+   29000000 pairs
+   30000000 pairs
+   31000000 pairs
+   32000000 pairs
+   33000000 pairs
+   34000000 pairs
+   35000000 pairs
+   36000000 pairs
+   37000000 pairs
+   38000000 pairs
+   39000000 pairs
+   40000000 pairs
+   41000000 pairs
+   42000000 pairs
+   43000000 pairs
+   44000000 pairs
+   45000000 pairs
+   46000000 pairs
+   47000000 pairs
+   48000000 pairs
+   49000000 pairs
+Graph contains 9991 nodes and 162809 unique edges (199626 edge entries)
+  max degree: 324
+  min degree: 2
+Saving graph to reddit_data/changemyview/base_graph_2017-12test_start_10000trainposts_default_posts_True_all_nodes_0.0minquality_jaccard_0.0minedgeweight_20topn_no_sample.pkl
+
+Finished graph build, exiting
+2503.44user 6.76system 41:44.74elapsed 100%CPU (0avgtext+0avgdata 595140maxresident)k
+0inputs+64480outputs (0major+374921minor)pagefaults 0swaps
+
+Namespace(estimate_initial_params=False, graph_downsample_ratio=None, include_default_posts=True, large_cascade_demarcation=None, max_nodes=False, max_size=None, min_node_quality=False, min_size=None, normalize_parameters=None, num_comments_observed=False, outfile='sim_results/changemyview/run_results/changemyview_model_10000train_500test_2017-12_run0', preprocess=True, remove_stopwords=False, sanity_check=False, sim_post='500', subreddit='changemyview', testing_start_month='12', testing_start_year='2017', testing_stats=False, time_error_absolute=False, time_error_margin=False, time_observed=['0', '0.5', '1', '1.5', '2', '3', '4', '5', '6', '7', '8', '9', '10', '12', '14', '16', '18', '20', '22', '24'], top_n='20', topological_error=True, training_num='10000', training_stats=False, verbose=True, weight_method='jaccard', weight_threshold=False)
+
+Sim Post: subset
+Time Observed: [0.0, 0.5, 1.0, 1.5, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 12.0, 14.0, 16.0, 18.0, 20.0, 22.0, 24.0]
+Output: sim_results/changemyview/run_results/changemyview_model_10000train_500test_2017-12_run0
+Source subreddit: changemyview
+Minimum node quality: False
+Max graph size: False
+Max edges per node: 20
+Minimum edge weight: None
+No param normalization for infer step
+Test Set: first 500 posts starting at 12-2017
+Training Set: 10000 posts immediately preceding 12-2017
+Using Jaccard index to compute graph edge weights
+Including posts with hardcoded default parameters
+Using topological error for tree evaluation (ignoring comment times)
+
+Loading processed training data
+Loading 11-2017
+Loading 10-2017
+Loading 9-2017
+Loading 8-2017
+Loading 7-2017
+Loading 6-2017
+Loading 5-2017
+Loading 4-2017
+Deleted 136 posts without cascades
+Loaded 10456 posts 
+   10456 cascades
+   6156 fitted params, 4300 failed fit
+
+Loading processed testing data
+Loading 12-2017
+Deleted 2 posts without cascades
+Loaded 1455 posts 
+   1455 cascades
+
+Sampling 500 first posts (from 1455) for simulation set
+Sampling 10000 last posts (from 10456) for simulation set
+Loading base graph from file
+Graph contains 9991 nodes and 162809 unique edges (199626 edge entries)
+
+Finished graph build, exiting
+12.31user 4.77system 0:11.94elapsed 143%CPU (0avgtext+0avgdata 377540maxresident)k
+64416inputs+8outputs (0major+113055minor)pagefaults 0swaps

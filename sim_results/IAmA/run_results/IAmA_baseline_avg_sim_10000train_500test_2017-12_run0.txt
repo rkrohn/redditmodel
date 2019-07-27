@@ -1,0 +1,151 @@
+time python3 baseline_model.py -s IAmA -o sim_results/IAmA/run_results/IAmA_baseline_avg_sim_10000train_500test_2017-12_run0 -avg_sim -v -n 500 -n_train 10000 -m 12 -y 2017 -t 0 0.5 1 1.5 2 3 4 5 6 7 8 9 10 12 14 16 18 20 22 24
+
+Namespace(max_size=None, min_size=None, mode='avg_sim', num_comments_observed=False, outfile='sim_results/IAmA/run_results/IAmA_baseline_avg_sim_10000train_500test_2017-12_run0', sim_post='500', subreddit='IAmA', testing_start_month='12', testing_start_year='2017', time_error_absolute=False, time_error_margin=False, time_observed=['0', '0.5', '1', '1.5', '2', '3', '4', '5', '6', '7', '8', '9', '10', '12', '14', '16', '18', '20', '22', '24'], topological_error=False, training_num='10000', verbose=True)
+
+Sim Post: subset
+Baseline model mode: avg_sim
+Time Observed: [0.0, 0.5, 1.0, 1.5, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 12.0, 14.0, 16.0, 18.0, 20.0, 22.0, 24.0]
+Output: sim_results/IAmA/run_results/IAmA_baseline_avg_sim_10000train_500test_2017-12_run0
+Source subreddit: IAmA
+Test Set: first 500 posts starting at 12-2017
+Training Set: 10000 posts immediately preceding 12-2017
+Using error margin increasing by level
+   Allowable eval time error: 30.0
+
+Loading processed training data
+Loading 11-2017
+Loading 10-2017
+Loading 9-2017
+Loading 8-2017
+Loading 7-2017
+Loading 6-2017
+Loading 5-2017
+Loading 4-2017
+Loading 3-2017
+Deleted 9 posts without cascades
+Loaded 11179 posts 
+   11179 cascades
+   4312 fitted params, 6867 failed fit
+
+Loading processed testing data
+Loading 12-2017
+Loaded 1021 posts 
+   1021 cascades
+
+Sampling 500 first posts (from 1021) for simulation set
+Sampling 10000 last posts (from 11179) for simulation set
+
+Skipping 0 already simulated posts
+Processing 500 posts
+Computing average params for training set
+Average params:  [28.620150951685048, 60.89136978656084, 0.7335081364005036, 1.4383203946429794, 1.4711804123680834, 0.2007636442215908]
+   saving results so far (5 posts)
+   saving results so far (10 posts)
+   saving results so far (15 posts)
+   saving results so far (20 posts)
+   saving results so far (25 posts)
+   saving results so far (30 posts)
+   saving results so far (35 posts)
+   saving results so far (40 posts)
+   saving results so far (45 posts)
+   saving results so far (50 posts)
+   saving results so far (55 posts)
+   saving results so far (60 posts)
+   saving results so far (65 posts)
+   saving results so far (70 posts)
+   saving results so far (75 posts)
+   saving results so far (80 posts)
+   saving results so far (85 posts)
+   saving results so far (90 posts)
+   saving results so far (95 posts)
+   finished 100 posts
+   saving results so far (100 posts)
+   saving results so far (105 posts)
+   saving results so far (110 posts)
+   saving results so far (115 posts)
+   saving results so far (120 posts)
+   saving results so far (125 posts)
+   saving results so far (130 posts)
+   saving results so far (135 posts)
+   saving results so far (140 posts)
+   saving results so far (145 posts)
+   saving results so far (150 posts)
+   saving results so far (155 posts)
+   saving results so far (160 posts)
+   saving results so far (165 posts)
+   saving results so far (170 posts)
+   saving results so far (175 posts)
+   saving results so far (180 posts)
+   saving results so far (185 posts)
+   saving results so far (190 posts)
+   saving results so far (195 posts)
+   finished 200 posts
+   saving results so far (200 posts)
+   saving results so far (205 posts)
+   saving results so far (210 posts)
+   saving results so far (215 posts)
+   saving results so far (220 posts)
+   saving results so far (225 posts)
+   saving results so far (230 posts)
+   saving results so far (235 posts)
+   saving results so far (240 posts)
+   saving results so far (245 posts)
+   saving results so far (250 posts)
+   saving results so far (255 posts)
+   saving results so far (260 posts)
+   saving results so far (265 posts)
+   saving results so far (270 posts)
+   saving results so far (275 posts)
+   saving results so far (280 posts)
+   saving results so far (285 posts)
+   saving results so far (290 posts)
+   saving results so far (295 posts)
+   finished 300 posts
+   saving results so far (300 posts)
+   saving results so far (305 posts)
+   saving results so far (310 posts)
+   saving results so far (315 posts)
+   saving results so far (320 posts)
+   saving results so far (325 posts)
+   saving results so far (330 posts)
+   saving results so far (335 posts)
+   saving results so far (340 posts)
+   saving results so far (345 posts)
+   saving results so far (350 posts)
+   saving results so far (355 posts)
+   saving results so far (360 posts)
+   saving results so far (365 posts)
+   saving results so far (370 posts)
+   saving results so far (375 posts)
+   saving results so far (380 posts)
+   saving results so far (385 posts)
+   saving results so far (390 posts)
+   saving results so far (395 posts)
+   finished 400 posts
+   saving results so far (400 posts)
+   saving results so far (405 posts)
+   saving results so far (410 posts)
+   saving results so far (415 posts)
+   saving results so far (420 posts)
+   saving results so far (425 posts)
+   saving results so far (430 posts)
+   saving results so far (435 posts)
+   saving results so far (440 posts)
+   saving results so far (445 posts)
+   saving results so far (450 posts)
+   saving results so far (455 posts)
+   saving results so far (460 posts)
+   saving results so far (465 posts)
+   saving results so far (470 posts)
+   saving results so far (475 posts)
+   saving results so far (480 posts)
+   saving results so far (485 posts)
+   saving results so far (490 posts)
+   saving results so far (495 posts)
+   finished 500 posts
+   saving results so far (500 posts)
+Finished simulating 500 posts
+All done, all results saved
+
+14273.89user 584.22system 4:09:15elapsed 99%CPU (0avgtext+0avgdata 18781944maxresident)k
+572832inputs+5544outputs (19310major+117023709minor)pagefaults 0swaps

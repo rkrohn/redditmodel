@@ -1,0 +1,4 @@
+time python3 comparative_model.py -s changemyview -o sim_results/changemyview/run_results/changemyview_comparative_10000train_500test_2017-12_run2 -v -n 500 -n_train 10000 -m 12 -y 2017 -t 0 0.5 1 1.5 2 3 4 5 6 7 8 9 10 12 14 16 18 20 22 24
+Command terminated by signal 9
+24545.27user 106.50system 6:53:26elapsed 99%CPU (0avgtext+0avgdata 24891788maxresident)k
+2716200inputs+1864outputs (76092major+15807724minor)pagefaults 0swaps

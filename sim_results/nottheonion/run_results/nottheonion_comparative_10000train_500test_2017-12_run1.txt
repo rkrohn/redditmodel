@@ -1,0 +1,4 @@
+time python3 comparative_model.py -s nottheonion -o sim_results/nottheonion/run_results/nottheonion_comparative_10000train_500test_2017-12_run1 -v -n 500 -n_train 10000 -m 12 -y 2017 -t 0 0.5 1 1.5 2 3 4 5 6 7 8 9 10 12 14 16 18 20 22 24
+Command terminated by signal 9
+1490.87user 31.17system 29:13.36elapsed 86%CPU (0avgtext+0avgdata 13362908maxresident)k
+634912inputs+24outputs (37141major+3559214minor)pagefaults 0swaps

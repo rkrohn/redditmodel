@@ -1,0 +1,7 @@
+time python3 gen_cascade_model.py -s nottheonion -o sim_results/nottheonion/run_results/nottheonion_model_10000train_500test_2017-12_run3 -n 500 -n_train 10000 -topn 20 -y 2017 -m 12 -j --topo_err -v -d -t 0 0.5 1 1.5 2 3 4 5 6 7 8 9 10 12 14 16 18 20 22 24
+Command terminated by signal 9
+18971.78user 258.79system 5:15:59elapsed 101%CPU (0avgtext+0avgdata 41300236maxresident)k
+1826568inputs+639056outputs (24524major+38647246minor)pagefaults 0swaps
+Command terminated by signal 9
+8796.70user 99.72system 2:29:31elapsed 99%CPU (0avgtext+0avgdata 41328528maxresident)k
+1670424inputs+7408outputs (10553major+10836540minor)pagefaults 0swaps

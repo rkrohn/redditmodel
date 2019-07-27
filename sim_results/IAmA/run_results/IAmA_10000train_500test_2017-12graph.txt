@@ -1,0 +1,643 @@
+
+Namespace(estimate_initial_params=False, graph_downsample_ratio=None, include_default_posts=True, large_cascade_demarcation=None, max_nodes=False, max_size=None, min_node_quality=False, min_size=None, normalize_parameters=None, num_comments_observed=False, outfile='sim_results/IAmA/run_results/IAmA_model_10000train_500test_2017-12_run0', preprocess=True, remove_stopwords=False, sanity_check=False, sim_post='500', subreddit='IAmA', testing_start_month='12', testing_start_year='2017', testing_stats=False, time_error_absolute=False, time_error_margin=False, time_observed=['0', '0.5', '1', '1.5', '2', '3', '4', '5', '6', '7', '8', '9', '10', '12', '14', '16', '18', '20', '22', '24'], top_n='20', topological_error=True, training_num='10000', training_stats=False, verbose=True, weight_method='jaccard', weight_threshold=False)
+
+Sim Post: subset
+Time Observed: [0.0, 0.5, 1.0, 1.5, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 12.0, 14.0, 16.0, 18.0, 20.0, 22.0, 24.0]
+Output: sim_results/IAmA/run_results/IAmA_model_10000train_500test_2017-12_run0
+Source subreddit: IAmA
+Minimum node quality: False
+Max graph size: False
+Max edges per node: 20
+Minimum edge weight: None
+No param normalization for infer step
+Test Set: first 500 posts starting at 12-2017
+Training Set: 10000 posts immediately preceding 12-2017
+Using Jaccard index to compute graph edge weights
+Including posts with hardcoded default parameters
+Using topological error for tree evaluation (ignoring comment times)
+
+Loading processed training data
+Loading 11-2017
+   Processed posts file doesn't exist, creating now
+   Fitted params file doesn't exist, creating now
+Reconstructing cascades for IAmA 11-2017
+Loading comments from datasets/reddit_discussions/IAmA/IAmA_2017discussions_comments_2017_11.tsv
+Found 116632 (of 126591) relevant comments
+Loading comments from datasets/reddit_discussions/IAmA/IAmA_2017discussions_comments_2017_12.tsv
+Found 3540 (of 137818) relevant comments
+Loading comments from datasets/reddit_discussions/IAmA/IAmA_2017discussions_comments_2018_1.tsv
+Found 167 (of 3398) relevant comments
+Loading comments from datasets/reddit_discussions/IAmA/IAmA_2017discussions_comments_2018_10.tsv
+Found 0 (of 1) relevant comments
+Loading comments from datasets/reddit_discussions/IAmA/IAmA_2017discussions_comments_2018_2.tsv
+Found 165 (of 419) relevant comments
+Loading comments from datasets/reddit_discussions/IAmA/IAmA_2017discussions_comments_2018_3.tsv
+Found 83 (of 227) relevant comments
+Loading comments from datasets/reddit_discussions/IAmA/IAmA_2017discussions_comments_2018_4.tsv
+Found 99 (of 197) relevant comments
+Loading comments from datasets/reddit_discussions/IAmA/IAmA_2017discussions_comments_2018_5.tsv
+Found 28 (of 153) relevant comments
+Loading comments from datasets/reddit_discussions/IAmA/IAmA_2017discussions_comments_2018_6.tsv
+Found 0 (of 30) relevant comments
+Loading comments from datasets/reddit_discussions/IAmA/IAmA_2017discussions_comments_2018_7.tsv
+Found 0 (of 1) relevant comments
+Loading comments from datasets/reddit_discussions/IAmA/IAmA_2017discussions_comments_2018_8.tsv
+Found 0 (of 2) relevant comments
+Total of 120714 comments for 11-2017 posts (of 268837 scanned)
+Extracting post/comment structure for 1144 IAmA 11-2017 posts and 120714 comments
+Built 1143 cascades with 118295 comments
+   Removed 1 incomplete/erroneous cascades (2419 associated comments)
+Fitting 1143 cascades for IAmA 11-2017
+Fitted params for a total of 442 cascades
+   skipped 0 cascades with negative comment times
+   701 cascades failed fit process
+   fail average cascade size: 1
+   87 cascades succeeded fit process
+   succeed average cascade size: 614
+   355 cascades partially-succeeded fit process (some missing params)
+      339 cascades failed weibull fit
+   partial-succeed average cascade size: 179
+Loading 10-2017
+   Processed posts file doesn't exist, creating now
+   Fitted params file doesn't exist, creating now
+Reconstructing cascades for IAmA 10-2017
+Loading comments from datasets/reddit_discussions/IAmA/IAmA_2017discussions_comments_2017_10.tsv
+Found 114458 (of 119135) relevant comments
+Loading comments from datasets/reddit_discussions/IAmA/IAmA_2017discussions_comments_2017_11.tsv
+Found 1437 (of 126591) relevant comments
+Loading comments from datasets/reddit_discussions/IAmA/IAmA_2017discussions_comments_2017_12.tsv
+Found 136 (of 137818) relevant comments
+Loading comments from datasets/reddit_discussions/IAmA/IAmA_2017discussions_comments_2018_1.tsv
+Found 79 (of 3398) relevant comments
+Loading comments from datasets/reddit_discussions/IAmA/IAmA_2017discussions_comments_2018_10.tsv
+Found 1 (of 1) relevant comments
+Loading comments from datasets/reddit_discussions/IAmA/IAmA_2017discussions_comments_2018_2.tsv
+Found 45 (of 419) relevant comments
+Loading comments from datasets/reddit_discussions/IAmA/IAmA_2017discussions_comments_2018_3.tsv
+Found 29 (of 227) relevant comments
+Loading comments from datasets/reddit_discussions/IAmA/IAmA_2017discussions_comments_2018_4.tsv
+Found 14 (of 197) relevant comments
+Loading comments from datasets/reddit_discussions/IAmA/IAmA_2017discussions_comments_2018_5.tsv
+Found 0 (of 153) relevant comments
+Loading comments from datasets/reddit_discussions/IAmA/IAmA_2017discussions_comments_2018_6.tsv
+Found 0 (of 30) relevant comments
+Loading comments from datasets/reddit_discussions/IAmA/IAmA_2017discussions_comments_2018_7.tsv
+Found 0 (of 1) relevant comments
+Loading comments from datasets/reddit_discussions/IAmA/IAmA_2017discussions_comments_2018_8.tsv
+Found 0 (of 2) relevant comments
+Total of 116199 comments for 10-2017 posts (of 387972 scanned)
+Extracting post/comment structure for 1111 IAmA 10-2017 posts and 116199 comments
+Built 1110 cascades with 115987 comments
+   Removed 1 incomplete/erroneous cascades (212 associated comments)
+Fitting 1110 cascades for IAmA 10-2017
+Fitted params for a total of 436 cascades
+   skipped 0 cascades with negative comment times
+   674 cascades failed fit process
+   fail average cascade size: 1
+   118 cascades succeeded fit process
+   succeed average cascade size: 371
+   318 cascades partially-succeeded fit process (some missing params)
+      306 cascades failed weibull fit
+   partial-succeed average cascade size: 224
+Loading 9-2017
+   Processed posts file doesn't exist, creating now
+   Fitted params file doesn't exist, creating now
+Reconstructing cascades for IAmA 9-2017
+Loading comments from datasets/reddit_discussions/IAmA/IAmA_2017discussions_comments_2017_10.tsv
+Found 1299 (of 119135) relevant comments
+Loading comments from datasets/reddit_discussions/IAmA/IAmA_2017discussions_comments_2017_11.tsv
+Found 138 (of 126591) relevant comments
+Loading comments from datasets/reddit_discussions/IAmA/IAmA_2017discussions_comments_2017_12.tsv
+Found 62 (of 137818) relevant comments
+Loading comments from datasets/reddit_discussions/IAmA/IAmA_2017discussions_comments_2017_9.tsv
+Found 122574 (of 144925) relevant comments
+Loading comments from datasets/reddit_discussions/IAmA/IAmA_2017discussions_comments_2018_1.tsv
+Found 25 (of 3398) relevant comments
+Loading comments from datasets/reddit_discussions/IAmA/IAmA_2017discussions_comments_2018_10.tsv
+Found 0 (of 1) relevant comments
+Loading comments from datasets/reddit_discussions/IAmA/IAmA_2017discussions_comments_2018_2.tsv
+Found 25 (of 419) relevant comments
+Loading comments from datasets/reddit_discussions/IAmA/IAmA_2017discussions_comments_2018_3.tsv
+Found 20 (of 227) relevant comments
+Loading comments from datasets/reddit_discussions/IAmA/IAmA_2017discussions_comments_2018_4.tsv
+Found 0 (of 197) relevant comments
+Loading comments from datasets/reddit_discussions/IAmA/IAmA_2017discussions_comments_2018_5.tsv
+Found 0 (of 153) relevant comments
+Loading comments from datasets/reddit_discussions/IAmA/IAmA_2017discussions_comments_2018_6.tsv
+Found 0 (of 30) relevant comments
+Loading comments from datasets/reddit_discussions/IAmA/IAmA_2017discussions_comments_2018_7.tsv
+Found 0 (of 1) relevant comments
+Loading comments from datasets/reddit_discussions/IAmA/IAmA_2017discussions_comments_2018_8.tsv
+Found 1 (of 2) relevant comments
+Total of 124144 comments for 9-2017 posts (of 532897 scanned)
+Extracting post/comment structure for 1214 IAmA 9-2017 posts and 124144 comments
+Built 1213 cascades with 123886 comments
+   Removed 1 incomplete/erroneous cascades (258 associated comments)
+Fitting 1213 cascades for IAmA 9-2017
+Fitted params for a total of 526 cascades
+   skipped 0 cascades with negative comment times
+   687 cascades failed fit process
+   fail average cascade size: 1
+   148 cascades succeeded fit process
+   succeed average cascade size: 407
+   378 cascades partially-succeeded fit process (some missing params)
+      358 cascades failed weibull fit
+   partial-succeed average cascade size: 165
+Loading 8-2017
+   Processed posts file doesn't exist, creating now
+   Fitted params file doesn't exist, creating now
+Reconstructing cascades for IAmA 8-2017
+Loading comments from datasets/reddit_discussions/IAmA/IAmA_2017discussions_comments_2017_10.tsv
+Found 90 (of 119135) relevant comments
+Loading comments from datasets/reddit_discussions/IAmA/IAmA_2017discussions_comments_2017_11.tsv
+Found 139 (of 126591) relevant comments
+Loading comments from datasets/reddit_discussions/IAmA/IAmA_2017discussions_comments_2017_12.tsv
+Found 73 (of 137818) relevant comments
+Loading comments from datasets/reddit_discussions/IAmA/IAmA_2017discussions_comments_2017_8.tsv
+Found 95165 (of 98966) relevant comments
+Loading comments from datasets/reddit_discussions/IAmA/IAmA_2017discussions_comments_2017_9.tsv
+Found 2903 (of 144925) relevant comments
+Loading comments from datasets/reddit_discussions/IAmA/IAmA_2017discussions_comments_2018_1.tsv
+Found 56 (of 3398) relevant comments
+Loading comments from datasets/reddit_discussions/IAmA/IAmA_2017discussions_comments_2018_10.tsv
+Found 0 (of 1) relevant comments
+Loading comments from datasets/reddit_discussions/IAmA/IAmA_2017discussions_comments_2018_2.tsv
+Found 12 (of 419) relevant comments
+Loading comments from datasets/reddit_discussions/IAmA/IAmA_2017discussions_comments_2018_3.tsv
+Found 0 (of 227) relevant comments
+Loading comments from datasets/reddit_discussions/IAmA/IAmA_2017discussions_comments_2018_4.tsv
+Found 1 (of 197) relevant comments
+Loading comments from datasets/reddit_discussions/IAmA/IAmA_2017discussions_comments_2018_5.tsv
+Found 0 (of 153) relevant comments
+Loading comments from datasets/reddit_discussions/IAmA/IAmA_2017discussions_comments_2018_6.tsv
+Found 0 (of 30) relevant comments
+Loading comments from datasets/reddit_discussions/IAmA/IAmA_2017discussions_comments_2018_7.tsv
+Found 0 (of 1) relevant comments
+Loading comments from datasets/reddit_discussions/IAmA/IAmA_2017discussions_comments_2018_8.tsv
+Found 0 (of 2) relevant comments
+Total of 98439 comments for 8-2017 posts (of 631863 scanned)
+Extracting post/comment structure for 1229 IAmA 8-2017 posts and 98439 comments
+Built 1227 cascades with 96182 comments
+   Removed 2 incomplete/erroneous cascades (2257 associated comments)
+Fitting 1227 cascades for IAmA 8-2017
+Fitted params for a total of 489 cascades
+   skipped 0 cascades with negative comment times
+   738 cascades failed fit process
+   fail average cascade size: 1
+   121 cascades succeeded fit process
+   succeed average cascade size: 381
+   368 cascades partially-succeeded fit process (some missing params)
+      343 cascades failed weibull fit
+   partial-succeed average cascade size: 133
+Loading 7-2017
+   Processed posts file doesn't exist, creating now
+   Fitted params file doesn't exist, creating now
+Reconstructing cascades for IAmA 7-2017
+Loading comments from datasets/reddit_discussions/IAmA/IAmA_2017discussions_comments_2017_10.tsv
+Found 80 (of 119135) relevant comments
+Loading comments from datasets/reddit_discussions/IAmA/IAmA_2017discussions_comments_2017_11.tsv
+Found 38 (of 126591) relevant comments
+Loading comments from datasets/reddit_discussions/IAmA/IAmA_2017discussions_comments_2017_12.tsv
+Found 44 (of 137818) relevant comments
+Loading comments from datasets/reddit_discussions/IAmA/IAmA_2017discussions_comments_2017_7.tsv
+Found 93086 (of 103340) relevant comments
+Loading comments from datasets/reddit_discussions/IAmA/IAmA_2017discussions_comments_2017_8.tsv
+Found 1278 (of 98966) relevant comments
+Loading comments from datasets/reddit_discussions/IAmA/IAmA_2017discussions_comments_2017_9.tsv
+Found 82 (of 144925) relevant comments
+Loading comments from datasets/reddit_discussions/IAmA/IAmA_2017discussions_comments_2018_1.tsv
+Found 4 (of 3398) relevant comments
+Loading comments from datasets/reddit_discussions/IAmA/IAmA_2017discussions_comments_2018_10.tsv
+Found 0 (of 1) relevant comments
+Loading comments from datasets/reddit_discussions/IAmA/IAmA_2017discussions_comments_2018_2.tsv
+Found 0 (of 419) relevant comments
+Loading comments from datasets/reddit_discussions/IAmA/IAmA_2017discussions_comments_2018_3.tsv
+Found 0 (of 227) relevant comments
+Loading comments from datasets/reddit_discussions/IAmA/IAmA_2017discussions_comments_2018_4.tsv
+Found 0 (of 197) relevant comments
+Loading comments from datasets/reddit_discussions/IAmA/IAmA_2017discussions_comments_2018_5.tsv
+Found 0 (of 153) relevant comments
+Loading comments from datasets/reddit_discussions/IAmA/IAmA_2017discussions_comments_2018_6.tsv
+Found 0 (of 30) relevant comments
+Loading comments from datasets/reddit_discussions/IAmA/IAmA_2017discussions_comments_2018_7.tsv
+Found 0 (of 1) relevant comments
+Loading comments from datasets/reddit_discussions/IAmA/IAmA_2017discussions_comments_2018_8.tsv
+Found 0 (of 2) relevant comments
+Total of 94612 comments for 7-2017 posts (of 735203 scanned)
+Extracting post/comment structure for 1155 IAmA 7-2017 posts and 94612 comments
+Built 1155 cascades with 94612 comments
+   Removed 0 incomplete/erroneous cascades (0 associated comments)
+Fitting 1155 cascades for IAmA 7-2017
+Fitted params for a total of 443 cascades
+   skipped 0 cascades with negative comment times
+   712 cascades failed fit process
+   fail average cascade size: 1
+   110 cascades succeeded fit process
+   succeed average cascade size: 345
+   333 cascades partially-succeeded fit process (some missing params)
+      314 cascades failed weibull fit
+   partial-succeed average cascade size: 167
+Loading 6-2017
+   Processed posts file doesn't exist, creating now
+   Fitted params file doesn't exist, creating now
+Reconstructing cascades for IAmA 6-2017
+Loading comments from datasets/reddit_discussions/IAmA/IAmA_2017discussions_comments_2017_10.tsv
+Found 104 (of 119135) relevant comments
+Loading comments from datasets/reddit_discussions/IAmA/IAmA_2017discussions_comments_2017_11.tsv
+Found 31 (of 126591) relevant comments
+Loading comments from datasets/reddit_discussions/IAmA/IAmA_2017discussions_comments_2017_12.tsv
+Found 73 (of 137818) relevant comments
+Loading comments from datasets/reddit_discussions/IAmA/IAmA_2017discussions_comments_2017_6.tsv
+Found 103735 (of 108745) relevant comments
+Loading comments from datasets/reddit_discussions/IAmA/IAmA_2017discussions_comments_2017_7.tsv
+Found 1193 (of 103340) relevant comments
+Loading comments from datasets/reddit_discussions/IAmA/IAmA_2017discussions_comments_2017_8.tsv
+Found 76 (of 98966) relevant comments
+Loading comments from datasets/reddit_discussions/IAmA/IAmA_2017discussions_comments_2017_9.tsv
+Found 80 (of 144925) relevant comments
+Loading comments from datasets/reddit_discussions/IAmA/IAmA_2017discussions_comments_2018_1.tsv
+Found 0 (of 3398) relevant comments
+Loading comments from datasets/reddit_discussions/IAmA/IAmA_2017discussions_comments_2018_10.tsv
+Found 0 (of 1) relevant comments
+Loading comments from datasets/reddit_discussions/IAmA/IAmA_2017discussions_comments_2018_2.tsv
+Found 0 (of 419) relevant comments
+Loading comments from datasets/reddit_discussions/IAmA/IAmA_2017discussions_comments_2018_3.tsv
+Found 0 (of 227) relevant comments
+Loading comments from datasets/reddit_discussions/IAmA/IAmA_2017discussions_comments_2018_4.tsv
+Found 0 (of 197) relevant comments
+Loading comments from datasets/reddit_discussions/IAmA/IAmA_2017discussions_comments_2018_5.tsv
+Found 0 (of 153) relevant comments
+Loading comments from datasets/reddit_discussions/IAmA/IAmA_2017discussions_comments_2018_6.tsv
+Found 0 (of 30) relevant comments
+Loading comments from datasets/reddit_discussions/IAmA/IAmA_2017discussions_comments_2018_7.tsv
+Found 0 (of 1) relevant comments
+Loading comments from datasets/reddit_discussions/IAmA/IAmA_2017discussions_comments_2018_8.tsv
+Found 0 (of 2) relevant comments
+Total of 105292 comments for 6-2017 posts (of 843948 scanned)
+Extracting post/comment structure for 1174 IAmA 6-2017 posts and 105292 comments
+Built 1174 cascades with 105292 comments
+   Removed 0 incomplete/erroneous cascades (0 associated comments)
+Fitting 1174 cascades for IAmA 6-2017
+Fitted params for a total of 434 cascades
+   skipped 0 cascades with negative comment times
+   740 cascades failed fit process
+   fail average cascade size: 1
+   115 cascades succeeded fit process
+   succeed average cascade size: 407
+   319 cascades partially-succeeded fit process (some missing params)
+      308 cascades failed weibull fit
+   partial-succeed average cascade size: 180
+Loading 5-2017
+   Processed posts file doesn't exist, creating now
+   Fitted params file doesn't exist, creating now
+Reconstructing cascades for IAmA 5-2017
+Loading comments from datasets/reddit_discussions/IAmA/IAmA_2017discussions_comments_2017_10.tsv
+Found 30 (of 119135) relevant comments
+Loading comments from datasets/reddit_discussions/IAmA/IAmA_2017discussions_comments_2017_11.tsv
+Found 15 (of 126591) relevant comments
+Loading comments from datasets/reddit_discussions/IAmA/IAmA_2017discussions_comments_2017_12.tsv
+Found 0 (of 137818) relevant comments
+Loading comments from datasets/reddit_discussions/IAmA/IAmA_2017discussions_comments_2017_5.tsv
+Found 93829 (of 103228) relevant comments
+Loading comments from datasets/reddit_discussions/IAmA/IAmA_2017discussions_comments_2017_6.tsv
+Found 872 (of 108745) relevant comments
+Loading comments from datasets/reddit_discussions/IAmA/IAmA_2017discussions_comments_2017_7.tsv
+Found 189 (of 103340) relevant comments
+Loading comments from datasets/reddit_discussions/IAmA/IAmA_2017discussions_comments_2017_8.tsv
+Found 46 (of 98966) relevant comments
+Loading comments from datasets/reddit_discussions/IAmA/IAmA_2017discussions_comments_2017_9.tsv
+Found 38 (of 144925) relevant comments
+Loading comments from datasets/reddit_discussions/IAmA/IAmA_2017discussions_comments_2018_1.tsv
+Found 0 (of 3398) relevant comments
+Loading comments from datasets/reddit_discussions/IAmA/IAmA_2017discussions_comments_2018_10.tsv
+Found 0 (of 1) relevant comments
+Loading comments from datasets/reddit_discussions/IAmA/IAmA_2017discussions_comments_2018_2.tsv
+Found 0 (of 419) relevant comments
+Loading comments from datasets/reddit_discussions/IAmA/IAmA_2017discussions_comments_2018_3.tsv
+Found 1 (of 227) relevant comments
+Loading comments from datasets/reddit_discussions/IAmA/IAmA_2017discussions_comments_2018_4.tsv
+Found 0 (of 197) relevant comments
+Loading comments from datasets/reddit_discussions/IAmA/IAmA_2017discussions_comments_2018_5.tsv
+Found 0 (of 153) relevant comments
+Loading comments from datasets/reddit_discussions/IAmA/IAmA_2017discussions_comments_2018_6.tsv
+Found 0 (of 30) relevant comments
+Loading comments from datasets/reddit_discussions/IAmA/IAmA_2017discussions_comments_2018_7.tsv
+Found 0 (of 1) relevant comments
+Loading comments from datasets/reddit_discussions/IAmA/IAmA_2017discussions_comments_2018_8.tsv
+Found 0 (of 2) relevant comments
+Total of 95020 comments for 5-2017 posts (of 947176 scanned)
+Extracting post/comment structure for 1289 IAmA 5-2017 posts and 95020 comments
+Built 1289 cascades with 95020 comments
+   Removed 0 incomplete/erroneous cascades (0 associated comments)
+Fitting 1289 cascades for IAmA 5-2017
+Fitted params for a total of 480 cascades
+   skipped 0 cascades with negative comment times
+   809 cascades failed fit process
+   fail average cascade size: 1
+   111 cascades succeeded fit process
+   succeed average cascade size: 396
+   369 cascades partially-succeeded fit process (some missing params)
+      354 cascades failed weibull fit
+   partial-succeed average cascade size: 135
+Loading 4-2017
+   Processed posts file doesn't exist, creating now
+   Fitted params file doesn't exist, creating now
+Reconstructing cascades for IAmA 4-2017
+Loading comments from datasets/reddit_discussions/IAmA/IAmA_2017discussions_comments_2017_10.tsv
+Found 49 (of 119135) relevant comments
+Loading comments from datasets/reddit_discussions/IAmA/IAmA_2017discussions_comments_2017_11.tsv
+Found 0 (of 126591) relevant comments
+Loading comments from datasets/reddit_discussions/IAmA/IAmA_2017discussions_comments_2017_12.tsv
+Found 0 (of 137818) relevant comments
+Loading comments from datasets/reddit_discussions/IAmA/IAmA_2017discussions_comments_2017_4.tsv
+Found 124354 (of 130598) relevant comments
+Loading comments from datasets/reddit_discussions/IAmA/IAmA_2017discussions_comments_2017_5.tsv
+Found 1001 (of 103228) relevant comments
+Loading comments from datasets/reddit_discussions/IAmA/IAmA_2017discussions_comments_2017_6.tsv
+Found 133 (of 108745) relevant comments
+Loading comments from datasets/reddit_discussions/IAmA/IAmA_2017discussions_comments_2017_7.tsv
+Found 210 (of 103340) relevant comments
+Loading comments from datasets/reddit_discussions/IAmA/IAmA_2017discussions_comments_2017_8.tsv
+Found 240 (of 98966) relevant comments
+Loading comments from datasets/reddit_discussions/IAmA/IAmA_2017discussions_comments_2017_9.tsv
+Found 154 (of 144925) relevant comments
+Loading comments from datasets/reddit_discussions/IAmA/IAmA_2017discussions_comments_2018_1.tsv
+Found 0 (of 3398) relevant comments
+Loading comments from datasets/reddit_discussions/IAmA/IAmA_2017discussions_comments_2018_10.tsv
+Found 0 (of 1) relevant comments
+Loading comments from datasets/reddit_discussions/IAmA/IAmA_2017discussions_comments_2018_2.tsv
+Found 0 (of 419) relevant comments
+Loading comments from datasets/reddit_discussions/IAmA/IAmA_2017discussions_comments_2018_3.tsv
+Found 0 (of 227) relevant comments
+Loading comments from datasets/reddit_discussions/IAmA/IAmA_2017discussions_comments_2018_4.tsv
+Found 1 (of 197) relevant comments
+Loading comments from datasets/reddit_discussions/IAmA/IAmA_2017discussions_comments_2018_5.tsv
+Found 0 (of 153) relevant comments
+Loading comments from datasets/reddit_discussions/IAmA/IAmA_2017discussions_comments_2018_6.tsv
+Found 0 (of 30) relevant comments
+Loading comments from datasets/reddit_discussions/IAmA/IAmA_2017discussions_comments_2018_7.tsv
+Found 0 (of 1) relevant comments
+Loading comments from datasets/reddit_discussions/IAmA/IAmA_2017discussions_comments_2018_8.tsv
+Found 0 (of 2) relevant comments
+Total of 126142 comments for 4-2017 posts (of 1077774 scanned)
+Extracting post/comment structure for 1441 IAmA 4-2017 posts and 126142 comments
+Built 1440 cascades with 113797 comments
+   Removed 1 incomplete/erroneous cascades (12345 associated comments)
+Fitting 1440 cascades for IAmA 4-2017
+Fitted params for a total of 515 cascades
+   skipped 0 cascades with negative comment times
+   925 cascades failed fit process
+   fail average cascade size: 1
+   106 cascades succeeded fit process
+   succeed average cascade size: 280
+   409 cascades partially-succeeded fit process (some missing params)
+      397 cascades failed weibull fit
+   partial-succeed average cascade size: 202
+Loading 3-2017
+   Processed posts file doesn't exist, creating now
+   Fitted params file doesn't exist, creating now
+Reconstructing cascades for IAmA 3-2017
+Loading comments from datasets/reddit_discussions/IAmA/IAmA_2017discussions_comments_2017_10.tsv
+Found 0 (of 119135) relevant comments
+Loading comments from datasets/reddit_discussions/IAmA/IAmA_2017discussions_comments_2017_11.tsv
+Found 0 (of 126591) relevant comments
+Loading comments from datasets/reddit_discussions/IAmA/IAmA_2017discussions_comments_2017_12.tsv
+Found 0 (of 137818) relevant comments
+Loading comments from datasets/reddit_discussions/IAmA/IAmA_2017discussions_comments_2017_3.tsv
+Found 127411 (of 139716) relevant comments
+Loading comments from datasets/reddit_discussions/IAmA/IAmA_2017discussions_comments_2017_4.tsv
+Found 1511 (of 130598) relevant comments
+Loading comments from datasets/reddit_discussions/IAmA/IAmA_2017discussions_comments_2017_5.tsv
+Found 115 (of 103228) relevant comments
+Loading comments from datasets/reddit_discussions/IAmA/IAmA_2017discussions_comments_2017_6.tsv
+Found 63 (of 108745) relevant comments
+Loading comments from datasets/reddit_discussions/IAmA/IAmA_2017discussions_comments_2017_7.tsv
+Found 46 (of 103340) relevant comments
+Loading comments from datasets/reddit_discussions/IAmA/IAmA_2017discussions_comments_2017_8.tsv
+Found 46 (of 98966) relevant comments
+Loading comments from datasets/reddit_discussions/IAmA/IAmA_2017discussions_comments_2017_9.tsv
+Found 29 (of 144925) relevant comments
+Loading comments from datasets/reddit_discussions/IAmA/IAmA_2017discussions_comments_2018_1.tsv
+Found 0 (of 3398) relevant comments
+Loading comments from datasets/reddit_discussions/IAmA/IAmA_2017discussions_comments_2018_10.tsv
+Found 0 (of 1) relevant comments
+Loading comments from datasets/reddit_discussions/IAmA/IAmA_2017discussions_comments_2018_2.tsv
+Found 0 (of 419) relevant comments
+Loading comments from datasets/reddit_discussions/IAmA/IAmA_2017discussions_comments_2018_3.tsv
+Found 6 (of 227) relevant comments
+Loading comments from datasets/reddit_discussions/IAmA/IAmA_2017discussions_comments_2018_4.tsv
+Found 0 (of 197) relevant comments
+Loading comments from datasets/reddit_discussions/IAmA/IAmA_2017discussions_comments_2018_5.tsv
+Found 0 (of 153) relevant comments
+Loading comments from datasets/reddit_discussions/IAmA/IAmA_2017discussions_comments_2018_6.tsv
+Found 0 (of 30) relevant comments
+Loading comments from datasets/reddit_discussions/IAmA/IAmA_2017discussions_comments_2018_7.tsv
+Found 0 (of 1) relevant comments
+Loading comments from datasets/reddit_discussions/IAmA/IAmA_2017discussions_comments_2018_8.tsv
+Found 0 (of 2) relevant comments
+Total of 129227 comments for 3-2017 posts (of 1217490 scanned)
+Extracting post/comment structure for 1431 IAmA 3-2017 posts and 129227 comments
+Built 1428 cascades with 107023 comments
+   Removed 3 incomplete/erroneous cascades (22204 associated comments)
+Fitting 1428 cascades for IAmA 3-2017
+Fitted params for a total of 547 cascades
+   skipped 0 cascades with negative comment times
+   881 cascades failed fit process
+   fail average cascade size: 1
+   141 cascades succeeded fit process
+   succeed average cascade size: 388
+   406 cascades partially-succeeded fit process (some missing params)
+      392 cascades failed weibull fit
+   partial-succeed average cascade size: 126
+Deleted 9 posts without cascades
+Loaded 11179 posts 
+   11179 cascades
+   4312 fitted params, 6867 failed fit
+
+Loading processed testing data
+Loading 12-2017
+   Processed posts file doesn't exist, creating now
+Reconstructing cascades for IAmA 12-2017
+Loading comments from datasets/reddit_discussions/IAmA/IAmA_2017discussions_comments_2017_12.tsv
+Found 131089 (of 137818) relevant comments
+Loading comments from datasets/reddit_discussions/IAmA/IAmA_2017discussions_comments_2018_1.tsv
+Found 3011 (of 3398) relevant comments
+Loading comments from datasets/reddit_discussions/IAmA/IAmA_2017discussions_comments_2018_10.tsv
+Found 0 (of 1) relevant comments
+Loading comments from datasets/reddit_discussions/IAmA/IAmA_2017discussions_comments_2018_2.tsv
+Found 167 (of 419) relevant comments
+Loading comments from datasets/reddit_discussions/IAmA/IAmA_2017discussions_comments_2018_3.tsv
+Found 75 (of 227) relevant comments
+Loading comments from datasets/reddit_discussions/IAmA/IAmA_2017discussions_comments_2018_4.tsv
+Found 79 (of 197) relevant comments
+Loading comments from datasets/reddit_discussions/IAmA/IAmA_2017discussions_comments_2018_5.tsv
+Found 125 (of 153) relevant comments
+Loading comments from datasets/reddit_discussions/IAmA/IAmA_2017discussions_comments_2018_6.tsv
+Found 30 (of 30) relevant comments
+Loading comments from datasets/reddit_discussions/IAmA/IAmA_2017discussions_comments_2018_7.tsv
+Found 0 (of 1) relevant comments
+Loading comments from datasets/reddit_discussions/IAmA/IAmA_2017discussions_comments_2018_8.tsv
+Found 0 (of 2) relevant comments
+Total of 134576 comments for 12-2017 posts (of 142246 scanned)
+Extracting post/comment structure for 1021 IAmA 12-2017 posts and 134576 comments
+Built 1021 cascades with 134576 comments
+   Removed 0 incomplete/erroneous cascades (0 associated comments)
+Loaded 1021 posts 
+   1021 cascades
+
+Sampling 500 first posts (from 1021) for simulation set
+Sampling 10000 last posts (from 11179) for simulation set
+
+Building param graph for 10000 posts
+   Including posts with default parameters
+Using 10000 posts for graph
+Using jaccard index for edge weight
+   1000000 pairs
+   2000000 pairs
+   3000000 pairs
+   4000000 pairs
+   5000000 pairs
+   6000000 pairs
+   7000000 pairs
+   8000000 pairs
+   9000000 pairs
+   10000000 pairs
+   11000000 pairs
+   12000000 pairs
+   13000000 pairs
+   14000000 pairs
+   15000000 pairs
+   16000000 pairs
+   17000000 pairs
+   18000000 pairs
+   19000000 pairs
+   20000000 pairs
+   21000000 pairs
+   22000000 pairs
+   23000000 pairs
+   24000000 pairs
+   25000000 pairs
+   26000000 pairs
+   27000000 pairs
+   28000000 pairs
+   29000000 pairs
+   30000000 pairs
+   31000000 pairs
+   32000000 pairs
+   33000000 pairs
+   34000000 pairs
+   35000000 pairs
+   36000000 pairs
+   37000000 pairs
+   38000000 pairs
+   39000000 pairs
+   40000000 pairs
+   41000000 pairs
+   42000000 pairs
+   43000000 pairs
+   44000000 pairs
+   45000000 pairs
+   46000000 pairs
+   47000000 pairs
+   48000000 pairs
+   49000000 pairs
+Graph contains 9883 nodes and 167518 unique edges (194398 edge entries)
+  max degree: 1067
+  min degree: 1
+Saving graph to reddit_data/IAmA/base_graph_2017-12test_start_10000trainposts_default_posts_True_all_nodes_0.0minquality_jaccard_0.0minedgeweight_20topn_no_sample.pkl
+
+Finished graph build, exiting
+6364.13user 9.34system 1:46:09elapsed 100%CPU (0avgtext+0avgdata 829744maxresident)k
+0inputs+113328outputs (0major+763911minor)pagefaults 0swaps
+
+Namespace(estimate_initial_params=False, graph_downsample_ratio=None, include_default_posts=True, large_cascade_demarcation=None, max_nodes=False, max_size=None, min_node_quality=False, min_size=None, normalize_parameters=None, num_comments_observed=False, outfile='sim_results/IAmA/run_results/IAmA_model_10000train_500test_2017-12_run0', preprocess=True, remove_stopwords=False, sanity_check=False, sim_post='500', subreddit='IAmA', testing_start_month='12', testing_start_year='2017', testing_stats=False, time_error_absolute=False, time_error_margin=False, time_observed=['0', '0.5', '1', '1.5', '2', '3', '4', '5', '6', '7', '8', '9', '10', '12', '14', '16', '18', '20', '22', '24'], top_n='20', topological_error=True, training_num='10000', training_stats=False, verbose=True, weight_method='jaccard', weight_threshold=False)
+
+Sim Post: subset
+Time Observed: [0.0, 0.5, 1.0, 1.5, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 12.0, 14.0, 16.0, 18.0, 20.0, 22.0, 24.0]
+Output: sim_results/IAmA/run_results/IAmA_model_10000train_500test_2017-12_run0
+Source subreddit: IAmA
+Minimum node quality: False
+Max graph size: False
+Max edges per node: 20
+Minimum edge weight: None
+No param normalization for infer step
+Test Set: first 500 posts starting at 12-2017
+Training Set: 10000 posts immediately preceding 12-2017
+Using Jaccard index to compute graph edge weights
+Including posts with hardcoded default parameters
+Using topological error for tree evaluation (ignoring comment times)
+
+Loading processed training data
+Loading 11-2017
+Loading 10-2017
+Loading 9-2017
+Loading 8-2017
+Loading 7-2017
+Loading 6-2017
+Loading 5-2017
+Loading 4-2017
+Loading 3-2017
+Deleted 9 posts without cascades
+Loaded 11179 posts 
+   11179 cascades
+   4312 fitted params, 6867 failed fit
+
+Loading processed testing data
+Loading 12-2017
+Loaded 1021 posts 
+   1021 cascades
+
+Sampling 500 first posts (from 1021) for simulation set
+Sampling 10000 last posts (from 11179) for simulation set
+Loading base graph from file
+Graph contains 9883 nodes and 167518 unique edges (194398 edge entries)
+
+Finished graph build, exiting
+20.83user 5.58system 0:21.51elapsed 122%CPU (0avgtext+0avgdata 613296maxresident)k
+113256inputs+8outputs (0major+171685minor)pagefaults 0swaps
+
+Namespace(estimate_initial_params=False, graph_downsample_ratio=None, include_default_posts=True, large_cascade_demarcation=None, max_nodes=False, max_size=None, min_node_quality=False, min_size=None, normalize_parameters=None, num_comments_observed=False, outfile='sim_results/IAmA/run_results/IAmA_model_10000train_500test_2017-12_run0', preprocess=True, remove_stopwords=False, sanity_check=False, sim_post='500', subreddit='IAmA', testing_start_month='12', testing_start_year='2017', testing_stats=False, time_error_absolute=False, time_error_margin=False, time_observed=['0', '0.5', '1', '1.5', '2', '3', '4', '5', '6', '7', '8', '9', '10', '12', '14', '16', '18', '20', '22', '24'], top_n='20', topological_error=True, training_num='10000', training_stats=False, verbose=True, weight_method='jaccard', weight_threshold=False)
+
+Sim Post: subset
+Time Observed: [0.0, 0.5, 1.0, 1.5, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 12.0, 14.0, 16.0, 18.0, 20.0, 22.0, 24.0]
+Output: sim_results/IAmA/run_results/IAmA_model_10000train_500test_2017-12_run0
+Source subreddit: IAmA
+Minimum node quality: False
+Max graph size: False
+Max edges per node: 20
+Minimum edge weight: None
+No param normalization for infer step
+Test Set: first 500 posts starting at 12-2017
+Training Set: 10000 posts immediately preceding 12-2017
+Using Jaccard index to compute graph edge weights
+Including posts with hardcoded default parameters
+Using topological error for tree evaluation (ignoring comment times)
+
+Loading processed training data
+Loading 11-2017
+Loading 10-2017
+Loading 9-2017
+Loading 8-2017
+Loading 7-2017
+Loading 6-2017
+Loading 5-2017
+Loading 4-2017
+Loading 3-2017
+Deleted 9 posts without cascades
+Loaded 11179 posts 
+   11179 cascades
+   4312 fitted params, 6867 failed fit
+
+Loading processed testing data
+Loading 12-2017
+Loaded 1021 posts 
+   1021 cascades
+
+Sampling 500 first posts (from 1021) for simulation set
+Sampling 10000 last posts (from 11179) for simulation set
+Loading base graph from file
+Graph contains 9883 nodes and 167518 unique edges (194398 edge entries)
+
+Finished graph build, exiting
+19.99user 4.91system 0:19.89elapsed 125%CPU (0avgtext+0avgdata 613504maxresident)k
+113248inputs+16outputs (0major+171631minor)pagefaults 0swaps

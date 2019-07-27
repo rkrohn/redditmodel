@@ -1,0 +1,7 @@
+time python3 gen_cascade_model.py -s IAmA -o sim_results/IAmA/run_results/IAmA_model_10000train_500test_2017-12_run2 -n 500 -n_train 10000 -topn 20 -y 2017 -m 12 -j --topo_err -v -d -t 0 0.5 1 1.5 2 3 4 5 6 7 8 9 10 12 14 16 18 20 22 24
+Command terminated by signal 9
+7604.29user 61.50system 2:08:04elapsed 99%CPU (0avgtext+0avgdata 41115352maxresident)k
+651784inputs+106184outputs (2863major+11309234minor)pagefaults 0swaps
+Command terminated by signal 9
+8827.65user 84.44system 2:28:50elapsed 99%CPU (0avgtext+0avgdata 43830380maxresident)k
+650600inputs+8160outputs (3391major+11828217minor)pagefaults 0swaps
