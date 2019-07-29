@@ -20,184 +20,424 @@ Loaded 1455 posts
    1455 cascades
 
 Sampling 500 first posts (from 1455) for simulation set
-Skipping 0 already simulated posts
+Skipping 228 already simulated posts
 Processing 500 posts
+Generation failed! Too many nodes
+infinite sim aborted for post t3_7hqddz at 24.0 hours
+Generation failed! Too many nodes
+infinite sim aborted for post t3_7hqddz at 16.0 hours
+Generation failed! Too many nodes
+infinite sim aborted for post t3_7hqddz at 14.0 hours
+Generation failed! Too many nodes
+infinite sim aborted for post t3_7hqddz at 12.0 hours
+Generation failed! Too many nodes
+infinite sim aborted for post t3_7hqddz at 10.0 hours
+Generation failed! Too many nodes
+infinite sim aborted for post t3_7hqddz at 9.0 hours
+Generation failed! Too many nodes
+infinite sim aborted for post t3_7hqddz at 8.0 hours
+Generation failed! Too many nodes
+infinite sim aborted for post t3_7hqddz at 7.0 hours
+Generation failed! Too many nodes
+infinite sim aborted for post t3_7hqddz at 6.0 hours
+Generation failed! Too many nodes
+infinite sim aborted for post t3_7hqddz at 4.0 hours
+   saving results so far (1 posts)
    saving results so far (2 posts)
+Generation failed! Too many nodes
+infinite sim aborted for post t3_7hqiay at 1.0 hours
+   saving results so far (3 posts)
    saving results so far (4 posts)
-Generation failed! Too many nodes
-infinite sim aborted for post t3_7grmx0 at 10.0 hours
-Generation failed! Too many nodes
-infinite sim aborted for post t3_7grmx0 at 9.0 hours
+   saving results so far (5 posts)
    saving results so far (6 posts)
+   saving results so far (7 posts)
    saving results so far (8 posts)
+   saving results so far (9 posts)
    saving results so far (10 posts)
+   saving results so far (11 posts)
    saving results so far (12 posts)
+   saving results so far (13 posts)
    saving results so far (14 posts)
+   saving results so far (15 posts)
    saving results so far (16 posts)
+   saving results so far (17 posts)
    saving results so far (18 posts)
+   saving results so far (19 posts)
    saving results so far (20 posts)
+   saving results so far (21 posts)
    saving results so far (22 posts)
+   saving results so far (23 posts)
 Generation failed! Too many nodes
-infinite sim aborted for post t3_7gvbi8 at 7.0 hours
+infinite sim aborted for post t3_7htui9 at 1.5 hours
    saving results so far (24 posts)
+   saving results so far (25 posts)
    saving results so far (26 posts)
+   saving results so far (27 posts)
    saving results so far (28 posts)
+   saving results so far (29 posts)
    saving results so far (30 posts)
+   saving results so far (31 posts)
    saving results so far (32 posts)
-Generation failed! Too many nodes
-infinite sim aborted for post t3_7gxov6 at 1.0 hours
+   saving results so far (33 posts)
    saving results so far (34 posts)
+   saving results so far (35 posts)
    saving results so far (36 posts)
+   saving results so far (37 posts)
    saving results so far (38 posts)
+   saving results so far (39 posts)
    saving results so far (40 posts)
+   saving results so far (41 posts)
    saving results so far (42 posts)
+   saving results so far (43 posts)
+Generation failed! Too many nodes
+infinite sim aborted for post t3_7hy5gk at 4.0 hours
    saving results so far (44 posts)
+   saving results so far (45 posts)
    saving results so far (46 posts)
+   saving results so far (47 posts)
    saving results so far (48 posts)
+   saving results so far (49 posts)
    saving results so far (50 posts)
+   saving results so far (51 posts)
+Generation failed! Too many nodes
+infinite sim aborted for post t3_7hytu9 at 1.0 hours
+Generation failed! Too many nodes
+infinite sim aborted for post t3_7hytu9 at 0.5 hours
    saving results so far (52 posts)
+   saving results so far (53 posts)
    saving results so far (54 posts)
+   saving results so far (55 posts)
    saving results so far (56 posts)
+   saving results so far (57 posts)
    saving results so far (58 posts)
+   saving results so far (59 posts)
    saving results so far (60 posts)
+   saving results so far (61 posts)
    saving results so far (62 posts)
+   saving results so far (63 posts)
+Generation failed! Too many nodes
+infinite sim aborted for post t3_7i1s5q at 24.0 hours
+Generation failed! Too many nodes
+infinite sim aborted for post t3_7i1s5q at 22.0 hours
+Generation failed! Too many nodes
+infinite sim aborted for post t3_7i1s5q at 20.0 hours
+Generation failed! Too many nodes
+infinite sim aborted for post t3_7i1s5q at 18.0 hours
+Generation failed! Too many nodes
+infinite sim aborted for post t3_7i1s5q at 16.0 hours
+Generation failed! Too many nodes
+infinite sim aborted for post t3_7i1s5q at 14.0 hours
+Generation failed! Too many nodes
+infinite sim aborted for post t3_7i1s5q at 7.0 hours
+Generation failed! Too many nodes
+infinite sim aborted for post t3_7i1s5q at 6.0 hours
    saving results so far (64 posts)
-Generation failed! Too many nodes
-infinite sim aborted for post t3_7h1pao at 1.5 hours
-Generation failed! Too many nodes
-infinite sim aborted for post t3_7h1pao at 1.0 hours
+   saving results so far (65 posts)
    saving results so far (66 posts)
+   saving results so far (67 posts)
    saving results so far (68 posts)
-Generation failed! Too many nodes
-infinite sim aborted for post t3_7h2oyq at 2.0 hours
-Generation failed! Too many nodes
-infinite sim aborted for post t3_7h2oyq at 1.5 hours
+   saving results so far (69 posts)
    saving results so far (70 posts)
+   saving results so far (71 posts)
    saving results so far (72 posts)
+   saving results so far (73 posts)
    saving results so far (74 posts)
+   saving results so far (75 posts)
    saving results so far (76 posts)
+   saving results so far (77 posts)
    saving results so far (78 posts)
+   saving results so far (79 posts)
    saving results so far (80 posts)
-Generation failed! Too many nodes
-infinite sim aborted for post t3_7h3m6w at 1.5 hours
+   saving results so far (81 posts)
    saving results so far (82 posts)
-Generation failed! Too many nodes
-infinite sim aborted for post t3_7h3mt2 at 16.0 hours
-Generation failed! Too many nodes
-infinite sim aborted for post t3_7h3mt2 at 10.0 hours
-Generation failed! Too many nodes
-infinite sim aborted for post t3_7h3mt2 at 9.0 hours
-Generation failed! Too many nodes
-infinite sim aborted for post t3_7h3mt2 at 5.0 hours
+   saving results so far (83 posts)
    saving results so far (84 posts)
+   saving results so far (85 posts)
    saving results so far (86 posts)
+   saving results so far (87 posts)
    saving results so far (88 posts)
+   saving results so far (89 posts)
 Generation failed! Too many nodes
-infinite sim aborted for post t3_7h4q35 at 4.0 hours
+infinite sim aborted for post t3_7i6gnw at 7.0 hours
 Generation failed! Too many nodes
-infinite sim aborted for post t3_7h4q35 at 3.0 hours
+infinite sim aborted for post t3_7i6gnw at 2.0 hours
 Generation failed! Too many nodes
-infinite sim aborted for post t3_7h4q35 at 2.0 hours
-Generation failed! Too many nodes
-infinite sim aborted for post t3_7h4q35 at 1.5 hours
-Generation failed! Too many nodes
-infinite sim aborted for post t3_7h4q35 at 1.0 hours
+infinite sim aborted for post t3_7i6gnw at 1.5 hours
    saving results so far (90 posts)
 Generation failed! Too many nodes
-infinite sim aborted for post t3_7h5cxi at 1.5 hours
-   saving results so far (92 posts)
+infinite sim aborted for post t3_7i6nbn at 2.0 hours
 Generation failed! Too many nodes
-infinite sim aborted for post t3_7h5vng at 1.0 hours
+infinite sim aborted for post t3_7i6nbn at 1.5 hours
+   saving results so far (91 posts)
+   saving results so far (92 posts)
+   saving results so far (93 posts)
    saving results so far (94 posts)
+   saving results so far (95 posts)
    saving results so far (96 posts)
+   saving results so far (97 posts)
    saving results so far (98 posts)
+   saving results so far (99 posts)
    finished 100 posts
    saving results so far (100 posts)
+Generation failed! Too many nodes
+infinite sim aborted for post t3_7i7m8g at 8.0 hours
+Generation failed! Too many nodes
+infinite sim aborted for post t3_7i7m8g at 4.0 hours
+Generation failed! Too many nodes
+infinite sim aborted for post t3_7i7m8g at 3.0 hours
+   saving results so far (101 posts)
    saving results so far (102 posts)
+   saving results so far (103 posts)
    saving results so far (104 posts)
+Generation failed! Too many nodes
+infinite sim aborted for post t3_7i86an at 0.5 hours
+   saving results so far (105 posts)
    saving results so far (106 posts)
+   saving results so far (107 posts)
    saving results so far (108 posts)
+Generation failed! Too many nodes
+infinite sim aborted for post t3_7i8ulg at 0.5 hours
+   saving results so far (109 posts)
    saving results so far (110 posts)
+   saving results so far (111 posts)
 Generation failed! Too many nodes
-infinite sim aborted for post t3_7h8hqt at 1.0 hours
+infinite sim aborted for post t3_7i92pf at 0.5 hours
    saving results so far (112 posts)
-Generation failed! Too many nodes
-infinite sim aborted for post t3_7h8k9u at 10.0 hours
-Generation failed! Too many nodes
-infinite sim aborted for post t3_7h8k9u at 7.0 hours
+   saving results so far (113 posts)
    saving results so far (114 posts)
-Generation failed! Too many nodes
-infinite sim aborted for post t3_7h8qu0 at 14.0 hours
+   saving results so far (115 posts)
    saving results so far (116 posts)
+   saving results so far (117 posts)
    saving results so far (118 posts)
+   saving results so far (119 posts)
    saving results so far (120 posts)
+Generation failed! Too many nodes
+infinite sim aborted for post t3_7ia7gs at 1.0 hours
+   saving results so far (121 posts)
    saving results so far (122 posts)
+   saving results so far (123 posts)
    saving results so far (124 posts)
+   saving results so far (125 posts)
    saving results so far (126 posts)
+   saving results so far (127 posts)
+Generation failed! Too many nodes
+infinite sim aborted for post t3_7ibk79 at 0.5 hours
    saving results so far (128 posts)
+   saving results so far (129 posts)
    saving results so far (130 posts)
+   saving results so far (131 posts)
    saving results so far (132 posts)
+   saving results so far (133 posts)
    saving results so far (134 posts)
+   saving results so far (135 posts)
    saving results so far (136 posts)
+   saving results so far (137 posts)
+Generation failed! Too many nodes
+infinite sim aborted for post t3_7idb9s at 0.5 hours
    saving results so far (138 posts)
+Generation failed! Too many nodes
+infinite sim aborted for post t3_7idwlt at 9.0 hours
+   saving results so far (139 posts)
    saving results so far (140 posts)
+   saving results so far (141 posts)
    saving results so far (142 posts)
+   saving results so far (143 posts)
    saving results so far (144 posts)
+   saving results so far (145 posts)
    saving results so far (146 posts)
+   saving results so far (147 posts)
    saving results so far (148 posts)
+   saving results so far (149 posts)
    saving results so far (150 posts)
-Generation failed! Too many nodes
-infinite sim aborted for post t3_7hdb21 at 24.0 hours
-Generation failed! Too many nodes
-infinite sim aborted for post t3_7hdb21 at 22.0 hours
-Generation failed! Too many nodes
-infinite sim aborted for post t3_7hdb21 at 20.0 hours
-Generation failed! Too many nodes
-infinite sim aborted for post t3_7hdb21 at 18.0 hours
-Generation failed! Too many nodes
-infinite sim aborted for post t3_7hdb21 at 16.0 hours
-Generation failed! Too many nodes
-infinite sim aborted for post t3_7hdb21 at 14.0 hours
-Generation failed! Too many nodes
-infinite sim aborted for post t3_7hdb21 at 12.0 hours
-Generation failed! Too many nodes
-infinite sim aborted for post t3_7hdb21 at 10.0 hours
-Generation failed! Too many nodes
-infinite sim aborted for post t3_7hdb21 at 9.0 hours
-Generation failed! Too many nodes
-infinite sim aborted for post t3_7hdb21 at 8.0 hours
-Generation failed! Too many nodes
-infinite sim aborted for post t3_7hdb21 at 7.0 hours
+   saving results so far (151 posts)
    saving results so far (152 posts)
+   saving results so far (153 posts)
    saving results so far (154 posts)
+   saving results so far (155 posts)
    saving results so far (156 posts)
+   saving results so far (157 posts)
    saving results so far (158 posts)
+   saving results so far (159 posts)
    saving results so far (160 posts)
+   saving results so far (161 posts)
    saving results so far (162 posts)
+   saving results so far (163 posts)
    saving results so far (164 posts)
+   saving results so far (165 posts)
    saving results so far (166 posts)
+   saving results so far (167 posts)
    saving results so far (168 posts)
+   saving results so far (169 posts)
    saving results so far (170 posts)
+   saving results so far (171 posts)
    saving results so far (172 posts)
-Generation failed! Too many nodes
-infinite sim aborted for post t3_7hglix at 1.0 hours
+   saving results so far (173 posts)
    saving results so far (174 posts)
+   saving results so far (175 posts)
    saving results so far (176 posts)
-Generation failed! Too many nodes
-infinite sim aborted for post t3_7hgt04 at 4.0 hours
-Generation failed! Too many nodes
-infinite sim aborted for post t3_7hgt04 at 1.5 hours
-Generation failed! Too many nodes
-infinite sim aborted for post t3_7hgt04 at 1.0 hours
+   saving results so far (177 posts)
    saving results so far (178 posts)
+   saving results so far (179 posts)
    saving results so far (180 posts)
-Generation failed! Too many nodes
-infinite sim aborted for post t3_7hhmjg at 3.0 hours
+   saving results so far (181 posts)
    saving results so far (182 posts)
+   saving results so far (183 posts)
    saving results so far (184 posts)
+   saving results so far (185 posts)
    saving results so far (186 posts)
+   saving results so far (187 posts)
+Generation failed! Too many nodes
+infinite sim aborted for post t3_7ijx7s at 24.0 hours
+Generation failed! Too many nodes
+infinite sim aborted for post t3_7ijx7s at 22.0 hours
+Generation failed! Too many nodes
+infinite sim aborted for post t3_7ijx7s at 20.0 hours
+Generation failed! Too many nodes
+infinite sim aborted for post t3_7ijx7s at 16.0 hours
+Generation failed! Too many nodes
+infinite sim aborted for post t3_7ijx7s at 14.0 hours
+Generation failed! Too many nodes
+infinite sim aborted for post t3_7ijx7s at 12.0 hours
    saving results so far (188 posts)
+   saving results so far (189 posts)
+Generation failed! Too many nodes
+infinite sim aborted for post t3_7ik4hp at 6.0 hours
+Generation failed! Too many nodes
+infinite sim aborted for post t3_7ik4hp at 5.0 hours
+Generation failed! Too many nodes
+infinite sim aborted for post t3_7ik4hp at 4.0 hours
+Generation failed! Too many nodes
+infinite sim aborted for post t3_7ik4hp at 3.0 hours
+Generation failed! Too many nodes
+infinite sim aborted for post t3_7ik4hp at 2.0 hours
+Generation failed! Too many nodes
+infinite sim aborted for post t3_7ik4hp at 1.5 hours
    saving results so far (190 posts)
-Generation failed! Too many nodesCommand terminated by signal 9
-34273.54user 365.39system 9:41:16elapsed 99%CPU (0avgtext+0avgdata 29712524maxresident)k
-1594928inputs+2960outputs (54860major+58491409minor)pagefaults 0swaps
+   saving results so far (191 posts)
+   saving results so far (192 posts)
+   saving results so far (193 posts)
+   saving results so far (194 posts)
+   saving results so far (195 posts)
+   saving results so far (196 posts)
+   saving results so far (197 posts)
+   saving results so far (198 posts)
+   saving results so far (199 posts)
+   finished 200 posts
+   saving results so far (200 posts)
+   saving results so far (201 posts)
+   saving results so far (202 posts)
+   saving results so far (203 posts)
+   saving results so far (204 posts)
+   saving results so far (205 posts)
+   saving results so far (206 posts)
+   saving results so far (207 posts)
+   saving results so far (208 posts)
+   saving results so far (209 posts)
+   saving results so far (210 posts)
+   saving results so far (211 posts)
+   saving results so far (212 posts)
+   saving results so far (213 posts)
+   saving results so far (214 posts)
+   saving results so far (215 posts)
+   saving results so far (216 posts)
+   saving results so far (217 posts)
+   saving results so far (218 posts)
+   saving results so far (219 posts)
+Generation failed! Too many nodes
+infinite sim aborted for post t3_7iolfi at 10.0 hours
+Generation failed! Too many nodes
+infinite sim aborted for post t3_7iolfi at 9.0 hours
+Generation failed! Too many nodes
+infinite sim aborted for post t3_7iolfi at 8.0 hours
+Generation failed! Too many nodes
+infinite sim aborted for post t3_7iolfi at 6.0 hours
+   saving results so far (220 posts)
+   saving results so far (221 posts)
+Generation failed! Too many nodes
+infinite sim aborted for post t3_7ipk3r at 18.0 hours
+Generation failed! Too many nodes
+infinite sim aborted for post t3_7ipk3r at 16.0 hours
+Generation failed! Too many nodes
+infinite sim aborted for post t3_7ipk3r at 12.0 hours
+Generation failed! Too many nodes
+infinite sim aborted for post t3_7ipk3r at 10.0 hours
+Generation failed! Too many nodes
+infinite sim aborted for post t3_7ipk3r at 9.0 hours
+Generation failed! Too many nodes
+infinite sim aborted for post t3_7ipk3r at 6.0 hours
+   saving results so far (222 posts)
+Generation failed! Too many nodes
+infinite sim aborted for post t3_7ipkv6 at 2.0 hours
+Generation failed! Too many nodes
+infinite sim aborted for post t3_7ipkv6 at 1.0 hours
+   saving results so far (223 posts)
+   saving results so far (224 posts)
+Generation failed! Too many nodes
+infinite sim aborted for post t3_7ipz0t at 6.0 hours
+Generation failed! Too many nodes
+infinite sim aborted for post t3_7ipz0t at 5.0 hours
+Generation failed! Too many nodes
+infinite sim aborted for post t3_7ipz0t at 4.0 hours
+   saving results so far (225 posts)
+   saving results so far (226 posts)
+   saving results so far (227 posts)
+   saving results so far (228 posts)
+   saving results so far (229 posts)
+   saving results so far (230 posts)
+   saving results so far (231 posts)
+   saving results so far (232 posts)
+   saving results so far (233 posts)
+   saving results so far (234 posts)
+   saving results so far (235 posts)
+   saving results so far (236 posts)
+Generation failed! Too many nodes
+infinite sim aborted for post t3_7is2h2 at 2.0 hours
+Generation failed! Too many nodes
+infinite sim aborted for post t3_7is2h2 at 1.0 hours
+   saving results so far (237 posts)
+   saving results so far (238 posts)
+   saving results so far (239 posts)
+   saving results so far (240 posts)
+   saving results so far (241 posts)
+   saving results so far (242 posts)
+   saving results so far (243 posts)
+   saving results so far (244 posts)
+   saving results so far (245 posts)
+   saving results so far (246 posts)
+Generation failed! Too many nodes
+infinite sim aborted for post t3_7iuye7 at 1.0 hours
+   saving results so far (247 posts)
+   saving results so far (248 posts)
+   saving results so far (249 posts)
+   saving results so far (250 posts)
+Generation failed! Too many nodes
+infinite sim aborted for post t3_7ivdcw at 2.0 hours
+Generation failed! Too many nodes
+infinite sim aborted for post t3_7ivdcw at 1.5 hours
+   saving results so far (251 posts)
+   saving results so far (252 posts)
+   saving results so far (253 posts)
+   saving results so far (254 posts)
+   saving results so far (255 posts)
+   saving results so far (256 posts)
+   saving results so far (257 posts)
+   saving results so far (258 posts)
+   saving results so far (259 posts)
+   saving results so far (260 posts)
+   saving results so far (261 posts)
+   saving results so far (262 posts)
+   saving results so far (263 posts)
+   saving results so far (264 posts)
+   saving results so far (265 posts)
+   saving results so far (266 posts)
+   saving results so far (267 posts)
+   saving results so far (268 posts)
+   saving results so far (269 posts)
+   saving results so far (270 posts)
+   saving results so far (271 posts)
+   saving results so far (272 posts)
+Finished simulating 272 posts
+All done, all results saved
+
+75225.31user 519.23system 21:02:22elapsed 100%CPU (0avgtext+0avgdata 28773868maxresident)k
+16024inputs+7536outputs (14major+131155703minor)pagefaults 0swaps
