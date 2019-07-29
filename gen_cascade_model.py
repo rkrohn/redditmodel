@@ -208,7 +208,7 @@ for sim_post_id, sim_post in test_posts.items():
 			vprint("Simulation params: ", sim_params)
 
 		#SIMULATE COMMENT TREE
-		sim_tree, simulated_count = functions_gen_cascade_model.simulate_comment_tree(sim_params, observed_tree, observed_count, time_observed, not batch)
+		sim_tree, simulated_count = functions_gen_cascade_model.simulate_comment_tree(sim_params, observed_tree, observed_count, time_observed*60.0, not batch)
 
 		#don't try to eval if sim failed (aborted infinite sim)
 		if sim_tree == False:
