@@ -148,8 +148,7 @@ for sim_post_id, sim_post in test_posts.items():
 	observed_tree = deepcopy(true_cascade)
 
 	#use the same sim params for all the time_observed values
-	for observed in sorted(observed_list, reverse=True):		
-
+	for observed in sorted(observed_list, reverse=True):
 		#if returning a random tree instead of simulating, pick one and skip to eval
 		#this doesn't take the observed time/comments into account at all, so results will be pretty poor indeed
 		if mode == "rand_tree":
@@ -180,7 +179,7 @@ for sim_post_id, sim_post in test_posts.items():
 				observed_tree, observed_count, time_observed = functions_gen_cascade_model.filter_comment_tree_by_num_comments(observed_tree, observed)
 
 			#SIMULATE COMMENT TREE
-			sim_tree, simulated_count = functions_gen_cascade_model.simulate_comment_tree(sim_params, observed_tree, time_observed, not batch)
+			sim_tree, simulated_count = functions_gen_cascade_model.simulate_comment_tree(sim_params, observed_tree, observed_count, time_observed*60.0, not batch)
 			if not batch:
 				vprint("Simulated cascade has ", simulated_count, " comments")
 
