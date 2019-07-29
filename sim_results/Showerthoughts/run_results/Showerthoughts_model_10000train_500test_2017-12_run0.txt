@@ -1,7 +1,0 @@
-time python3 gen_cascade_model.py -s Showerthoughts -o sim_results/Showerthoughts/run_results/Showerthoughts_model_10000train_500test_2017-12_run0 -n 500 -n_train 10000 -topn 20 -y 2017 -m 12 -j --topo_err -v -d -t 0 0.5 1 1.5 2 3 4 5 6 7 8 9 10 12 14 16 18 20 22 24
-Command terminated by signal 9
-963.45user 35.20system 18:31.09elapsed 89%CPU (0avgtext+0avgdata 17574884maxresident)k
-406528inputs+15392outputs (22964major+4799380minor)pagefaults 0swaps
-Command terminated by signal 9
-2179.92user 44.99system 39:08.76elapsed 94%CPU (0avgtext+0avgdata 21434616maxresident)k
-363808inputs+7688outputs (1108major+6003687minor)pagefaults 0swaps

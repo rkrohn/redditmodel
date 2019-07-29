@@ -1,7 +1,0 @@
-time python3 gen_cascade_model.py -s changemyview -o sim_results/changemyview/run_results/changemyview_model_10000train_500test_2017-12_run3 -n 500 -n_train 10000 -topn 20 -y 2017 -m 12 -j --topo_err -v -d -t 0 0.5 1 1.5 2 3 4 5 6 7 8 9 10 12 14 16 18 20 22 24
-Command terminated by signal 9
-5697.83user 111.25system 1:36:45elapsed 100%CPU (0avgtext+0avgdata 39979868maxresident)k
-623864inputs+51168outputs (3484major+17700738minor)pagefaults 0swaps
-Command terminated by signal 9
-31957.26user 440.87system 8:58:07elapsed 100%CPU (0avgtext+0avgdata 34656504maxresident)k
-4134640inputs+674472outputs (57310major+61107329minor)pagefaults 0swaps
