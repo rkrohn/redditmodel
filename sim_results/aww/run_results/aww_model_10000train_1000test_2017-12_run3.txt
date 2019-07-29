@@ -1,4 +1,0 @@
-time python3 gen_cascade_model.py -s aww -o sim_results/aww/run_results/aww_1000_test_2017-12_run3 -n 1000 -n_train 10000 -topn 20 -y 2017 -m 12 -j --topo_err -v -d -t 0 0.5 1 1.5 2 3 4 5 6 7 8 9 10 12 14 16 18 20 22 24
-Command terminated by signal 9
-1766.81user 89.86system 30:56.53elapsed 100%CPU (0avgtext+0avgdata 28347264maxresident)k
-170344inputs+14688outputs (1362major+13538817minor)pagefaults 0swaps
