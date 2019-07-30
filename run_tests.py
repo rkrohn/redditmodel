@@ -218,7 +218,7 @@ for run in range(repeat_runs):
 			#also run comparative model (reddit paper Hawkes) in background - if not already done
 			if run_comparative:
 				#define output filename for comparative model
-				comparative_outfile = "sim_results/%s/run_results/%s_comparative_%dtrain_%dtest_%d-%d%s%s" % (subreddit, subreddit, arguments['-n_train'], arguments['-n'], arguments['-y'], arguments['-m'], size_class, "_run%d" % run if repeat_runs > 1 else "")
+				comparative_outfile = "sim_results/%s/run_results/%s_comparative_%dtest_%d-%d%s%s" % (subreddit, subreddit, arguments['-n'], arguments['-y'], arguments['-m'], size_class, "_run%d" % run if repeat_runs > 1 else "")
 				outfile_lists['comparative'].append(comparative_outfile)
 
 				#no data for this configuration, run the test
@@ -231,8 +231,8 @@ for run in range(repeat_runs):
 					#build command arguments list
 					#base first
 					comparative_command = ['time', 'python3', 'comparative_model.py', '-s', subreddit, '-o', comparative_outfile, '-v']
-					#add the dict args - but only the ones that make sense for the baseline model
-					for arg in ['-n', '-n_train', '-m', '-y', '-min', '-max']:
+					#add the dict args - but only the ones that make sense for the comparative model
+					for arg in ['-n', '-m', '-y', '-min', '-max']:
 						if arg in arguments:
 							comparative_command.append(arg)
 							comparative_command.append(str(arguments[arg]))
@@ -320,7 +320,7 @@ if repeat_runs != 1 or len(size_breaks) != 0:
 	#comparative model results - if all runs finished, combine
 	if run_comparative and check_completion(outfile_lists['comparative']):
 		#redefine output filename - without run identifier or subreddit directory
-		comparative_outfile = "%s_comparative_%dtrain_%dtest_%d-%d%s" % (subreddit, arguments['-n_train'], arguments['-n'], arguments['-y'], arguments['-m'], size_class)
+		comparative_outfile = "%s_comparative_%dtest_%d-%d%s" % (subreddit, arguments['-n'], arguments['-y'], arguments['-m'], size_class)
 		#combine matching files from multiple runs together
 		file_utils.combine_csv(subreddit_dir+comparative_outfile+"_all_results.csv", run_dir+comparative_outfile + ("*" if len(size_breaks) != 0 else "") + "*.csv", display=True)
 	elif run_comparative == False: print("Skipped comparative runs")	

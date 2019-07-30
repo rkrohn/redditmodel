@@ -39,7 +39,8 @@ def parse_command_args(baseline = True):
 	parser.add_argument("-m", "--month", dest="testing_start_month", default=False, help="month to use for test set")
 
 	#optional args
-	parser.add_argument("-n_train", dest="training_num", default=10000, help="number of posts to use for training (immediately preceding test month")
+	if baseline:
+		parser.add_argument("-n_train", dest="training_num", default=10000, help="number of posts to use for training (immediately preceding test month")
 	parser.add_argument("-v", "--verbose", dest="verbose", action="store_true", help="verbose output")
 	parser.set_defaults(verbose=False)
 	parser.add_argument("--err", dest="time_error_margin", default=False, help="allowable time error for evaluation, in minutes")
@@ -76,7 +77,8 @@ def parse_command_args(baseline = True):
 	outfile = args.outfile
 	testing_start_month = int(args.testing_start_month)
 	testing_start_year = int(args.testing_start_year)
-	training_num = int(args.training_num)
+	if baseline:
+		training_num = int(args.training_num)
 	verbose = args.verbose
 	time_error_margin = float(args.time_error_margin) if args.time_error_margin != False else 30.0
 	time_error_absolute = args.time_error_absolute
@@ -150,7 +152,7 @@ def parse_command_args(baseline = True):
 	vprint("Output: ", outfile)
 	vprint("Source subreddit: ", subreddit)
 	vprint("Test Set: first %d posts starting at %d-%d" % (testing_num, testing_start_month, testing_start_year))
-	vprint("Training Set: %d posts immediately preceding %d-%d" % (training_num, testing_start_month, testing_start_year))
+	if baseline: vprint("Training Set: %d posts immediately preceding %d-%d" % (training_num, testing_start_month, testing_start_year))
 	if error_method == "abs":
 		vprint("Using absolute time error margin for all levels of tree")
 		vprint("   Allowable eval time error: ", time_error_margin)
@@ -168,7 +170,10 @@ def parse_command_args(baseline = True):
 	vprint("")
 
 	#return all arguments
-	return mode, subreddit, sim_post, observing_time, observed_list, outfile, batch, testing_num, testing_start_month, testing_start_year, training_num, time_error_margin, error_method, min_size, max_size, socsim_data, verbose
+	if baseline:
+		return mode, subreddit, sim_post, observing_time, observed_list, outfile, batch, testing_num, testing_start_month, testing_start_year, training_num, time_error_margin, error_method, min_size, max_size, socsim_data, verbose
+	else:
+		return subreddit, sim_post, observing_time, observed_list, outfile, batch, testing_num, testing_start_month, testing_start_year, time_error_margin, error_method, min_size, max_size, socsim_data, verbose
 #end parse_command_args
 
 
