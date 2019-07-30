@@ -1,0 +1,39 @@
+
+Namespace(estimate_initial_params=False, graph_downsample_ratio=None, include_default_posts=True, large_cascade_demarcation=None, max_nodes=False, max_size=None, min_node_quality=False, min_size=None, normalize_parameters=None, num_comments_observed=False, outfile='sim_results/explainlikeimfive/run_results/explainlikeimfive_model_10000train_500test_2017-12_run0', preprocess=True, remove_stopwords=False, sanity_check=False, sim_post='500', subreddit='explainlikeimfive', testing_start_month='12', testing_start_year='2017', testing_stats=False, time_error_absolute=False, time_error_margin=False, time_observed=['0', '0.5', '1', '1.5', '2', '3', '4', '5', '6', '7', '8', '9', '10', '12', '14', '16', '18', '20', '22', '24'], top_n='20', topological_error=True, training_num='10000', training_stats=False, verbose=True, weight_method='jaccard', weight_threshold=False)
+
+Sim Post: subset
+Time Observed: [0.0, 0.5, 1.0, 1.5, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 12.0, 14.0, 16.0, 18.0, 20.0, 22.0, 24.0]
+Output: sim_results/explainlikeimfive/run_results/explainlikeimfive_model_10000train_500test_2017-12_run0
+Source subreddit: explainlikeimfive
+Minimum node quality: False
+Max graph size: False
+Max edges per node: 20
+Minimum edge weight: None
+No param normalization for infer step
+Test Set: first 500 posts starting at 12-2017
+Training Set: 10000 posts immediately preceding 12-2017
+Using Jaccard index to compute graph edge weights
+Including posts with hardcoded default parameters
+Using topological error for tree evaluation (ignoring comment times)
+
+Loading processed training data
+Loading 11-2017
+Deleted 1 posts without cascades
+Loaded 11035 posts 
+   11035 cascades
+   3849 fitted params, 7186 failed fit
+
+Loading processed testing data
+Loading 12-2017
+Deleted 1 posts without cascades
+Loaded 10814 posts 
+   10814 cascades
+
+Sampling 500 first posts (from 10814) for simulation set
+Sampling 10000 last posts (from 11035) for simulation set
+Loading base graph from file
+Graph contains 9988 nodes and 166985 unique edges (199249 edge entries)
+
+Finished graph build, exiting
+4.92user 1.50system 0:04.92elapsed 130%CPU (0avgtext+0avgdata 236196maxresident)k
+36304inputs+8outputs (0major+66211minor)pagefaults 0swaps
