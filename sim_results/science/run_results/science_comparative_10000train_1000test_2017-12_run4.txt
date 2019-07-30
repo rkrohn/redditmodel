@@ -1,4 +1,0 @@
-time python3 comparative_model.py -s science -o sim_results/science/run_results/science_comparative_10000train_1000test_2017-12_run4 -v -n 1000 -n_train 10000 -m 12 -y 2017 -t 0 0.5 1 1.5 2 3 4 5 6 7 8 9 10 12 14 16 18 20 22 24
-Command terminated by signal 9
-1895.65user 51.62system 32:39.78elapsed 99%CPU (0avgtext+0avgdata 34330956maxresident)k
-1373136inputs+0outputs (7493major+9001656minor)pagefaults 0swaps

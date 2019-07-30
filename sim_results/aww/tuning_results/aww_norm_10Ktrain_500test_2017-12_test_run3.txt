@@ -1,7 +1,0 @@
-time python3 gen_cascade_model.py -s aww -o sim_results/aww/aww_norm_10Ktrain_500test_2017-12_test_run3 -n 500 -n_train 10000 -topn 20 -y 2017 -m 12 -np ln -j --topo_err -v -d -nco 0 1 2 3 4 5 6 7 8 9 10 12 15 17 20 25 30 35 40 45 50 60 70 75 80 90 100 125 150 175 200 250 300 350 400 500 600 700 800 900 1000
-Command terminated by signal 9
-28940.16user 167.29system 8:04:55elapsed 100%CPU (0avgtext+0avgdata 88567704maxresident)k
-499027inputs+660640outputs (1471major+26462696minor)pagefaults 0swaps
-Command terminated by signal 9
-33786.63user 242.91system 9:26:23elapsed 100%CPU (0avgtext+0avgdata 88567704maxresident)k
-1741789inputs+1409456outputs (7321major+36980101minor)pagefaults 0swaps

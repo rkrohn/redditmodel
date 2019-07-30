@@ -1,4 +1,0 @@
-time python3 comparative_model.py -s Showerthoughts -o sim_results/Showerthoughts/run_results/Showerthoughts_comparative_10000train_500test_2017-12_run3 -v -n 500 -n_train 10000 -m 12 -y 2017 -t 0 0.5 1 1.5 2 3 4 5 6 7 8 9 10 12 14 16 18 20 22 24
-Command terminated by signal 9
-4202.48user 60.15system 1:11:13elapsed 99%CPU (0avgtext+0avgdata 46378476maxresident)k
-354088inputs+16outputs (2040major+11984375minor)pagefaults 0swaps
