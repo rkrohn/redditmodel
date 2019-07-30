@@ -260,6 +260,7 @@ for run in range(repeat_runs):
 				finished_posts, complete = load_bookmark(outfile)
 				if complete:
 					print("skipping", outfile)
+					sub_counts[subreddit] += 1	#sub done, add to counter
 					continue
 
 				#model command defined above
