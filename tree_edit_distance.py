@@ -206,6 +206,23 @@ def compare_trees(sim_dict_tree, truth_dict_tree, error_method, error_margin=30)
 #end compare_trees
 
 
+#given two trees in dictionary format, compute the tree stats
+def tree_stats(sim_dict_tree, truth_dict_tree):
+	#get CommentNode format of the trees - stats come from build
+	sim, sim_depth, sim_breadth = build_tree(sim_dict_tree, get_stats=True)
+	truth, truth_depth, truth_breadth = build_tree(truth_dict_tree, get_stats=True)
+
+	#store in dictionary
+	results = {}
+	results['true_depth'] = truth_depth
+	results['true_breadth'] = truth_breadth
+	results['simulated_depth'] = sim_depth
+	results['simulated_breadth'] = sim_breadth
+
+	return results 		#and return
+#end tree_stats
+
+
 #given an Operation object, return it's type, time error, and a string representation (contains type and affected comment times)
 #time error computed as follows:
 #	for remove operations (simulated an extra comment), return timestamp of that comment

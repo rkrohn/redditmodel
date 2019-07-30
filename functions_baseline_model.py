@@ -178,7 +178,11 @@ def parse_command_args(baseline = True):
 #pretty much the same as the real model output, but without a couple columns that don't make sense
 def eval_trees(post_id, sim_cascade, true_cascade, simulated_comment_count, observed_comment_count, true_comment_count, true_virality, time_observed, observing_time, time_error_margin, error_method,max_observed_comment_count=None):
 	#get edit distance stats for sim vs truth
-	eval_res = tree_edit_distance.compare_trees(sim_cascade, true_cascade, error_method, time_error_margin)
+	#eval_res = tree_edit_distance.compare_trees(sim_cascade, true_cascade, error_method, time_error_margin)
+
+	#no more tree edit distance, to expensive - and large trees die
+	#so just get the tree stats
+	eval_res = tree_edit_distance.tree_stats(sim_cascade, true_cascade)
 
 	#compute structural virality of sim cascade
 	sim_virality = functions_gen_cascade_model.get_structural_virality(sim_cascade)
@@ -200,9 +204,9 @@ def eval_trees(post_id, sim_cascade, true_cascade, simulated_comment_count, obse
 
 	#normalize the tree edit distance in a couple different ways - even though it's not perfect
 	#divide by true comment count
-	eval_res['norm_dist'] = eval_res['dist'] / eval_res['true_comment_count']	
+	#eval_res['norm_dist'] = eval_res['dist'] / eval_res['true_comment_count']	
 	#divide by number of unobserved comments
-	eval_res['norm_dist_exclude_observed'] = eval_res['dist'] / (eval_res['true_comment_count'] - eval_res['observed_comment_count'])
+	#eval_res['norm_dist_exclude_observed'] = eval_res['dist'] / (eval_res['true_comment_count'] - eval_res['observed_comment_count'])
 
 	#structural virality
 	eval_res['true_structural_virality'] = true_virality

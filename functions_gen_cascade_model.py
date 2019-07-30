@@ -1657,7 +1657,11 @@ def filter_comment_tree_by_num_comments(cascade, num_observed):
 #return eval results in a metric-coded dictionary
 def eval_trees(post_id, sim_cascade, true_cascade, simulated_comment_count, observed_comment_count, true_comment_count, true_virality, time_observed, observing_time, time_error_margin, error_method, disconnected, new_edges, max_observed_comment_count=None):
 	#get edit distance stats for sim vs truth
-	eval_res = tree_edit_distance.compare_trees(sim_cascade, true_cascade, error_method, time_error_margin)
+	#eval_res = tree_edit_distance.compare_trees(sim_cascade, true_cascade, error_method, time_error_margin)
+
+	#no more tree edit distance, to expensive - and large trees die
+	#so just get the tree stats
+	eval_res = tree_edit_distance.tree_stats(sim_cascade, true_cascade)
 
 	#compute structural virality of sim cascade
 	sim_virality = get_structural_virality(sim_cascade)
@@ -1681,9 +1685,9 @@ def eval_trees(post_id, sim_cascade, true_cascade, simulated_comment_count, obse
 
 	#normalize the tree edit distance in a couple different ways - even though it's not perfect
 	#divide by true comment count
-	eval_res['norm_dist'] = eval_res['dist'] / eval_res['true_comment_count']	
+	#eval_res['norm_dist'] = eval_res['dist'] / eval_res['true_comment_count']	
 	#divide by number of unobserved comments
-	eval_res['norm_dist_exclude_observed'] = eval_res['dist'] / (eval_res['true_comment_count'] - eval_res['observed_comment_count'])
+	#eval_res['norm_dist_exclude_observed'] = eval_res['dist'] / (eval_res['true_comment_count'] - eval_res['observed_comment_count'])
 
 	#structural virality
 	eval_res['true_structural_virality'] = true_virality
@@ -1906,7 +1910,7 @@ def save_results(base_filename, metrics, observing_time):
 	filename = base_filename + "_results.csv"
 
 	#dump metrics dict to file, enforcing a semi-meaningful order
-	fields = ["post_id", "param_source", "observing_by", "time_observed", "observed_comment_count", "true_comment_count", "simulated_comment_count", "true_root_comments", "sim_root_comments", "true_depth", "true_breadth", "simulated_depth", "simulated_breadth", "true_structural_virality", "sim_structural_virality", "true_lifetime", "sim_lifetime", "dist", "norm_dist", "norm_dist_exclude_observed", "MEPDL_min", "MEPDL_max", "remove_count", "remove_time", "insert_count", "insert_time", "update_count", "update_time", "match_count", "disconnected", "connecting_edges"]
+	fields = ["post_id", "param_source", "observing_by", "time_observed", "observed_comment_count", "true_comment_count", "simulated_comment_count", "true_root_comments", "sim_root_comments", "true_depth", "true_breadth", "simulated_depth", "simulated_breadth", "true_structural_virality", "sim_structural_virality", "true_lifetime", "sim_lifetime", "MEPDL_min", "MEPDL_max", "disconnected", "connecting_edges"]
 	if observing_time == False:
 		fields.insert(5, "max_observed_comments")
 
