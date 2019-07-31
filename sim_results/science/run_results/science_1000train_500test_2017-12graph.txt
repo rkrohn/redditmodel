@@ -1,0 +1,45 @@
+
+Namespace(estimate_initial_params=False, graph_downsample_ratio=None, include_default_posts=True, large_cascade_demarcation=None, max_nodes=False, max_size=None, min_node_quality=False, min_size=None, normalize_parameters=None, num_comments_observed=False, outfile='sim_results/science/run_results/science_model_1000train_500test_2017-12_run0', preprocess=True, remove_stopwords=False, sanity_check=False, sim_post='500', subreddit='science', testing_start_month='12', testing_start_year='2017', testing_stats=False, time_error_absolute=False, time_error_margin=False, time_observed=['0', '0.5', '1', '1.5', '2', '3', '4', '5', '6', '7', '8', '9', '10', '12', '14', '16', '18', '20', '22', '24'], top_n='20', topological_error=True, training_num='1000', training_stats=False, verbose=True, weight_method='jaccard', weight_threshold=False)
+
+Sim Post: subset
+Time Observed: [0.0, 0.5, 1.0, 1.5, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 12.0, 14.0, 16.0, 18.0, 20.0, 22.0, 24.0]
+Output: sim_results/science/run_results/science_model_1000train_500test_2017-12_run0
+Source subreddit: science
+Minimum node quality: False
+Max graph size: False
+Max edges per node: 20
+Minimum edge weight: None
+No param normalization for infer step
+Test Set: first 500 posts starting at 12-2017
+Training Set: 1000 posts immediately preceding 12-2017
+Using Jaccard index to compute graph edge weights
+Including posts with hardcoded default parameters
+Using topological error for tree evaluation (ignoring comment times)
+
+Loading processed training data
+Loading 11-2017
+Deleted 1 posts without cascades
+Loaded 3057 posts 
+   3057 cascades
+   774 fitted params, 2283 failed fit
+
+Loading processed testing data
+Loading 12-2017
+Loaded 2746 posts 
+   2746 cascades
+
+Sampling 500 first posts (from 2746) for simulation set
+Sampling 1000 last posts (from 3057) for simulation set
+
+Building param graph for 1000 posts
+   Including posts with default parameters
+Using 1000 posts for graph
+Using jaccard index for edge weight
+Graph contains 987 nodes and 13380 unique edges (18831 edge entries)
+  max degree: 96
+  min degree: 1
+Saving graph to reddit_data/science/base_graph_2017-12test_start_1000trainposts_default_posts_True_all_nodes_0.0minquality_jaccard_0.0minedgeweight_20topn_no_sample.pkl
+
+Finished graph build, exiting
+6.62user 1.97system 0:06.00elapsed 143%CPU (0avgtext+0avgdata 235260maxresident)k
+8inputs+608outputs (0major+65257minor)pagefaults 0swaps
