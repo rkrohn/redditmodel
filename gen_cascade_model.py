@@ -85,7 +85,7 @@ file_utils.save_pickle(rand_cascade, "test_cascade.pkl")
 #if want training data stats, get those now
 if get_training_stats:
 	vprint("Computing training data stats")
-	functions_gen_cascade_model.output_post_set_stats(train_cascades, subreddit, testing_start_year, testing_start_month, "train", training_num)
+	functions_gen_cascade_model.output_post_set_stats(train_cascades, subreddit, testing_start_year, testing_start_month, "train", training_num, train_params)
 #if want testing data stats, get those now
 if get_testing_stats:
 	vprint("Computing testing data stats")

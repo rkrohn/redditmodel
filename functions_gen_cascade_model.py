@@ -834,7 +834,8 @@ def get_test_post_set(input_sim_post, min_size, max_size, sample_num, posts, cas
 
 #for a given set of processed posts and reconstructed cascades, 
 #compute and output some stats on the post set
-def output_post_set_stats(cascades, subreddit, year, month, set_type, num_posts):
+#if params included, also compute some param stats for the set
+def output_post_set_stats(cascades, subreddit, year, month, set_type, num_posts, params=False):
 	curr_filepath = stats_filepath % (subreddit, year, month, len(cascades), set_type)
 
 	#do we already have a stats file for this subreddit set? if so, skip
@@ -899,8 +900,41 @@ def output_post_set_stats(cascades, subreddit, year, month, set_type, num_posts)
 		mean_observed[percent] = sum(observed_percents[percent]) / len(observed_percents[percent])
 		median_observed[percent] = statistics.median(observed_percents[percent])
 
+	#params: get min, max, mean, median for each of the 6
+	if params != False:
+		param_mean = defaultdict(int)
+		param_max = {}
+		param_min = {}
+		param_median = defaultdict(list)
+		param_names = {0: "a", 1: "b", 2: "alpha", 3: "mu", 4: "sigma", 5: "n_b"}
+		#loop all posts, track stats
+		for post_id in cascades.keys():
+			#get this post's params - might have holes to fill
+			if post_id in params:
+				post_params = params[post_id]
+				#fill in holes if params not complete
+				if not all(post_params):
+					post_params = get_complete_params(cascades[post_id], post_params)
+			else:
+				post_params = get_default_params(cascades[post_id])
+			#loop all 6 params, update stats
+			for i in range(6):
+				param_mean[param_names[i]] += post_params[i]		#add to mean
+				if param_names[i] not in param_max or post_params[i] > param_max[param_names[i]]:
+					param_max[param_names[i]] = post_params[i]		#update max
+				if param_names[i] not in param_min or post_params[i] < param_min[param_names[i]]:
+					param_min[param_names[i]] = post_params[i]		#update min
+				param_median[param_names[i]].append(post_params[i])	#add to list for median
+		#finish stat processing
+		for key in param_mean.keys():
+			param_mean[key] /= len(cascades)		#divide for mean
+			param_median[key] = statistics.median(param_median[key])	#median of list
+
 	#write all to output
-	file_utils.multi_dict_to_csv(stats_filepath % (subreddit, year, month, len(cascades), set_type), ["number_of_comments", "number_of_cascades", "lifetime(minutes)", "number_of_cascades", "percent_lifetime", "mean_comments_observed", "percent_lifetime", "median_comments_observed", "utc", "date"], [cascade_sizes, lifetime_dist, mean_observed, median_observed, post_times])
+	if params == False:
+		file_utils.multi_dict_to_csv(stats_filepath % (subreddit, year, month, len(cascades), set_type), ["number_of_comments", "number_of_cascades", "lifetime(minutes)", "number_of_cascades", "percent_lifetime", "mean_comments_observed", "percent_lifetime", "median_comments_observed", "utc", "date"], [cascade_sizes, lifetime_dist, mean_observed, median_observed, post_times])
+	else:
+		file_utils.multi_dict_to_csv(stats_filepath % (subreddit, year, month, len(cascades), set_type), ["number_of_comments", "number_of_cascades", "lifetime(minutes)", "number_of_cascades", "percent_lifetime", "mean_comments_observed", "percent_lifetime", "median_comments_observed", "utc", "date", "param", "mean", "param", "median", "param", "min", "param", "max"], [cascade_sizes, lifetime_dist, mean_observed, median_observed, post_times, param_mean, param_median, param_min, param_max])
 #end output_post_set_stats
 
 
