@@ -23,6 +23,7 @@ import networkx as nx
 from nltk.corpus import stopwords
 import math
 import sys
+from datetime import datetime
 
 #filepaths of data and pre-processed files - keeping everything in the same spot, for sanity/simplicity
 
@@ -841,10 +842,24 @@ def output_post_set_stats(cascades, subreddit, year, month, set_type, num_posts)
 		vprint("Post set stats already exist.")
 		return
 
+	#how much time does this post set cover? want date of first and last posts
+	first_post_time = -1
+	last_post_time = -1
+
 	#cascade size distribution
 	cascade_sizes = defaultdict(int)
 	for post_id, cascade in cascades.items():
-		cascade_sizes[cascade['comment_count_total']] += 1
+		cascade_sizes[cascade['comment_count_total']] += 1		#add to counter for this cascade size
+		#track earliest and latest posts in this loop too
+		if cascade['time'] > last_post_time: 
+			last_post_time = cascade['time']
+		elif cascade['time'] < first_post_time or first_post_time == -1: 
+			first_post_time = cascade['time']
+
+	#put post times in dict for output
+	post_times = {}
+	post_times[first_post_time] = datetime.utcfromtimestamp(first_post_time).strftime('%Y-%m-%d %H:%M:%S')
+	post_times[last_post_time] = datetime.utcfromtimestamp(last_post_time).strftime('%Y-%m-%d %H:%M:%S')
 
 	#build dict of post id -> list of sorted relative comment times
 	post_to_comment_times = {}
@@ -885,7 +900,7 @@ def output_post_set_stats(cascades, subreddit, year, month, set_type, num_posts)
 		median_observed[percent] = statistics.median(observed_percents[percent])
 
 	#write all to output
-	file_utils.multi_dict_to_csv(stats_filepath % (subreddit, year, month, len(cascades), set_type), ["number_of_comments", "number_of_cascades", "lifetime(minutes)", "number_of_cascades", "percent_lifetime", "mean_comments_observed", "percent_lifetime", "median_comments_observed"], [cascade_sizes, lifetime_dist, mean_observed, median_observed])
+	file_utils.multi_dict_to_csv(stats_filepath % (subreddit, year, month, len(cascades), set_type), ["number_of_comments", "number_of_cascades", "lifetime(minutes)", "number_of_cascades", "percent_lifetime", "mean_comments_observed", "percent_lifetime", "median_comments_observed", "utc", "date"], [cascade_sizes, lifetime_dist, mean_observed, median_observed, post_times])
 #end output_post_set_stats
 
 
