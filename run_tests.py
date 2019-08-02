@@ -331,7 +331,7 @@ if repeat_runs != 1 or len(size_breaks) != 0:
 	#test results - if all runs finished, combine
 	if run_model and check_completion(outfile_lists['model']):
 		#redefine output filename - without run identifier or subreddit directory
-		outfile = "%s_model_%dtrain_%dtest_%d-%d%s" % (subreddit, arguments['-n_train'], arguments['-n'], arguments['-y'], arguments['-m'], size_class)
+		outfile = "%s_model_%dtrain_%dtest_%d-%d%s%s" % (subreddit, arguments['-n_train'], arguments['-n'], arguments['-y'], arguments['-m'], size_class, "_fixed_qual" if '-b' in arguments_list else "")
 		#combine matching files from multiple runs together
 		file_utils.combine_csv(subreddit_dir+outfile+"_all_results.csv", run_dir+outfile + ("*" if len(size_breaks) != 0 else "") + ".csv", display=True)
 	elif run_model == False: print("Skipped model runs")
