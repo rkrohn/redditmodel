@@ -859,7 +859,7 @@ def output_post_set_stats(cascades, subreddit, year, month, set_type, num_posts,
 		#track earliest and latest posts in this loop too
 		if cascade['time'] > last_post_time: 
 			last_post_time = cascade['time']
-		elif cascade['time'] < first_post_time or first_post_time == -1: 
+		if cascade['time'] < first_post_time or first_post_time == -1:
 			first_post_time = cascade['time']
 
 	#put post times in dict for output
