@@ -110,6 +110,8 @@ def parse_command_args():
 	#optional args
 	parser.add_argument("-g", "--graph", dest="max_nodes", default=False, help="max nodes in post graph for parameter infer")
 	parser.add_argument("-q", "--qual", dest="min_node_quality", default=False, help="minimum node quality for post graph")
+	parser.add_argument("-b", "--binary_quality", dest="binary_quality", action='store_true', help="set all training node qualities to 1, so custom learning rate in node2vec is 0")
+	parser.set_defaults(binary_quality=False)
 	parser.add_argument("-e", "--esp", dest="estimate_initial_params", action='store_true', help="estimate initial params as inverse quality weighted average of neighbor nodes")
 	parser.set_defaults(estimate_initial_params=False)
 	parser.add_argument("-n_train", dest="training_num", default=10000, help="number of posts to use for training (immediately preceding test month")
@@ -180,6 +182,7 @@ def parse_command_args():
 	outfile = args.outfile
 	max_nodes = args.max_nodes if args.max_nodes == False else int(args.max_nodes)
 	min_node_quality = args.min_node_quality if args.min_node_quality == False else float(args.min_node_quality)
+	binary_quality = args.binary_quality
 	estimate_initial_params = args.estimate_initial_params
 	testing_start_month = int(args.testing_start_month)
 	testing_start_year = int(args.testing_start_year)
@@ -265,6 +268,8 @@ def parse_command_args():
 	vprint("Output: ", outfile)
 	vprint("Source subreddit: ", subreddit)
 	vprint("Minimum node quality: ", min_node_quality)
+	if binary_quality: vprint("Setting all training node qualities to 1")
+	else: vprint("Using saved (arbitrary) training node qualities")
 	vprint("Max graph size: ", max_nodes)
 	vprint("Max edges per node: ", "None" if top_n==False else top_n)
 	vprint("Minimum edge weight: ", "None" if weight_threshold==False else weight_threshold)
@@ -309,7 +314,7 @@ def parse_command_args():
 	vprint("")
 
 	#return all arguments
-	return subreddit, sim_post, observing_time, observed_list, outfile, max_nodes, min_node_quality, estimate_initial_params, normalize_parameters, batch, testing_num, testing_start_month, testing_start_year, training_num, weight_method, remove_stopwords, top_n, weight_threshold, include_default_posts, time_error_margin, error_method, sanity_check, min_size, max_size, training_stats, testing_stats, socsim_data, graph_downsample_ratio, large_cascade_demarcation, verbose, preprocess
+	return subreddit, sim_post, observing_time, observed_list, outfile, max_nodes, min_node_quality, binary_quality, estimate_initial_params, normalize_parameters, batch, testing_num, testing_start_month, testing_start_year, training_num, weight_method, remove_stopwords, top_n, weight_threshold, include_default_posts, time_error_margin, error_method, sanity_check, min_size, max_size, training_stats, testing_stats, socsim_data, graph_downsample_ratio, large_cascade_demarcation, verbose, preprocess
 #end parse_command_args
 
 
@@ -1018,7 +1023,6 @@ def build_base_graph(cascades, posts, params, default_params_list, subreddit, te
 	#define post set to use for graph build based on options
 	graph_post_ids = filter_post_set(params, default_params_list, min_node_quality, include_default_posts)	
 	vprint("Using %d posts for graph" % len(graph_post_ids))
-
 	
 	#downsample post set for graph build further
 	#take all large posts, and some number of small posts
@@ -1223,7 +1227,7 @@ def remove_low_edge(graph, node):
 #	max_nodes 					if not False, max nodes to include in graph
 #	top_n 						if not False, max number of edges per node
 #	estimate_initial_params		if True, estimate initial params for sim post based on neighbors
-def graph_infer(sim_post, sim_post_id, weight_method, min_weight, base_graph, eligible_post_ids, posts, cascades, params, fit_fail_list, top_n, estimate_initial_params, normalize_parameters, filename_id, display=False):
+def graph_infer(sim_post, sim_post_id, weight_method, min_weight, base_graph, eligible_post_ids, posts, cascades, params, fit_fail_list, top_n, estimate_initial_params, normalize_parameters, binary_quality, filename_id, display=False):
 
 	if display:
 		vprint("Inferring post parameters from post graph")
@@ -1344,7 +1348,7 @@ def graph_infer(sim_post, sim_post_id, weight_method, min_weight, base_graph, el
 
 	#save graph and params to files for node2vec
 	save_graph(edges, temp_graph_filepath % filename_id, isolated_nodes, display)
-	param_save_res = save_params(numeric_ids, posts, cascades, params, temp_params_filepath % filename_id, param_estimate=(estimated_params if estimate_initial_params else False), normalize=normalize_parameters, display=display)
+	param_save_res = save_params(numeric_ids, posts, cascades, params, temp_params_filepath % filename_id, param_estimate=(estimated_params if estimate_initial_params else False), normalize=normalize_parameters, fixed_quality=binary_quality, display=display)
 
 	#clear any previous output params
 	if file_utils.verify_file(output_params_filepath):
@@ -1440,7 +1444,7 @@ def save_graph(edgelist, filename, isolated_nodes = [], display=False):
 
 
 #save params to txt file for node2vec processing
-def save_params(numeric_ids, posts, cascades, params, filename, param_estimate=False, normalize=None, display=False):
+def save_params(numeric_ids, posts, cascades, params, filename, param_estimate=False, normalize=None, fixed_quality=False, display=False):
 
 	#first, build a complete list of params to save - including any default or incomplete ones
 	save_params = {}		#post id -> params
@@ -1509,7 +1513,9 @@ def save_params(numeric_ids, posts, cascades, params, filename, param_estimate=F
 					print(e)
 					print(i, post_params[i])
 					exit(0)
-			f.write(str(post_params[6]) + "\n")	#write quality (last value in params)
+			#write quality (last value in params, or always 1)
+			if fixed_quality: f.write("1.0\n")
+			else: f.write(str(post_params[6]) + "\n")
 
 		#write estimated params for sim_post, if we have them	(no quality)
 		if param_estimate != False:
