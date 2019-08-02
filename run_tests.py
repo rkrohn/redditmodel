@@ -95,6 +95,7 @@ arguments_list.append('-d')		#include default posts in graph
 #arguments_list.append('--sanity')	#simulate from fitted params
 #arguments_list.append('--train_stats')		#compute and output training set stats
 #arguments_list.append('--test_stats')		#compute and output testing set stats
+arguments_list.append('-b')		#force all training node qualities to 1, so learning rate is 0
 
 #can only use this option if doing jaccard
 #arguments_list.append('-stopwords')			#remove stopwords from titles for jaccard edge weight calc
@@ -156,7 +157,7 @@ for run in range(repeat_runs):
 			#if yes, make sure all the preprocessing is done and the graph exists first
 
 			#define our base output filename - keep it simple, will have all the settings in the output files
-			outfile = "sim_results/%s/run_results/%s_model_%dtrain_%dtest_%d-%d%s%s" % (subreddit, subreddit, arguments['-n_train'], arguments['-n'], arguments['-y'], arguments['-m'], size_class, "_run%d" % run if repeat_runs > 1 else "")
+			outfile = "sim_results/%s/run_results/%s_model_%dtrain_%dtest_%d-%d%s%s%s" % (subreddit, subreddit, arguments['-n_train'], arguments['-n'], arguments['-y'], arguments['-m'], size_class, "_fixed_qual" if '-b' in arguments_list else "", "_run%d" % run if repeat_runs > 1 else "")
 			outfile_lists['model'].append(outfile)
 
 			#build command arguments list
