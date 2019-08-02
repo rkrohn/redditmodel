@@ -1,0 +1,21 @@
+Preprocessing sports
+skipping sim_results/sports/run_results/sports_model_10000train_500test_2017-12_fixed_qual_run0
+skipping sim_results/sports/run_results/sports_model_10000train_500test_2017-12_fixed_qual_run1
+skipping sim_results/sports/run_results/sports_model_10000train_500test_2017-12_fixed_qual_run2
+skipping sim_results/sports/run_results/sports_model_10000train_500test_2017-12_fixed_qual_run3
+skipping sim_results/sports/run_results/sports_model_10000train_500test_2017-12_fixed_qual_run4
+
+Test counts by subreddit:
+   sports : 5
+Total: 5 (plus 1 preprocessing)
+
+
+Waiting on 0 background processes
+Finished
+
+Creating combined results files
+Skipped rand_sim baseline runs
+Skipped rand_tree baseline runs
+Skipped avg_sim baseline runs
+Skipped comparative runs
+Combining 5 files to sim_results/sports/sports_model_10000train_500test_2017-12_fixed_qual_all_results.csv

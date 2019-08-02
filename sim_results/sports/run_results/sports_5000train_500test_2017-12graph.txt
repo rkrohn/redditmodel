@@ -54,3 +54,79 @@ Saving graph to reddit_data/sports/base_graph_2017-12test_start_5000trainposts_d
 Finished graph build, exiting
 91.38user 4.69system 1:30.27elapsed 106%CPU (0avgtext+0avgdata 218968maxresident)k
 0inputs+3224outputs (0major+72875minor)pagefaults 0swaps
+
+Namespace(binary_quality=True, estimate_initial_params=False, graph_downsample_ratio=None, include_default_posts=True, large_cascade_demarcation=None, max_nodes=False, max_size=None, min_node_quality=False, min_size=None, normalize_parameters=None, num_comments_observed=False, outfile='sim_results/sports/run_results/sports_model_5000train_500test_2017-12_fixed_qual_run0', preprocess=True, remove_stopwords=False, sanity_check=False, sim_post='500', subreddit='sports', testing_start_month='12', testing_start_year='2017', testing_stats=False, time_error_absolute=False, time_error_margin=False, time_observed=['0', '0.5', '1', '1.5', '2', '3', '4', '5', '6', '7', '8', '9', '10', '12', '14', '16', '18', '20', '22', '24'], top_n='20', topological_error=True, training_num='5000', training_stats=False, verbose=True, weight_method='jaccard', weight_threshold=False)
+
+Sim Post: subset
+Time Observed: [0.0, 0.5, 1.0, 1.5, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 12.0, 14.0, 16.0, 18.0, 20.0, 22.0, 24.0]
+Output: sim_results/sports/run_results/sports_model_5000train_500test_2017-12_fixed_qual_run0
+Source subreddit: sports
+Minimum node quality: False
+Setting all training node qualities to 1
+Max graph size: False
+Max edges per node: 20
+Minimum edge weight: None
+No param normalization for infer step
+Test Set: first 500 posts starting at 12-2017
+Training Set: 5000 posts immediately preceding 12-2017
+Using Jaccard index to compute graph edge weights
+Including posts with hardcoded default parameters
+Using topological error for tree evaluation (ignoring comment times)
+
+Loading processed training data
+Loading 11-2017
+Loaded 7992 posts 
+   7992 cascades
+   637 fitted params, 7355 failed fit
+
+Loading processed testing data
+Loading 12-2017
+Loaded 9979 posts 
+   9979 cascades
+
+Sampling 500 first posts (from 9979) for simulation set
+Sampling 5000 last posts (from 7992) for simulation set
+Loading base graph from file
+Graph contains 4967 nodes and 70038 unique edges (96887 edge entries)
+
+Finished graph build, exiting
+5.76user 4.54system 0:04.81elapsed 214%CPU (0avgtext+0avgdata 218792maxresident)k
+0inputs+16outputs (0major+72129minor)pagefaults 0swaps
+
+Namespace(binary_quality=True, estimate_initial_params=False, graph_downsample_ratio=None, include_default_posts=True, large_cascade_demarcation=None, max_nodes=False, max_size=None, min_node_quality=False, min_size=None, normalize_parameters=None, num_comments_observed=False, outfile='sim_results/sports/run_results/sports_model_5000train_500test_2017-12_fixed_qual_run0', preprocess=True, remove_stopwords=False, sanity_check=False, sim_post='500', subreddit='sports', testing_start_month='12', testing_start_year='2017', testing_stats=False, time_error_absolute=False, time_error_margin=False, time_observed=['0', '0.5', '1', '1.5', '2', '3', '4', '5', '6', '7', '8', '9', '10', '12', '14', '16', '18', '20', '22', '24'], top_n='20', topological_error=True, training_num='5000', training_stats=False, verbose=True, weight_method='jaccard', weight_threshold=False)
+
+Sim Post: subset
+Time Observed: [0.0, 0.5, 1.0, 1.5, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 12.0, 14.0, 16.0, 18.0, 20.0, 22.0, 24.0]
+Output: sim_results/sports/run_results/sports_model_5000train_500test_2017-12_fixed_qual_run0
+Source subreddit: sports
+Minimum node quality: False
+Setting all training node qualities to 1
+Max graph size: False
+Max edges per node: 20
+Minimum edge weight: None
+No param normalization for infer step
+Test Set: first 500 posts starting at 12-2017
+Training Set: 5000 posts immediately preceding 12-2017
+Using Jaccard index to compute graph edge weights
+Including posts with hardcoded default parameters
+Using topological error for tree evaluation (ignoring comment times)
+
+Loading processed training data
+Loading 11-2017
+Loaded 7992 posts 
+   7992 cascades
+   637 fitted params, 7355 failed fit
+
+Loading processed testing data
+Loading 12-2017
+Loaded 9979 posts 
+   9979 cascades
+
+Sampling 500 first posts (from 9979) for simulation set
+Sampling 5000 last posts (from 7992) for simulation set
+Loading base graph from file
+Graph contains 4967 nodes and 70038 unique edges (96887 edge entries)
+
+Finished graph build, exiting
+5.34user 4.91system 0:04.27elapsed 240%CPU (0avgtext+0avgdata 218868maxresident)k
+0inputs+8outputs (0major+72125minor)pagefaults 0swaps
