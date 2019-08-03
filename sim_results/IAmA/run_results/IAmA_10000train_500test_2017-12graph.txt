@@ -136,3 +136,95 @@ Graph contains 9883 nodes and 167518 unique edges (194398 edge entries)
 Finished graph build, exiting
 18.22user 5.07system 0:17.25elapsed 135%CPU (0avgtext+0avgdata 613336maxresident)k
 0inputs+8outputs (0major+171872minor)pagefaults 0swaps
+
+Namespace(binary_quality=True, estimate_initial_params=False, graph_downsample_ratio=None, include_default_posts=True, large_cascade_demarcation=None, max_nodes=False, max_size=None, min_node_quality=False, min_size=None, normalize_parameters=None, num_comments_observed=False, outfile='sim_results/IAmA/run_results/IAmA_model_10000train_500test_2017-12_fixed_qual_run0', preprocess=True, remove_stopwords=False, sanity_check=False, sim_post='500', subreddit='IAmA', testing_start_month='12', testing_start_year='2017', testing_stats=False, time_error_absolute=False, time_error_margin=False, time_observed=['0', '0.5', '1', '1.5', '2', '3', '4', '5', '6', '7', '8', '9', '10', '12', '14', '16', '18', '20', '22', '24'], top_n='20', topological_error=True, training_num='10000', training_stats=False, verbose=True, weight_method='jaccard', weight_threshold=False)
+
+Sim Post: subset
+Time Observed: [0.0, 0.5, 1.0, 1.5, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 12.0, 14.0, 16.0, 18.0, 20.0, 22.0, 24.0]
+Output: sim_results/IAmA/run_results/IAmA_model_10000train_500test_2017-12_fixed_qual_run0
+Source subreddit: IAmA
+Minimum node quality: False
+Setting all training node qualities to 1
+Max graph size: False
+Max edges per node: 20
+Minimum edge weight: None
+No param normalization for infer step
+Test Set: first 500 posts starting at 12-2017
+Training Set: 10000 posts immediately preceding 12-2017
+Using Jaccard index to compute graph edge weights
+Including posts with hardcoded default parameters
+Using topological error for tree evaluation (ignoring comment times)
+
+Loading processed training data
+Loading 11-2017
+Loading 10-2017
+Loading 9-2017
+Loading 8-2017
+Loading 7-2017
+Loading 6-2017
+Loading 5-2017
+Loading 4-2017
+Loading 3-2017
+Deleted 9 posts without cascades
+Loaded 11179 posts 
+   11179 cascades
+   4312 fitted params, 6867 failed fit
+
+Loading processed testing data
+Loading 12-2017
+Loaded 1021 posts 
+   1021 cascades
+
+Sampling 500 first posts (from 1021) for simulation set
+Sampling 10000 last posts (from 11179) for simulation set
+Loading base graph from file
+Graph contains 9883 nodes and 167518 unique edges (194398 edge entries)
+
+Finished graph build, exiting
+
+Namespace(binary_quality=True, estimate_initial_params=False, graph_downsample_ratio=None, include_default_posts=True, large_cascade_demarcation=None, max_nodes=False, max_size=None, min_node_quality=False, min_size=None, normalize_parameters=None, num_comments_observed=False, outfile='sim_results/IAmA/run_results/IAmA_model_10000train_500test_2017-12_fixed_qual_run0', preprocess=True, remove_stopwords=False, sanity_check=False, sim_post='500', subreddit='IAmA', testing_start_month='12', testing_start_year='2017', testing_stats=False, time_error_absolute=False, time_error_margin=False, time_observed=['0', '0.5', '1', '1.5', '2', '3', '4', '5', '6', '7', '8', '9', '10', '12', '14', '16', '18', '20', '22', '24'], top_n='20', topological_error=True, training_num='10000', training_stats=False, verbose=True, weight_method='jaccard', weight_threshold=False)
+
+Sim Post: subset
+Time Observed: [0.0, 0.5, 1.0, 1.5, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 12.0, 14.0, 16.0, 18.0, 20.0, 22.0, 24.0]
+Output: sim_results/IAmA/run_results/IAmA_model_10000train_500test_2017-12_fixed_qual_run0
+Source subreddit: IAmA
+Minimum node quality: False
+Setting all training node qualities to 1
+Max graph size: False
+Max edges per node: 20
+Minimum edge weight: None
+No param normalization for infer step
+Test Set: first 500 posts starting at 12-2017
+Training Set: 10000 posts immediately preceding 12-2017
+Using Jaccard index to compute graph edge weights
+Including posts with hardcoded default parameters
+Using topological error for tree evaluation (ignoring comment times)
+
+Loading processed training data
+Loading 11-2017
+Loading 10-2017
+Loading 9-2017
+Loading 8-2017
+Loading 7-2017
+Loading 6-2017
+Loading 5-2017
+Loading 4-2017
+Loading 3-2017
+Deleted 9 posts without cascades
+Loaded 11179 posts 
+   11179 cascades
+   4312 fitted params, 6867 failed fit
+
+Loading processed testing data
+Loading 12-2017
+Loaded 1021 posts 
+   1021 cascades
+
+Sampling 500 first posts (from 1021) for simulation set
+Sampling 10000 last posts (from 11179) for simulation set
+Loading base graph from file
+Graph contains 9883 nodes and 167518 unique edges (194398 edge entries)
+
+Finished graph build, exiting
+17.59user 5.33system 0:16.64elapsed 137%CPU (0avgtext+0avgdata 613764maxresident)k
+0inputs+8outputs (0major+172005minor)pagefaults 0swaps
