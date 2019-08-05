@@ -1,0 +1,1 @@
+time python3 baseline_model.py -s worldnews -o sim_results/worldnews/run_results/worldnews_baseline_rand_tree_10000train_1000test_2017-12_run0 -rand_tree -v -n 1000 -n_train 10000 -m 12 -y 2017 -t 0 0.5 1 1.5 2 3 4 5 6 7 8 9 10 12 14 16 18 20 22 24
