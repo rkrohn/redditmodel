@@ -53,7 +53,7 @@ arguments_list.append('-j')		#-j, -c, or -wmd
 
 #define the test set: -n <sample size>, -id <post id>, -r, or -a
 #arguments_list.append('-a')		#list for -a or -r
-arguments['-n'] = 500			#dict for -n or -id
+arguments['-n'] = 1000			#dict for -n or -id
 
 #define the size of the training set
 arguments['-n_train'] = 10000
@@ -95,7 +95,7 @@ arguments_list.append('-d')		#include default posts in graph
 #arguments_list.append('--sanity')	#simulate from fitted params
 #arguments_list.append('--train_stats')		#compute and output training set stats
 #arguments_list.append('--test_stats')		#compute and output testing set stats
-arguments_list.append('-b')		#force all training node qualities to 1, so learning rate is 0
+#arguments_list.append('-b')		#force all training node qualities to 1, so learning rate is 0
 
 #can only use this option if doing jaccard
 #arguments_list.append('-stopwords')			#remove stopwords from titles for jaccard edge weight calc
