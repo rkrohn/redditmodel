@@ -55,7 +55,7 @@ temp_params_filepath = "sim_files/in_params_%s.txt"		#temporary, filtered params
 output_params_filepath = "sim_files/out_params_%s.txt"		#output params from node2vec
 
 #output filepaths
-stats_filepath = "sim_results/post_set_stats_%s_test%d-%d_%d_%s_posts.csv"		#post set stats (subreddit, year, month, num_posts, type)
+stats_filepath = "sim_results/post_set_stats_%s_test%d-%d_%d_%s_posts%s.csv"		#post set stats (subreddit, year, month, num_posts, type, optional file identifier)
 
 #hardcoded params for failed fit cascades
 #only used when fit/estimation fails and these posts are still included in graph
@@ -841,7 +841,7 @@ def get_test_post_set(input_sim_post, min_size, max_size, sample_num, posts, cas
 #compute and output some stats on the post set
 #if params included, also compute some param stats for the set
 def output_post_set_stats(cascades, subreddit, year, month, set_type, num_posts, params=False):
-	curr_filepath = stats_filepath % (subreddit, year, month, len(cascades), set_type)
+	curr_filepath = stats_filepath % (subreddit, year, month, len(cascades), set_type, "")
 
 	#do we already have a stats file for this subreddit set? if so, skip
 	if file_utils.verify_file(curr_filepath):
@@ -871,6 +871,10 @@ def output_post_set_stats(cascades, subreddit, year, month, set_type, num_posts,
 	post_to_comment_times = {}
 	#and dict of lifetime distribution (binned by 15 minutes)
 	lifetime_dist = defaultdict(int)
+	#and lifetime -> number of comments (for scatter plot?)
+	#stored as two parallel lists
+	lifetime_list = []
+	size_list = []
 	#loop cascades
 	for post_id, cascade in cascades.items():
 		#get list of all comment times for this cascade
@@ -881,8 +885,11 @@ def output_post_set_stats(cascades, subreddit, year, month, set_type, num_posts,
 		post_to_comment_times[post_id] = comment_times
 		if len(comment_times) == 0:
 			lifetime_dist[0] += 1
+			lifetime_list.append(0)
 		else:
 			lifetime_dist[int(comment_times[-1] // 15) * 15] += 1
+			lifetime_list.append(comment_times[-1])
+		size_list.append(cascade['comment_count_total'])
 
 	#% of lifetime vs % of comments observed
 	#collect mean, and median
@@ -935,11 +942,14 @@ def output_post_set_stats(cascades, subreddit, year, month, set_type, num_posts,
 			param_mean[key] /= len(cascades)		#divide for mean
 			param_median[key] = statistics.median(param_median[key])	#median of list
 
+	#save lifetime/size lists to separate file
+	file_utils.lists_to_csv([lifetime_list, size_list], ["lifetime(minutes)", "comment_count"], stats_filepath % (subreddit, year, month, len(cascades), set_type, "_lifetime_v_size"))
+
 	#write all to output
 	if params == False:
-		file_utils.multi_dict_to_csv(stats_filepath % (subreddit, year, month, len(cascades), set_type), ["number_of_comments", "number_of_cascades", "lifetime(minutes)", "number_of_cascades", "percent_lifetime", "mean_comments_observed", "percent_lifetime", "median_comments_observed", "utc", "date"], [cascade_sizes, lifetime_dist, mean_observed, median_observed, post_times])
+		file_utils.multi_dict_to_csv(stats_filepath % (subreddit, year, month, len(cascades), set_type, ""), ["number_of_comments", "number_of_cascades", "lifetime(minutes)", "number_of_cascades", "percent_lifetime", "mean_comments_observed", "percent_lifetime", "median_comments_observed", "utc", "date"], [cascade_sizes, lifetime_dist, mean_observed, median_observed, post_times])
 	else:
-		file_utils.multi_dict_to_csv(stats_filepath % (subreddit, year, month, len(cascades), set_type), ["number_of_comments", "number_of_cascades", "lifetime(minutes)", "number_of_cascades", "percent_lifetime", "mean_comments_observed", "percent_lifetime", "median_comments_observed", "utc", "date", "param", "mean", "param", "median", "param", "min", "param", "max"], [cascade_sizes, lifetime_dist, mean_observed, median_observed, post_times, param_mean, param_median, param_min, param_max])
+		file_utils.multi_dict_to_csv(stats_filepath % (subreddit, year, month, len(cascades), set_type, ""), ["number_of_comments", "number_of_cascades", "lifetime(minutes)", "number_of_cascades", "percent_lifetime", "mean_comments_observed", "percent_lifetime", "median_comments_observed", "utc", "date", "param", "mean", "param", "median", "param", "min", "param", "max"], [cascade_sizes, lifetime_dist, mean_observed, median_observed, post_times, param_mean, param_median, param_min, param_max])
 #end output_post_set_stats
 
 

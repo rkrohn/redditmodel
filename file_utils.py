@@ -156,6 +156,16 @@ def dict_to_csv(data, fields, filename):
 			w.writerow(row)
 #end dict_to_csv
 
+#given some number of lists (all of the same length), output to csv with one list per column
+def lists_to_csv(lists, fields, filename):
+	rows = zip(*lists)
+	with open(filename, "w") as f:
+		writer = csv.writer(f)
+		writer.writerow(fields)
+		for row in rows:
+			writer.writerow(row)
+#end lists_to_csv
+
 #given multiple dictionaries (potentially of different lengths),
 #output them all to the same csv file, where each dict is 2 columns
 #fields and dict_list need to be in the same order! (two fields per dict)
