@@ -303,37 +303,39 @@ print("Finished\n")
 #combine multiple runs into a single results file - if all those runs *actually* finished
 print("Creating combined results files")
 if repeat_runs != 1 or len(size_breaks) != 0:
-	#path to subreddit results directory (top-level)
-	subreddit_dir = "sim_results/%s/" % subreddit
-	#path to subreddit dir for individual results
-	run_dir = subreddit_dir + "run_results/"
+	#loop subreddits
+	for subreddit in subreddits:
+		#path to subreddit results directory (top-level)
+		subreddit_dir = "sim_results/%s/" % subreddit
+		#path to subreddit dir for individual results
+		run_dir = subreddit_dir + "run_results/"
 
-	#baseline results
-	for mode in baseline_modes:
-		#if all finished, combine
-		if run_baseline and check_completion(outfile_lists[mode]):
+		#baseline results
+		for mode in baseline_modes:
+			#if all finished, combine
+			if run_baseline and check_completion(outfile_lists[mode]):
+				#redefine output filename - without run identifier or subreddit directory
+				baseline_outfile = "%s_baseline_%s_%dtrain_%dtest_%d-%d%s" % (subreddit, mode[1:], arguments['-n_train'], arguments['-n'], arguments['-y'], arguments['-m'], size_class)	
+				#combine matching files from multiple runs together
+				file_utils.combine_csv(subreddit_dir+baseline_outfile+"_all_results.csv", run_dir+baseline_outfile + ("*" if len(size_breaks) != 0 else "") + "*.csv", display=True)
+			elif run_baseline == False: print("Skipped", mode[1:], "baseline runs")
+			else: print("Not all runs finished, skipping", mode[1:], "baseline combine")
+
+		#comparative model results - if all runs finished, combine
+		if run_comparative and check_completion(outfile_lists['comparative']):
 			#redefine output filename - without run identifier or subreddit directory
-			baseline_outfile = "%s_baseline_%s_%dtrain_%dtest_%d-%d%s" % (subreddit, mode[1:], arguments['-n_train'], arguments['-n'], arguments['-y'], arguments['-m'], size_class)	
+			comparative_outfile = "%s_comparative_%dtest_%d-%d%s" % (subreddit, arguments['-n'], arguments['-y'], arguments['-m'], size_class)
 			#combine matching files from multiple runs together
-			file_utils.combine_csv(subreddit_dir+baseline_outfile+"_all_results.csv", run_dir+baseline_outfile + ("*" if len(size_breaks) != 0 else "") + "*.csv", display=True)
-		elif run_baseline == False: print("Skipped", mode[1:], "baseline runs")
-		else: print("Not all runs finished, skipping", mode[1:], "baseline combine")
+			file_utils.combine_csv(subreddit_dir+comparative_outfile+"_all_results.csv", run_dir+comparative_outfile + ("*" if len(size_breaks) != 0 else "") + "*.csv", display=True)
+		elif run_comparative == False: print("Skipped comparative runs")	
+		else: print("Not all runs finished, skipping comparative combine")
 
-	#comparative model results - if all runs finished, combine
-	if run_comparative and check_completion(outfile_lists['comparative']):
-		#redefine output filename - without run identifier or subreddit directory
-		comparative_outfile = "%s_comparative_%dtest_%d-%d%s" % (subreddit, arguments['-n'], arguments['-y'], arguments['-m'], size_class)
-		#combine matching files from multiple runs together
-		file_utils.combine_csv(subreddit_dir+comparative_outfile+"_all_results.csv", run_dir+comparative_outfile + ("*" if len(size_breaks) != 0 else "") + "*.csv", display=True)
-	elif run_comparative == False: print("Skipped comparative runs")	
-	else: print("Not all runs finished, skipping comparative combine")
-
-	#test results - if all runs finished, combine
-	if run_model and check_completion(outfile_lists['model']):
-		#redefine output filename - without run identifier or subreddit directory
-		outfile = "%s_model_%dtrain_%dtest_%d-%d%s%s" % (subreddit, arguments['-n_train'], arguments['-n'], arguments['-y'], arguments['-m'], size_class, "_fixed_qual" if '-b' in arguments_list else "")
-		#combine matching files from multiple runs together
-		file_utils.combine_csv(subreddit_dir+outfile+"_all_results.csv", run_dir+outfile + ("*" if len(size_breaks) != 0 else "") + ".csv", display=True)
-	elif run_model == False: print("Skipped model runs")
-	else: print("Not all runs finished, skipping model combine")
+		#test results - if all runs finished, combine
+		if run_model and check_completion(outfile_lists['model']):
+			#redefine output filename - without run identifier or subreddit directory
+			outfile = "%s_model_%dtrain_%dtest_%d-%d%s%s" % (subreddit, arguments['-n_train'], arguments['-n'], arguments['-y'], arguments['-m'], size_class, "_fixed_qual" if '-b' in arguments_list else "")
+			#combine matching files from multiple runs together
+			file_utils.combine_csv(subreddit_dir+outfile+"_all_results.csv", run_dir+outfile + ("*" if len(size_breaks) != 0 else "") + ".csv", display=True)
+		elif run_model == False: print("Skipped model runs")
+		else: print("Not all runs finished, skipping model combine")
 
