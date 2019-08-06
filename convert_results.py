@@ -77,17 +77,23 @@ print("")
 #format strings for results and bookmark filenames
 results_format = "sim_results/%s/run_results/%s_%s_%dtrain_%stest_%d-%d_run%s_results.csv"
 bookmark_format = "sim_results/%s/run_results/%s_%s_%dtrain_%stest_%d-%d_run%s_finished_posts.pkl"
+#and for comparative files - no training value
+comparative_results_format = "sim_results/%s/run_results/%s_%s_%stest_%d-%d_run%s_results.csv"
+comparative_bookmark_format = "sim_results/%s/run_results/%s_%s_%stest_%d-%d_run%s_finished_posts.pkl"
 
 #loop all the model types:
 for model in ["model", "comparative", "baseline_rand_tree", "baseline_rand_sim", "baseline_avg_sim"]:
 	print("Processing", model)
 
 	#get list of matching results files for this model with same training set size and testing period
-	results_files = glob.glob(results_format % (subreddit, subreddit, model, training_num, "*", testing_start_year, testing_start_month, "*"))
+	if model == "comparative":
+		results_files = glob.glob(comparative_results_format % (subreddit, subreddit, model, "*", testing_start_year, testing_start_month, "*"))
+	else:
+		results_files = glob.glob(results_format % (subreddit, subreddit, model, training_num, "*", testing_start_year, testing_start_month, "*"))
 	print("   Found", len(results_files), "matching files")
 
 	#get correct index of test size token, based on model name
-	index = 7 if "baseline" in model else 5
+	index = 7 if "baseline" in model else (4 if model == "comparative" else 5)
 
 	#process each file
 	for results_file in results_files:
@@ -100,14 +106,17 @@ for model in ["model", "comparative", "baseline_rand_tree", "baseline_rand_sim",
 		#if test size larger than target, process this file (and its associated pkl)
 		if file_test_size < testing_num:
 			#if bookmark and results already exist at target size for this run, skip reduction
-			if file_utils.verify_file(bookmark_format % (subreddit, subreddit, model, training_num, testing_num, testing_start_year, testing_start_month, file_run)) and file_utils.verify_file(results_format % (subreddit, subreddit, model, training_num, testing_num, testing_start_year, testing_start_month, file_run)):
+			if (model == "comparative" and file_utils.verify_file(comparative_bookmark_format % (subreddit, subreddit, model, testing_num, testing_start_year, testing_start_month, file_run)) and file_utils.verify_file(comparative_results_format % (subreddit, subreddit, model, testing_num, testing_start_year, testing_start_month, file_run))) or (file_utils.verify_file(bookmark_format % (subreddit, subreddit, model, training_num, testing_num, testing_start_year, testing_start_month, file_run)) and file_utils.verify_file(results_format % (subreddit, subreddit, model, training_num, testing_num, testing_start_year, testing_start_month, file_run))):
 				print("   target exists, skipping", results_file)
 				continue
 				
 			print("   converting", results_file)
 
 			#get corresponding bookmark filename
-			bookmark_file = bookmark_format % (subreddit, subreddit, model, training_num, file_test_size, testing_start_year, testing_start_month, file_run)
+			if model == "comparative":
+				bookmark_file = comparative_bookmark_format % (subreddit, subreddit, model, file_test_size, testing_start_year, testing_start_month, file_run)
+			else:
+				bookmark_file = bookmark_format % (subreddit, subreddit, model, training_num, file_test_size, testing_start_year, testing_start_month, file_run)
 			
 			#load the pickle bookmark
 			bookmark = file_utils.load_pickle(bookmark_file)
@@ -118,10 +127,16 @@ for model in ["model", "comparative", "baseline_rand_tree", "baseline_rand_sim",
 
 			#save new bookmark - if doesn't already exist (don't want to overwrite stuff!)
 			#set complete flag to False
-			file_utils.save_pickle({"finished_posts": finished_set, 'complete': False}, bookmark_format % (subreddit, subreddit, model, training_num, testing_num, testing_start_year, testing_start_month, file_run))
+			if model == "comparative":
+				file_utils.save_pickle({"finished_posts": finished_set, 'complete': False}, comparative_bookmark_format % (subreddit, subreddit, model, testing_num, testing_start_year, testing_start_month, file_run))
+			else:
+				file_utils.save_pickle({"finished_posts": finished_set, 'complete': False}, bookmark_format % (subreddit, subreddit, model, training_num, testing_num, testing_start_year, testing_start_month, file_run))
 
 			#copy the results csv to correct name for this post set
-			copyfile(results_file, results_format % (subreddit, subreddit, model, training_num, testing_num, testing_start_year, testing_start_month, file_run))
+			if model == "comparative":
+				copyfile(results_file, comparative_results_format % (subreddit, subreddit, model, testing_num, testing_start_year, testing_start_month, file_run))
+			else:
+				copyfile(results_file, results_format % (subreddit, subreddit, model, training_num, testing_num, testing_start_year, testing_start_month, file_run))
 			print("      Copied results file")		
 
 print("\nAll done")
