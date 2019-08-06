@@ -16,7 +16,7 @@ from copy import deepcopy
 
 
 #parse all command-line arguments
-subreddit, input_sim_post, observing_time, observed_list, outfile, max_nodes, min_node_quality, binary_quality, estimate_initial_params, normalize_parameters, batch, testing_num, testing_start_month, testing_start_year, training_num, weight_method, remove_stopwords, top_n, weight_threshold, include_default_posts, time_error_margin, error_method, sanity_check, min_size, max_size, get_training_stats, get_testing_stats, socsim_data, graph_downsample_ratio, large_cascade_demarcation, verbose, preprocess = functions_gen_cascade_model.parse_command_args()
+subreddit, input_sim_post, observing_time, observed_list, outfile, max_nodes, min_node_quality, binary_quality, estimate_initial_params, normalize_parameters, batch, testing_num, testing_start_month, testing_start_year, training_num, weight_method, remove_stopwords, top_n, weight_threshold, include_default_posts, time_error_margin, error_method, sanity_check, min_size, max_size, get_training_stats, get_testing_stats, get_sub_stats, socsim_data, graph_downsample_ratio, large_cascade_demarcation, verbose, preprocess = functions_gen_cascade_model.parse_command_args()
 
 #hackery: declare a special print function for verbose output
 if verbose:
@@ -33,6 +33,11 @@ else:
 file_utils.verify_dir("sim_files")	
 #ensure data directory for this subreddit exists - for saving posts, cascades, params, etc
 file_utils.verify_dir("reddit_data/%s" % subreddit)
+
+#get sub stats if desired
+if get_sub_stats:
+	functions_gen_cascade_model.output_subreddit_stats(subreddit, testing_start_year)
+	exit(0)
 
 #if using socsim data, special load process (no time-defined sets)
 if socsim_data:

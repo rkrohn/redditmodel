@@ -56,6 +56,7 @@ output_params_filepath = "sim_files/out_params_%s.txt"		#output params from node
 
 #output filepaths
 stats_filepath = "sim_results/post_set_stats_%s_test%d-%d_%d_%s_posts%s.csv"		#post set stats (subreddit, year, month, num_posts, type, optional file identifier)
+sub_stats_filepath = "sim_results/subreddit_stats_%s_%d.csv" #subreddit set stats (subreddit, year)
 
 #hardcoded params for failed fit cascades
 #only used when fit/estimation fails and these posts are still included in graph
@@ -135,6 +136,8 @@ def parse_command_args():
 	parser.set_defaults(training_stats=False)
 	parser.add_argument("--test_stats", dest="testing_stats", action="store_true", help="output statistics for testing set")
 	parser.set_defaults(testing_stats=False)
+	parser.add_argument("--sub_stats", dest="sub_stats", action="store_true", help="output statistics for subreddit")
+	parser.set_defaults(sub_stats=False)
 	#optional graph downsampling - can specify a ratio of large:small posts for base graph,
 	#and the number of comments required to be considered a "large" post
 	parser.add_argument("-down_ratio", dest="graph_downsample_ratio", default=None, help="ratio of large:small posts to use for base graph build")
@@ -201,6 +204,7 @@ def parse_command_args():
 	max_size = int(args.max_size) if args.max_size is not None else None
 	training_stats = args.training_stats
 	testing_stats = args.testing_stats
+	sub_stats = args.sub_stats
 	preprocess = args.preprocess
 	graph_downsample_ratio = float(args.graph_downsample_ratio) if args.graph_downsample_ratio is not None else None
 	large_cascade_demarcation = int(args.large_cascade_demarcation) if args.large_cascade_demarcation is not None else None
@@ -314,7 +318,7 @@ def parse_command_args():
 	vprint("")
 
 	#return all arguments
-	return subreddit, sim_post, observing_time, observed_list, outfile, max_nodes, min_node_quality, binary_quality, estimate_initial_params, normalize_parameters, batch, testing_num, testing_start_month, testing_start_year, training_num, weight_method, remove_stopwords, top_n, weight_threshold, include_default_posts, time_error_margin, error_method, sanity_check, min_size, max_size, training_stats, testing_stats, socsim_data, graph_downsample_ratio, large_cascade_demarcation, verbose, preprocess
+	return subreddit, sim_post, observing_time, observed_list, outfile, max_nodes, min_node_quality, binary_quality, estimate_initial_params, normalize_parameters, batch, testing_num, testing_start_month, testing_start_year, training_num, weight_method, remove_stopwords, top_n, weight_threshold, include_default_posts, time_error_margin, error_method, sanity_check, min_size, max_size, training_stats, testing_stats, sub_stats, socsim_data, graph_downsample_ratio, large_cascade_demarcation, verbose, preprocess
 #end parse_command_args
 
 
@@ -951,6 +955,34 @@ def output_post_set_stats(cascades, subreddit, year, month, set_type, num_posts,
 	else:
 		file_utils.multi_dict_to_csv(stats_filepath % (subreddit, year, month, len(cascades), set_type, ""), ["number_of_comments", "number_of_cascades", "lifetime(minutes)", "number_of_cascades", "percent_lifetime", "mean_comments_observed", "percent_lifetime", "median_comments_observed", "utc", "date", "param", "mean", "param", "median", "param", "min", "param", "max"], [cascade_sizes, lifetime_dist, mean_observed, median_observed, post_times, param_mean, param_median, param_min, param_max])
 #end output_post_set_stats
+
+
+#for a given subreddit, compute and output some stats
+#just number of posts per month for now, but could add more later
+#load the whole year and report stats for that
+def output_subreddit_stats(subreddit, year):
+	curr_filepath = sub_stats_filepath % (subreddit, year)
+
+	#do we already have a stats file for this subreddit set? if so, skip
+	if file_utils.verify_file(curr_filepath):
+		vprint("Subreddit stats already exist.")
+		print(curr_filepath)
+		return
+
+	vprint("Getting subreddit stats")
+
+	#load all posts for the given year, tracking how many in each month
+	month_list = []
+	count_list = []
+	for month in range(1,13):
+		month_posts = load_processed_posts(subreddit, month, year, 1)
+		month_list.append(month)
+		count_list.append(len(month_posts))
+
+	#save to file
+	file_utils.lists_to_csv([month_list, count_list], ["month", "number_of_posts"], curr_filepath)
+	vprint("Subreddit stats saved to ", curr_filepath)
+#end output_subreddit_stats
 
 
 #given a single cascade, return a single list of ALL comment times
