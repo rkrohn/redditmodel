@@ -844,7 +844,7 @@ def get_test_post_set(input_sim_post, min_size, max_size, sample_num, posts, cas
 #for a given set of processed posts and reconstructed cascades, 
 #compute and output some stats on the post set
 #if params included, also compute some param stats for the set
-def output_post_set_stats(cascades, subreddit, year, month, set_type, num_posts, params=False):
+def output_post_set_stats(cascades, subreddit, year, month, set_type, num_posts, observed_list, params=False):
 	curr_filepath = stats_filepath % (subreddit, year, month, len(cascades), set_type, "")
 
 	#do we already have a stats file for this subreddit set? if so, skip
@@ -879,6 +879,10 @@ def output_post_set_stats(cascades, subreddit, year, month, set_type, num_posts,
 	#stored as two parallel lists
 	lifetime_list = []
 	size_list = []
+	#also make a file/dict with each post listed once
+	#for each post, include final comment count and lifetime
+	#along with count of observed comments at each observed setting
+	observed_data = {}
 	#loop cascades
 	for post_id, cascade in cascades.items():
 		#get list of all comment times for this cascade
@@ -894,6 +898,15 @@ def output_post_set_stats(cascades, subreddit, year, month, set_type, num_posts,
 			lifetime_dist[int(comment_times[-1] // 15) * 15] += 1
 			lifetime_list.append(comment_times[-1])
 		size_list.append(cascade['comment_count_total'])
+		#observed data stuff
+		post_data = {}
+		post_data['total_comments'] = cascade['comment_count_total']
+		post_data['lifetime(minutes)'] = comment_times[-1] if len(comment_times) != 0 else 0
+		#comments observed at each time
+		for observed in observed_list:
+			observed_comments = [time for time in comment_times if time <= observed*60]
+			post_data[observed] = len(observed_comments)
+		observed_data[post_id] = post_data
 
 	#% of lifetime vs % of comments observed
 	#collect mean, and median
@@ -954,6 +967,11 @@ def output_post_set_stats(cascades, subreddit, year, month, set_type, num_posts,
 		file_utils.multi_dict_to_csv(stats_filepath % (subreddit, year, month, len(cascades), set_type, ""), ["number_of_comments", "number_of_cascades", "lifetime(minutes)", "number_of_cascades", "percent_lifetime", "mean_comments_observed", "percent_lifetime", "median_comments_observed", "utc", "date"], [cascade_sizes, lifetime_dist, mean_observed, median_observed, post_times])
 	else:
 		file_utils.multi_dict_to_csv(stats_filepath % (subreddit, year, month, len(cascades), set_type, ""), ["number_of_comments", "number_of_cascades", "lifetime(minutes)", "number_of_cascades", "percent_lifetime", "mean_comments_observed", "percent_lifetime", "median_comments_observed", "utc", "date", "param", "mean", "param", "median", "param", "min", "param", "max"], [cascade_sizes, lifetime_dist, mean_observed, median_observed, post_times, param_mean, param_median, param_min, param_max])
+
+	#save observation/survival data to a separate file
+	file_utils.dict_to_csv(observed_data, ["post_id", "total_comments", "lifetime(minutes)"]+observed_list, stats_filepath % (subreddit, year, month, len(cascades), set_type, "_observation_data"))
+
+	exit(0)
 #end output_post_set_stats
 
 

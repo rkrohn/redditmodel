@@ -90,11 +90,11 @@ file_utils.save_pickle(rand_cascade, "test_cascade.pkl")
 #if want training data stats, get those now
 if get_training_stats:
 	vprint("Computing training data stats")
-	functions_gen_cascade_model.output_post_set_stats(train_cascades, subreddit, testing_start_year, testing_start_month, "train", training_num, train_params)
+	functions_gen_cascade_model.output_post_set_stats(train_cascades, subreddit, testing_start_year, testing_start_month, "train", training_num, observed_list, train_params)
 #if want testing data stats, get those now
 if get_testing_stats:
 	vprint("Computing testing data stats")
-	functions_gen_cascade_model.output_post_set_stats(test_cascades, subreddit, testing_start_year, testing_start_month, "test", testing_num)
+	functions_gen_cascade_model.output_post_set_stats(test_cascades, subreddit, testing_start_year, testing_start_month, "test", testing_num, observed_list)
 
 #build base graph for training set - will add infer posts later
 if not sanity_check:
