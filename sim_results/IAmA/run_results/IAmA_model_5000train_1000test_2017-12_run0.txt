@@ -1,0 +1,81 @@
+time python3 gen_cascade_model.py -s IAmA -o sim_results/IAmA/run_results/IAmA_model_5000train_1000test_2017-12_run0 -n 1000 -n_train 5000 -topn 20 -y 2017 -m 12 -j --topo_err -v -d -t 0 0.5 1 1.5 2 3 4 5 6 7 8 9 10 12 14 16 18 20 22 24
+
+Namespace(binary_quality=False, estimate_initial_params=False, graph_downsample_ratio=None, include_default_posts=True, large_cascade_demarcation=None, max_nodes=False, max_size=None, min_node_quality=False, min_size=None, normalize_parameters=None, num_comments_observed=False, outfile='sim_results/IAmA/run_results/IAmA_model_5000train_1000test_2017-12_run0', preprocess=False, remove_stopwords=False, sanity_check=False, sim_post='1000', subreddit='IAmA', testing_start_month='12', testing_start_year='2017', testing_stats=False, time_error_absolute=False, time_error_margin=False, time_observed=['0', '0.5', '1', '1.5', '2', '3', '4', '5', '6', '7', '8', '9', '10', '12', '14', '16', '18', '20', '22', '24'], top_n='20', topological_error=True, training_num='5000', training_stats=False, verbose=True, weight_method='jaccard', weight_threshold=False)
+
+Sim Post: subset
+Time Observed: [0.0, 0.5, 1.0, 1.5, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 12.0, 14.0, 16.0, 18.0, 20.0, 22.0, 24.0]
+Output: sim_results/IAmA/run_results/IAmA_model_5000train_1000test_2017-12_run0
+Source subreddit: IAmA
+Minimum node quality: False
+Using saved (arbitrary) training node qualities
+Max graph size: False
+Max edges per node: 20
+Minimum edge weight: None
+No param normalization for infer step
+Test Set: first 1000 posts starting at 12-2017
+Training Set: 5000 posts immediately preceding 12-2017
+Using Jaccard index to compute graph edge weights
+Including posts with hardcoded default parameters
+Using topological error for tree evaluation (ignoring comment times)
+
+Loading processed training data
+Loading 11-2017
+Loading 10-2017
+Loading 9-2017
+Loading 8-2017
+Loading 7-2017
+Deleted 5 posts without cascades
+Loaded 5848 posts 
+   5848 cascades
+   2336 fitted params, 3512 failed fit
+
+Loading processed testing data
+Loading 12-2017
+Loaded 1021 posts 
+   1021 cascades
+
+Sampling 1000 first posts (from 1021) for simulation set
+Sampling 5000 last posts (from 5848) for simulation set
+Loading base graph from file
+Graph contains 4945 nodes and 82912 unique edges (97159 edge entries)
+
+Skipping 967 already simulated posts
+Processing 1000 posts
+   saving results so far (1 posts)
+   saving results so far (2 posts)
+   saving results so far (3 posts)
+   saving results so far (4 posts)
+   saving results so far (5 posts)
+   saving results so far (6 posts)
+   saving results so far (7 posts)
+   saving results so far (8 posts)
+   saving results so far (9 posts)
+   saving results so far (10 posts)
+   saving results so far (11 posts)
+   saving results so far (12 posts)
+   saving results so far (13 posts)
+   saving results so far (14 posts)
+   saving results so far (15 posts)
+   saving results so far (16 posts)
+   saving results so far (17 posts)
+   saving results so far (18 posts)
+   saving results so far (19 posts)
+   saving results so far (20 posts)
+   saving results so far (21 posts)
+   saving results so far (22 posts)
+   saving results so far (23 posts)
+   saving results so far (24 posts)
+   saving results so far (25 posts)
+   saving results so far (26 posts)
+   saving results so far (27 posts)
+   saving results so far (28 posts)
+   saving results so far (29 posts)
+   saving results so far (30 posts)
+   saving results so far (31 posts)
+   saving results so far (32 posts)
+   saving results so far (33 posts)
+Finished simulating 33 posts (0 disconnected)
+All done, all results saved
+
+40822.94user 7.28system 11:18:24elapsed 100%CPU (0avgtext+0avgdata 447000maxresident)k
+0inputs+134248outputs (0major+683458minor)pagefaults 0swaps
