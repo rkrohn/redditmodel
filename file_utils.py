@@ -13,6 +13,7 @@ import sys
 from itertools import zip_longest
 import pandas as pd
 import glob
+import itertools
 
 DISPLAY = False
 
@@ -165,6 +166,16 @@ def lists_to_csv(lists, fields, filename):
 		for row in rows:
 			writer.writerow(row)
 #end lists_to_csv
+
+#given some number of lists (may be of different lengths), output to csv with one list per column
+def multi_lists_to_csv(lists, fields, filename):
+	rows = itertools.zip_longest(*lists) 
+	with open(filename, "w") as f:
+		writer = csv.writer(f)
+		writer.writerow(fields)
+		for row in rows:
+			writer.writerow(row)
+#end multi_lists_to_csv
 
 #given multiple dictionaries (potentially of different lengths),
 #output them all to the same csv file, where each dict is 2 columns
