@@ -96,6 +96,7 @@ arguments_list.append('-d')		#include default posts in graph
 #arguments_list.append('--train_stats')		#compute and output training set stats
 #arguments_list.append('--test_stats')		#compute and output testing set stats
 #arguments_list.append('-b')		#force all training node qualities to 1, so learning rate is 0
+#arguments_list.append('-timestamps')
 
 #can only use this option if doing jaccard
 #arguments_list.append('-stopwords')			#remove stopwords from titles for jaccard edge weight calc
@@ -137,12 +138,14 @@ for run in range(repeat_runs):
 			size_class = ""
 
 		#and set the min and max in the arguments dict accordingly
-		#remove old settings
-		if '-min' in arguments: del arguments['-min']
-		if '-max' in arguments: del arguments['-max']
-		#save new
-		if min_size is not None: arguments['-min'] = min_size
-		if max_size is not None: arguments['-max'] = max_size
+		#if using size classes, remove old settings
+		if min_size is None and max_size is None:
+			if '-min' in arguments: del arguments['-min']
+			if '-max' in arguments: del arguments['-max']
+			#save new
+			if min_size is not None: arguments['-min'] = min_size
+			if max_size is not None: arguments['-max'] = max_size
+		#not using size classes, leave hard-set min/max arguments alone - do nothing
 
 		#filter the observed list for this run
 		if max_size is not None:
@@ -197,10 +200,12 @@ for run in range(repeat_runs):
 						#base first
 						baseline_command = ['time', 'python3', 'baseline_model.py', '-s', subreddit, '-o', baseline_outfile, mode, '-v']
 						#add the dict args - but only the ones that make sense for the baseline model
-						for arg in ['-n', '-n_train', '-m', '-y', '-min', '-max']:
+						for arg in ['-n', '-n_train', '-m', '-y', '-min', '-max', '-timestamps']:
 							if arg in arguments:
 								baseline_command.append(arg)
 								baseline_command.append(str(arguments[arg]))
+							if arg in arguments_list:
+								baseline_command.append(arg)
 						#observation list
 						baseline_command.append(observation_option)
 						baseline_command = baseline_command + run_observed_list
@@ -233,10 +238,12 @@ for run in range(repeat_runs):
 					#base first
 					comparative_command = ['time', 'python3', 'comparative_model.py', '-s', subreddit, '-o', comparative_outfile, '-v']
 					#add the dict args - but only the ones that make sense for the comparative model
-					for arg in ['-n', '-m', '-y', '-min', '-max']:
+					for arg in ['-n', '-m', '-y', '-min', '-max', '-timestamps']:
 						if arg in arguments:
 							comparative_command.append(arg)
-							comparative_command.append(str(arguments[arg]))
+							comparative_command.append(str(arguments[arg]))						
+						if arg in arguments_list:
+							comparative_command.append(arg)
 					#observation list
 					comparative_command.append(observation_option)
 					comparative_command = comparative_command + run_observed_list
@@ -273,8 +280,10 @@ for run in range(repeat_runs):
 				f.write(' '.join(model_command)+'\n')		#write arguments to first line of file
 				f.flush()  #make sure arguments get written first
 				process = subprocess.Popen(model_command, stdout=f, stderr=f)
-				process.wait()		#wait for it to finish before we do more, if you want
+				#process.wait()		#wait for it to finish before we do more, if you want
+				background_procs.append(process)
 
+				'''
 				#did this actually finish? if not, try again (just once)
 				#check the bookmark saved by the model to know if finished or not
 				finished_posts, complete = load_bookmark(outfile)
@@ -283,7 +292,9 @@ for run in range(repeat_runs):
 					#append to file this time, don't write arguments
 					f = open(outfile+".txt", "a")
 					process = subprocess.Popen(model_command, stdout=f, stderr=f)
-					process.wait()		#wait for it to finish before we do more, if you want
+					#process.wait()		#wait for it to finish before we do more, if you want
+					background_procs.append(process)
+				'''
 			#end if run_model
 
 			#add to subreddit counter
