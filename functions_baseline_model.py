@@ -39,6 +39,8 @@ def parse_command_args(baseline = True):
 	parser.add_argument("-m", "--month", dest="testing_start_month", default=False, help="month to use for test set")
 
 	#optional args
+	parser.add_argument("-timestamps", dest="output_timestamps", action='store_true', help="output true and simulated comment timestamps for each cascade")
+	parser.set_defaults(output_timestamps=False)
 	if baseline:
 		parser.add_argument("-n_train", dest="training_num", default=10000, help="number of posts to use for training (immediately preceding test month")
 	parser.add_argument("-v", "--verbose", dest="verbose", action="store_true", help="verbose output")
@@ -85,6 +87,7 @@ def parse_command_args(baseline = True):
 	topological_error = args.topological_error
 	min_size = int(args.min_size) if args.min_size is not None else None
 	max_size = int(args.max_size) if args.max_size is not None else None
+	output_timestamps = args.output_timestamps
 
 	#extra flags/variables for different processing modes
 	sample_num = False
@@ -167,13 +170,15 @@ def parse_command_args(baseline = True):
 		vprint("Only simulating cascades with true size greater than or equal to %d" % min_size)
 	elif max_size is not None:
 		vprint("Only simulating cascades with true size less than or equal to %d" % max_size)
+	if output_timestamps:
+		vprint("Outputting comment timestamps")
 	vprint("")
 
 	#return all arguments
 	if baseline:
-		return mode, subreddit, sim_post, observing_time, observed_list, outfile, batch, testing_num, testing_start_month, testing_start_year, training_num, time_error_margin, error_method, min_size, max_size, socsim_data, verbose
+		return mode, subreddit, sim_post, observing_time, observed_list, outfile, batch, testing_num, testing_start_month, testing_start_year, training_num, time_error_margin, error_method, min_size, max_size, socsim_data, verbose, output_timestamps
 	else:
-		return subreddit, sim_post, observing_time, observed_list, outfile, batch, testing_num, testing_start_month, testing_start_year, time_error_margin, error_method, min_size, max_size, socsim_data, verbose
+		return subreddit, sim_post, observing_time, observed_list, outfile, batch, testing_num, testing_start_month, testing_start_year, time_error_margin, error_method, min_size, max_size, socsim_data, verbose, output_timestamps
 #end parse_command_args
 
 

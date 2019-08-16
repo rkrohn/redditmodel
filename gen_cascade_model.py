@@ -16,7 +16,7 @@ from copy import deepcopy
 
 
 #parse all command-line arguments
-subreddit, input_sim_post, observing_time, observed_list, outfile, max_nodes, min_node_quality, binary_quality, estimate_initial_params, normalize_parameters, batch, testing_num, testing_start_month, testing_start_year, training_num, weight_method, remove_stopwords, top_n, weight_threshold, include_default_posts, time_error_margin, error_method, sanity_check, min_size, max_size, get_training_stats, get_testing_stats, get_sub_stats, socsim_data, graph_downsample_ratio, large_cascade_demarcation, verbose, preprocess = functions_gen_cascade_model.parse_command_args()
+subreddit, input_sim_post, observing_time, observed_list, outfile, max_nodes, min_node_quality, binary_quality, estimate_initial_params, normalize_parameters, batch, testing_num, testing_start_month, testing_start_year, training_num, weight_method, remove_stopwords, top_n, weight_threshold, include_default_posts, time_error_margin, error_method, sanity_check, min_size, max_size, get_training_stats, get_testing_stats, get_sub_stats, socsim_data, graph_downsample_ratio, large_cascade_demarcation, verbose, preprocess, output_timestamps = functions_gen_cascade_model.parse_command_args()
 
 #hackery: declare a special print function for verbose output
 if verbose:
@@ -108,6 +108,9 @@ if preprocess:
 all_metrics = []		#keep all metrics, separate for each post/observed time run, dump them all at the end
 filename_id = str(time.time())		#unique temp file identifier for this run - node2vec graph/param files
 
+#for outputting comment timestamps
+timestamps = {} 	#post_id -> time (or true) -> list of timestamps
+
 #how often do we want to dump? every 20 tests or so
 #20 / number of observation settings = number of posts to finish before dumping
 dump_count = 20 // len(observed_list) + (20 % len(observed_list) > 0) 
@@ -154,6 +157,13 @@ for sim_post_id, sim_post in test_posts.items():
 	true_cascade, true_comment_count = functions_gen_cascade_model.shift_comment_tree(test_cascades[sim_post_id])
 	#and compute the structural virality of this cascade
 	true_structural_virality = functions_gen_cascade_model.get_structural_virality(true_cascade)
+
+	if output_timestamps:
+		#get list of true comment timestamps in minutes
+		true_comment_timestamps = sorted(functions_gen_cascade_model.get_list_of_comment_times(true_cascade))
+		#add to output list
+		timestamps[sim_post_id] = {}
+		timestamps[sim_post_id]["true"] = true_comment_timestamps
 
 	#duplicate the true cascade - will use as a working copy for different observed trees
 	observed_tree = deepcopy(true_cascade)
@@ -245,6 +255,13 @@ for sim_post_id, sim_post in test_posts.items():
 		#append eval data to overall list
 		all_metrics.append(eval_res)
 
+		#tracking timestamps? handle that here
+		if output_timestamps:
+			#already have true times - get simulated
+			sim_comment_timestamps = sorted(functions_gen_cascade_model.get_list_of_comment_times(sim_tree))
+			#add to dict
+			timestamps[sim_post_id][observed] = sim_comment_timestamps
+
 	#counter and periodic prints
 	post_count += 1
 	finished_posts.add(sim_post_id)
@@ -274,5 +291,9 @@ functions_gen_cascade_model.save_results(outfile, all_metrics, observing_time)
 
 #all done, update bookmark to "finished"
 functions_gen_cascade_model.save_bookmark(finished_posts, outfile, status=(True if len(finished_posts) == len(test_posts) else False))
+
+#if outputting timestamps, dump to pickle (hackery)
+if output_timestamps:
+	file_utils.save_pickle(timestamps, outfile+"_timestamps.pkl")
 
 vprint("All done, all results saved\n")

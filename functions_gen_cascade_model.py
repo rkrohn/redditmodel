@@ -109,6 +109,8 @@ def parse_command_args():
 	parser.add_argument("-m", "--month", dest="testing_start_month", default=False, help="month to use for test set")
 
 	#optional args
+	parser.add_argument("-timestamps", dest="output_timestamps", action='store_true', help="output true and simulated comment timestamps for each cascade")
+	parser.set_defaults(output_timestamps=False)
 	parser.add_argument("-g", "--graph", dest="max_nodes", default=False, help="max nodes in post graph for parameter infer")
 	parser.add_argument("-q", "--qual", dest="min_node_quality", default=False, help="minimum node quality for post graph")
 	parser.add_argument("-b", "--binary_quality", dest="binary_quality", action='store_true', help="set all training node qualities to 1, so custom learning rate in node2vec is 0")
@@ -208,6 +210,7 @@ def parse_command_args():
 	preprocess = args.preprocess
 	graph_downsample_ratio = float(args.graph_downsample_ratio) if args.graph_downsample_ratio is not None else None
 	large_cascade_demarcation = int(args.large_cascade_demarcation) if args.large_cascade_demarcation is not None else None
+	output_timestamps = args.output_timestamps
 	#convert where required
 	if top_n != False:
 		top_n = int(top_n)
@@ -315,10 +318,12 @@ def parse_command_args():
 		vprint("Simulating from fitted params, skipping graph/infer/refine steps")
 	if graph_downsample_ratio is not None:
 		vprint("Downsampling base graph to %.1f:1 large:small posts, where large posts contain at least %d comments" % (graph_downsample_ratio, large_cascade_demarcation))
+	if output_timestamps:
+		vprint("Outputting comment timestamps")
 	vprint("")
 
 	#return all arguments
-	return subreddit, sim_post, observing_time, observed_list, outfile, max_nodes, min_node_quality, binary_quality, estimate_initial_params, normalize_parameters, batch, testing_num, testing_start_month, testing_start_year, training_num, weight_method, remove_stopwords, top_n, weight_threshold, include_default_posts, time_error_margin, error_method, sanity_check, min_size, max_size, training_stats, testing_stats, sub_stats, socsim_data, graph_downsample_ratio, large_cascade_demarcation, verbose, preprocess
+	return subreddit, sim_post, observing_time, observed_list, outfile, max_nodes, min_node_quality, binary_quality, estimate_initial_params, normalize_parameters, batch, testing_num, testing_start_month, testing_start_year, training_num, weight_method, remove_stopwords, top_n, weight_threshold, include_default_posts, time_error_margin, error_method, sanity_check, min_size, max_size, training_stats, testing_stats, sub_stats, socsim_data, graph_downsample_ratio, large_cascade_demarcation, verbose, preprocess, output_timestamps
 #end parse_command_args
 
 

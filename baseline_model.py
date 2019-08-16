@@ -16,7 +16,7 @@ from copy import deepcopy
 
 
 #parse all command-line arguments
-mode, subreddit, input_sim_post, observing_time, observed_list, outfile, batch, testing_num, testing_start_month, testing_start_year, training_num, time_error_margin, error_method, min_size, max_size, socsim_data, verbose = functions_baseline_model.parse_command_args()
+mode, subreddit, input_sim_post, observing_time, observed_list, outfile, batch, testing_num, testing_start_month, testing_start_year, training_num, time_error_margin, error_method, min_size, max_size, socsim_data, verbose, output_timestamps = functions_baseline_model.parse_command_args()
 
 #hackery: declare a special print function for verbose output
 if verbose:
@@ -69,6 +69,9 @@ train_fit_fail_list = [post_id for post_id in train_fit_fail_list if post_id in 
 
 
 all_metrics = []		#keep all metrics, separate for each post/observed time run, dump them all at the end
+
+#for outputting comment timestamps
+timestamps = {} 	#post_id -> time (or true) -> list of timestamps
 
 #how often do we want to dump? every 100 tests or so
 #100 / number of observation settings = number of posts to finish before dumping
@@ -144,6 +147,13 @@ for sim_post_id, sim_post in test_posts.items():
 	#and compute the structural virality of this cascade
 	true_structural_virality = functions_gen_cascade_model.get_structural_virality(true_cascade)
 
+	if output_timestamps:
+		#get list of true comment timestamps in minutes
+		true_comment_timestamps = sorted(functions_gen_cascade_model.get_list_of_comment_times(true_cascade))
+		#add to output list
+		timestamps[sim_post_id] = {}
+		timestamps[sim_post_id]["true"] = true_comment_timestamps
+
 	#duplicate the true cascade - will use as a working copy for different observed trees
 	observed_tree = deepcopy(true_cascade)
 
@@ -211,6 +221,16 @@ for sim_post_id, sim_post in test_posts.items():
 		#append eval data to overall list
 		all_metrics.append(eval_res)
 
+		#tracking timestamps? handle that here
+		if output_timestamps:
+			#already have true times - get simulated
+			sim_comment_timestamps = sorted(functions_gen_cascade_model.get_list_of_comment_times(sim_tree))
+			#add to dict
+			if mode == "rand_tree":
+				timestamps[sim_post_id]["all"] = sim_comment_timestamps
+			else:
+				timestamps[sim_post_id][observed] = sim_comment_timestamps
+
 		#if running in random tree mode, skip all other observed settings
 		if mode == "rand_tree":
 			break
@@ -243,5 +263,9 @@ functions_gen_cascade_model.save_results(outfile, all_metrics, observing_time)
 
 #all done, update bookmark to "finished"
 functions_gen_cascade_model.save_bookmark(finished_posts, outfile, status=(True if len(finished_posts) == len(test_posts) else False))
+
+#if outputting timestamps, dump to pickle (hackery)
+if output_timestamps:
+	file_utils.save_pickle(timestamps, outfile+"_timestamps.pkl")
 
 vprint("All done, all results saved\n")
