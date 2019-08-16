@@ -1,0 +1,174 @@
+time python3 gen_cascade_model.py -s worldnews -o sim_results/worldnews/run_results/worldnews_model_10000train_1000test_2017-12_10comm_run1 -n 1000 -n_train 10000 -topn 20 -y 2017 -m 12 -min 10 -j --topo_err -v -d -timestamps -t 0 0.5 1 1.5 2 3 4 5 6 7 8 9 10 12 14 16 18 20 22 24
+
+Namespace(binary_quality=False, estimate_initial_params=False, graph_downsample_ratio=None, include_default_posts=True, large_cascade_demarcation=None, max_nodes=False, max_size=None, min_node_quality=False, min_size='10', normalize_parameters=None, num_comments_observed=False, outfile='sim_results/worldnews/run_results/worldnews_model_10000train_1000test_2017-12_10comm_run1', output_timestamps=True, preprocess=False, remove_stopwords=False, sanity_check=False, sim_post='1000', sub_stats=False, subreddit='worldnews', testing_start_month='12', testing_start_year='2017', testing_stats=False, time_error_absolute=False, time_error_margin=False, time_observed=['0', '0.5', '1', '1.5', '2', '3', '4', '5', '6', '7', '8', '9', '10', '12', '14', '16', '18', '20', '22', '24'], top_n='20', topological_error=True, training_num='10000', training_stats=False, verbose=True, weight_method='jaccard', weight_threshold=False)
+
+Sim Post: subset
+Time Observed: [0.0, 0.5, 1.0, 1.5, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 12.0, 14.0, 16.0, 18.0, 20.0, 22.0, 24.0]
+Output: sim_results/worldnews/run_results/worldnews_model_10000train_1000test_2017-12_10comm_run1
+Source subreddit: worldnews
+Minimum node quality: False
+Using saved (arbitrary) training node qualities
+Max graph size: False
+Max edges per node: 20
+Minimum edge weight: None
+No param normalization for infer step
+Test Set: first 1000 posts starting at 12-2017
+Training Set: 10000 posts immediately preceding 12-2017
+Using Jaccard index to compute graph edge weights
+Including posts with hardcoded default parameters
+Using topological error for tree evaluation (ignoring comment times)
+Only simulating cascades with true size greater than or equal to 10
+Outputting comment timestamps
+
+Loading processed training data
+Loading 11-2017
+Deleted 14 posts without cascades
+Loaded 23207 posts 
+   23207 cascades
+   5324 fitted params, 17883 failed fit
+
+Loading processed testing data
+Loading 12-2017
+Deleted 8 posts without cascades
+Loaded 22928 posts 
+   22928 cascades
+
+Sampling 1000 first posts (from 22928) for simulation set
+Filtered to 125 posts with >= 10 comments
+Sampling 10000 last posts (from 23207) for simulation set
+Loading base graph from file
+Graph contains 9945 nodes and 143137 unique edges (196201 edge entries)
+
+Skipping 0 already simulated posts
+Processing 125 posts
+   saving results so far (1 posts)
+   saving results so far (2 posts)
+   saving results so far (3 posts)
+   saving results so far (4 posts)
+   saving results so far (5 posts)
+   saving results so far (6 posts)
+   saving results so far (7 posts)
+   saving results so far (8 posts)
+   saving results so far (9 posts)
+   saving results so far (10 posts)
+   saving results so far (11 posts)
+   saving results so far (12 posts)
+   saving results so far (13 posts)
+   saving results so far (14 posts)
+   saving results so far (15 posts)
+   saving results so far (16 posts)
+   saving results so far (17 posts)
+   saving results so far (18 posts)
+   saving results so far (19 posts)
+   saving results so far (20 posts)
+   saving results so far (21 posts)
+   saving results so far (22 posts)
+   saving results so far (23 posts)
+   saving results so far (24 posts)
+   saving results so far (25 posts)
+   saving results so far (26 posts)
+   saving results so far (27 posts)
+   saving results so far (28 posts)
+   saving results so far (29 posts)
+   saving results so far (30 posts)
+   saving results so far (31 posts)
+   saving results so far (32 posts)
+   saving results so far (33 posts)
+   saving results so far (34 posts)
+   saving results so far (35 posts)
+   saving results so far (36 posts)
+   saving results so far (37 posts)
+   saving results so far (38 posts)
+   saving results so far (39 posts)
+   saving results so far (40 posts)
+   saving results so far (41 posts)
+   saving results so far (42 posts)
+   saving results so far (43 posts)
+   saving results so far (44 posts)
+   saving results so far (45 posts)
+   saving results so far (46 posts)
+   saving results so far (47 posts)
+   saving results so far (48 posts)
+   saving results so far (49 posts)
+   saving results so far (50 posts)
+   saving results so far (51 posts)
+   saving results so far (52 posts)
+   saving results so far (53 posts)
+   saving results so far (54 posts)
+   saving results so far (55 posts)
+   saving results so far (56 posts)
+   saving results so far (57 posts)
+   saving results so far (58 posts)
+   saving results so far (59 posts)
+   saving results so far (60 posts)
+   saving results so far (61 posts)
+   saving results so far (62 posts)
+   saving results so far (63 posts)
+   saving results so far (64 posts)
+   saving results so far (65 posts)
+   saving results so far (66 posts)
+   saving results so far (67 posts)
+   saving results so far (68 posts)
+   saving results so far (69 posts)
+   saving results so far (70 posts)
+   saving results so far (71 posts)
+   saving results so far (72 posts)
+   saving results so far (73 posts)
+   saving results so far (74 posts)
+   saving results so far (75 posts)
+   saving results so far (76 posts)
+   saving results so far (77 posts)
+   saving results so far (78 posts)
+   saving results so far (79 posts)
+   saving results so far (80 posts)
+   saving results so far (81 posts)
+   saving results so far (82 posts)
+   saving results so far (83 posts)
+   saving results so far (84 posts)
+   saving results so far (85 posts)
+   saving results so far (86 posts)
+   saving results so far (87 posts)
+   saving results so far (88 posts)
+   saving results so far (89 posts)
+   saving results so far (90 posts)
+   saving results so far (91 posts)
+   saving results so far (92 posts)
+   saving results so far (93 posts)
+   saving results so far (94 posts)
+   saving results so far (95 posts)
+   saving results so far (96 posts)
+   saving results so far (97 posts)
+   saving results so far (98 posts)
+   saving results so far (99 posts)
+   finished 100 posts (0 disconnected)
+   saving results so far (100 posts)
+   saving results so far (101 posts)
+   saving results so far (102 posts)
+   saving results so far (103 posts)
+   saving results so far (104 posts)
+   saving results so far (105 posts)
+   saving results so far (106 posts)
+   saving results so far (107 posts)
+   saving results so far (108 posts)
+   saving results so far (109 posts)
+   saving results so far (110 posts)
+   saving results so far (111 posts)
+   saving results so far (112 posts)
+   saving results so far (113 posts)
+   saving results so far (114 posts)
+   saving results so far (115 posts)
+   saving results so far (116 posts)
+   saving results so far (117 posts)
+   saving results so far (118 posts)
+   saving results so far (119 posts)
+   saving results so far (120 posts)
+   saving results so far (121 posts)
+   saving results so far (122 posts)
+   saving results so far (123 posts)
+   saving results so far (124 posts)
+   saving results so far (125 posts)
+Finished simulating 125 posts (0 disconnected)
+All done, all results saved
+
+8588.78user 17.33system 2:22:54elapsed 100%CPU (0avgtext+0avgdata 852292maxresident)k
+0inputs+917512outputs (0major+2847416minor)pagefaults 0swaps

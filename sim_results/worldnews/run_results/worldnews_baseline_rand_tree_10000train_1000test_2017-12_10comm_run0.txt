@@ -1,0 +1,66 @@
+time python3 baseline_model.py -s worldnews -o sim_results/worldnews/run_results/worldnews_baseline_rand_tree_10000train_1000test_2017-12_10comm_run0 -rand_tree -v -n 1000 -n_train 10000 -m 12 -y 2017 -min 10 -timestamps -t 0 0.5 1 1.5 2 3 4 5 6 7 8 9 10 12 14 16 18 20 22 24
+
+Namespace(max_size=None, min_size='10', mode='rand_tree', num_comments_observed=False, outfile='sim_results/worldnews/run_results/worldnews_baseline_rand_tree_10000train_1000test_2017-12_10comm_run0', output_timestamps=True, sim_post='1000', subreddit='worldnews', testing_start_month='12', testing_start_year='2017', time_error_absolute=False, time_error_margin=False, time_observed=['0', '0.5', '1', '1.5', '2', '3', '4', '5', '6', '7', '8', '9', '10', '12', '14', '16', '18', '20', '22', '24'], topological_error=False, training_num='10000', verbose=True)
+
+Sim Post: subset
+Baseline model mode: rand_tree
+Time Observed: [0.0, 0.5, 1.0, 1.5, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 12.0, 14.0, 16.0, 18.0, 20.0, 22.0, 24.0]
+Output: sim_results/worldnews/run_results/worldnews_baseline_rand_tree_10000train_1000test_2017-12_10comm_run0
+Source subreddit: worldnews
+Test Set: first 1000 posts starting at 12-2017
+Training Set: 10000 posts immediately preceding 12-2017
+Using error margin increasing by level
+   Allowable eval time error: 30.0
+Only simulating cascades with true size greater than or equal to 10
+Outputting comment timestamps
+
+Loading processed training data
+Loading 11-2017
+Deleted 14 posts without cascades
+Loaded 23207 posts 
+   23207 cascades
+   5324 fitted params, 17883 failed fit
+
+Loading processed testing data
+Loading 12-2017
+Deleted 8 posts without cascades
+Loaded 22928 posts 
+   22928 cascades
+
+Sampling 1000 first posts (from 22928) for simulation set
+Filtered to 125 posts with >= 10 comments
+Sampling 10000 last posts (from 23207) for simulation set
+
+Skipping 0 already simulated posts
+Processing 125 posts
+   saving results so far (5 posts)
+   saving results so far (10 posts)
+   saving results so far (15 posts)
+   saving results so far (20 posts)
+   saving results so far (25 posts)
+   saving results so far (30 posts)
+   saving results so far (35 posts)
+   saving results so far (40 posts)
+   saving results so far (45 posts)
+   saving results so far (50 posts)
+   saving results so far (55 posts)
+   saving results so far (60 posts)
+   saving results so far (65 posts)
+   saving results so far (70 posts)
+   saving results so far (75 posts)
+   saving results so far (80 posts)
+   saving results so far (85 posts)
+   saving results so far (90 posts)
+   saving results so far (95 posts)
+   finished 100 posts
+   saving results so far (100 posts)
+   saving results so far (105 posts)
+   saving results so far (110 posts)
+   saving results so far (115 posts)
+   saving results so far (120 posts)
+   saving results so far (125 posts)
+Finished simulating 125 posts
+All done, all results saved
+
+428.11user 4.50system 7:13.70elapsed 99%CPU (0avgtext+0avgdata 852064maxresident)k
+0inputs+824outputs (0major+227741minor)pagefaults 0swaps
